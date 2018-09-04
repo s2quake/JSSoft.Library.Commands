@@ -21,6 +21,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace Ntreev.Library.Commands
 {
@@ -70,6 +71,57 @@ namespace Ntreev.Library.Commands
         void IExecutable.Execute()
         {
             this.OnExecute();
+        }
+
+        #endregion
+    }
+
+    public abstract class CommandAsyncBase : ICommand, IExecutableAsync
+    {
+        private readonly string name;
+
+        protected CommandAsyncBase()
+        {
+            this.name = CommandStringUtility.ToSpinalCase(this.GetType());
+        }
+
+        protected CommandAsyncBase(string name)
+        {
+            this.name = name;
+        }
+
+        public virtual string[] GetCompletions(CommandCompletionContext completionContext)
+        {
+            return null;
+        }
+
+        public string Name
+        {
+            get { return this.name; }
+        }
+
+        public virtual bool IsEnabled
+        {
+            get { return true; }
+        }
+
+        protected abstract Task OnExecuteAsync();
+
+        protected CommandMemberDescriptor GetDescriptor(string propertyName)
+        {
+            return CommandDescriptor.GetMemberDescriptors(this)[propertyName];
+        }
+
+        protected CommandMemberDescriptor GetStaticDescriptor(Type type, string propertyName)
+        {
+            return CommandDescriptor.GetStaticMemberDescriptors(type)[propertyName];
+        }
+
+        #region ICommand
+
+        Task IExecutableAsync.ExecuteAsync()
+        {
+            return this.OnExecuteAsync();
         }
 
         #endregion
