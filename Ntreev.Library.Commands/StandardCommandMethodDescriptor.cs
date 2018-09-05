@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Ntreev.Library.Commands
 {
@@ -33,14 +34,19 @@ namespace Ntreev.Library.Commands
         private readonly string displayName;
         private readonly string summary;
         private readonly string description;
+        private bool isAsync;
 
         public StandardCommandMethodDescriptor(MethodInfo methodInfo)
             : base(methodInfo)
         {
             var provider = CommandDescriptor.GetUsageDescriptionProvider(methodInfo.DeclaringType);
+            var methodName = methodInfo.Name;
             this.methodInfo = methodInfo;
+            this.isAsync = methodInfo.ReturnType.IsAssignableFrom(typeof(Task));
+            if (this.isAsync == true && methodName.EndsWith("Async") == true)
+                methodName = methodName.Substring(0, methodName.Length - "Async".Length);
             this.attribute = methodInfo.GetCommandMethodAttribute();
-            this.name = attribute.Name != string.Empty ? attribute.Name : CommandSettings.NameGenerator(methodInfo.Name);
+            this.name = attribute.Name != string.Empty ? attribute.Name : CommandSettings.NameGenerator(methodName);
             this.displayName = methodInfo.GetDisplayName();
 
             var memberList = new List<CommandMemberDescriptor>();
@@ -128,9 +134,21 @@ namespace Ntreev.Library.Commands
         protected override void OnInvoke(object instance, object[] parameters)
         {
             if (this.methodInfo.DeclaringType.IsAbstract && this.methodInfo.DeclaringType.IsSealed == true)
-                this.methodInfo.Invoke(null, parameters);
+            {
+                var result = this.methodInfo.Invoke(null, parameters);
+                if (result is Task task)
+                {
+                    task.Wait();
+                }
+            }
             else
-                this.methodInfo.Invoke(instance, parameters);
+            {
+                var result = this.methodInfo.Invoke(instance, parameters);
+                if (result is Task task)
+                {
+                    task.Wait();
+                }
+            }
         }
     }
 }

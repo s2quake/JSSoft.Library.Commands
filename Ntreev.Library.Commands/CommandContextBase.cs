@@ -315,6 +315,14 @@ namespace Ntreev.Library.Commands
 
                 (command as IExecutable).Execute();
             }
+            else if (command is IExecutableAsync == true)
+            {
+                if (parser.Parse(command.Name + " " + arguments) == false)
+                {
+                    return false;
+                }
+                (command as IExecutableAsync).ExecuteAsync().Wait();
+            }
             else
             {
                 if (parser.Invoke(parser.Name + " " + arguments) == false)
