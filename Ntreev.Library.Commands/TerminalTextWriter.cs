@@ -92,11 +92,6 @@ namespace Ntreev.Library.Commands
                 this.offsetY = -1;
                 this.writer.WriteLine();
             }
-            //else
-            //{
-            //    var y = 0;
-            //    Terminal.NextPosition(text, ref this.x, ref y);
-            //}
 
             this.terminal.Top = Console.CursorTop;
             this.terminal.Draw();

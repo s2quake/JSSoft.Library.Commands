@@ -608,15 +608,18 @@ namespace Ntreev.Library.Commands
 
         private void ClearText()
         {
-            var x = 0;
-            var y = this.Top;
-            this.Erase();
-            this.fullText = this.fullText.Substring(0, this.start);
-            this.start = this.fullText.Length;
-            this.fullIndex = this.start;
-            this.inputText = string.Empty;
-            Console.SetCursorPosition(x, y);
-            this.Draw();
+            lock (lockobj)
+            {
+                var x = 0;
+                var y = this.Top;
+                this.Erase();
+                this.fullText = this.fullText.Substring(0, this.start);
+                this.start = this.fullText.Length;
+                this.fullIndex = this.start;
+                this.inputText = string.Empty;
+                Console.SetCursorPosition(x, y);
+                this.Draw();
+            }
         }
 
         private void InsertText(string text)
