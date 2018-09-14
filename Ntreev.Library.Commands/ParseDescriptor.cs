@@ -83,7 +83,7 @@ namespace Ntreev.Library.Commands
                 {
                     var descriptor = descriptors[arg];
                     var nextArg = arguments.FirstOrDefault();
-                    var isValue = CommandStringUtility.IsSwitch(nextArg) == false;
+                    var isValue = CommandStringUtility.IsSwitch(nextArg) == false && nextArg != "--";
 
                     if (nextArg != null && isValue == true && descriptor.MemberType != typeof(bool))
                     {
