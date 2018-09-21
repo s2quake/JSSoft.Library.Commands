@@ -775,6 +775,8 @@ namespace Ntreev.Library.Commands
             while (true)
             {
                 Thread.Sleep(1);
+                if (this.isCancellationRequested == true)
+                    return null;
                 if (this.isEnabled == false)
                     continue;
                 var keys = this.ReadKeys().ToArray();
