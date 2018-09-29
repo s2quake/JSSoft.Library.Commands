@@ -97,7 +97,7 @@ namespace Ntreev.Library.Commands
 
         protected virtual void PrintUsage(ICommand command, CommandLineParser parser)
         {
-            if (command is IExecutable == false)
+            if (command is IExecutable == false && command is IExecutableAsync == false)
             {
                 if (this.MethodName != string.Empty)
                     parser.PrintMethodUsage(this.MethodName);
