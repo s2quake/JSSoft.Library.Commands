@@ -95,28 +95,18 @@ namespace Ntreev.Library.Commands
                 }
                 catch (TargetInvocationException e)
                 {
-                    if (this.DetailErrorMessage == true)
+                    this.WriteException(e.InnerException != null ? e.InnerException : e);
+                }
+                catch (AggregateException e)
+                {
+                    foreach (var item in e.InnerExceptions)
                     {
-                        this.commandContext.Error.WriteLine(e);
-                    }
-                    else
-                    {
-                        if (e.InnerException != null)
-                            this.commandContext.Error.WriteLine(e.InnerException.Message);
-                        else
-                            this.commandContext.Error.WriteLine(e.Message);
+                        this.WriteException(item);
                     }
                 }
                 catch (Exception e)
                 {
-                    if (this.DetailErrorMessage == true)
-                    {
-                        this.commandContext.Error.WriteLine(e);
-                    }
-                    else
-                    {
-                        this.commandContext.Error.WriteLine(e.Message);
-                    }
+                    this.WriteException(e);
                 }
                 if (this.IsCancellationRequested == true)
                     break;
@@ -333,6 +323,18 @@ namespace Ntreev.Library.Commands
                 }
             }
             return patternList.Where(item => item.StartsWith(find)).ToArray();
+        }
+
+        private void WriteException(Exception e)
+        {
+            if (this.DetailErrorMessage == true)
+            {
+                this.commandContext.Error.WriteLine(e);
+            }
+            else
+            {
+                this.commandContext.Error.WriteLine(e.Message);
+            }
         }
     }
 }
