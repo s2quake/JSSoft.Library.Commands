@@ -1008,7 +1008,8 @@ namespace Ntreev.Library.Commands
                 }
                 this.y--;
             }
-            this.FullIndex = index;
+            if (index < this.FullIndex)
+                this.FullIndex = index;
         }
 
         internal static object LockedObject
