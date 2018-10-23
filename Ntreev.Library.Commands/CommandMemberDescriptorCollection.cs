@@ -92,7 +92,7 @@ namespace Ntreev.Library.Commands
 
         internal void AddRange(IEnumerable<CommandMemberDescriptor> descriptors)
         {
-            foreach(var item in descriptors)
+            foreach (var item in descriptors)
             {
                 this.Add(item);
             }
