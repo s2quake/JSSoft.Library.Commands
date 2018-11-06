@@ -977,11 +977,11 @@ namespace Ntreev.Library.Commands
                 if (Environment.OSVersion.Platform != PlatformID.Unix)
                 {
                     Console.MoveBufferArea(Console.BufferWidth - 1, i, 1, 1, 0, i);
-                    this.writer.Write($"\r{new string('\0', Console.BufferWidth - 1)}\r");
+                    this.writer?.Write($"\r{new string('\0', Console.BufferWidth - 1)}\r");
                 }
                 else
                 {
-                    this.writer.Write("\r" + new string(' ', Console.BufferWidth) + "\r");
+                    this.writer?.Write("\r" + new string(' ', Console.BufferWidth) + "\r");
                 }
             }
             Console.SetCursorPosition(x1, y1);
