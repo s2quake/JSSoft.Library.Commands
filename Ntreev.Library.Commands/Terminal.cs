@@ -565,6 +565,7 @@ namespace Ntreev.Library.Commands
                     this.start = this.Index;
                     this.InsertText(text);
                     this.Index = index;
+                    this.Draw();
                 }
             }
         }
