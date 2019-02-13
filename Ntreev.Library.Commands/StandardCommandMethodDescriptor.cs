@@ -34,7 +34,7 @@ namespace Ntreev.Library.Commands
         private readonly string displayName;
         private readonly string summary;
         private readonly string description;
-        private bool isAsync;
+        private readonly bool isAsync;
 
         public StandardCommandMethodDescriptor(MethodInfo methodInfo)
             : base(methodInfo)

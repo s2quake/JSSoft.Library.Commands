@@ -29,7 +29,6 @@ namespace Ntreev.Library.Commands
     public class Terminal
     {
         private static ConsoleKeyInfo cancelKeyInfo = new ConsoleKeyInfo('\u0003', ConsoleKey.C, false, false, true);
-        private static object lockobj = new object();
         private static readonly Dictionary<char, int> charToWidth = new Dictionary<char, int>(char.MaxValue);
         private static int bufferWidth = 80;
 
@@ -49,7 +48,6 @@ namespace Ntreev.Library.Commands
         private bool isHidden;
         private bool treatControlCAsInput;
         private bool isCancellationRequested;
-        private bool isEnabled = true;
 
         static Terminal()
         {
@@ -114,7 +112,6 @@ namespace Ntreev.Library.Commands
             else
             {
                 this.actionMaps.Add(new ConsoleKeyInfo('\b', ConsoleKey.Backspace, false, false, false), this.Backspace);
-                //this.actionMaps.Add(new ConsoleKeyInfo('\u0016', ConsoleKey.V, false, false, true), this.Paste);
             }
             this.actionMaps.Add(new ConsoleKeyInfo('\0', ConsoleKey.Delete, false, false, false), this.Delete);
             this.actionMaps.Add(new ConsoleKeyInfo('\0', ConsoleKey.Home, false, false, false), this.Home);
@@ -131,8 +128,7 @@ namespace Ntreev.Library.Commands
 
         public long? ReadLong(string prompt)
         {
-            long v;
-            var result = this.ReadNumber(prompt, null, i => long.TryParse(i, out v));
+            var result = this.ReadNumber(prompt, null, i => long.TryParse(i, out long v));
             if (result is long)
             {
                 return (long)result;
@@ -142,8 +138,7 @@ namespace Ntreev.Library.Commands
 
         public long? ReadLong(string prompt, long defaultValue)
         {
-            long v;
-            var result = this.ReadNumber(prompt, defaultValue, i => long.TryParse(i, out v));
+            var result = this.ReadNumber(prompt, defaultValue, i => long.TryParse(i, out long v));
             if (result is long)
             {
                 return (long)result;
@@ -153,8 +148,7 @@ namespace Ntreev.Library.Commands
 
         public double? ReadDouble(string prompt)
         {
-            double v;
-            var result = this.ReadNumber(prompt, null, i => double.TryParse(i, out v));
+            var result = this.ReadNumber(prompt, null, i => double.TryParse(i, out double v));
             if (result is double)
             {
                 return (double)result;
@@ -164,8 +158,7 @@ namespace Ntreev.Library.Commands
 
         public double? ReadDouble(string prompt, double defaultValue)
         {
-            double v;
-            var result = this.ReadNumber(prompt, defaultValue, i => double.TryParse(i, out v));
+            var result = this.ReadNumber(prompt, defaultValue, i => double.TryParse(i, out double v));
             if (result is double)
             {
                 return (double)result;
@@ -275,7 +268,7 @@ namespace Ntreev.Library.Commands
 
         public void Clear()
         {
-            lock (lockobj)
+            lock (LockedObject)
             {
                 using (TerminalCursorVisible.Set(false))
                 {
@@ -287,7 +280,7 @@ namespace Ntreev.Library.Commands
 
         public void Delete()
         {
-            lock (lockobj)
+            lock (LockedObject)
             {
                 if (this.Index < this.Length)
                 {
@@ -303,7 +296,7 @@ namespace Ntreev.Library.Commands
 
         public void Home()
         {
-            lock (lockobj)
+            lock (LockedObject)
             {
                 using (TerminalCursorVisible.Set(false))
                 {
@@ -314,7 +307,7 @@ namespace Ntreev.Library.Commands
 
         public void End()
         {
-            lock (lockobj)
+            lock (LockedObject)
             {
                 using (TerminalCursorVisible.Set(false))
                 {
@@ -325,7 +318,7 @@ namespace Ntreev.Library.Commands
 
         public void Left()
         {
-            lock (lockobj)
+            lock (LockedObject)
             {
                 if (this.Index > 0)
                 {
@@ -340,7 +333,7 @@ namespace Ntreev.Library.Commands
 
         public void Right()
         {
-            lock (lockobj)
+            lock (LockedObject)
             {
                 if (this.Index + 1 <= this.Length)
                 {
@@ -355,7 +348,7 @@ namespace Ntreev.Library.Commands
 
         public void Backspace()
         {
-            lock (lockobj)
+            lock (LockedObject)
             {
                 if (this.Index > 0)
                 {
@@ -370,7 +363,7 @@ namespace Ntreev.Library.Commands
 
         public void DeleteToEnd()
         {
-            lock (lockobj)
+            lock (LockedObject)
             {
                 using (TerminalCursorVisible.Set(false))
                 {
@@ -387,7 +380,7 @@ namespace Ntreev.Library.Commands
 
         public void DeleteToHome()
         {
-            lock (lockobj)
+            lock (LockedObject)
             {
                 using (TerminalCursorVisible.Set(false))
                 {
@@ -402,7 +395,7 @@ namespace Ntreev.Library.Commands
 
         public void NextCompletion()
         {
-            lock (lockobj)
+            lock (LockedObject)
             {
                 this.CompletionImpl(NextCompletion);
             }
@@ -410,7 +403,7 @@ namespace Ntreev.Library.Commands
 
         public void PrevCompletion()
         {
-            lock (lockobj)
+            lock (LockedObject)
             {
                 this.CompletionImpl(PrevCompletion);
             }
@@ -457,14 +450,7 @@ namespace Ntreev.Library.Commands
             }
         }
 
-        public bool IsEnabled
-        {
-            get { return this.isEnabled; }
-            set
-            {
-                this.isEnabled = value;
-            }
-        }
+        public bool IsEnabled { get; set; } = true;
 
         public static int BufferWidth
         {
@@ -553,7 +539,7 @@ namespace Ntreev.Library.Commands
             if (this.writer == null)
                 throw new Exception("prompt can set only on read mode.");
 
-            lock (lockobj)
+            lock (LockedObject)
             {
                 using (TerminalCursorVisible.Set(false))
                 {
@@ -609,7 +595,7 @@ namespace Ntreev.Library.Commands
 
         private void ClearText()
         {
-            lock (lockobj)
+            lock (LockedObject)
             {
                 var x = 0;
                 var y = this.Top;
@@ -627,7 +613,7 @@ namespace Ntreev.Library.Commands
         {
             if (text == string.Empty)
                 return;
-            lock (lockobj)
+            lock (LockedObject)
             {
                 this.fullText = this.fullText.Insert(this.fullIndex, text);
                 this.fullIndex += text.Length;
@@ -778,7 +764,7 @@ namespace Ntreev.Library.Commands
                 Thread.Sleep(1);
                 if (this.isCancellationRequested == true)
                     return null;
-                if (this.isEnabled == false)
+                if (this.IsEnabled == false)
                     continue;
                 var keys = this.ReadKeys().ToArray();
                 if (this.isCancellationRequested == true)
@@ -882,7 +868,7 @@ namespace Ntreev.Library.Commands
 
         private void Initialize(string prompt, string defaultText, bool isHidden)
         {
-            lock (lockobj)
+            lock (LockedObject)
             {
                 this.writer = Console.Out;
                 Console.SetOut(new TerminalTextWriter(Console.Out, this, Console.OutputEncoding));
@@ -906,7 +892,7 @@ namespace Ntreev.Library.Commands
 
         private void Release()
         {
-            lock (lockobj)
+            lock (LockedObject)
             {
                 Console.TreatControlCAsInput = this.treatControlCAsInput;
                 Console.SetOut(this.writer);
@@ -1013,10 +999,7 @@ namespace Ntreev.Library.Commands
                 this.FullIndex = index;
         }
 
-        internal static object LockedObject
-        {
-            get { return lockobj; }
-        }
+        internal static object LockedObject { get; } = new object();
 
         internal int FullIndex
         {
