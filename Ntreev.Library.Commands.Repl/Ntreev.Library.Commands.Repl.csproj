@@ -1,7 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net45;netstandard2.0</TargetFrameworks>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net45;netcoreapp2.2;netstandard2.0</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>4.0.19187.1349</Version>
     <AssemblyVersion>4.0</AssemblyVersion>
@@ -27,12 +28,18 @@
     <Reference Include="System.Core" />
     <Reference Include="System.ComponentModel" />
     <Reference Include="System.ComponentModel.Composition" />
-    <ProjectReference Include="..\Ntreev.Library.Commands\Ntreev.Library.Commands.csproj" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
-    <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
-    <PackageReference Include="System.ComponentModel" Version="4.5.0" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.3.0" />
+    <PackageReference Include="System.ComponentModel" Version="4.3.0" />
     <PackageReference Include="System.ComponentModel.Composition" Version="4.5.0" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp2.2'">
+    <PackageReference Include="Microsoft.CSharp" Version="4.3.0" />
+    <PackageReference Include="System.ComponentModel" Version="4.3.0" />
+    <PackageReference Include="System.ComponentModel.Composition" Version="4.5.0" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Ntreev.Library.Commands\Ntreev.Library.Commands.csproj" />
   </ItemGroup>
   <ItemGroup>
@@ -50,9 +57,5 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="System.ComponentModel" Version="4.3.0" />
-    <PackageReference Include="System.ComponentModel.Composition" Version="4.5.0" />
   </ItemGroup>
 </Project>
