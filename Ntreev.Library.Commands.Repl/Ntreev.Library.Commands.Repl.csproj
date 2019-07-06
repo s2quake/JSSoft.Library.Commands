@@ -1,118 +1,58 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B28150A9-B0E4-4B84-A6BB-120117C06FA9}</ProjectGuid>
-    <OutputType>Exe</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Ntreev.Library.Commands.Repl</RootNamespace>
-    <AssemblyName>ncmd</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
-    <FileAlignment>512</FileAlignment>
+    <TargetFrameworks>net45;netstandard2.0</TargetFrameworks>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>4.0.19187.1349</Version>
+    <AssemblyVersion>4.0</AssemblyVersion>
+    <FileVersion>4.0.19187.1349</FileVersion>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/NtreevSoft/CommandLineParser</PackageProjectUrl>
+    <LicenseUrl>https://github.com/NtreevSoft/CommandLineParser/blob/master/LICENSE.md</LicenseUrl>
+    <Copyright>Copyright © Ntreev Soft 2018</Copyright>
+    <Description>comman line parser</Description>
+    <Company>NtreevSoft</Company>
+    <Authors>s2quake</Authors>
+    <RepositoryUrl>https://github.com/NtreevSoft/CommandLineParser</RepositoryUrl>
+    <PackageTags>REPL Command Parser Terminal Console</PackageTags>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>2.0</OldToolsVersion>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <Prefer32Bit>false</Prefer32Bit>
-    <WarningLevel>4</WarningLevel>
-    <Optimize>false</Optimize>
-    <ConsolePause>false</ConsolePause>
-    <Externalconsole>true</Externalconsole>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)'=='net45'">
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
-    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+    <Reference Include="System.ComponentModel" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <ProjectReference Include="..\Ntreev.Library.Commands\Ntreev.Library.Commands.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
+    <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
+    <PackageReference Include="System.ComponentModel" Version="4.5.0" />
+    <PackageReference Include="System.ComponentModel.Composition" Version="4.5.0" />
+    <ProjectReference Include="..\Ntreev.Library.Commands\Ntreev.Library.Commands.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Commands\ChangeDirectoryCommand.cs" />
-    <Compile Include="Commands\CopyCommand.cs" />
-    <Compile Include="Commands\ExitCommand.cs" />
-    <Compile Include="Commands\GlobalSettings.cs" />
-    <Compile Include="Commands\ListDirectoryCommand.cs" />
-    <Compile Include="Commands\StashCommandExtension.cs" />
-    <Compile Include="Container.cs" />
-    <Compile Include="ShellCommandContext.cs" />
-    <Compile Include="ShellCommandLineParser.cs" />
-    <Compile Include="ShellSummaryAttribute.cs" />
-    <Compile Include="ShellDescriptionAttribute.cs" />
-    <Compile Include="IShell.cs" />
-    <Compile Include="Program.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Commands\AddCommand.cs" />
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
+    <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Commands\StashCommand.cs" />
-    <Compile Include="Shell.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Commands\AddCommand.en.resx">
-      <DependentUpon>AddCommand.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Commands\AddCommand.resx">
-      <DependentUpon>AddCommand.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Commands\ChangeDirectoryCommand.resx">
-      <DependentUpon>ChangeDirectoryCommand.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Commands\ExitCommand.resx">
-      <DependentUpon>ExitCommand.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Commands\ListDirectoryCommand.resx">
-      <DependentUpon>ListDirectoryCommand.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Commands\StashCommand.resx">
-      <DependentUpon>StashCommand.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Properties\Resources.resx">
+    <EmbeddedResource Update="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Ntreev.Library.Commands.Net45\Ntreev.Library.Commands.csproj">
-      <Project>{0d96cc61-6d74-49b4-a558-33ac0dcf8529}</Project>
-      <Name>Ntreev.Library.Commands</Name>
-    </ProjectReference>
+    <Folder Include="Properties\" />
   </ItemGroup>
-  <Import Project="..\Ntreev.Library.Commands.AssemblyInfo\Ntreev.Library.Commands.AssemblyInfo.projitems" Label="Shared" />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
-  </PropertyGroup>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+  <ItemGroup>
+    <PackageReference Include="System.ComponentModel" Version="4.3.0" />
+    <PackageReference Include="System.ComponentModel.Composition" Version="4.5.0" />
+  </ItemGroup>
 </Project>
