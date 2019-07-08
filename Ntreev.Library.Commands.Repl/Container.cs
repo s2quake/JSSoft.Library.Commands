@@ -32,10 +32,14 @@ namespace Ntreev.Library.Commands.Repl
 
         static Container()
         {
-            var path = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            var entryPath = Assembly.GetEntryAssembly().Location;
+            var path = Path.GetDirectoryName(entryPath);
             var catalog = new AggregateCatalog();
             catalog.Catalogs.Add(new DirectoryCatalog(path));
-            catalog.Catalogs.Add(new AssemblyCatalog(typeof(Container).Assembly));
+            if (Path.GetExtension(entryPath) == ".exe")
+            {
+                catalog.Catalogs.Add(new AssemblyCatalog(typeof(Container).Assembly));
+            }
             container = new CompositionContainer(catalog);
         }
 
