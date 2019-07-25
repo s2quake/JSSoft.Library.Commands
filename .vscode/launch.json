@@ -10,7 +10,7 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/Ntreev.Library.Commands.Repl/bin/Debug/netcoreapp2.2/Ntreev.Library.Commands.Repl.dll",
+            "program": "${workspaceFolder}/Ntreev.Library.Commands.Repl/bin/Debug/netcoreapp3.0/Ntreev.Library.Commands.Repl.dll",
             "args": [],
             "cwd": "${workspaceFolder}/Ntreev.Library.Commands.Repl",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
