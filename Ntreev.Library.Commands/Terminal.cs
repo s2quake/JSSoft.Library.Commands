@@ -107,7 +107,7 @@ namespace Ntreev.Library.Commands
             this.actionMaps.Add(new ConsoleKeyInfo('\u001b', ConsoleKey.Escape, false, false, false), this.Clear);
             if (Environment.OSVersion.Platform == PlatformID.Unix)
             {
-                this.actionMaps.Add(new ConsoleKeyInfo('\0', ConsoleKey.Backspace, false, false, false), this.Backspace);
+                this.actionMaps.Add(new ConsoleKeyInfo('\u007f', ConsoleKey.Backspace, false, false, false), this.Backspace);
             }
             else
             {

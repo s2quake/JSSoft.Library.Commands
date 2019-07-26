@@ -36,13 +36,19 @@ namespace Ntreev.Library.Commands
 
         public void Dispose()
         {
-            Console.CursorVisible = this.stack.Pop();
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+            {
+                Console.CursorVisible = this.stack.Pop();
+            }
         }
 
         public static TerminalCursorVisible Set(bool value)
         {
-            Default.stack.Push(Console.CursorVisible);
-            Console.CursorVisible = value;
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+            {
+                Default.stack.Push(Console.CursorVisible);
+                Console.CursorVisible = value;
+            }
             return Default;
         }
 
