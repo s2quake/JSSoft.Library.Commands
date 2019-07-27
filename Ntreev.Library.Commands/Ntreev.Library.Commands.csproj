@@ -21,19 +21,6 @@
     </UpgradeBackupLocation>
     <OldToolsVersion>2.0</OldToolsVersion>
   </PropertyGroup>
-  <ItemGroup Condition="'$(TargetFramework)'=='net45'">
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
-    <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
-    <PackageReference Include="System.ComponentModel" Version="4.3.0" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp3.0;netcoreapp2.2'">
-    <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
-    <PackageReference Include="System.ComponentModel" Version="4.3.0" />
-  </ItemGroup>
   <ItemGroup>
     <None Remove="Unix.dat" />
     <None Remove="Win32NT.dat" />
