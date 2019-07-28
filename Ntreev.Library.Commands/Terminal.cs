@@ -45,6 +45,7 @@ namespace Ntreev.Library.Commands
         private string inputText;
         private string completion = string.Empty;
         private TextWriter writer;
+        private TextWriter errorWriter;
         private bool isHidden;
         private bool treatControlCAsInput;
         private bool isCancellationRequested;
@@ -871,7 +872,9 @@ namespace Ntreev.Library.Commands
             lock (LockedObject)
             {
                 this.writer = Console.Out;
+                this.errorWriter = Console.Error;
                 Console.SetOut(new TerminalTextWriter(Console.Out, this, Console.OutputEncoding));
+                Console.SetError(new TerminalTextWriter(Console.Error, this, Console.OutputEncoding));
                 this.treatControlCAsInput = Console.TreatControlCAsInput;
                 Console.TreatControlCAsInput = true;
 
@@ -896,6 +899,7 @@ namespace Ntreev.Library.Commands
             {
                 Console.TreatControlCAsInput = this.treatControlCAsInput;
                 Console.SetOut(this.writer);
+                Console.SetError(this.errorWriter);
                 Console.WriteLine();
                 this.writer = null;
                 this.isHidden = false;
