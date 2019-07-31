@@ -667,7 +667,10 @@ namespace Ntreev.Library.Commands
                 }
                 else
                 {
-                    this.writer.Write("\b\0");
+                    if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+                        this.writer.Write("\b\0");
+                    else
+                        this.writer.Write("\b \b");
                 }
             }
 
