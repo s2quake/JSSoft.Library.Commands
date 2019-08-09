@@ -5,11 +5,16 @@
     "tasks": [
         {
             "label": "build",
-            "command": "dotnet build",
+            "command": "dotnet",
             "type": "shell",
             "group": "build",
+            "args": [
+                "build",
+                "--framework",
+                "netcoreapp3.0"
+            ],
             "presentation": {
-                "reveal": "silent"
+                "reveal": "always"
             },
             "problemMatcher": "$msCompile"
         }
