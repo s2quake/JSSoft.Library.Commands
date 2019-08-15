@@ -2,7 +2,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net45;netcoreapp3.0;netcoreapp2.2;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(MSBuildRuntimeType)'=='Full'">net45</TargetFrameworks>
+    <TargetFrameworks Condition="'$(MSBuildRuntimeType)'=='Core' And '$(NETCoreAppMaximumVersion)'=='3.0'">netcoreapp3.0</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>4.0.19187.1349</Version>
     <AssemblyVersion>4.0</AssemblyVersion>
