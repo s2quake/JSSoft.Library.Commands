@@ -1,7 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework Condition="'$(MSBuildRuntimeType)'=='Full'">net45</TargetFramework>
+    <TargetFramework Condition="'$(MSBuildRuntimeType)'=='Core' And '$(NETCoreAppMaximumVersion)'=='3.0'">netcoreapp3.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>4.0.19187.1349</Version>
     <AssemblyVersion>4.0</AssemblyVersion>
