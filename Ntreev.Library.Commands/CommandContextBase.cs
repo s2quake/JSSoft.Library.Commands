@@ -339,6 +339,200 @@ namespace Ntreev.Library.Commands
             this.Executed?.Invoke(this, e);
         }
 
+        protected virtual string[] GetCompletion(string[] items, string find)
+        {
+            if (items.Length == 0)
+            {
+                var query = from item in this.Commands
+                            let name = item.Name
+                            where this.IsCommandEnabled(item)
+                            where name.StartsWith(find)
+                            select name;
+                return query.ToArray();
+            }
+            else if (items.Length == 1)
+            {
+                var commandName = items[0];
+                var command = this.GetCommand(commandName);
+                if (command == null)
+                    return null;
+                if (command is IExecutable == false)
+                {
+                    var query = from item in CommandDescriptor.GetMethodDescriptors(command)
+                                let name = item.Name
+                                where this.IsMethodEnabled(command, item)
+                                where name.StartsWith(find)
+                                select name;
+                    return query.ToArray();
+                }
+                else
+                {
+                    var memberList = new List<CommandMemberDescriptor>(CommandDescriptor.GetMemberDescriptors(command));
+                    var argList = new List<string>(items.Skip(1));
+                    var completionContext = new CommandCompletionContext(command, memberList, argList, find);
+                    return this.GetCompletions(completionContext);
+                }
+            }
+            else if (items.Length >= 2)
+            {
+                var commandName = items[0];
+                var command = this.GetCommand(commandName);
+                if (command == null)
+                    return null;
+
+                if (command is IExecutable == true)
+                {
+                    var memberList = new List<CommandMemberDescriptor>(CommandDescriptor.GetMemberDescriptors(command));
+                    var argList = new List<string>(items.Skip(1));
+                    var completionContext = new CommandCompletionContext(command, memberList, argList, find);
+                    return this.GetCompletions(completionContext);
+                }
+                else
+                {
+                    var methodName = items[1];
+                    var methodDescriptor = this.GetMethodDescriptor(command, methodName);
+                    if (methodDescriptor == null)
+                        return null;
+
+                    if (methodDescriptor.Members.Length == 0)
+                        return null;
+
+                    var commandTarget = this.GetCommandTarget(command, methodDescriptor);
+                    var memberList = new List<CommandMemberDescriptor>(methodDescriptor.Members);
+                    var argList = new List<string>(items.Skip(2));
+                    var completionContext = new CommandCompletionContext(command, methodDescriptor, memberList, argList, find);
+                    if (completionContext.MemberDescriptor == null && find != string.Empty)
+                        return this.GetCompletions(memberList, find);
+
+                    return this.GetCompletions(completionContext);
+                }
+            }
+
+            return null;
+        }
+
+        protected virtual string[] GetCompletions(CommandCompletionContext completionContext)
+        {
+            var query = from item in GetCompletionsCore() ?? new string[] { }
+                        where item.StartsWith(completionContext.Find)
+                        select item;
+            return query.ToArray();
+
+            string[] GetCompletionsCore()
+            {
+                if (completionContext.Command is CommandBase commandBase)
+                {
+                    return commandBase.GetCompletions(completionContext);
+                }
+                else if (completionContext.Command is CommandMethodBase commandMethodBase)
+                {
+                    return commandMethodBase.GetCompletions(completionContext.MethodDescriptor, completionContext.MemberDescriptor, completionContext.Find);
+                }
+                else if (completionContext.Command is CommandProviderBase consoleCommandProvider)
+                {
+                    return consoleCommandProvider.GetCompletions(completionContext.MethodDescriptor, completionContext.MemberDescriptor);
+                }
+                return null;
+            }
+        }
+
+        private CommandMemberDescriptor FindMemberDescriptor(List<string> argList, List<CommandMemberDescriptor> memberList)
+        {
+            if (argList.Any())
+            {
+                var arg = argList.Last();
+                var descriptor = this.FindMemberDescriptor(memberList, arg);
+                if (descriptor != null)
+                {
+                    return descriptor;
+                }
+            }
+
+            for (var i = 0; i < argList.Count; i++)
+            {
+                if (memberList.Any() == false)
+                    break;
+                var arg = argList[i];
+                var member = memberList.First();
+                if (member.IsRequired == true)
+                    memberList.RemoveAt(0);
+            }
+
+            if (memberList.Any() == true && memberList.First().IsRequired == true)
+            {
+                return memberList.First();
+            }
+            return null;
+        }
+
+        private ICommand GetCommand(string commandName)
+        {
+            var commandNames = this.Commands.Select(item => item.Name).ToArray();
+            if (Enumerable.Contains(commandNames, commandName) == true)
+            {
+                var command = this.Commands[commandName];
+                if (this.IsCommandEnabled(command) == true)
+                    return command;
+            }
+            if (commandName == this.HelpCommand.Name)
+                return this.HelpCommand;
+            return null;
+        }
+
+        private CommandMethodDescriptor GetMethodDescriptor(ICommand command, string methodName)
+        {
+            if (command is IExecutable == true)
+                return null;
+            var descriptors = CommandDescriptor.GetMethodDescriptors(command);
+            if (descriptors.Contains(methodName) == false)
+                return null;
+            var descriptor = descriptors[methodName];
+            if (this.IsMethodEnabled(command, descriptor) == false)
+                return null;
+            return descriptor;
+        }
+
+        private CommandMemberDescriptor FindMemberDescriptor(IEnumerable<CommandMemberDescriptor> descriptors, string argument)
+        {
+            foreach (var item in descriptors)
+            {
+                if (item.NamePattern == argument || item.ShortNamePattern == argument)
+                {
+                    return item;
+                }
+            }
+            return null;
+        }
+
+        private object GetCommandTarget(ICommand command, CommandMethodDescriptor methodDescriptor)
+        {
+            var methodInfo = methodDescriptor.MethodInfo;
+            if (methodInfo.DeclaringType == command.GetType())
+                return command;
+            var query = from item in this.CommandProviders
+                        where item.CommandName == command.Name
+                        where item.GetType() == methodInfo.DeclaringType
+                        select item;
+
+            return query.First();
+        }
+
+        private string[] GetCompletions(IEnumerable<CommandMemberDescriptor> descriptors, string find)
+        {
+            var patternList = new List<string>();
+            foreach (var item in descriptors)
+            {
+                if (item.IsRequired == false)
+                {
+                    if (item.NamePattern != string.Empty)
+                        patternList.Add(item.NamePattern);
+                    if (item.ShortNamePattern != string.Empty)
+                        patternList.Add(item.ShortNamePattern);
+                }
+            }
+            return patternList.Where(item => item.StartsWith(find)).ToArray();
+        }
+
         private bool Execute(string[] args)
         {
             var commandName = args[0];
