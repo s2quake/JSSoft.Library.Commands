@@ -64,6 +64,10 @@ namespace Ntreev.Library.Commands
                     continue;
                 this.commands.Add(item);
                 this.parsers.Add(item, this.CreateInstance(this, item));
+                if (item is ICommandHost commandHost)
+                {
+                    commandHost.CommandContext = this;
+                }
             }
             this.parsers.Add(this.HelpCommand, this.CreateInstance(this, this.HelpCommand));
             this.parsers.Add(this.VersionCommand, this.CreateInstance(this, this.versionCommand));
@@ -78,6 +82,10 @@ namespace Ntreev.Library.Commands
 
                 var descriptors = CommandDescriptor.GetMethodDescriptors(command);
                 descriptors.AddRange(this.GetExternalMethodDescriptors(item));
+                if (item is ICommandHost commandHost)
+                {
+                    commandHost.CommandContext = this;
+                }
             }
 
             foreach (var item in this.parsers)
