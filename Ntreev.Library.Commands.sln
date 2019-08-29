@@ -13,8 +13,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ntreev.Library.Commands.Inv
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sample", "Sample", "{009A3638-5A06-426A-8BC5-4593E6590ACA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ntreev.Library.Commands.Test", "Ntreev.Library.Commands.Test\Ntreev.Library.Commands.Test.csproj", "{751F3308-517D-4645-806C-033ACA01102E}"
-EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Ntreev.Library.Commands.AssemblyInfo\Ntreev.Library.Commands.AssemblyInfo.projitems*{2ba6d207-b745-4f34-8819-5ba84af90c83}*SharedItemsImports = 4
@@ -41,10 +39,6 @@ Global
 		{2BA6D207-B745-4F34-8819-5BA84AF90C83}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2BA6D207-B745-4F34-8819-5BA84AF90C83}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2BA6D207-B745-4F34-8819-5BA84AF90C83}.Release|Any CPU.Build.0 = Release|Any CPU
-		{751F3308-517D-4645-806C-033ACA01102E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{751F3308-517D-4645-806C-033ACA01102E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{751F3308-517D-4645-806C-033ACA01102E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{751F3308-517D-4645-806C-033ACA01102E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

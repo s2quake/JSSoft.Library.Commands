@@ -32,8 +32,6 @@ namespace Ntreev.Library.Commands.Repl.Commands
     {
         [Import]
         private Lazy<IShell> shell = null;
-        [Import]
-        private Lazy<ShellCommandContext> commandContext = null;
 
         public ChangeDirectoryCommand()
             : base("cd")
@@ -46,11 +44,6 @@ namespace Ntreev.Library.Commands.Repl.Commands
         public string DirectoryName
         {
             get; set;
-        }
-
-        public TextWriter Out
-        {
-            get { return this.commandContext.Value.Out; }
         }
 
         protected override void OnExecute()
