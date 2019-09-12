@@ -12,3 +12,4 @@ packages/
 *.user
 *.VC.db
 /*.bat
+.DS_Store

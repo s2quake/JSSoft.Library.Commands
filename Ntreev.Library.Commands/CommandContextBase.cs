@@ -103,7 +103,7 @@ namespace Ntreev.Library.Commands
             var arguments = segments[1];
 
             if (File.Exists(name) == true)
-                name = Process.GetCurrentProcess().ProcessName;
+                name = Path.GetFileName(Assembly.GetEntryAssembly().CodeBase);
 
             if (this.VerifyName == true && this.Name != name)
                 throw new ArgumentException(string.Format(Resources.InvalidCommandName_Format, name));
@@ -230,7 +230,7 @@ namespace Ntreev.Library.Commands
             get
             {
                 if (string.IsNullOrEmpty(this.name) == true)
-                    return System.Diagnostics.Process.GetCurrentProcess().ProcessName;
+                    return Path.GetFileName(Assembly.GetEntryAssembly().CodeBase);;
                 return this.name;
             }
             set

@@ -28,9 +28,15 @@ namespace Ntreev.Library.Commands
     {
         private readonly int width;
 
+        public CommandTextWriter()
+            : this(new StringWriter(), Terminal.IsOutputRedirected == true ? int.MaxValue : Console.BufferWidth)
+        {
+            
+        }
         public CommandTextWriter(TextWriter writer)
             : this(writer, Terminal.IsOutputRedirected == true ? int.MaxValue : Console.BufferWidth)
         {
+            
         }
 
         public CommandTextWriter(TextWriter writer, int width)
@@ -39,16 +45,16 @@ namespace Ntreev.Library.Commands
             this.width = width;
         }
 
+        public override string ToString() => this.InnerWriter.ToString();
+
         public void WriteMultiline(string s)
         {
             foreach (var item in s.Split(new string[] { Environment.NewLine }, StringSplitOptions.None))
             {
                 if (item == string.Empty)
                     this.WriteLine();
-                else if (Terminal.IsOutputRedirected == true)
+                else 
                     this.WriteLine(item);
-                else
-                    this.WriteMultilineCore(item);
             }
         }
 
@@ -57,48 +63,42 @@ namespace Ntreev.Library.Commands
             get { return IndentedTextWriter.DefaultTabString; }
         }
 
-        public int Width
-        {
-            get
-            {
-                return this.width;
-            }
-        }
+        public int Width => this.width;
 
-        private void WriteMultilineCore(string s)
-        {
-            var indent = this.Indent;
-            var emptyCount = this.TabString.Length * this.Indent;
-            var width = Console.WindowWidth - emptyCount;
+        // private void WriteMultilineCore(string s)
+        // {
+        //     var indent = this.Indent;
+        //     var emptyCount = this.TabString.Length * this.Indent;
+        //     var width = Console.WindowWidth - emptyCount;
 
-            this.Indent = 0;
+        //     this.Indent = 0;
 
-            var i = 0;
-            foreach (var item in s)
-            {
-                try
-                {
-                    if (Console.CursorLeft == 0)
-                    {
-                        this.Write(string.Empty.PadRight(emptyCount));
-                        if (item == ' ' && i != 0)
-                            continue;
-                    }
-                    var x = Console.CursorLeft;
-                    this.Write(item);
-                    if (item != ' ' && Console.CursorLeft != 0 && Console.CursorLeft < x)
-                    {
-                        this.Write("\r" + string.Empty.PadRight(emptyCount));
-                        this.Write(item);
-                    }
-                }
-                finally
-                {
-                    i++;
-                }
-            }
-            this.WriteLine();
-            this.Indent = indent;
-        }
+        //     var i = 0;
+        //     foreach (var item in s)
+        //     {
+        //         try
+        //         {
+        //             if (Console.CursorLeft == 0)
+        //             {
+        //                 this.Write(string.Empty.PadRight(emptyCount));
+        //                 if (item == ' ' && i != 0)
+        //                     continue;
+        //             }
+        //             var x = Console.CursorLeft;
+        //             this.Write(item);
+        //             if (item != ' ' && Console.CursorLeft != 0 && Console.CursorLeft < x)
+        //             {
+        //                 this.Write("\r" + string.Empty.PadRight(emptyCount));
+        //                 this.Write(item);
+        //             }
+        //         }
+        //         finally
+        //         {
+        //             i++;
+        //         }
+        //     }
+        //     this.WriteLine();
+        //     this.Indent = indent;
+        // }
     }
 }
