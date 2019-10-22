@@ -58,7 +58,8 @@ namespace Ntreev.Library.Commands
             this.Out = defaultWriter;
             this.commandProviders = commandProviders.ToArray();
 
-            foreach (var item in commands)
+            var commands2 = commands.Concat(new ICommand[] { this.HelpCommand, this.VersionCommand });
+            foreach (var item in commands2)
             {
                 if (CommandSettings.IsConsoleMode == false && item.GetType().GetCustomAttribute<ConsoleModeOnlyAttribute>() != null)
                     continue;
@@ -69,8 +70,8 @@ namespace Ntreev.Library.Commands
                     commandHost.CommandContext = this;
                 }
             }
-            this.parsers.Add(this.HelpCommand, this.CreateInstance(this, this.HelpCommand));
-            this.parsers.Add(this.VersionCommand, this.CreateInstance(this, this.versionCommand));
+            // this.parsers.Add(this.HelpCommand, this.CreateInstance(this, this.HelpCommand));
+            // this.parsers.Add(this.VersionCommand, this.CreateInstance(this, this.VersionCommand));
 
             foreach (var item in commandProviders)
             {
@@ -230,7 +231,7 @@ namespace Ntreev.Library.Commands
             get
             {
                 if (string.IsNullOrEmpty(this.name) == true)
-                    return Path.GetFileName(Assembly.GetEntryAssembly().CodeBase);;
+                    return Path.GetFileName(Assembly.GetEntryAssembly().CodeBase); ;
                 return this.name;
             }
             set

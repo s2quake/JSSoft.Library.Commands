@@ -28,7 +28,7 @@ using System.Text;
 namespace Ntreev.Library.Commands
 {
     [UsageDescriptionProvider(typeof(ResourceUsageDescriptionProvider))]
-    public class HelpCommand : CommandBase
+    class HelpCommand : CommandBase
     {
         private readonly CommandContextBase commandContext;
 
