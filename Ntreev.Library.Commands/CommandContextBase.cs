@@ -143,7 +143,7 @@ namespace Ntreev.Library.Commands
 
         public virtual bool IsMethodEnabled(ICommand command, CommandMethodDescriptor descriptor)
         {
-            if (command is IExecutable == true)
+            if (command is IExecutable == true || command is IExecutableAsync == true)
                 return false;
             if (this.IsCommandEnabled(command) == false)
                 return false;
@@ -365,7 +365,7 @@ namespace Ntreev.Library.Commands
                 var command = this.GetCommand(commandName);
                 if (command == null)
                     return null;
-                if (command is IExecutable == false)
+                if (command is IExecutable == false && command is IExecutableAsync == false)
                 {
                     var query = from item in CommandDescriptor.GetMethodDescriptors(command)
                                 let name = item.Name
@@ -389,7 +389,7 @@ namespace Ntreev.Library.Commands
                 if (command == null)
                     return null;
 
-                if (command is IExecutable == true)
+                if (command is IExecutable == true || command is IExecutableAsync == true)
                 {
                     var memberList = new List<CommandMemberDescriptor>(CommandDescriptor.GetMemberDescriptors(command));
                     var argList = new List<string>(items.Skip(1));
@@ -432,6 +432,10 @@ namespace Ntreev.Library.Commands
                 if (completionContext.Command is CommandBase commandBase)
                 {
                     return commandBase.GetCompletions(completionContext);
+                }
+                else if (completionContext.Command is CommandAsyncBase commandAsyncBase)
+                {
+                    return commandAsyncBase.GetCompletions(completionContext);
                 }
                 else if (completionContext.Command is CommandMethodBase commandMethodBase)
                 {
@@ -490,7 +494,7 @@ namespace Ntreev.Library.Commands
 
         private CommandMethodDescriptor GetMethodDescriptor(ICommand command, string methodName)
         {
-            if (command is IExecutable == true)
+            if (command is IExecutable == true || command is IExecutableAsync == true)
                 return null;
             var descriptors = CommandDescriptor.GetMethodDescriptors(command);
             if (descriptors.Contains(methodName) == false)
