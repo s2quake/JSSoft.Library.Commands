@@ -365,7 +365,7 @@ namespace Ntreev.Library.Commands
                     return this.OnExecute(command, arguments);
             }
 
-            throw new ArgumentException(string.Format("'{0}' does not exsited command.", commandName));
+            throw new ArgumentException(string.Format("'{0}' does not existed command.", commandName));
         }
 
         private CommandLineParser CreateInstance(CommandContextBase commandContext, ICommand command)
