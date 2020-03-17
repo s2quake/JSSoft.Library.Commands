@@ -15,15 +15,15 @@
 //COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR 
 //OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Resources;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
-[assembly: AssemblyTitle("Ntreev.Library.Commands")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyProduct("Ntreev.Library.Commands")]
-
-[assembly: ComVisible(false)]
-
-[assembly: Guid("f5997259-909e-4747-a011-b47c30522bfd")]
+namespace Ntreev.Library.Commands
+{
+    public interface ICommandHost
+    {
+        CommandContextBase CommandContext { get; set; }
+    }
+}

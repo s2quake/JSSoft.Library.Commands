@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -25,9 +26,10 @@ using System.Threading.Tasks;
 
 namespace Ntreev.Library.Commands
 {
-    public abstract class CommandBase : ICommand, IExecutable
+    public abstract class CommandBase : ICommand, IExecutable, ICommandHost
     {
         private readonly string name;
+        private CommandContextBase commandContext;
 
         protected CommandBase()
         {
@@ -54,6 +56,10 @@ namespace Ntreev.Library.Commands
             get { return true; }
         }
 
+        public TextWriter Out => this.commandContext.Out;
+
+        public TextWriter Error => this.commandContext.Error;
+
         protected abstract void OnExecute();
 
         protected CommandMemberDescriptor GetDescriptor(string propertyName)
@@ -74,11 +80,22 @@ namespace Ntreev.Library.Commands
         }
 
         #endregion
+
+        #region ICommandHost
+
+        CommandContextBase ICommandHost.CommandContext
+        {
+            get => this.commandContext;
+            set => this.commandContext = value;
+        }
+
+        #endregion
     }
 
-    public abstract class CommandAsyncBase : ICommand, IExecutableAsync
+    public abstract class CommandAsyncBase : ICommand, IExecutableAsync, ICommandHost
     {
         private readonly string name;
+        private CommandContextBase commandContext;
 
         protected CommandAsyncBase()
         {
@@ -105,6 +122,10 @@ namespace Ntreev.Library.Commands
             get { return true; }
         }
 
+        public TextWriter Out => this.commandContext.Out;
+
+        public TextWriter Error => this.commandContext.Error;
+
         protected abstract Task OnExecuteAsync();
 
         protected CommandMemberDescriptor GetDescriptor(string propertyName)
@@ -122,6 +143,16 @@ namespace Ntreev.Library.Commands
         Task IExecutableAsync.ExecuteAsync()
         {
             return this.OnExecuteAsync();
+        }
+
+        #endregion
+
+        #region ICommandHost
+
+        CommandContextBase ICommandHost.CommandContext
+        {
+            get => this.commandContext;
+            set => this.commandContext = value;
         }
 
         #endregion

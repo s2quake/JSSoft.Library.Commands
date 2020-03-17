@@ -30,9 +30,6 @@ namespace Ntreev.Library.Commands.Repl.Commands
     [UsageDescriptionProvider(typeof(ResourceUsageDescriptionProvider))]
     class ListDirectoryCommandPartial : CommandBase
     {
-        [Import]
-        private Lazy<ShellCommandContext> commandContext = null;
-
         public ListDirectoryCommandPartial()
             : base("ls")
         {
@@ -43,11 +40,6 @@ namespace Ntreev.Library.Commands.Repl.Commands
         public bool IsRecursive
         {
             get; set;
-        }
-
-        public TextWriter Out
-        {
-            get { return this.commandContext.Value.Out; }
         }
 
         protected override void OnExecute()

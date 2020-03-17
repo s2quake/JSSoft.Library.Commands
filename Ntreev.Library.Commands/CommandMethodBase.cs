@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -25,9 +26,10 @@ using System.Text.RegularExpressions;
 
 namespace Ntreev.Library.Commands
 {
-    public abstract class CommandMethodBase : ICommand
+    public abstract class CommandMethodBase : ICommand, ICommandHost
     {
         private readonly string name;
+        private CommandContextBase commandContext;
 
         protected CommandMethodBase()
         {
@@ -49,6 +51,10 @@ namespace Ntreev.Library.Commands
             get { return true; }
         }
 
+        public TextWriter Out => this.commandContext.Out;        
+
+        public TextWriter Error => this.commandContext.Error;        
+
         protected virtual bool IsMethodEnabled(CommandMethodDescriptor descriptor)
         {
             return true;
@@ -63,5 +69,15 @@ namespace Ntreev.Library.Commands
         {
             return this.IsMethodEnabled(descriptor);
         }
+
+        #region ICommandHost
+        
+        CommandContextBase ICommandHost.CommandContext
+        {
+            get => this.commandContext;
+            set => this.commandContext = value;
+        }
+
+        #endregion
     }
 }

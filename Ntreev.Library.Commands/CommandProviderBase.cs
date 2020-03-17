@@ -17,15 +17,17 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 
 namespace Ntreev.Library.Commands
 {
-    public abstract class CommandProviderBase : ICommandProvider
+    public abstract class CommandProviderBase : ICommandProvider, ICommandHost
     {
         private readonly string commandName;
+        private CommandContextBase commandContext;
 
         protected CommandProviderBase(string commandName)
         {
@@ -41,5 +43,19 @@ namespace Ntreev.Library.Commands
         {
             return null;
         }
+
+        public TextWriter Out => this.commandContext.Out;        
+
+        public TextWriter Error => this.commandContext.Error;        
+
+        #region ICommandHost
+        
+        CommandContextBase ICommandHost.CommandContext
+        {
+            get => this.commandContext;
+            set => this.commandContext = value;
+        }
+
+        #endregion
     }
 }

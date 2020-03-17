@@ -39,17 +39,19 @@ namespace Ntreev.Library.Commands
         private CommandMethodUsagePrinter methodUsagePrinter;
 
         public CommandLineParser(object instance)
-            : this(string.Empty, instance)
+            : this(Path.GetFileName(Assembly.GetEntryAssembly().CodeBase), instance)
         {
 
         }
 
         public CommandLineParser(string name, object instance)
         {
+            if (name == string.Empty)
+                throw new ArgumentException("empty string not allowed.");
+            this.name = name ?? throw new ArgumentNullException(nameof(name));
+            this.instance = instance ?? throw new ArgumentNullException(nameof(instance));
             this.HelpName = "help";
             this.VersionName = "--version";
-            this.instance = instance;
-            this.name = string.IsNullOrEmpty(name) == true ? Process.GetCurrentProcess().ProcessName : name;
             this.Out = Console.Out;
         }
 
@@ -69,7 +71,7 @@ namespace Ntreev.Library.Commands
             var name = arguments[0];
 
             if (File.Exists(name) == true)
-                name = Process.GetCurrentProcess().ProcessName;
+                name = Path.GetFileName(Assembly.GetEntryAssembly().CodeBase);
             if (this.name != name)
                 throw new ArgumentException(string.Format(Resources.InvalidCommandName_Format, name));
 
@@ -78,14 +80,14 @@ namespace Ntreev.Library.Commands
             if (items[0] == this.HelpName)
             {
                 if (items[1] == string.Empty)
-                    this.PrintUsage();
+                    this.PrintUsage(this.Out);
                 else
-                    this.PrintUsage(items[1]);
+                    this.PrintUsage(this.Out, items[1]);
                 return false;
             }
             else if (items[0] == this.VersionName)
             {
-                this.PrintVersion();
+                this.PrintVersion(this.Out);
                 return false;
             }
             else
@@ -114,7 +116,7 @@ namespace Ntreev.Library.Commands
             var name = arguments[0];
 
             if (File.Exists(name) == true)
-                name = Process.GetCurrentProcess().ProcessName;
+                name = Path.GetFileName(Assembly.GetEntryAssembly().CodeBase);
             if (this.name != name)
                 throw new ArgumentException(string.Format(Resources.InvalidCommandName_Format, name));
 
@@ -123,23 +125,23 @@ namespace Ntreev.Library.Commands
 
             if (string.IsNullOrEmpty(method) == true)
             {
-                this.PrintSummary();
+                this.PrintSummary(this.Out);
                 return false;
             }
             else if (method == this.HelpName)
             {
                 var items = CommandStringUtility.Split(arguments1[1]);
                 if (arguments1[1] == string.Empty)
-                    this.PrintMethodUsage();
+                    this.PrintMethodUsage(this.Out);
                 else if (items[1] == string.Empty)
-                    this.PrintMethodUsage(arguments1[1]);
+                    this.PrintMethodUsage(this.Out, arguments1[1]);
                 else
-                    this.PrintMethodUsage(items[0], items[1]);
+                    this.PrintMethodUsage(this.Out, items[0], items[1]);
                 return false;
             }
             else if (method == this.VersionName)
             {
-                this.PrintVersion();
+                this.PrintVersion(this.Out);
                 return false;
             }
             else
@@ -157,22 +159,30 @@ namespace Ntreev.Library.Commands
             }
         }
 
-        public virtual void PrintSummary()
+        public virtual void PrintSummary(TextWriter writer)
         {
+            if (writer == null)
+                throw new ArgumentNullException(nameof(writer));
             if (this.CommandContext != null)
-                this.Out.WriteLine("Type '{0} {1}' for usage.", this.CommandContext.HelpCommand.Name, this.name);
+                writer.WriteLine("Type '{0} {1}' for usage.", this.CommandContext.HelpCommand.Name, this.name);
             else
-                this.Out.WriteLine("Type '{0} {1}' for usage.", this.name, this.HelpName);
+                writer.WriteLine("Type '{0} {1}' for usage.", this.name, this.HelpName);
         }
 
-        public virtual void PrintUsage()
+        public virtual void PrintUsage(TextWriter writer)
         {
+            if (writer == null)
+                throw new ArgumentNullException(nameof(writer));
             var enabledDescriptors = CommandDescriptor.GetMemberDescriptors(this.instance).Where(item => this.IsMemberEnabled(item));
-            this.MemberUsagePrinter.Print(this.Out, enabledDescriptors.ToArray());
+            this.MemberUsagePrinter.Print(writer, enabledDescriptors.ToArray());
         }
 
-        public virtual void PrintUsage(string memberName)
+        public virtual void PrintUsage(TextWriter writer, string memberName)
         {
+            if (writer == null)
+                throw new ArgumentNullException(nameof(writer));
+            if (memberName == null)
+                throw new ArgumentNullException(nameof(memberName));
             var descriptor = CommandDescriptor.GetMemberDescriptors(this.instance)
                                               .Where(item => this.IsMemberEnabled(item))
                                               .FirstOrDefault(item => (item.IsRequired == true && memberName == item.Name) ||
@@ -180,36 +190,49 @@ namespace Ntreev.Library.Commands
                                                                        memberName == item.ShortNamePattern);
             if (descriptor == null)
                 throw new InvalidOperationException(string.Format(Resources.MemberDoesNotExist_Format, memberName));
-            this.MemberUsagePrinter.Print(this.Out, descriptor);
+            this.MemberUsagePrinter.Print(writer, descriptor);
         }
 
-        public virtual void PrintVersion()
+        public virtual void PrintVersion(TextWriter writer)
         {
+            if (writer == null)
+                throw new ArgumentNullException(nameof(writer));
             var info = FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location);
-            this.Out.WriteLine("{0} {1}", this.Name, this.Version);
-            this.Out.WriteLine(info.LegalCopyright);
+            writer.WriteLine("{0} {1}", this.Name, this.Version);
+            writer.WriteLine(info.LegalCopyright);
         }
 
-        public virtual void PrintMethodUsage()
+        public virtual void PrintMethodUsage(TextWriter writer)
         {
+            if (writer == null)
+                throw new ArgumentNullException(nameof(writer));
             var descriptors = CommandDescriptor.GetMethodDescriptors(this.instance).Where(item => this.IsMethodEnabled(item));
-            this.MethodUsagePrinter.Print(this.Out, descriptors.ToArray());
+            this.MethodUsagePrinter.Print(writer, descriptors.ToArray());
         }
 
-        public virtual void PrintMethodUsage(string methodName)
+        public virtual void PrintMethodUsage(TextWriter writer, string methodName)
         {
+            if (writer == null)
+                throw new ArgumentNullException(nameof(writer));
+            if (methodName == null)
+                throw new ArgumentNullException(nameof(methodName));
             var descriptors = CommandDescriptor.GetMethodDescriptors(this.instance);
             var descriptor = descriptors.FirstOrDefault(item => item.Name == methodName);
             if (descriptor == null || this.IsMethodEnabled(descriptor) == false)
                 throw new CommandNotFoundException(methodName);
 
             var enabledDescriptors = descriptor.Members.Where(item => this.IsMemberEnabled(item)).ToArray();
-
-            this.MethodUsagePrinter.Print(this.Out, descriptor, enabledDescriptors);
+            this.MethodUsagePrinter.Print(writer, descriptor, enabledDescriptors);
         }
 
-        public virtual void PrintMethodUsage(string methodName, string memberName)
+        public virtual void PrintMethodUsage(TextWriter writer, string methodName, string memberName)
         {
+            if (writer == null)
+                throw new ArgumentNullException(nameof(writer));
+            if (methodName == null)
+                throw new ArgumentNullException(nameof(methodName));
+            if (memberName == null)
+                throw new ArgumentNullException(nameof(memberName));
             var descriptors = CommandDescriptor.GetMethodDescriptors(this.instance);
             var descriptor = descriptors.FirstOrDefault(item => item.Name == methodName);
             if (descriptor == null || this.IsMethodEnabled(descriptor) == false)
@@ -223,7 +246,7 @@ namespace Ntreev.Library.Commands
             if (visibleDescriptor == null)
                 throw new InvalidOperationException(string.Format(Resources.MemberDoesNotExist_Format, memberName));
 
-            this.MethodUsagePrinter.Print(this.Out, descriptor, visibleDescriptor);
+            this.MethodUsagePrinter.Print(writer, descriptor, visibleDescriptor);
         }
 
         [Obsolete("use CommandStringUtility")]

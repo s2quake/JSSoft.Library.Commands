@@ -151,7 +151,7 @@ namespace Ntreev.Library.Commands
         {
             if (this.MemberType.IsEnum == true)
             {
-                return Enum.GetNames(this.MemberType);
+                return Enum.GetNames(this.MemberType).Select(item => CommandSettings.NameGenerator(item)).ToArray();
             }
             else if (this.Attributes.FirstOrDefault(item => item is CommandCompletionAttribute) is CommandCompletionAttribute attr)
             {
