@@ -19,10 +19,10 @@ namespace Ntreev.Library.Commands.Properties {
     // 클래스에서 자동으로 생성되었습니다.
     // 멤버를 추가하거나 제거하려면 .ResX 파일을 편집한 다음 /str 옵션을 사용하여 ResGen을
     // 다시 실행하거나 VS 프로젝트를 다시 빌드하십시오.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources {
+    public class Resources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace Ntreev.Library.Commands.Properties {
         ///   이 클래스에서 사용하는 캐시된 ResourceManager 인스턴스를 반환합니다.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Ntreev.Library.Commands.Properties.Resources", typeof(Resources).Assembly);
@@ -47,11 +47,11 @@ namespace Ntreev.Library.Commands.Properties {
         }
         
         /// <summary>
-        ///   이 강력한 형식의 리소스 클래스를 사용하여 모든 리소스 조회에 대한 현재 스레드의 CurrentUICulture
-        ///   속성을 재정의합니다.
+        ///   이 강력한 형식의 리소스 클래스를 사용하여 모든 리소스 조회에 대해 현재 스레드의 CurrentUICulture 속성을
+        ///   재정의합니다.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -63,7 +63,7 @@ namespace Ntreev.Library.Commands.Properties {
         /// <summary>
         ///   ArgSeparator must be a Punctuation.과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
-        internal static string ArgSeparatorMustBeAPunctuation {
+        public static string ArgSeparatorMustBeAPunctuation {
             get {
                 return ResourceManager.GetString("ArgSeparatorMustBeAPunctuation", resourceCulture);
             }
@@ -72,7 +72,7 @@ namespace Ntreev.Library.Commands.Properties {
         /// <summary>
         ///   Available commands과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
-        internal static string AvaliableCommands {
+        public static string AvaliableCommands {
             get {
                 return ResourceManager.GetString("AvaliableCommands", resourceCulture);
             }
@@ -81,7 +81,7 @@ namespace Ntreev.Library.Commands.Properties {
         /// <summary>
         ///   Cannot convert &apos;{0}&apos;과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
-        internal static string CannotConvert_Format {
+        public static string CannotConvert_Format {
             get {
                 return ResourceManager.GetString("CannotConvert_Format", resourceCulture);
             }
@@ -90,7 +90,7 @@ namespace Ntreev.Library.Commands.Properties {
         /// <summary>
         ///   CommandMethod과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
-        internal static string CommandMethod {
+        public static string CommandMethod {
             get {
                 return ResourceManager.GetString("CommandMethod", resourceCulture);
             }
@@ -99,7 +99,7 @@ namespace Ntreev.Library.Commands.Properties {
         /// <summary>
         ///   Delimiter must be a Punctuation.과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
-        internal static string DelimiterMustBePunctuation {
+        public static string DelimiterMustBePunctuation {
             get {
                 return ResourceManager.GetString("DelimiterMustBePunctuation", resourceCulture);
             }
@@ -108,7 +108,7 @@ namespace Ntreev.Library.Commands.Properties {
         /// <summary>
         ///   Description과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
-        internal static string Description {
+        public static string Description {
             get {
                 return ResourceManager.GetString("Description", resourceCulture);
             }
@@ -117,7 +117,7 @@ namespace Ntreev.Library.Commands.Properties {
         /// <summary>
         ///   type &apos;{0}&apos; for usage.과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
-        internal static string HelpMessage_Format {
+        public static string HelpMessage_Format {
             get {
                 return ResourceManager.GetString("HelpMessage_Format", resourceCulture);
             }
@@ -126,7 +126,7 @@ namespace Ntreev.Library.Commands.Properties {
         /// <summary>
         ///   Invalid argument type.과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
-        internal static string InvalidArgumentType {
+        public static string InvalidArgumentType {
             get {
                 return ResourceManager.GetString("InvalidArgumentType", resourceCulture);
             }
@@ -135,7 +135,7 @@ namespace Ntreev.Library.Commands.Properties {
         /// <summary>
         ///   &apos;{0}&apos; is invalid command name.과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
-        internal static string InvalidCommandName_Format {
+        public static string InvalidCommandName_Format {
             get {
                 return ResourceManager.GetString("InvalidCommandName_Format", resourceCulture);
             }
@@ -144,7 +144,7 @@ namespace Ntreev.Library.Commands.Properties {
         /// <summary>
         ///   member &apos;{0}&apos; does not exist.과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
-        internal static string MemberDoesNotExist_Format {
+        public static string MemberDoesNotExist_Format {
             get {
                 return ResourceManager.GetString("MemberDoesNotExist_Format", resourceCulture);
             }
@@ -153,7 +153,7 @@ namespace Ntreev.Library.Commands.Properties {
         /// <summary>
         ///   member is missing.과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
-        internal static string MemberIsMissing {
+        public static string MemberIsMissing {
             get {
                 return ResourceManager.GetString("MemberIsMissing", resourceCulture);
             }
@@ -162,7 +162,7 @@ namespace Ntreev.Library.Commands.Properties {
         /// <summary>
         ///   member is already registered.과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
-        internal static string MemberWasAlreadyRegistered {
+        public static string MemberWasAlreadyRegistered {
             get {
                 return ResourceManager.GetString("MemberWasAlreadyRegistered", resourceCulture);
             }
@@ -171,7 +171,7 @@ namespace Ntreev.Library.Commands.Properties {
         /// <summary>
         ///   method &apos;{0}&apos; does not exist.과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
-        internal static string MethodDoesNotExist_Format {
+        public static string MethodDoesNotExist_Format {
             get {
                 return ResourceManager.GetString("MethodDoesNotExist_Format", resourceCulture);
             }
@@ -180,7 +180,7 @@ namespace Ntreev.Library.Commands.Properties {
         /// <summary>
         ///   Options과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
-        internal static string Options {
+        public static string Options {
             get {
                 return ResourceManager.GetString("Options", resourceCulture);
             }
@@ -189,7 +189,7 @@ namespace Ntreev.Library.Commands.Properties {
         /// <summary>
         ///   Requirements과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
-        internal static string Requirements {
+        public static string Requirements {
             get {
                 return ResourceManager.GetString("Requirements", resourceCulture);
             }
@@ -198,7 +198,7 @@ namespace Ntreev.Library.Commands.Properties {
         /// <summary>
         ///   short name does not exist.과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
-        internal static string ShortNameDoesNotExist {
+        public static string ShortNameDoesNotExist {
             get {
                 return ResourceManager.GetString("ShortNameDoesNotExist", resourceCulture);
             }
@@ -207,7 +207,7 @@ namespace Ntreev.Library.Commands.Properties {
         /// <summary>
         ///   type &apos;{0}&apos; to see the version.과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
-        internal static string String1 {
+        public static string String1 {
             get {
                 return ResourceManager.GetString("String1", resourceCulture);
             }
@@ -216,7 +216,7 @@ namespace Ntreev.Library.Commands.Properties {
         /// <summary>
         ///   Summary과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
-        internal static string Summary {
+        public static string Summary {
             get {
                 return ResourceManager.GetString("Summary", resourceCulture);
             }
@@ -225,7 +225,7 @@ namespace Ntreev.Library.Commands.Properties {
         /// <summary>
         ///   Usage과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
-        internal static string Usage {
+        public static string Usage {
             get {
                 return ResourceManager.GetString("Usage", resourceCulture);
             }
@@ -234,7 +234,7 @@ namespace Ntreev.Library.Commands.Properties {
         /// <summary>
         ///   Variables과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
-        internal static string Variables {
+        public static string Variables {
             get {
                 return ResourceManager.GetString("Variables", resourceCulture);
             }
@@ -243,7 +243,7 @@ namespace Ntreev.Library.Commands.Properties {
         /// <summary>
         ///   과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
-        internal static string VersionMessage_Format {
+        public static string VersionMessage_Format {
             get {
                 return ResourceManager.GetString("VersionMessage_Format", resourceCulture);
             }
