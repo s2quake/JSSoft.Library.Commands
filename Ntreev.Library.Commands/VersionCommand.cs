@@ -39,26 +39,21 @@ namespace Ntreev.Library.Commands
         }
 
         [CommandProperty('q')]
-        public bool IsQuiet
-        {
-            get; set;
-        }
+        public bool IsQuiet { get; set; }
 
-        protected override void OnExecute()
+        protected override void OnExecute(object source)
         {
+            using var writer = new CommandTextWriter(this.commandContext.Out);
             var info = FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location);
-            using (var writer = new CommandTextWriter(this.commandContext.Out))
+            if (this.IsQuiet == false)
             {
-                if (this.IsQuiet == false)
-                {
-                    var items = new string[] { this.commandContext.Name, $"{this.commandContext.Version}" };
-                    writer.WriteLine(string.Join(" ", items).Trim());
-                    writer.WriteLine(info.LegalCopyright);
-                }
-                else
-                {
-                    writer.WriteLine(this.commandContext.Version);
-                }
+                var items = new string[] { this.commandContext.Name, $"{this.commandContext.Version}" };
+                writer.WriteLine(string.Join(" ", items).Trim());
+                writer.WriteLine(info.LegalCopyright);
+            }
+            else
+            {
+                writer.WriteLine(this.commandContext.Version);
             }
         }
     }

@@ -26,14 +26,13 @@ namespace Ntreev.Library.Commands
     public class CommandCompletionContext
     {
         private readonly Dictionary<string, object> properties = new Dictionary<string, object>();
-        private readonly string[] arguments;
 
         public CommandCompletionContext(object command, IEnumerable<CommandMemberDescriptor> members, IEnumerable<string> args, string find)
         {
             var parser = new ParseDescriptor(typeof(CommandPropertyDescriptor), members, args);
             this.Command = command;
             this.Find = find;
-            this.arguments = args.ToArray();
+            this.Arguments = args.ToArray();
 
             foreach (var item in parser.Descriptors)
             {
@@ -57,7 +56,7 @@ namespace Ntreev.Library.Commands
             this.Command = command;
             this.MethodDescriptor = methodDescriptor;
             this.Find = find;
-            this.arguments = args.ToArray();
+            this.Arguments = args.ToArray();
 
             foreach (var item in parser.Descriptors)
             {
@@ -75,38 +74,16 @@ namespace Ntreev.Library.Commands
             }
         }
 
-        public object Command
-        {
-            get;
-            private set;
-        }
+        public object Command { get; private set; }
 
-        public CommandMethodDescriptor MethodDescriptor
-        {
-            get;
-            private set;
-        }
+        public CommandMethodDescriptor MethodDescriptor { get; private set; }
 
-        public CommandMemberDescriptor MemberDescriptor
-        {
-            get;
-            private set;
-        }
+        public CommandMemberDescriptor MemberDescriptor { get; private set; }
 
-        public string Find
-        {
-            get;
-            private set;
-        }
+        public string Find { get; private set; }
 
-        public string[] Arguments
-        {
-            get { return this.arguments; }
-        }
+        public string[] Arguments { get; private set; }
 
-        public IDictionary<string, object> Properties
-        {
-            get { return this.properties; }
-        }
+        public IDictionary<string, object> Properties => this.properties;
     }
 }

@@ -27,52 +27,26 @@ namespace Ntreev.Library.Commands
 {
     public abstract class CommandMethodDescriptor
     {
-        private readonly MethodInfo methodInfo;
-
         protected CommandMethodDescriptor(MethodInfo methodInfo)
         {
-            this.methodInfo = methodInfo;
+            this.MethodInfo = methodInfo;
         }
 
-        public abstract string DescriptorName
-        {
-            get;
-        }
+        public abstract string DescriptorName { get; }
 
-        public abstract string Name
-        {
-            get;
-        }
+        public abstract string Name { get; }
 
-        public abstract string DisplayName
-        {
-            get;
-        }
+        public abstract string DisplayName { get; }
 
-        public abstract CommandMemberDescriptor[] Members
-        {
-            get;
-        }
+        public abstract CommandMemberDescriptor[] Members { get; }
 
-        public abstract string Summary
-        {
-            get;
-        }
+        public abstract string Summary { get; }
 
-        public abstract string Description
-        {
-            get;
-        }
+        public abstract string Description { get; }
 
-        public abstract IEnumerable<Attribute> Attributes
-        {
-            get;
-        }
+        public abstract IEnumerable<Attribute> Attributes { get; }
 
-        public MethodInfo MethodInfo
-        {
-            get { return this.methodInfo; }
-        }
+        public MethodInfo MethodInfo { get; private set; }
 
         protected abstract void OnInvoke(object instance, object[] parameters);
 
@@ -84,7 +58,7 @@ namespace Ntreev.Library.Commands
             var values = new ArrayList();
             var nameToDescriptors = descriptors.ToDictionary(item => item.DescriptorName);
 
-            foreach (var item in this.methodInfo.GetParameters())
+            foreach (var item in this.MethodInfo.GetParameters())
             {
                 var descriptor = nameToDescriptors[item.Name];
                 var value = descriptor.GetValueInternal(instance);
@@ -93,6 +67,4 @@ namespace Ntreev.Library.Commands
             this.OnInvoke(instance, values.ToArray());
         }
     }
-
-    
 }

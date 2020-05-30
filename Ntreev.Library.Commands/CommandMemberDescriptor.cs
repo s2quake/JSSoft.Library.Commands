@@ -28,12 +28,6 @@ namespace Ntreev.Library.Commands
 {
     public abstract class CommandMemberDescriptor
     {
-        private const string keyName = "key";
-        private const string valueName = "value";
-
-        private readonly string descriptorName;
-        private readonly string name;
-        private readonly string shortName;
         private readonly bool isRequired;
         private readonly bool isExplicit;
 
@@ -42,81 +36,48 @@ namespace Ntreev.Library.Commands
             if (attribute == null)
                 throw new ArgumentNullException(nameof(attribute));
             attribute.InvokeValidate(this);
-            this.descriptorName = descriptorName ?? throw new ArgumentNullException(nameof(descriptorName));
-            this.name = attribute.GetName(descriptorName);
-            this.shortName = attribute.InternalShortName;
+            this.DescriptorName = descriptorName ?? throw new ArgumentNullException(nameof(descriptorName));
+            this.Name = attribute.GetName(descriptorName);
+            this.ShortName = attribute.InternalShortName;
             this.isRequired = attribute.IsRequired;
             this.isExplicit = attribute.IsExplicit;
         }
 
-        public string Name
-        {
-            get { return this.name; }
-        }
+        public string Name { get; private set; }
 
-        public string ShortName
-        {
-            get { return this.shortName; }
-        }
+        public string ShortName { get; private set; }
 
         public virtual string DisplayName
         {
             get
             {
                 if (this.IsRequired == true && this.isExplicit == false)
-                    return this.descriptorName;
-                var nameItems = this.isExplicit == true ? new string[] { this.ShortNamePattern, this.NamePattern } : new string[] { this.shortName, this.name };
+                    return this.DescriptorName;
+                var nameItems = this.isExplicit == true ? new string[] { this.ShortNamePattern, this.NamePattern } : new string[] { this.ShortName, this.Name };
                 var displayName = string.Join(" | ", nameItems.Where(item => item != string.Empty).ToArray());
                 if (displayName == string.Empty)
-                    return CommandSettings.NameGenerator(this.descriptorName);
+                    return CommandSettings.NameGenerator(this.DescriptorName);
                 return displayName;
             }
         }
 
-        public virtual string Summary
-        {
-            get { return string.Empty; }
-        }
+        public virtual string Summary => string.Empty;
 
-        public virtual string Description
-        {
-            get { return string.Empty; }
-        }
+        public virtual string Description => string.Empty;
 
-        public virtual object DefaultValue
-        {
-            get { return DBNull.Value; }
-        }
+        public virtual object DefaultValue => DBNull.Value;
 
-        public virtual bool IsRequired
-        {
-            get { return this.isRequired; }
-        }
+        public virtual bool IsRequired => this.isRequired;
 
-        public virtual bool IsExplicit
-        {
-            get { return this.isExplicit; }
-        }
+        public virtual bool IsExplicit => this.isExplicit;
 
-        public abstract Type MemberType
-        {
-            get;
-        }
+        public abstract Type MemberType { get; }
 
-        public virtual TypeConverter Converter
-        {
-            get { return TypeDescriptor.GetConverter(this.MemberType); }
-        }
+        public virtual TypeConverter Converter => TypeDescriptor.GetConverter(this.MemberType);
 
-        public virtual IEnumerable<Attribute> Attributes
-        {
-            get { yield break; }
-        }
+        public virtual IEnumerable<Attribute> Attributes { get { yield break; } }
 
-        public string DescriptorName
-        {
-            get { return this.descriptorName; }
-        }
+        public string DescriptorName { get; private set; }
 
         protected abstract void SetValue(object instance, object value);
 
@@ -125,11 +86,6 @@ namespace Ntreev.Library.Commands
         protected virtual void OnValidateTrigger(IDictionary<CommandMemberDescriptor, ParseDescriptorItem> descriptors)
         {
 
-        }
-
-        internal object Parse(object instance, string arg)
-        {
-            return Parser.Parse(this, arg);
         }
 
         internal void Parse(object instance, List<string> arguments)
@@ -173,9 +129,9 @@ namespace Ntreev.Library.Commands
         {
             get
             {
-                if (this.name == string.Empty)
+                if (this.Name == string.Empty)
                     return string.Empty;
-                return CommandSettings.Delimiter + this.name;
+                return CommandSettings.Delimiter + this.Name;
             }
         }
 
@@ -183,9 +139,9 @@ namespace Ntreev.Library.Commands
         {
             get
             {
-                if (this.shortName == string.Empty)
+                if (this.ShortName == string.Empty)
                     return string.Empty;
-                return CommandSettings.ShortDelimiter + this.shortName;
+                return CommandSettings.ShortDelimiter + this.ShortName;
             }
         }
 

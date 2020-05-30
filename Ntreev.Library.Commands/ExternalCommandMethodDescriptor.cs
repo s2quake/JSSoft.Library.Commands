@@ -24,59 +24,34 @@ namespace Ntreev.Library.Commands
 {
     class ExternalCommandMethodDescriptor : CommandMethodDescriptor
     {
-        private readonly object instance;
         private readonly CommandMethodDescriptor methodDescriptor;
 
         public ExternalCommandMethodDescriptor(object instance, CommandMethodDescriptor methodDescriptor)
             : base(methodDescriptor.MethodInfo)
         {
-            this.instance = instance;
+            this.Instance = instance;
             this.methodDescriptor = methodDescriptor;
         }
 
-        public override string DescriptorName
-        {
-            get { return this.methodDescriptor.DescriptorName; }
-        }
+        public override string DescriptorName => this.methodDescriptor.DescriptorName;
 
-        public override string Name
-        {
-            get { return this.methodDescriptor.Name; }
-        }
+        public override string Name => this.methodDescriptor.Name;
 
-        public override string DisplayName
-        {
-            get { return this.methodDescriptor.DisplayName; }
-        }
+        public override string DisplayName => this.methodDescriptor.DisplayName;
 
-        public override CommandMemberDescriptor[] Members
-        {
-            get { return this.methodDescriptor.Members; }
-        }
+        public override CommandMemberDescriptor[] Members => this.methodDescriptor.Members;
 
-        public override string Summary
-        {
-            get { return this.methodDescriptor.Summary; }
-        }
+        public override string Summary => this.methodDescriptor.Summary;
 
-        public override string Description
-        {
-            get { return this.methodDescriptor.Description; }
-        }
+        public override string Description => this.methodDescriptor.Description;
 
-        public override IEnumerable<Attribute> Attributes
-        {
-            get { return this.methodDescriptor.Attributes; }
-        }
+        public override IEnumerable<Attribute> Attributes => this.methodDescriptor.Attributes;
 
-        public object Instance
-        {
-            get { return this.instance; }
-        }
+        public object Instance { get; private set; }
 
         protected override void OnInvoke(object instance, object[] parameters)
         {
-            this.MethodInfo.Invoke(this.instance, parameters);
+            this.MethodInfo.Invoke(this.Instance, parameters);
         }
     }
 }

@@ -79,10 +79,6 @@ namespace Ntreev.Library.Commands
                     return Default.foregroundColor.Value;
                 return null;
             }
-            private set
-            {
-
-            }
         }
 
         public static ConsoleColor? BackgroundColor
@@ -92,10 +88,6 @@ namespace Ntreev.Library.Commands
                 if (Default.backgroundColor.HasValue == true)
                     return Default.backgroundColor.Value;
                 return null;
-            }
-            private set
-            {
-
             }
         }
 
@@ -130,7 +122,7 @@ namespace Ntreev.Library.Commands
             BackgroundColorChanged?.Invoke(null, EventArgs.Empty);
         }
 
-        private static TerminalColor Default = new TerminalColor();
+        private static readonly TerminalColor Default = new TerminalColor();
 
         private struct ColorItem
         {

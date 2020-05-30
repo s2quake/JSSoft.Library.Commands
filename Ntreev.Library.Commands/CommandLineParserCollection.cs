@@ -49,10 +49,7 @@ namespace Ntreev.Library.Commands
             }
         }
 
-        public int Count
-        {
-            get { return this.parsers.Count; }
-        }
+        public int Count => this.parsers.Count;
 
         internal void Add(ICommand command, CommandLineParser parser)
         {

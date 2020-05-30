@@ -25,11 +25,6 @@ namespace Ntreev.Library.Commands
 {
     public interface IExecutable
     {
-        void Execute();
-    }
-
-    public interface IExecutableAsync
-    {
-        Task ExecuteAsync();
+        void Execute(object source);
     }
 }

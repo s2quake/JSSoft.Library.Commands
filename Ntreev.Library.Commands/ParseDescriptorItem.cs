@@ -28,33 +28,17 @@ namespace Ntreev.Library.Commands
 {
     public class ParseDescriptorItem
     {
-        private readonly CommandMemberDescriptor descriptor;
-        private object desiredvalue = DBNull.Value;
-
         public ParseDescriptorItem(CommandMemberDescriptor descriptor)
         {
-            this.descriptor = descriptor;
+            this.Descriptor = descriptor;
         }
 
-        public CommandMemberDescriptor Descriptor
-        {
-            get { return this.descriptor; }
-        }
+        public CommandMemberDescriptor Descriptor { get; private set; }
 
-        public bool IsParsed
-        {
-            get { return this.desiredvalue != DBNull.Value; }
-        }
+        public bool IsParsed => this.Desiredvalue != DBNull.Value;
 
-        public object DefaultValue
-        {
-            get { return this.descriptor.DefaultValue; }
-        }
+        public object DefaultValue => this.Descriptor.DefaultValue;
 
-        public object Desiredvalue
-        {
-            get { return this.desiredvalue; }
-            internal set { this.desiredvalue = value; }
-        }
+        public object Desiredvalue { get; internal set; } = DBNull.Value;
     }
 }

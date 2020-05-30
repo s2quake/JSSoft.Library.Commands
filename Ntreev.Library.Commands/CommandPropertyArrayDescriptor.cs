@@ -39,31 +39,16 @@ namespace Ntreev.Library.Commands
             this.description = provider.GetDescription(propertyInfo);
         }
 
-        public override string DisplayName
-        {
-            get { return this.propertyInfo.GetDisplayName(); }
-        }
+        public override string DisplayName => this.propertyInfo.GetDisplayName();
 
-        public override Type MemberType
-        {
-            get { return this.propertyInfo.PropertyType; }
-        }
+        public override Type MemberType => this.propertyInfo.PropertyType;
 
-        public override string Summary
-        {
-            get { return this.summary; }
-        }
+        public override string Summary => this.summary;
 
-        public override string Description
-        {
-            get { return this.description; }
-        }
+        public override string Description => this.description;
 
-        public override object DefaultValue
-        {
-            get { return this.propertyInfo.GetDefaultValue(); }
-        }
-        
+        public override object DefaultValue => this.propertyInfo.GetDefaultValue();
+
         public override IEnumerable<Attribute> Attributes
         {
             get

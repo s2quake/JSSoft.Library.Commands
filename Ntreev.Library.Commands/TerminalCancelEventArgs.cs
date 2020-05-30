@@ -24,18 +24,13 @@ namespace Ntreev.Library.Commands
 {
     public sealed class TerminalCancelEventArgs
     {
-        private readonly ConsoleSpecialKey specialKey;
-
         internal TerminalCancelEventArgs(ConsoleSpecialKey specialKey)
         {
-            this.specialKey = specialKey;
+            this.SpecialKey = specialKey;
         }
 
         public bool Cancel { get; set; }
 
-        public ConsoleSpecialKey SpecialKey
-        {
-            get { return this.specialKey; }
-        }
+        public ConsoleSpecialKey SpecialKey { get; private set; }
     }
 }

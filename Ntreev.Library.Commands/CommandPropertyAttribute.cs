@@ -28,12 +28,8 @@ namespace Ntreev.Library.Commands
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class CommandPropertyAttribute : Attribute
     {
-        private string name;
-        private char shortName;
-        private bool useName;
-        private bool isRequired;
-        private bool isExplicit;
-        private int group;
+        private readonly string name;
+        private readonly bool useName;
 
         public CommandPropertyAttribute()
         {
@@ -56,7 +52,7 @@ namespace Ntreev.Library.Commands
             if (shortName != char.MinValue && Regex.IsMatch(shortName.ToString(), "[a-z]", RegexOptions.IgnoreCase) == false)
                 throw new ArgumentException("shortName must be a alphabet character");
             this.name = name;
-            this.shortName = shortName;
+            this.ShortName = shortName;
             this.useName = true;
         }
 
@@ -70,29 +66,19 @@ namespace Ntreev.Library.Commands
         {
             if (shortName != char.MinValue && Regex.IsMatch(shortName.ToString(), "[a-z]", RegexOptions.IgnoreCase) == false)
                 throw new ArgumentException("shortName must be a alphabet character");
-            this.shortName = shortName;
+            this.ShortName = shortName;
             this.useName = useName;
         }
 
-        public string Name
-        {
-            get { return this.name ?? string.Empty; }
-        }
+        public string Name => this.name ?? string.Empty;
 
-        public char ShortName
-        {
-            get { return this.shortName; }
-        }
+        public char ShortName { get; private set; }
 
         /// <summary>
         /// 필수 인자를 나타냅니다. 필수 인자는 스위치 없이 값만 설정할 수 있습니다. 단 IsExplicit 가 true일 경우에는 스위치가 필요합니다.
         /// 기본값이 있는 경우 정렬시 뒤로 밀리게 됩니다. 
         /// </summary>
-        public bool IsRequired
-        {
-            get { return this.isRequired; }
-            set { this.isRequired = value; }
-        }
+        public bool IsRequired { get; set; }
 
         /// <summary>
         /// 일반적인 형태는 --name value와 같이 스위치와 값의 형식이 필요하지만 때로는 value를 생략할 경우가 필요합니다.
@@ -100,17 +86,9 @@ namespace Ntreev.Library.Commands
         /// 명령구문에 해당 스위치가 정의된 경우 DefaultValueAttribute의 값으로 설정되며 이 특성이 선언되어 있지 않은 경우에는
         /// 타입의 초기값으로 설정됩니다.
         /// </summary>
-        public  bool IsExplicit
-        {
-            get { return this.isExplicit; }
-            set { this.isExplicit = value; }
-        }
+        public bool IsExplicit { get; set; }
 
-        public int Group
-        {
-            get { return this.group; }
-            set { this.group = value; }
-        }
+        public int Group { get; set; }
 
         protected virtual void Validate(object target)
         {
@@ -120,8 +98,6 @@ namespace Ntreev.Library.Commands
         internal void InvokeValidate(object target)
         {
             this.Validate(target);
-
-            
         }
 
         internal string GetName(string descriptorName)
@@ -135,9 +111,6 @@ namespace Ntreev.Library.Commands
             return CommandSettings.NameGenerator(this.name);
         }
 
-        internal string InternalShortName
-        {
-            get { return this.shortName == char.MinValue ? string.Empty : this.shortName.ToString(); }
-        }
+        internal string InternalShortName => this.ShortName == char.MinValue ? string.Empty : this.ShortName.ToString();
     }
 }

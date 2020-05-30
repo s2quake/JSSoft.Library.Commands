@@ -28,35 +28,18 @@ namespace Ntreev.Library.Commands
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
     public class CommandPropertyTriggerAttribute : Attribute
     {
-        private readonly string propertyName;
-        private readonly object value;
-        private int group;
-
         public CommandPropertyTriggerAttribute(string propertyName, object value)
         {
-            this.propertyName = propertyName ?? throw new ArgumentNullException(nameof(propertyName));
-            this.value = value;
+            this.PropertyName = propertyName ?? throw new ArgumentNullException(nameof(propertyName));
+            this.Value = value;
         }
 
-        public string PropertyName
-        {
-            get { return this.propertyName; }
-        }
+        public string PropertyName { get; private set; }
 
-        public object Value
-        {
-            get { return this.value; }
-        }
+        public object Value { get; private set; }
 
-        public int Group
-        {
-            get { return this.group; }
-            set { this.group = value; }
-        }
+        public int Group { get; set; }
 
-        public bool IsInequality
-        {
-            get; set;
-        }
+        public bool IsInequality { get; set; }
     }
 }

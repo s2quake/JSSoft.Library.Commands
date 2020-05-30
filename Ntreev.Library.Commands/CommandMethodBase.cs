@@ -28,32 +28,25 @@ namespace Ntreev.Library.Commands
 {
     public abstract class CommandMethodBase : ICommand, ICommandHost
     {
-        private readonly string name;
         private CommandContextBase commandContext;
 
         protected CommandMethodBase()
         {
-            this.name = CommandStringUtility.ToSpinalCase(this.GetType());
+            this.Name = CommandStringUtility.ToSpinalCase(this.GetType());
         }
 
         protected CommandMethodBase(string name)
         {
-            this.name = name;
+            this.Name = name ?? throw new ArgumentNullException(nameof(name));
         }
 
-        public string Name
-        {
-            get { return this.name; }
-        }
+        public string Name { get; private set; }
 
-        public virtual bool IsEnabled
-        {
-            get { return true; }
-        }
+        public virtual bool IsEnabled => true;
 
-        public TextWriter Out => this.commandContext.Out;        
+        public TextWriter Out => this.commandContext.Out;
 
-        public TextWriter Error => this.commandContext.Error;        
+        public TextWriter Error => this.commandContext.Error;
 
         protected virtual bool IsMethodEnabled(CommandMethodDescriptor descriptor)
         {
@@ -71,7 +64,7 @@ namespace Ntreev.Library.Commands
         }
 
         #region ICommandHost
-        
+
         CommandContextBase ICommandHost.CommandContext
         {
             get => this.commandContext;

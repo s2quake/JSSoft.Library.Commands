@@ -34,13 +34,13 @@ namespace Ntreev.Library.Commands
 
         public SummaryAttribute(string summary)
         {
-            this.summary = summary;
+            this.summary = summary ?? throw new ArgumentNullException(nameof(summary));
         }
 
         public string Summary
         {
-            get { return this.summary ?? string.Empty; }
-            set { this.summary = value; }
+            get => this.summary ?? string.Empty;
+            set => this.summary = value;
         }
     }
 }

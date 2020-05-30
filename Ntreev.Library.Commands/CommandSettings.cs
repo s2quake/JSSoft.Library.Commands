@@ -40,7 +40,7 @@ namespace Ntreev.Library.Commands
 
         public static string Delimiter
         {
-            get { return delimiter; }
+            get => delimiter;
             set
             {
                 if (value.Any(item => char.IsPunctuation(item)) == false)
@@ -51,7 +51,7 @@ namespace Ntreev.Library.Commands
 
         public static string ShortDelimiter
         {
-            get { return shortDelimiter; }
+            get => shortDelimiter;
             set
             {
                 if (value.Any(item => char.IsPunctuation(item)) == false)
@@ -62,7 +62,7 @@ namespace Ntreev.Library.Commands
 
         public static char ItemSperator
         {
-            get { return itemSeparator; }
+            get => itemSeparator;
             set
             {
                 if (char.IsPunctuation(value) == false)
@@ -73,14 +73,11 @@ namespace Ntreev.Library.Commands
 
         public static Func<string, string> NameGenerator
         {
-            get { return nameGenerator ?? ToSpinalCase; }
-            set { nameGenerator = value; }
+            get => nameGenerator ?? ToSpinalCase;
+            set => nameGenerator = value;
         }
 
-        public static bool IsConsoleMode
-        {
-            get; set;
-        }
+        public static bool IsConsoleMode { get; set; }
 
         private static string ToSpinalCase(string text)
         {

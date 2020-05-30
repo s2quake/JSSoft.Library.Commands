@@ -52,25 +52,13 @@ namespace Ntreev.Library.Commands
             }
         }
 
-        public override string Summary
-        {
-            get { return this.summary; }
-        }
+        public override string Summary => this.summary;
 
-        public override string Description
-        {
-            get { return this.description; }
-        }
+        public override string Description => this.description;
 
-        public override object DefaultValue
-        {
-            get { return this.parameterInfo.DefaultValue; }
-        }
+        public override object DefaultValue => this.parameterInfo.DefaultValue;
 
-        public override Type MemberType
-        {
-            get { return this.parameterInfo.ParameterType; }
-        }
+        public override Type MemberType => this.parameterInfo.ParameterType;
 
         public override IEnumerable<Attribute> Attributes
         {

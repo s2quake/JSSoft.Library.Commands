@@ -129,15 +129,12 @@ namespace Ntreev.Library.Commands
             return UsageDescriptionProvider.Default.GetSummary(methodInfo);
         }
 
-        public bool IsShared
-        {
-            get; set;
-        }
+        public bool IsShared { get; set; }
 
         public string Prefix
         {
-            get { return this.prefix ?? string.Empty; }
-            set { this.prefix = value; }
+            get => this.prefix ?? string.Empty;
+            set => this.prefix = value;
         }
 
         private string GetResourceDescription(Type type, string name)

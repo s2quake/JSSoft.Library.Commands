@@ -59,20 +59,11 @@ namespace Ntreev.Library.Commands
             }
         }
 
-        public override Type MemberType
-        {
-            get { return this.propertyInfo.PropertyType; }
-        }
+        public override Type MemberType => this.propertyInfo.PropertyType;
 
-        public override string Summary
-        {
-            get { return this.summary; }
-        }
+        public override string Summary => this.summary;
 
-        public override string Description
-        {
-            get { return this.description; }
-        }
+        public override string Description => this.description;
 
         public override object DefaultValue
         {
@@ -105,10 +96,7 @@ namespace Ntreev.Library.Commands
             }
         }
 
-        public override TypeConverter Converter
-        {
-            get { return this.propertyInfo.GetConverter(); }
-        }
+        public override TypeConverter Converter => this.propertyInfo.GetConverter();
 
         protected override void SetValue(object instance, object value)
         {

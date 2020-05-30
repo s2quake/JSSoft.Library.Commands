@@ -28,7 +28,7 @@ namespace Ntreev.Library.Commands
 {
     public class Terminal
     {
-        private static ConsoleKeyInfo cancelKeyInfo = new ConsoleKeyInfo('\u0003', ConsoleKey.C, false, false, true);
+        private static readonly ConsoleKeyInfo cancelKeyInfo = new ConsoleKeyInfo('\u0003', ConsoleKey.C, false, false, true);
         private static readonly Dictionary<char, int> charToWidth = new Dictionary<char, int>(char.MaxValue);
         private static int bufferWidth = 80;
 
@@ -54,15 +54,12 @@ namespace Ntreev.Library.Commands
         {
             {
                 var name = $"{typeof(Terminal).Namespace}.{PlatformID.Win32NT}.dat";
-                using (var stream = typeof(Terminal).Assembly.GetManifestResourceStream(name))
+                using var stream = typeof(Terminal).Assembly.GetManifestResourceStream(name);
+                var buffer = new byte[stream.Length];
+                stream.Read(buffer, 0, buffer.Length);
+                for (var i = char.MinValue; i < char.MaxValue; i++)
                 {
-                    var buffer = new byte[stream.Length];
-                    stream.Read(buffer, 0, buffer.Length);
-
-                    for (var i = char.MinValue; i < char.MaxValue; i++)
-                    {
-                        charToWidth.Add(i, buffer[i]);
-                    }
+                    charToWidth.Add(i, buffer[i]);
                 }
             }
         }
@@ -657,7 +654,7 @@ namespace Ntreev.Library.Commands
             {
                 if (Console.CursorLeft == 0)
                 {
-                    var i = this.Index;
+                    _ = this.Index;
                     this.Index--;
                     if (Environment.OSVersion.Platform == PlatformID.Unix)
                         this.writer.Write(" ");

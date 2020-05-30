@@ -49,10 +49,7 @@ namespace Ntreev.Library.Commands
             }
         }
 
-        public int Count
-        {
-            get { return this.commands.Count; }
-        }
+        public int Count => this.commands.Count;
 
         internal void Add(ICommand command)
         {

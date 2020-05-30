@@ -28,55 +28,34 @@ namespace Ntreev.Library.Commands
 {
     public class CommandMemberUsagePrinter
     {
-        private readonly string name;
-        private readonly object instance;
-        private readonly string summary;
-        private readonly string description;
-
         public CommandMemberUsagePrinter(string name, object instance)
         {
             var provider = CommandDescriptor.GetUsageDescriptionProvider(instance.GetType());
-            this.name = name;
-            this.instance = instance;
-            this.summary = provider.GetSummary(instance);
-            this.description = provider.GetDescription(instance);
+            this.Name = name;
+            this.Instance = instance;
+            this.Summary = provider.GetSummary(instance);
+            this.Description = provider.GetDescription(instance);
         }
 
         public virtual void Print(TextWriter writer, CommandMemberDescriptor[] descriptors)
         {
-            using (var tw = new CommandTextWriter(writer))
-            {
-                this.Print(tw, descriptors);
-            }
+            using var tw = new CommandTextWriter(writer);
+            this.Print(tw, descriptors);
         }
 
         public virtual void Print(TextWriter writer, CommandMemberDescriptor descriptor)
         {
-            using (var tw = new CommandTextWriter(writer))
-            {
-                this.Print(tw, descriptor);
-            }
+            using var tw = new CommandTextWriter(writer);
+            this.Print(tw, descriptor);
         }
 
-        public string Name
-        {
-            get { return this.name; }
-        }
+        public string Name { get; private set; }
 
-        public object Instance
-        {
-            get { return this.instance; }
-        }
+        public object Instance { get; private set; }
 
-        public string Summary
-        {
-            get { return this.summary; }
-        }
+        public string Summary { get; private set; }
 
-        public string Description
-        {
-            get { return this.description; }
-        }
+        public string Description { get; private set; }
 
         private void Print(CommandTextWriter writer, CommandMemberDescriptor[] descriptors)
         {

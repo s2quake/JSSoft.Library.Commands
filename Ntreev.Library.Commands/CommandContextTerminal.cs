@@ -29,7 +29,6 @@ namespace Ntreev.Library.Commands
     {
         private readonly static string[] emptyStrings = new string[] { };
         private readonly CommandContextBase commandContext;
-        private bool isCancellationRequested;
         private string prompt;
         private string prefix;
         private string postfix;
@@ -41,7 +40,7 @@ namespace Ntreev.Library.Commands
 
         public new string Prompt
         {
-            get { return this.prompt ?? string.Empty; }
+            get => this.prompt ?? string.Empty;
             set
             {
                 this.prompt = value;
@@ -54,7 +53,7 @@ namespace Ntreev.Library.Commands
 
         public string Prefix
         {
-            get { return this.prefix ?? string.Empty; }
+            get => this.prefix ?? string.Empty;
             set
             {
                 this.prefix = value;
@@ -67,7 +66,7 @@ namespace Ntreev.Library.Commands
 
         public string Postfix
         {
-            get { return this.postfix ?? string.Empty; }
+            get => this.postfix ?? string.Empty;
             set
             {
                 this.postfix = value;
@@ -80,7 +79,7 @@ namespace Ntreev.Library.Commands
 
         public new void Cancel()
         {
-            this.isCancellationRequested = true;
+            this.IsCancellationRequested = true;
             base.Cancel();
         }
 
@@ -113,15 +112,9 @@ namespace Ntreev.Library.Commands
             }
         }
 
-        public bool IsCancellationRequested
-        {
-            get { return this.isCancellationRequested; }
-        }
+        public bool IsCancellationRequested { get; private set; }
 
-        public bool DetailErrorMessage
-        {
-            get; set;
-        }
+        public bool DetailErrorMessage { get; set; }
 
         protected override string[] GetCompletion(string[] items, string find)
         {

@@ -26,8 +26,6 @@ namespace Ntreev.Library.Commands
     [AttributeUsage(AttributeTargets.Class)]
     public class UsageDescriptionProviderAttribute : Attribute
     {
-        private readonly Type providerType;
-
         public UsageDescriptionProviderAttribute(string typeName)
             : this(Type.GetType(typeName))
         {
@@ -38,13 +36,10 @@ namespace Ntreev.Library.Commands
         {
             if (typeof(IUsageDescriptionProvider).IsAssignableFrom(type) == false)
                 throw new ArgumentException();
-            this.providerType = type;
+            this.ProviderType = type;
         }
 
-        public Type ProviderType
-        {
-            get { return this.providerType; }
-        }
+        public Type ProviderType { get; private set; }
 
         protected virtual IUsageDescriptionProvider CreateInstance(Type type)
         {

@@ -27,21 +27,18 @@ namespace Ntreev.Library.Commands
     {
         private readonly TextWriter writer;
         private readonly Terminal terminal;
-        private Encoding encoding;
+        private readonly Encoding encoding;
         private int offsetY;
         private int x;
 
         public TerminalTextWriter(TextWriter writer, Terminal terminal, Encoding encoding)
         {
-            this.writer = writer;
-            this.terminal = terminal;
-            this.encoding = encoding;
+            this.writer = writer ?? throw new ArgumentNullException(nameof(writer));
+            this.terminal = terminal ?? throw new ArgumentNullException(nameof(terminal));
+            this.encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
         }
 
-        public override Encoding Encoding
-        {
-            get { return this.encoding; }
-        }
+        public override Encoding Encoding => this.encoding;
 
         public override void Write(char value)
         {

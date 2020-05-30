@@ -55,15 +55,9 @@ namespace Ntreev.Library.Commands
             }
         }
 
-        public CommandMethodDescriptor this[int index]
-        {
-            get { return this.descriptors[index]; }
-        }
+        public CommandMethodDescriptor this[int index] => this.descriptors[index];
 
-        public int Count
-        {
-            get { return this.descriptors.Count; }
-        }
+        public int Count => this.descriptors.Count;
 
         internal void Add(CommandMethodDescriptor item)
         {
@@ -78,7 +72,7 @@ namespace Ntreev.Library.Commands
             }
         }
 
-#region IEnumerable
+        #region IEnumerable
 
         IEnumerator<CommandMethodDescriptor> IEnumerable<CommandMethodDescriptor>.GetEnumerator()
         {
@@ -90,6 +84,6 @@ namespace Ntreev.Library.Commands
             return this.descriptors.GetEnumerator();
         }
 
-#endregion
+        #endregion
     }
 }

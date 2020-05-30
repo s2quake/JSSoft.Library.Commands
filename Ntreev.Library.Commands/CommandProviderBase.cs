@@ -26,30 +26,26 @@ namespace Ntreev.Library.Commands
 {
     public abstract class CommandProviderBase : ICommandProvider, ICommandHost
     {
-        private readonly string commandName;
         private CommandContextBase commandContext;
 
         protected CommandProviderBase(string commandName)
         {
-            this.commandName = commandName;
+            this.CommandName = commandName ?? throw new ArgumentNullException(nameof(commandName));
         }
 
-        public string CommandName
-        {
-            get { return this.commandName; }
-        }
+        public string CommandName { get; private set; }
 
         public virtual string[] GetCompletions(CommandMethodDescriptor methodDescriptor, CommandMemberDescriptor memberDescriptor)
         {
             return null;
         }
 
-        public TextWriter Out => this.commandContext.Out;        
+        public TextWriter Out => this.commandContext.Out;
 
-        public TextWriter Error => this.commandContext.Error;        
+        public TextWriter Error => this.commandContext.Error;
 
         #region ICommandHost
-        
+
         CommandContextBase ICommandHost.CommandContext
         {
             get => this.commandContext;

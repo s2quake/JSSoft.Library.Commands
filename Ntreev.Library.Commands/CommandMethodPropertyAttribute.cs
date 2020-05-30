@@ -29,18 +29,13 @@ namespace Ntreev.Library.Commands
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     public sealed class CommandMethodPropertyAttribute : Attribute
     {
-        private readonly string[] propertyNames;
-
         public CommandMethodPropertyAttribute(params string[] propertyNames)
         {
             if (propertyNames.Any() == false)
                 throw new InvalidOperationException("최소 1개 이상의 속성이 설정되어야만 합니다.");
-            this.propertyNames = propertyNames;
+            this.PropertyNames = propertyNames;
         }
 
-        public string[] PropertyNames
-        {
-            get { return this.propertyNames; }
-        }
+        public string[] PropertyNames { get; private set; }
     }
 }

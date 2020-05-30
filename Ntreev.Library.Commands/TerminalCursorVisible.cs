@@ -52,6 +52,6 @@ namespace Ntreev.Library.Commands
             return Default;
         }
 
-        private static TerminalCursorVisible Default = new TerminalCursorVisible();
+        private static readonly TerminalCursorVisible Default = new TerminalCursorVisible();
     }
 }

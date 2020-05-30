@@ -53,7 +53,7 @@ namespace Ntreev.Library.Commands.Repl.Commands
             get; set;
         }
 
-        protected override void OnExecute()
+        protected override void OnExecute(object source)
         {
             File.Copy(this.SourcePath, this.TargetPath, this.OverWrite);
         }

@@ -25,16 +25,11 @@ namespace Ntreev.Library.Commands
     [AttributeUsage(AttributeTargets.Class)]
     public class UsageBrowsableAttribute : Attribute
     {
-        private readonly bool isBrowsable;
-
         public UsageBrowsableAttribute(bool isBrowsable)
         {
-            this.isBrowsable = isBrowsable;
+            this.IsBrowsable = isBrowsable;
         }
 
-        public bool IsBrowsable
-        {
-            get { return this.isBrowsable; }
-        }
+        public bool IsBrowsable { get; private set; }
     }
 }

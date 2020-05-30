@@ -196,10 +196,7 @@ namespace Ntreev.Library.Commands
             }
         }
 
-        public IDictionary<CommandMemberDescriptor, ParseDescriptorItem> Descriptors
-        {
-            get { return this.itemList; }
-        }
+        public IDictionary<CommandMemberDescriptor, ParseDescriptorItem> Descriptors => this.itemList;
 
         private void ValidateSetValue(object instance)
         {

@@ -42,7 +42,7 @@ namespace Ntreev.Library.Commands.Repl.Commands
             get; set;
         }
 
-        protected override void OnExecute()
+        protected override void OnExecute(object source)
         {
             var dir = Directory.GetCurrentDirectory();
             this.PrintItems(dir);

@@ -30,10 +30,6 @@ namespace Ntreev.Library.Commands
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     public class CommandMethodStaticPropertyAttribute : Attribute
     {
-        private readonly string typeName;
-        private readonly Type type;
-        private readonly string[] propertyNames;
-
         public CommandMethodStaticPropertyAttribute(string typeName, params string[] propertyNames)
             : this(Type.GetType(typeName), propertyNames)
         {
@@ -44,29 +40,20 @@ namespace Ntreev.Library.Commands
         {
             if (type.GetConstructor(Type.EmptyTypes) == null && type.IsAbstract && type.IsSealed)
             {
-                this.type = type;
-                this.typeName = type.AssemblyQualifiedName;
+                this.StaticType = type;
+                this.TypeName = type.AssemblyQualifiedName;
             }
             else
             {
                 throw new InvalidOperationException("type is not static class.");
             }
-            this.propertyNames = propertyNames;
+            this.PropertyNames = propertyNames;
         }
 
-        public string TypeName
-        {
-            get { return this.typeName; }
-        }
+        public string TypeName { get; private set; }
 
-        public string[] PropertyNames
-        {
-            get { return this.propertyNames; }
-        }
+        public string[] PropertyNames { get; private set; }
 
-        internal Type StaticType
-        {
-            get { return this.type; }
-        }
+        internal Type StaticType { get; private set; }
     }
 }

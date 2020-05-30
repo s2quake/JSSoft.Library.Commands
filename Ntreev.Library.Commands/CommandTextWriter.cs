@@ -26,23 +26,21 @@ namespace Ntreev.Library.Commands
 {
     public class CommandTextWriter : IndentedTextWriter
     {
-        private readonly int width;
-
         public CommandTextWriter()
             : this(new StringWriter(), Terminal.IsOutputRedirected == true ? int.MaxValue : Console.BufferWidth)
         {
-            
+
         }
         public CommandTextWriter(TextWriter writer)
             : this(writer, Terminal.IsOutputRedirected == true ? int.MaxValue : Console.BufferWidth)
         {
-            
+
         }
 
         public CommandTextWriter(TextWriter writer, int width)
             : base(writer)
         {
-            this.width = width;
+            this.Width = width;
         }
 
         public override string ToString() => this.InnerWriter.ToString();
@@ -53,52 +51,13 @@ namespace Ntreev.Library.Commands
             {
                 if (item == string.Empty)
                     this.WriteLine();
-                else 
+                else
                     this.WriteLine(item);
             }
         }
 
-        public string TabString
-        {
-            get { return IndentedTextWriter.DefaultTabString; }
-        }
+        public string TabString => IndentedTextWriter.DefaultTabString;
 
-        public int Width => this.width;
-
-        // private void WriteMultilineCore(string s)
-        // {
-        //     var indent = this.Indent;
-        //     var emptyCount = this.TabString.Length * this.Indent;
-        //     var width = Console.WindowWidth - emptyCount;
-
-        //     this.Indent = 0;
-
-        //     var i = 0;
-        //     foreach (var item in s)
-        //     {
-        //         try
-        //         {
-        //             if (Console.CursorLeft == 0)
-        //             {
-        //                 this.Write(string.Empty.PadRight(emptyCount));
-        //                 if (item == ' ' && i != 0)
-        //                     continue;
-        //             }
-        //             var x = Console.CursorLeft;
-        //             this.Write(item);
-        //             if (item != ' ' && Console.CursorLeft != 0 && Console.CursorLeft < x)
-        //             {
-        //                 this.Write("\r" + string.Empty.PadRight(emptyCount));
-        //                 this.Write(item);
-        //             }
-        //         }
-        //         finally
-        //         {
-        //             i++;
-        //         }
-        //     }
-        //     this.WriteLine();
-        //     this.Indent = indent;
-        // }
+        public int Width { get; private set; }
     }
 }

@@ -33,7 +33,6 @@ namespace Ntreev.Library.Commands
         private readonly CommandContextBase commandContext;
 
         public HelpCommand(CommandContextBase commandContext)
-            : base("help")
         {
             this.commandContext = commandContext;
             this.CommandName = string.Empty;
@@ -56,19 +55,13 @@ namespace Ntreev.Library.Commands
         [CommandProperty("CommandName", IsRequired = true)]
         [DisplayName("command")]
         [DefaultValue("")]
-        public string CommandName
-        {
-            get; set;
-        }
+        public string CommandName { get; set; }
 
         [CommandProperty("sub-command", IsRequired = true)]
         [DefaultValue("")]
-        public string MethodName
-        {
-            get; set;
-        }
+        public string MethodName { get; set; }
 
-        protected override void OnExecute()
+        protected override void OnExecute(object source)
         {
             try
             {
@@ -110,30 +103,28 @@ namespace Ntreev.Library.Commands
 
         private void PrintList()
         {
-            using (var writer = new CommandTextWriter())
+            using var writer = new CommandTextWriter();
+            this.commandContext.Parsers[this].PrintUsage(writer.InnerWriter);
+
+            writer.WriteLine(Resources.AvaliableCommands);
+            writer.Indent++;
+            foreach (var item in this.commandContext.Commands)
             {
-                this.commandContext.Parsers[this].PrintUsage(writer.InnerWriter);
+                if (this.commandContext.IsCommandEnabled(item) == false)
+                    continue;
+                if (this.IsCommandUsageBrowsable(item) == false)
+                    continue;
+                var summary = CommandDescriptor.GetUsageDescriptionProvider(item.GetType()).GetSummary(item);
 
-                writer.WriteLine(Resources.AvaliableCommands);
+                writer.WriteLine(item.Name);
                 writer.Indent++;
-                foreach (var item in this.commandContext.Commands)
-                {
-                    if (this.commandContext.IsCommandEnabled(item) == false)
-                        continue;
-                    if (this.IsCommandUsageBrowsable(item) == false)
-                        continue;
-                    var summary = CommandDescriptor.GetUsageDescriptionProvider(item.GetType()).GetSummary(item);
-
-                    writer.WriteLine(item.Name);
-                    writer.Indent++;
-                    writer.WriteMultiline(summary);
-                    if (summary != string.Empty)
-                        writer.WriteLine();
-                    writer.Indent--;
-                }
+                writer.WriteMultiline(summary);
+                if (summary != string.Empty)
+                    writer.WriteLine();
                 writer.Indent--;
-                this.commandContext.Out.Write(writer.ToString());
             }
+            writer.Indent--;
+            this.commandContext.Out.Write(writer.ToString());
         }
 
         private string[] GetCommandNames()

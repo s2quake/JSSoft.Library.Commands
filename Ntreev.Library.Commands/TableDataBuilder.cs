@@ -55,9 +55,6 @@ namespace Ntreev.Library.Commands
             }
         }
 
-        public bool HasHeader
-        {
-            get { return this.headers != null; }
-        }
+        public bool HasHeader => this.headers != null;
     }
 }

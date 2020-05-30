@@ -36,8 +36,5 @@ namespace Ntreev.Library.Commands
         /// 설정되지 않은 속성은 초기화하지 않습니다.
         /// </summary>
         OmitInitialize = 2,
-
-        [Obsolete]
-        IgnoreCase = 4,
     }
 }

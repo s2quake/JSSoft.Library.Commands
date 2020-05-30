@@ -48,15 +48,9 @@ namespace Ntreev.Library.Commands
             }
         }
 
-        public CommandMemberDescriptor this[int index]
-        {
-            get { return this.descriptors[index]; }
-        }
+        public CommandMemberDescriptor this[int index] => this.descriptors[index];
 
-        public int Count
-        {
-            get { return this.descriptors.Count; }
-        }
+        public int Count => this.descriptors.Count;
 
         internal void Sort()
         {

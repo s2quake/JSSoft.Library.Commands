@@ -26,12 +26,11 @@ namespace Ntreev.Library.Commands
 {
     public static class CommandDescriptor
     {
-        private static Dictionary<object, CommandMethodDescriptorCollection> instanceToMethodDescriptors = new Dictionary<object, CommandMethodDescriptorCollection>();
-        private static Dictionary<Type, CommandMethodDescriptorCollection> typeToMethodDescriptors = new Dictionary<Type, CommandMethodDescriptorCollection>();
-        private static Dictionary<Type, CommandMemberDescriptorCollection> typeToMemberDescriptors = new Dictionary<Type, CommandMemberDescriptorCollection>();
-        private static Dictionary<ICustomAttributeProvider, CommandMemberDescriptorCollection> providerToMemberDescriptors = new Dictionary<ICustomAttributeProvider, CommandMemberDescriptorCollection>();
-        private static Dictionary<ICustomAttributeProvider, CommandMethodDescriptorCollection> providerToMethodDescriptors = new Dictionary<ICustomAttributeProvider, CommandMethodDescriptorCollection>();
-        private static Dictionary<Type, IUsageDescriptionProvider> typeToUsageDescriptionProvider = new Dictionary<Type, IUsageDescriptionProvider>();
+        private static readonly Dictionary<Type, CommandMethodDescriptorCollection> typeToMethodDescriptors = new Dictionary<Type, CommandMethodDescriptorCollection>();
+        private static readonly Dictionary<Type, CommandMemberDescriptorCollection> typeToMemberDescriptors = new Dictionary<Type, CommandMemberDescriptorCollection>();
+        private static readonly Dictionary<ICustomAttributeProvider, CommandMemberDescriptorCollection> providerToMemberDescriptors = new Dictionary<ICustomAttributeProvider, CommandMemberDescriptorCollection>();
+        private static readonly Dictionary<ICustomAttributeProvider, CommandMethodDescriptorCollection> providerToMethodDescriptors = new Dictionary<ICustomAttributeProvider, CommandMethodDescriptorCollection>();
+        private static readonly Dictionary<Type, IUsageDescriptionProvider> typeToUsageDescriptionProvider = new Dictionary<Type, IUsageDescriptionProvider>();
 
         public static IUsageDescriptionProvider GetUsageDescriptionProvider(Type type)
         {

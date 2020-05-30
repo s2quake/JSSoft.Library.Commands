@@ -28,17 +28,16 @@ namespace Ntreev.Library.Commands
 {
     public abstract class CommandBase : ICommand, IExecutable, ICommandHost
     {
-        private readonly string name;
         private CommandContextBase commandContext;
 
         protected CommandBase()
         {
-            this.name = CommandStringUtility.ToSpinalCase(this.GetType());
+            this.Name = CommandStringUtility.ToSpinalCase(this.GetType());
         }
 
         protected CommandBase(string name)
         {
-            this.name = name;
+            this.Name = name;
         }
 
         public virtual string[] GetCompletions(CommandCompletionContext completionContext)
@@ -46,21 +45,15 @@ namespace Ntreev.Library.Commands
             return null;
         }
 
-        public string Name
-        {
-            get { return this.name; }
-        }
+        public string Name { get; private set; }
 
-        public virtual bool IsEnabled
-        {
-            get { return true; }
-        }
+        public virtual bool IsEnabled => true;
 
         public TextWriter Out => this.commandContext.Out;
 
         public TextWriter Error => this.commandContext.Error;
 
-        protected abstract void OnExecute();
+        protected abstract void OnExecute(object source);
 
         protected CommandMemberDescriptor GetDescriptor(string propertyName)
         {
@@ -74,9 +67,9 @@ namespace Ntreev.Library.Commands
 
         #region ICommand
 
-        void IExecutable.Execute()
+        void IExecutable.Execute(object source)
         {
-            this.OnExecute();
+            this.OnExecute(source);
         }
 
         #endregion
@@ -94,17 +87,16 @@ namespace Ntreev.Library.Commands
 
     public abstract class CommandAsyncBase : ICommand, IExecutableAsync, ICommandHost
     {
-        private readonly string name;
         private CommandContextBase commandContext;
 
         protected CommandAsyncBase()
         {
-            this.name = CommandStringUtility.ToSpinalCase(this.GetType());
+            this.Name = CommandStringUtility.ToSpinalCase(this.GetType());
         }
 
         protected CommandAsyncBase(string name)
         {
-            this.name = name;
+            this.Name = name;
         }
 
         public virtual string[] GetCompletions(CommandCompletionContext completionContext)
@@ -112,21 +104,15 @@ namespace Ntreev.Library.Commands
             return null;
         }
 
-        public string Name
-        {
-            get { return this.name; }
-        }
+        public string Name { get; private set; }
 
-        public virtual bool IsEnabled
-        {
-            get { return true; }
-        }
+        public virtual bool IsEnabled => true;
 
         public TextWriter Out => this.commandContext.Out;
 
         public TextWriter Error => this.commandContext.Error;
 
-        protected abstract Task OnExecuteAsync();
+        protected abstract Task OnExecuteAsync(object source);
 
         protected CommandMemberDescriptor GetDescriptor(string propertyName)
         {
@@ -140,9 +126,9 @@ namespace Ntreev.Library.Commands
 
         #region ICommand
 
-        Task IExecutableAsync.ExecuteAsync()
+        Task IExecutableAsync.ExecuteAsync(object source)
         {
-            return this.OnExecuteAsync();
+            return this.OnExecuteAsync(source);
         }
 
         #endregion

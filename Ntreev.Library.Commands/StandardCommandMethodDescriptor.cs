@@ -90,35 +90,17 @@ namespace Ntreev.Library.Commands
             this.description = provider.GetDescription(methodInfo);
         }
 
-        public override string DescriptorName
-        {
-            get { return this.methodInfo.Name; }
-        }
+        public override string DescriptorName => this.methodInfo.Name;
 
-        public override string Name
-        {
-            get { return this.name; }
-        }
+        public override string Name => this.name;
 
-        public override string DisplayName
-        {
-            get { return this.displayName; }
-        }
+        public override string DisplayName => this.displayName;
 
-        public override CommandMemberDescriptor[] Members
-        {
-            get { return this.members.ToArray(); }
-        }
+        public override CommandMemberDescriptor[] Members => this.members.ToArray();
 
-        public override string Summary
-        {
-            get { return this.summary; }
-        }
+        public override string Summary => this.summary;
 
-        public override string Description
-        {
-            get { return this.description; }
-        }
+        public override string Description => this.description;
 
         public override IEnumerable<Attribute> Attributes
         {
