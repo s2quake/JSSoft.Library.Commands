@@ -88,17 +88,19 @@ namespace Ntreev.Library.Commands
 
         protected virtual void PrintUsage(ICommand command, CommandLineParser parser)
         {
+            using var sw = new StringWriter();
             if (command is IExecutable == false && command is IExecutableAsync == false)
             {
                 if (this.MethodName != string.Empty)
-                    parser.PrintMethodUsage(this.Out, this.MethodName);
+                    parser.PrintMethodUsage(sw, this.MethodName);
                 else
-                    parser.PrintMethodUsage(this.Out);
+                    parser.PrintMethodUsage(sw);
             }
             else
             {
-                parser.PrintUsage(this.Out);
+                parser.PrintUsage(sw);
             }
+            this.Out.Write(sw.ToString());
         }
 
         private void PrintList()
