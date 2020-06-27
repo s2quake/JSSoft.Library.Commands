@@ -41,7 +41,7 @@ namespace Ntreev.Library.Commands
         [CommandProperty('q')]
         public bool IsQuiet { get; set; }
 
-        protected override void OnExecute(object source)
+        protected override void OnExecute()
         {
             using var writer = new CommandTextWriter(this.commandContext.Out);
             var info = FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location);

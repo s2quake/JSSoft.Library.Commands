@@ -53,7 +53,7 @@ namespace Ntreev.Library.Commands
 
         public TextWriter Error => this.commandContext.Error;
 
-        protected abstract void OnExecute(object source);
+        protected abstract void OnExecute();
 
         protected CommandMemberDescriptor GetDescriptor(string propertyName)
         {
@@ -67,9 +67,9 @@ namespace Ntreev.Library.Commands
 
         #region ICommand
 
-        void IExecutable.Execute(object source)
+        void IExecutable.Execute()
         {
-            this.OnExecute(source);
+            this.OnExecute();
         }
 
         #endregion
@@ -112,7 +112,7 @@ namespace Ntreev.Library.Commands
 
         public TextWriter Error => this.commandContext.Error;
 
-        protected abstract Task OnExecuteAsync(object source);
+        protected abstract Task OnExecuteAsync();
 
         protected CommandMemberDescriptor GetDescriptor(string propertyName)
         {
@@ -126,9 +126,9 @@ namespace Ntreev.Library.Commands
 
         #region ICommand
 
-        Task IExecutableAsync.ExecuteAsync(object source)
+        Task IExecutableAsync.ExecuteAsync()
         {
-            return this.OnExecuteAsync(source);
+            return this.OnExecuteAsync();
         }
 
         #endregion

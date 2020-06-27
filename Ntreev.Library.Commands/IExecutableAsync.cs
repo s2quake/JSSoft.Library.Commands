@@ -25,6 +25,6 @@ namespace Ntreev.Library.Commands
 {
     public interface IExecutableAsync
     {
-        Task ExecuteAsync(object source);
+        Task ExecuteAsync();
     }
 }

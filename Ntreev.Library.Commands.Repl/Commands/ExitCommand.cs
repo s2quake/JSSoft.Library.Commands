@@ -44,7 +44,7 @@ namespace Ntreev.Library.Commands.Repl.Commands
             get; set;
         }
 
-        protected override void OnExecute(object source)
+        protected override void OnExecute()
         {
             this.shell.Value.Cancel();
         }

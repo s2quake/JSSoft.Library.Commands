@@ -93,11 +93,6 @@ namespace Ntreev.Library.Commands
 
         public void Execute(string commandLine)
         {
-            this.Execute(null, commandLine);
-        }
-
-        public void Execute(object source, string commandLine)
-        {
             var segments = CommandStringUtility.Split(commandLine);
 
             var name = segments[0];
@@ -112,7 +107,7 @@ namespace Ntreev.Library.Commands
             arguments = this.InitializeRedirection(arguments);
             try
             {
-                this.Execute(source, CommandStringUtility.Split(arguments));
+                this.Execute(CommandStringUtility.Split(arguments));
             }
             finally
             {
@@ -288,7 +283,7 @@ namespace Ntreev.Library.Commands
             return new CommandLineParser(command.Name, command) { Out = this.Out };
         }
 
-        protected virtual bool OnExecute(object source, ICommand command, string arguments)
+        protected virtual bool OnExecute(ICommand command, string arguments)
         {
             var parser = this.Parsers[command];
             if (command is IExecutable == true)
@@ -298,7 +293,7 @@ namespace Ntreev.Library.Commands
                     return false;
                 }
 
-                (command as IExecutable).Execute(source);
+                (command as IExecutable).Execute();
             }
             else if (command is IExecutableAsync == true)
             {
@@ -306,7 +301,7 @@ namespace Ntreev.Library.Commands
                 {
                     return false;
                 }
-                (command as IExecutableAsync).ExecuteAsync(source).Wait();
+                (command as IExecutableAsync).ExecuteAsync().Wait();
             }
             else
             {
@@ -481,7 +476,7 @@ namespace Ntreev.Library.Commands
             return patternList.Where(item => item.StartsWith(find)).ToArray();
         }
 
-        private bool Execute(object source, string[] args)
+        private bool Execute(string[] args)
         {
             var commandName = args[0];
             var arguments = args[1];
@@ -494,17 +489,17 @@ namespace Ntreev.Library.Commands
             }
             else if (commandName == this.HelpCommand.Name)
             {
-                return this.OnExecute(source, this.HelpCommand, arguments);
+                return this.OnExecute(this.HelpCommand, arguments);
             }
             else if (commandName == this.VersionCommand.Name)
             {
-                return this.OnExecute(source, this.VersionCommand, arguments);
+                return this.OnExecute(this.VersionCommand, arguments);
             }
             else if (this.Commands.Contains(commandName) == true)
             {
                 var command = this.Commands[commandName];
                 if (this.IsCommandEnabled(command) == true)
-                    return this.OnExecute(source, command, arguments);
+                    return this.OnExecute(command, arguments);
             }
 
             throw new ArgumentException(string.Format("'{0}' does not existed command.", commandName));

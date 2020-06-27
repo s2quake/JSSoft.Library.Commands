@@ -25,6 +25,6 @@ namespace Ntreev.Library.Commands
 {
     public interface IExecutable
     {
-        void Execute(object source);
+        void Execute();
     }
 }

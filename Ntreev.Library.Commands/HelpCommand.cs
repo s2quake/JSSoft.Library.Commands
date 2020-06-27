@@ -61,7 +61,7 @@ namespace Ntreev.Library.Commands
         [DefaultValue("")]
         public string MethodName { get; set; }
 
-        protected override void OnExecute(object source)
+        protected override void OnExecute()
         {
             try
             {
