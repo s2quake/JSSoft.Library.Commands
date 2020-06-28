@@ -97,22 +97,6 @@ namespace Ntreev.Library.Commands
             return attribute.DisplayName;
         }
 
-        public static string GetSummary(this ICustomAttributeProvider customAttributeProvider)
-        {
-            var attribute = customAttributeProvider.GetCustomAttribute<SummaryAttribute>();
-            if (attribute == null)
-                return string.Empty;
-            return attribute.Summary;
-        }
-
-        public static string GetDescription(this ICustomAttributeProvider customAttributeProvider)
-        {
-            var attribute = customAttributeProvider.GetCustomAttribute<DescriptionAttribute>();
-            if (attribute == null)
-                return string.Empty;
-            return attribute.Description;
-        }
-
         public static bool GetBrowsable(this ICustomAttributeProvider customAttributeProvider)
         {
             var attribute = customAttributeProvider.GetCustomAttribute<BrowsableAttribute>();

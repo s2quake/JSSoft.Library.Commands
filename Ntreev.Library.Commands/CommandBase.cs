@@ -26,7 +26,7 @@ using System.Threading.Tasks;
 
 namespace Ntreev.Library.Commands
 {
-    public abstract class CommandBase : ICommand, IExecutable, ICommandHost
+    public abstract class CommandBase : ICommand, IExecutable, ICommandHost, ICommandCompletor
     {
         private CommandContextBase commandContext;
 

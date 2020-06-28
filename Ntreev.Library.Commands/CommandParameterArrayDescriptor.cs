@@ -36,31 +36,26 @@ namespace Ntreev.Library.Commands
             var provider = CommandDescriptor.GetUsageDescriptionProvider(parameterInfo.Member.DeclaringType);
             var paramAttr = parameterInfo.GetCustomAttribute<ParamArrayAttribute>();
             this.parameterInfo = parameterInfo;
-            this.summary = provider.GetSummary(parameterInfo);
-            this.description = provider.GetDescription(parameterInfo);
-            this.value = this.parameterInfo.DefaultValue;
+            this.DisplayName = parameterInfo.GetDisplayName() + "...";
+            this.summary = parameterInfo.GetSummary();
+            this.description = parameterInfo.GetDescription();
+            this.DefaultValue = parameterInfo.DefaultValue;
+            this.MemberType = parameterInfo.ParameterType;
+            this.Attributes = parameterInfo.GetCustomAttributes();
+            this.value = parameterInfo.DefaultValue;
         }
 
-        public override string DisplayName => base.DisplayName + "...";
+        public override string DisplayName { get; }
 
-        public override string Summary => this.summary;
+        public override string Summary { get; }
 
-        public override string Description => this.description;
+        public override string Description { get; }
 
-        public override object DefaultValue => this.parameterInfo.DefaultValue;
+        public override object DefaultValue { get; }
 
-        public override Type MemberType => this.parameterInfo.ParameterType;
+        public override Type MemberType { get; }
 
-        public override IEnumerable<Attribute> Attributes
-        {
-            get
-            {
-                foreach (Attribute item in this.parameterInfo.GetCustomAttributes(true))
-                {
-                    yield return item;
-                }
-            }
-        }
+        public override IEnumerable<Attribute> Attributes { get; }
 
         protected override void SetValue(object instance, object value)
         {

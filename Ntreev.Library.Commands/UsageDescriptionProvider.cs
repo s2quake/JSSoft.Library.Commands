@@ -28,44 +28,60 @@ namespace Ntreev.Library.Commands
     {
         public string GetDescription(PropertyInfo propertyInfo)
         {
-            return propertyInfo.GetDescription();
+            return ToDescription(propertyInfo);
         }
 
         public string GetDescription(ParameterInfo parameterInfo)
         {
-            return parameterInfo.GetDescription();
+            return ToDescription(parameterInfo);
         }
 
         public string GetDescription(object instance)
         {
-            return instance.GetType().GetDescription();
+            return ToDescription(instance.GetType());
         }
 
         public string GetDescription(MethodInfo methodInfo)
         {
-            return methodInfo.GetDescription();
+            return ToDescription(methodInfo);
         }
 
         public string GetSummary(PropertyInfo propertyInfo)
         {
-            return propertyInfo.GetSummary();
+            return ToSummary(propertyInfo);
         }
 
         public string GetSummary(ParameterInfo parameterInfo)
         {
-            return parameterInfo.GetSummary();
+            return ToSummary(parameterInfo);
         }
 
         public string GetSummary(object instance)
         {
-            return instance.GetType().GetSummary();
+            return ToSummary(instance.GetType());
         }
 
         public string GetSummary(MethodInfo methodInfo)
         {
-            return methodInfo.GetSummary();
+            return ToSummary(methodInfo);
         }
 
         public static readonly UsageDescriptionProvider Default = new UsageDescriptionProvider();
+
+        public static string ToSummary(ICustomAttributeProvider customAttributeProvider)
+        {
+            var attribute = customAttributeProvider.GetCustomAttribute<SummaryAttribute>();
+            if (attribute == null)
+                return string.Empty;
+            return attribute.Summary;
+        }
+
+        public static string ToDescription(ICustomAttributeProvider customAttributeProvider)
+        {
+            var attribute = customAttributeProvider.GetCustomAttribute<DescriptionAttribute>();
+            if (attribute == null)
+                return string.Empty;
+            return attribute.Description;
+        }
     }
 }

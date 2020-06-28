@@ -25,47 +25,33 @@ namespace Ntreev.Library.Commands
 {
     public sealed class CommandParameterDescriptor : CommandMemberDescriptor
     {
-        private readonly IUsageDescriptionProvider provider;
         private readonly ParameterInfo parameterInfo;
         private object value;
 
         public CommandParameterDescriptor(ParameterInfo parameterInfo)
             : base(new CommandPropertyAttribute() { IsRequired = true }, parameterInfo.Name)
         {
-            this.provider = CommandDescriptor.GetUsageDescriptionProvider(parameterInfo.Member.DeclaringType);
             this.parameterInfo = parameterInfo;
             this.value = parameterInfo.DefaultValue;
+            this.DisplayName = parameterInfo.GetDisplayName();
+            this.Summary = parameterInfo.GetSummary();
+            this.Description = parameterInfo.GetDescription();
+            this.DefaultValue = parameterInfo.DefaultValue;
+            this.MemberType = parameterInfo.ParameterType;
+            this.Attributes = parameterInfo.GetCustomAttributes();
         }
 
-        public override string DisplayName
-        {
-            get
-            {
-                var displayName = this.parameterInfo.GetDisplayName();
-                if (displayName != string.Empty)
-                    return displayName;
-                return this.Name;
-            }
-        }
+        public override string DisplayName { get; }
 
-        public override string Summary => this.provider.GetSummary(this.parameterInfo);
+        public override string Summary { get; }
 
-        public override string Description => this.provider.GetDescription(this.parameterInfo);
+        public override string Description { get; }
 
-        public override object DefaultValue => this.parameterInfo.DefaultValue;
+        public override object DefaultValue { get; }
 
-        public override Type MemberType => this.parameterInfo.ParameterType;
+        public override Type MemberType { get; }
 
-        public override IEnumerable<Attribute> Attributes
-        {
-            get
-            {
-                foreach (Attribute item in this.parameterInfo.GetCustomAttributes(true))
-                {
-                    yield return item;
-                }
-            }
-        }
+        public override IEnumerable<Attribute> Attributes { get; }
 
         protected override void SetValue(object instance, object value)
         {

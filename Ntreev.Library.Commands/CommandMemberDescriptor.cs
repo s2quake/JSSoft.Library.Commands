@@ -28,9 +28,6 @@ namespace Ntreev.Library.Commands
 {
     public abstract class CommandMemberDescriptor
     {
-        private readonly bool isRequired;
-        private readonly bool isExplicit;
-
         protected CommandMemberDescriptor(CommandPropertyAttribute attribute, string descriptorName)
         {
             if (attribute == null)
@@ -39,8 +36,8 @@ namespace Ntreev.Library.Commands
             this.DescriptorName = descriptorName ?? throw new ArgumentNullException(nameof(descriptorName));
             this.Name = attribute.GetName(descriptorName);
             this.ShortName = attribute.InternalShortName;
-            this.isRequired = attribute.IsRequired;
-            this.isExplicit = attribute.IsRequired == false ? true : attribute.IsExplicit;
+            this.IsRequired = attribute.IsRequired;
+            this.IsExplicit = attribute.IsRequired == false ? true : attribute.IsExplicit;
         }
 
         public string Name { get; }
@@ -51,7 +48,7 @@ namespace Ntreev.Library.Commands
         {
             get
             {
-                var items = this.isExplicit == true ? new string[] { this.ShortNamePattern, this.NamePattern } : new string[] { this.ShortName, this.Name };
+                var items = this.IsExplicit == true ? new string[] { this.ShortNamePattern, this.NamePattern } : new string[] { this.ShortName, this.Name };
                 var name = string.Join(" | ", items.Where(item => item != string.Empty).ToArray());
                 if (name == string.Empty)
                     return CommandSettings.NameGenerator(this.DescriptorName);
@@ -59,15 +56,15 @@ namespace Ntreev.Library.Commands
             }
         }
 
-        public virtual string Summary => string.Empty;
+        public virtual string Summary { get; } = string.Empty;
 
-        public virtual string Description => string.Empty;
+        public virtual string Description { get; } = string.Empty;
 
-        public virtual object DefaultValue => DBNull.Value;
+        public virtual object DefaultValue { get; } = DBNull.Value;
 
-        public virtual bool IsRequired => this.isRequired;
+        public virtual bool IsRequired { get; }
 
-        public virtual bool IsExplicit => this.isExplicit;
+        public virtual bool IsExplicit { get; }
 
         public abstract Type MemberType { get; }
 
@@ -144,15 +141,6 @@ namespace Ntreev.Library.Commands
                 return CommandSettings.ShortDelimiter + this.ShortName;
             }
         }
-
-        // public virtual string DisplayPattern
-        // {
-        //     get
-        //     {
-        //         var items = new string[] { this.ShortNamePattern, this.NamePattern };
-        //         return string.Join(" | ", items.Where(item => item != string.Empty).ToArray());
-        //     }
-        // }
 
         internal void SetValueInternal(object instance, object value)
         {

@@ -27,15 +27,12 @@ namespace Ntreev.Library.Commands
     public sealed class CommandPropertyDescriptor : CommandMemberDescriptor
     {
         private readonly PropertyInfo propertyInfo;
-        private readonly IUsageDescriptionProvider provider;
-        private readonly string description;
         private readonly CommandPropertyTriggerAttribute[] triggers;
 
         public CommandPropertyDescriptor(PropertyInfo propertyInfo)
             : base(propertyInfo.GetCommandPropertyAttribute(), propertyInfo.Name)
         {
             this.propertyInfo = propertyInfo;
-            this.provider = CommandDescriptor.GetUsageDescriptionProvider(propertyInfo.DeclaringType);
             this.triggers = propertyInfo.GetTriggerAttributes();
             this.Summary = propertyInfo.GetSummary();
             this.Description = propertyInfo.GetDescription();

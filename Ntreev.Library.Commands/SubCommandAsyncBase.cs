@@ -18,48 +18,36 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace Ntreev.Library.Commands
 {
-    public sealed class CommandPropertyArrayDescriptor : CommandMemberArrayDescriptor
+    class SubCommandAsyncBase : ICommand, ICommandCompletor, IExecutableAsync
     {
-        private readonly PropertyInfo propertyInfo;
+        private readonly CommandMethodBase command;
 
-        public CommandPropertyArrayDescriptor(PropertyInfo propertyInfo)
-            : base(propertyInfo.GetCommandPropertyAttribute(), propertyInfo.Name)
+        public SubCommandAsyncBase(CommandMethodBase command, MethodInfo methodInfo)
         {
-            this.propertyInfo = propertyInfo;
-            this.DisplayName = propertyInfo.GetDisplayName();
-            this.MemberType = propertyInfo.PropertyType;
-            this.Summary = propertyInfo.GetSummary();
-            this.Description = propertyInfo.GetDescription();
-            this.DefaultValue = propertyInfo.GetDefaultValue();
-            this.Attributes = propertyInfo.GetCustomAttributes();
+            this.command = command;
         }
 
-        public override string DisplayName { get; }
+        public string Name { get; }
 
-        public override Type MemberType { get; }
+        public virtual bool IsEnabled => true;
 
-        public override string Summary { get; }
-
-        public override string Description { get; }
-
-        public override object DefaultValue { get; }
-
-        public override IEnumerable<Attribute> Attributes { get; }
-
-        protected override void SetValue(object instance, object value)
+        public Task ExecuteAsync()
         {
-            this.propertyInfo.SetValue(instance, value, null);
+            throw new NotImplementedException();
         }
 
-        protected override object GetValue(object instance)
+        public string[] GetCompletions(CommandCompletionContext completionContext)
         {
-            return this.propertyInfo.GetValue(instance, null);
+            throw new NotImplementedException();
         }
     }
 }
