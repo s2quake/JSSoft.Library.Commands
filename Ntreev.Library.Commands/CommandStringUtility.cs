@@ -58,7 +58,6 @@ namespace Ntreev.Library.Commands
         {
             var matches = Regex.Matches(text, fullPattern);
             var argList = new List<string>();
-
             foreach (Match item in matches)
             {
                 if (removeQuote == true)
@@ -70,7 +69,6 @@ namespace Ntreev.Library.Commands
                     argList.Add(item.Value);
                 }
             }
-
             return argList.ToArray();
         }
 
@@ -96,12 +94,10 @@ namespace Ntreev.Library.Commands
         {
             var matches = Regex.Matches(text, fullPattern);
             var argList = new List<Match>();
-
             foreach (Match item in matches)
             {
                 argList.Add(item);
             }
-
             return argList.ToArray();
         }
 
@@ -109,12 +105,10 @@ namespace Ntreev.Library.Commands
         {
             var matches = Regex.Matches(text, completionPattern);
             var argList = new List<Match>();
-
             foreach (Match item in matches)
             {
                 argList.Add(item);
             }
-
             return argList.ToArray();
         }
 

@@ -65,14 +65,14 @@ namespace Ntreev.Library.Commands
         public CommandPropertyAttribute(char shortName, bool useName)
         {
             if (shortName != char.MinValue && Regex.IsMatch(shortName.ToString(), "[a-z]", RegexOptions.IgnoreCase) == false)
-                throw new ArgumentException("shortName must be a alphabet character");
+                throw new ArgumentException("shortName must be a alphabet character", nameof(shortName));
             this.ShortName = shortName;
             this.useName = useName;
         }
 
         public string Name => this.name ?? string.Empty;
 
-        public char ShortName { get; private set; }
+        public char ShortName { get; }
 
         /// <summary>
         /// 필수 인자를 나타냅니다. 필수 인자는 스위치 없이 값만 설정할 수 있습니다. 단 IsExplicit 가 true일 경우에는 스위치가 필요합니다.

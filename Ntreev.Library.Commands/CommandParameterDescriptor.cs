@@ -25,20 +25,16 @@ namespace Ntreev.Library.Commands
 {
     public sealed class CommandParameterDescriptor : CommandMemberDescriptor
     {
+        private readonly IUsageDescriptionProvider provider;
         private readonly ParameterInfo parameterInfo;
-        private readonly string summary;
-        private readonly string description;
         private object value;
 
         public CommandParameterDescriptor(ParameterInfo parameterInfo)
             : base(new CommandPropertyAttribute() { IsRequired = true }, parameterInfo.Name)
         {
-            var provider = CommandDescriptor.GetUsageDescriptionProvider(parameterInfo.Member.DeclaringType);
-            _ = parameterInfo.GetCustomAttribute<ParamArrayAttribute>();
+            this.provider = CommandDescriptor.GetUsageDescriptionProvider(parameterInfo.Member.DeclaringType);
             this.parameterInfo = parameterInfo;
-            this.summary = provider.GetSummary(parameterInfo);
-            this.description = provider.GetDescription(parameterInfo);
-            this.value = this.parameterInfo.DefaultValue;
+            this.value = parameterInfo.DefaultValue;
         }
 
         public override string DisplayName
@@ -52,9 +48,9 @@ namespace Ntreev.Library.Commands
             }
         }
 
-        public override string Summary => this.summary;
+        public override string Summary => this.provider.GetSummary(this.parameterInfo);
 
-        public override string Description => this.description;
+        public override string Description => this.provider.GetDescription(this.parameterInfo);
 
         public override object DefaultValue => this.parameterInfo.DefaultValue;
 

@@ -26,26 +26,23 @@ namespace Ntreev.Library.Commands
 {
     public sealed class CommandPropertyArrayDescriptor : CommandMemberArrayDescriptor
     {
+        private readonly IUsageDescriptionProvider provider;
         private readonly PropertyInfo propertyInfo;
-        private readonly string summary;
-        private readonly string description;
 
         public CommandPropertyArrayDescriptor(PropertyInfo propertyInfo)
             : base(propertyInfo.GetCommandPropertyAttribute(), propertyInfo.Name)
         {
-            var provider = CommandDescriptor.GetUsageDescriptionProvider(propertyInfo.DeclaringType);
+            this.provider = CommandDescriptor.GetUsageDescriptionProvider(propertyInfo.DeclaringType);
             this.propertyInfo = propertyInfo;
-            this.summary = provider.GetSummary(propertyInfo);
-            this.description = provider.GetDescription(propertyInfo);
         }
 
         public override string DisplayName => this.propertyInfo.GetDisplayName();
 
         public override Type MemberType => this.propertyInfo.PropertyType;
 
-        public override string Summary => this.summary;
+        public override string Summary => this.provider.GetSummary(this.propertyInfo);
 
-        public override string Description => this.description;
+        public override string Description => this.provider.GetDescription(this.propertyInfo);
 
         public override object DefaultValue => this.propertyInfo.GetDefaultValue();
 

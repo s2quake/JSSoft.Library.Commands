@@ -47,10 +47,8 @@ namespace Ntreev.Library.Commands
                 var query = from item in descriptors
                             where item.Name == name
                             select item;
-
                 if (query.Any() == false)
                     throw new KeyNotFoundException(string.Format(Resources.MethodDoesNotExist_Format, name));
-
                 return query.First();
             }
         }

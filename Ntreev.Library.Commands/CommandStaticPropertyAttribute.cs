@@ -52,10 +52,10 @@ namespace Ntreev.Library.Commands
             this.PropertyNames = propertyNames;
         }
 
-        public string TypeName { get; private set; }
+        public string TypeName { get; }
 
-        public string[] PropertyNames { get; private set; }
+        public string[] PropertyNames { get; }
 
-        internal Type StaticType { get; private set; }
+        internal Type StaticType { get; }
     }
 }

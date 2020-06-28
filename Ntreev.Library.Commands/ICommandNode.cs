@@ -17,41 +17,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 
 namespace Ntreev.Library.Commands
 {
-    public abstract class CommandProviderBase : ICommandProvider, ICommandHost
+    public interface ICommandNode
     {
-        private CommandContextBase commandContext;
-
-        protected CommandProviderBase(string commandName)
-        {
-            this.CommandName = commandName ?? throw new ArgumentNullException(nameof(commandName));
-        }
-
-        public string CommandName { get; }
-
-        public virtual string[] GetCompletions(CommandMethodDescriptor methodDescriptor, CommandMemberDescriptor memberDescriptor)
-        {
-            return null;
-        }
-
-        public TextWriter Out => this.commandContext.Out;
-
-        public TextWriter Error => this.commandContext.Error;
-
-        #region ICommandHost
-
-        CommandContextBase ICommandHost.CommandContext
-        {
-            get => this.commandContext;
-            set => this.commandContext = value;
-        }
-
-        #endregion
+        IEnumerable<ICommand> Commands { get; }
     }
 }

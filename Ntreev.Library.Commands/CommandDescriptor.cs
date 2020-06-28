@@ -162,10 +162,8 @@ namespace Ntreev.Library.Commands
                     continue;
                 if (CommandSettings.IsConsoleMode == false && item.GetCustomAttribute<ConsoleModeOnlyAttribute>() != null)
                     continue;
-
                 if (item.CanWrite == false)
                     throw new Exception(string.Format("'{0}' is not available because it cannot write.", item.Name));
-
                 if (attr is CommandPropertyArrayAttribute == true)
                     descriptors.Add(new CommandPropertyArrayDescriptor(item));
                 else

@@ -33,7 +33,6 @@ namespace Ntreev.Library.Commands
         private readonly CommandContextBase commandContext;
 
         public VersionCommand(CommandContextBase commandContext)
-            : base("--version")
         {
             this.commandContext = commandContext;
         }
@@ -44,16 +43,17 @@ namespace Ntreev.Library.Commands
         protected override void OnExecute()
         {
             using var writer = new CommandTextWriter(this.commandContext.Out);
+            var name = this.commandContext.Name;
+            var version = this.commandContext.Version;
             var info = FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location);
             if (this.IsQuiet == false)
             {
-                var items = new string[] { this.commandContext.Name, $"{this.commandContext.Version}" };
-                writer.WriteLine(string.Join(" ", items).Trim());
+                writer.WriteLine($"{name} {version}");
                 writer.WriteLine(info.LegalCopyright);
             }
             else
             {
-                writer.WriteLine(this.commandContext.Version);
+                writer.WriteLine(version);
             }
         }
     }

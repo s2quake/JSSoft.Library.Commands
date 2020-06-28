@@ -195,8 +195,10 @@ namespace Ntreev.Library.Commands
         {
             if (writer == null)
                 throw new ArgumentNullException(nameof(writer));
+            var name = this.Name;
+            var version = this.Version;
             var info = FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location);
-            writer.WriteLine("{0} {1}", this.Name, this.Version);
+            writer.WriteLine($"{name} {version}");
             writer.WriteLine(info.LegalCopyright);
         }
 
@@ -253,9 +255,9 @@ namespace Ntreev.Library.Commands
             set => this.writer = value;
         }
 
-        public string Name { get; private set; }
+        public string Name { get; }
 
-        public object Instance { get; private set; }
+        public object Instance { get; }
 
         public string HelpName { get; set; }
 

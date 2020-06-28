@@ -33,7 +33,7 @@ namespace Ntreev.Library.Commands
             this.Descriptor = descriptor;
         }
 
-        public CommandMemberDescriptor Descriptor { get; private set; }
+        public CommandMemberDescriptor Descriptor { get; }
 
         public bool IsParsed => this.Desiredvalue != DBNull.Value;
 

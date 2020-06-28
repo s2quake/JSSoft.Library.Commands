@@ -45,6 +45,18 @@ namespace Ntreev.Library.Commands
 
         public override string ToString() => this.InnerWriter.ToString();
 
+        public void BeginGroup(string text)
+        {
+            this.WriteLine(text);
+            this.Indent++;
+        }
+
+        public void EndGroup()
+        {
+            this.Indent--;
+            this.WriteLine();
+        }
+
         public void WriteMultiline(string s)
         {
             foreach (var item in s.Split(new string[] { Environment.NewLine }, StringSplitOptions.None))

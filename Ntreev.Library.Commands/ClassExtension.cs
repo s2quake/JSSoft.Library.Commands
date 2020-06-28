@@ -22,6 +22,7 @@ using System.Text;
 using System.ComponentModel;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace Ntreev.Library.Commands
 {
@@ -41,10 +42,7 @@ namespace Ntreev.Library.Commands
         {
             var attr = propertyInfo.GetCustomAttribute<DefaultValueAttribute>();
             if (attr == null)
-            {
                 return DBNull.Value;
-            }
-
             var value = attr.Value;
             if (value == null)
             {
@@ -52,13 +50,20 @@ namespace Ntreev.Library.Commands
                     return DBNull.Value;
                 return null;
             }
-
             if (value.GetType() == propertyInfo.PropertyType)
                 return value;
-
             if (propertyInfo.PropertyType.IsArray == true)
                 return Parser.ParseArray(propertyInfo.PropertyType, value.ToString());
             return propertyInfo.GetConverter().ConvertFrom(value);
+        }
+
+        public static CommandPropertyTriggerAttribute[] GetTriggerAttributes(this PropertyInfo propertyInfo)
+        {
+            var attrs = propertyInfo.GetCustomAttributes(typeof(CommandPropertyTriggerAttribute), true);
+            var query = from item in attrs
+                        where item is CommandPropertyTriggerAttribute
+                        select item as CommandPropertyTriggerAttribute;
+            return query.ToArray();
         }
 
         public static object GetDefaultValue(Type propertyType, object value)
@@ -71,10 +76,8 @@ namespace Ntreev.Library.Commands
                     return DBNull.Value;
                 return null;
             }
-
             if (value.GetType() == propertyType)
                 return value;
-
             if (propertyType.IsArray == true)
                 return Parser.ParseArray(propertyType, value.ToString());
             return TypeDescriptor.GetConverter(propertyType).ConvertFrom(value);
@@ -91,7 +94,6 @@ namespace Ntreev.Library.Commands
             var attribute = customAttributeProvider.GetCustomAttribute<DisplayNameAttribute>();
             if (attribute == null)
                 return string.Empty;
-
             return attribute.DisplayName;
         }
 
@@ -100,7 +102,6 @@ namespace Ntreev.Library.Commands
             var attribute = customAttributeProvider.GetCustomAttribute<SummaryAttribute>();
             if (attribute == null)
                 return string.Empty;
-
             return attribute.Summary;
         }
 
@@ -109,7 +110,6 @@ namespace Ntreev.Library.Commands
             var attribute = customAttributeProvider.GetCustomAttribute<DescriptionAttribute>();
             if (attribute == null)
                 return string.Empty;
-
             return attribute.Description;
         }
 
@@ -118,7 +118,6 @@ namespace Ntreev.Library.Commands
             var attribute = customAttributeProvider.GetCustomAttribute<BrowsableAttribute>();
             if (attribute == null)
                 return true;
-
             return attribute.Browsable;
         }
 
@@ -137,13 +136,12 @@ namespace Ntreev.Library.Commands
             var attribute = customAttributeProvider.GetCustomAttribute<TypeConverterAttribute>();
             if (attribute == null)
                 return TypeDescriptor.GetConverter(type);
-
             try
             {
                 var converterType = Type.GetType(attribute.ConverterTypeName);
                 return Activator.CreateInstance(converterType) as TypeConverter;
             }
-            catch (Exception)
+            catch
             {
                 return TypeDescriptor.GetConverter(type);
             }

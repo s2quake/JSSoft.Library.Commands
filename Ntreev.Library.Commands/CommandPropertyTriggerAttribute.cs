@@ -34,9 +34,9 @@ namespace Ntreev.Library.Commands
             this.Value = value;
         }
 
-        public string PropertyName { get; private set; }
+        public string PropertyName { get; }
 
-        public object Value { get; private set; }
+        public object Value { get; }
 
         public int Group { get; set; }
 

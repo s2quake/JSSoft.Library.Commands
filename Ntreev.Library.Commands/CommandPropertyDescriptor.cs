@@ -27,25 +27,18 @@ namespace Ntreev.Library.Commands
     public sealed class CommandPropertyDescriptor : CommandMemberDescriptor
     {
         private readonly PropertyInfo propertyInfo;
-        private readonly string summary;
+        private readonly IUsageDescriptionProvider provider;
         private readonly string description;
-        private readonly List<CommandPropertyTriggerAttribute> triggerList = new List<CommandPropertyTriggerAttribute>();
+        private readonly CommandPropertyTriggerAttribute[] triggers;
 
         public CommandPropertyDescriptor(PropertyInfo propertyInfo)
             : base(propertyInfo.GetCommandPropertyAttribute(), propertyInfo.Name)
         {
-            var provider = CommandDescriptor.GetUsageDescriptionProvider(propertyInfo.DeclaringType);
             this.propertyInfo = propertyInfo;
-            this.summary = provider.GetSummary(propertyInfo);
-            this.description = provider.GetDescription(propertyInfo);
-            var attrs = propertyInfo.GetCustomAttributes(typeof(CommandPropertyTriggerAttribute), true);
-            foreach (var item in attrs)
-            {
-                if (item is CommandPropertyTriggerAttribute attr)
-                {
-                    this.triggerList.Add(attr);
-                }
-            }
+            this.provider = CommandDescriptor.GetUsageDescriptionProvider(propertyInfo.DeclaringType);
+            this.triggers = propertyInfo.GetTriggerAttributes();
+            this.Summary = propertyInfo.GetSummary();
+            this.Description = propertyInfo.GetDescription();
         }
 
         public override string DisplayName
@@ -61,9 +54,9 @@ namespace Ntreev.Library.Commands
 
         public override Type MemberType => this.propertyInfo.PropertyType;
 
-        public override string Summary => this.summary;
+        public override string Summary { get; }
 
-        public override string Description => this.description;
+        public override string Description { get; }
 
         public override object DefaultValue
         {
@@ -75,15 +68,7 @@ namespace Ntreev.Library.Commands
             }
         }
 
-        public override bool IsExplicit
-        {
-            get
-            {
-                if (this.MemberType == typeof(bool))
-                    return true;
-                return base.IsExplicit;
-            }
-        }
+        public override bool IsExplicit => this.MemberType == typeof(bool) ? true : base.IsExplicit;
 
         public override IEnumerable<Attribute> Attributes
         {
@@ -110,10 +95,10 @@ namespace Ntreev.Library.Commands
 
         protected override void OnValidateTrigger(IDictionary<CommandMemberDescriptor, ParseDescriptorItem> descriptors)
         {
-            if (this.triggerList.Any() == false || descriptors[this].IsParsed == false)
+            if (this.triggers.Any() == false || descriptors[this].IsParsed == false)
                 return;
 
-            var query = from item in this.triggerList
+            var query = from item in this.triggers
                         group item by item.Group into groups
                         select groups;
 
@@ -138,12 +123,12 @@ namespace Ntreev.Library.Commands
                     if (item.IsInequality == false)
                     {
                         if (object.Equals(value1, value2) == false)
-                            throw new Exception(string.Format("'{0}' can not use. '{1}' property value must be '{2}'", this.DisplayPattern, triggerDescriptor.DisplayPattern, value2));
+                            throw new Exception(string.Format("'{0}' can not use. '{1}' property value must be '{2}'", this.DisplayName, triggerDescriptor.DisplayName, value2));
                     }
                     else
                     {
                         if (object.Equals(value1, value2) == true)
-                            throw new Exception(string.Format("'{0}' can not use. '{1}' property value must be not '{2}'", this.DisplayPattern, triggerDescriptor.DisplayPattern, value2));
+                            throw new Exception(string.Format("'{0}' can not use. '{1}' property value must be not '{2}'", this.DisplayName, triggerDescriptor.DisplayName, value2));
                     }
                 }
             }

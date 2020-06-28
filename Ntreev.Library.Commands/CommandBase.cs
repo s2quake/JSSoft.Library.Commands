@@ -45,7 +45,7 @@ namespace Ntreev.Library.Commands
             return null;
         }
 
-        public string Name { get; private set; }
+        public string Name { get; }
 
         public virtual bool IsEnabled => true;
 
@@ -104,7 +104,7 @@ namespace Ntreev.Library.Commands
             return null;
         }
 
-        public string Name { get; private set; }
+        public string Name { get; }
 
         public virtual bool IsEnabled => true;
 

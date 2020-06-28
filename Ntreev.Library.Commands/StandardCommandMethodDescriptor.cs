@@ -27,97 +27,44 @@ namespace Ntreev.Library.Commands
 {
     class StandardCommandMethodDescriptor : CommandMethodDescriptor
     {
-        private readonly MethodInfo methodInfo;
         private readonly CommandMethodAttribute attribute;
         private readonly CommandMemberDescriptor[] members;
-        private readonly string name;
-        private readonly string displayName;
-        private readonly string summary;
-        private readonly string description;
-        private readonly bool isAsync;
 
         public StandardCommandMethodDescriptor(MethodInfo methodInfo)
             : base(methodInfo)
         {
-            var provider = CommandDescriptor.GetUsageDescriptionProvider(methodInfo.DeclaringType);
-            var methodName = methodInfo.Name;
-            this.methodInfo = methodInfo;
-            this.isAsync = methodInfo.ReturnType.IsAssignableFrom(typeof(Task));
-            if (this.isAsync == true && methodName.EndsWith("Async") == true)
-                methodName = methodName.Substring(0, methodName.Length - "Async".Length);
+            this.DescriptorName = methodInfo.Name;
+            this.IsAsync = methodInfo.IsAsync();
             this.attribute = methodInfo.GetCommandMethodAttribute();
-            this.name = attribute.Name != string.Empty ? attribute.Name : CommandSettings.NameGenerator(methodName);
-            this.displayName = methodInfo.GetDisplayName();
-
-            var memberList = new List<CommandMemberDescriptor>();
-
-            foreach (var item in methodInfo.GetParameters())
-            {
-                if (item.GetCustomAttribute<ParamArrayAttribute>() != null)
-                {
-                    memberList.Add(new CommandParameterArrayDescriptor(item));
-                }
-                else
-                {
-                    memberList.Add(new CommandParameterDescriptor(item));
-                }
-            }
-
-            var methodAttr = this.methodInfo.GetCustomAttribute<CommandMethodPropertyAttribute>();
-            if (methodAttr != null)
-            {
-                foreach (var item in methodAttr.PropertyNames)
-                {
-                    var memberDescriptor = CommandDescriptor.GetMemberDescriptors(methodInfo.DeclaringType)[item];
-                    if (memberDescriptor == null)
-                        throw new ArgumentException(string.Format("'{0}' attribute does not existed .", item));
-                    memberList.Add(memberDescriptor);
-                }
-            }
-
-            var staticAttrs = this.methodInfo.GetCustomAttributes(typeof(CommandMethodStaticPropertyAttribute), true);
-            foreach (var item in staticAttrs)
-            {
-                if (item is CommandMethodStaticPropertyAttribute attr)
-                {
-                    var memberDescriptors = CommandDescriptor.GetMemberDescriptors(attr.StaticType);
-                    memberList.AddRange(memberDescriptors);
-                }
-            }
-
-            this.members = memberList.OrderBy(item => !item.IsRequired).OrderBy(item => item.DefaultValue != DBNull.Value).OrderBy(item => item is CommandMemberArrayDescriptor).ToArray();
-            this.summary = provider.GetSummary(methodInfo);
-            this.description = provider.GetDescription(methodInfo);
+            this.Name = methodInfo.GetName();
+            this.DisplayName = methodInfo.GetDisplayName();
+            this.Summary = methodInfo.GetSummary();
+            this.Description = methodInfo.GetDescription();
+            this.Attributes = methodInfo.GetCustomAttributes();
+            this.members = methodInfo.GetMemberDescriptors();
         }
 
-        public override string DescriptorName => this.methodInfo.Name;
+        public override string DescriptorName { get; }
 
-        public override string Name => this.name;
+        public override string Name { get; }
 
-        public override string DisplayName => this.displayName;
+        public override string DisplayName { get; }
 
         public override CommandMemberDescriptor[] Members => this.members.ToArray();
 
-        public override string Summary => this.summary;
+        public override string Summary { get; }
 
-        public override string Description => this.description;
+        public override string Description { get; }
 
-        public override IEnumerable<Attribute> Attributes
-        {
-            get
-            {
-                foreach (Attribute item in this.methodInfo.GetCustomAttributes(true))
-                {
-                    yield return item;
-                }
-            }
-        }
+        public override IEnumerable<Attribute> Attributes { get; }
+
+        public override bool IsAsync { get; }
 
         protected override void OnInvoke(object instance, object[] parameters)
         {
-            if (this.methodInfo.DeclaringType.IsAbstract && this.methodInfo.DeclaringType.IsSealed == true)
+            if (this.MethodInfo.DeclaringType.IsAbstract && this.MethodInfo.DeclaringType.IsSealed == true)
             {
-                var result = this.methodInfo.Invoke(null, parameters);
+                var result = this.MethodInfo.Invoke(null, parameters);
                 if (result is Task task)
                 {
                     task.Wait();
@@ -125,7 +72,7 @@ namespace Ntreev.Library.Commands
             }
             else
             {
-                var result = this.methodInfo.Invoke(instance, parameters);
+                var result = this.MethodInfo.Invoke(instance, parameters);
                 if (result is Task task)
                 {
                     task.Wait();

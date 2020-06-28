@@ -54,18 +54,18 @@ namespace Ntreev.Library.Commands
             this.Print(tw, descriptor, memberDescriptor);
         }
 
-        public string Name { get; private set; }
+        public string Name { get; }
 
-        public object Instance { get; private set; }
+        public object Instance { get; }
 
-        public string Summary { get; private set; }
+        public string Summary { get; }
 
-        public string Description { get; private set; }
+        public string Description { get; }
 
         private void Print(CommandTextWriter writer, CommandMethodDescriptor[] descriptors)
         {
             this.PrintSummary(writer, descriptors);
-            this.PrintDescription(writer, descriptors);
+            // this.PrintDescription(writer, descriptors);
             this.PrintUsage(writer, descriptors);
             this.PrintSubcommands(writer, descriptors);
         }
@@ -73,7 +73,7 @@ namespace Ntreev.Library.Commands
         private void Print(CommandTextWriter writer, CommandMethodDescriptor descriptor, CommandMemberDescriptor[] memberDescriptors)
         {
             this.PrintSummary(writer, descriptor, memberDescriptors);
-            this.PrintDescription(writer, descriptor, memberDescriptors);
+            // this.PrintDescription(writer, descriptor, memberDescriptors);
             this.PrintUsage(writer, descriptor, memberDescriptors);
             this.PrintRequirements(writer, descriptor, memberDescriptors);
             this.PrintVariables(writer, descriptor, memberDescriptors);
@@ -89,123 +89,96 @@ namespace Ntreev.Library.Commands
 
         private void PrintSummary(CommandTextWriter writer, CommandMethodDescriptor[] descriptors)
         {
-            if (this.Summary == string.Empty)
-                return;
-
-            writer.WriteLine(Resources.Summary);
-            writer.Indent++;
-            writer.WriteLine(this.Summary);
-            writer.Indent--;
-            writer.WriteLine();
+            var summary = this.Summary;
+            if (summary != string.Empty)
+            {
+                writer.BeginGroup(Resources.Summary);
+                writer.WriteLine(summary);
+                writer.EndGroup();
+            }
         }
 
         private void PrintSummary(CommandTextWriter writer, CommandMethodDescriptor descriptor, CommandMemberDescriptor[] memberDescriptors)
         {
-            if (this.Summary == string.Empty)
-                return;
-
-            writer.WriteLine(Resources.Summary);
-            writer.Indent++;
-            writer.WriteLine(descriptor.Summary);
-            writer.Indent--;
-            writer.WriteLine();
+            if (descriptor.Summary != string.Empty)
+            {
+                writer.BeginGroup(Resources.Summary);
+                writer.WriteLine(descriptor.Summary);
+                writer.EndGroup();
+            }
         }
 
         private void PrintSummary(CommandTextWriter writer, CommandMethodDescriptor descriptor, CommandMemberDescriptor memberDescriptor)
         {
-            writer.WriteLine(Resources.Summary);
-            writer.Indent++;
+            writer.BeginGroup(Resources.Summary);
             writer.WriteLine(memberDescriptor.Summary);
-            writer.Indent--;
-            writer.WriteLine();
+            writer.EndGroup();
         }
 
         private void PrintDescription(CommandTextWriter writer, CommandMethodDescriptor[] descriptors)
         {
-            if (this.Description == string.Empty)
-                return;
-
-            writer.WriteLine(Resources.Description);
-            writer.Indent++;
-            writer.WriteMultiline(this.Description);
-            writer.Indent--;
-            writer.WriteLine();
+            var description = this.Description;
+            if (description != string.Empty)
+            {
+                writer.BeginGroup(Resources.Description);
+                writer.WriteMultiline(description);
+                writer.EndGroup();
+            }
         }
 
         private void PrintDescription(CommandTextWriter writer, CommandMethodDescriptor descriptor, CommandMemberDescriptor[] memberDescriptors)
         {
-            if (descriptor.Description == string.Empty)
-                return;
-
-            writer.WriteLine(Resources.Description);
-            writer.Indent++;
-            writer.WriteMultiline(descriptor.Description);
-            writer.Indent--;
-            writer.WriteLine();
+            if (descriptor.Description != string.Empty)
+            {
+                writer.BeginGroup(Resources.Description);
+                writer.WriteMultiline(descriptor.Description);
+                writer.EndGroup();
+            }
         }
 
         private void PrintDescription(CommandTextWriter writer, CommandMethodDescriptor descriptor, CommandMemberDescriptor memberDescriptor)
         {
-            writer.WriteLine(Resources.Description);
-            writer.Indent++;
+            writer.BeginGroup(Resources.Description);
             writer.WriteMultiline(memberDescriptor.Description);
-            writer.Indent--;
-            writer.WriteLine();
+            writer.EndGroup();
         }
 
         private void PrintSubcommands(CommandTextWriter writer, CommandMethodDescriptor[] descriptors)
         {
-            writer.WriteLine(Resources.CommandMethod);
-            writer.Indent++;
-
+            writer.BeginGroup(Resources.CommandMethod);
             foreach (var item in descriptors)
             {
                 writer.WriteLine(item.Name);
-                var summary = item.Summary != string.Empty ? item.Summary : item.Description;
-                if (summary != string.Empty)
+                if (item.Summary != string.Empty)
                 {
                     writer.Indent++;
-                    writer.WriteMultiline(summary);
+                    writer.WriteMultiline(item.Summary);
                     writer.Indent--;
                 }
                 writer.WriteLine();
             }
-
-            writer.Indent--;
-            writer.WriteLine();
+            writer.EndGroup();
         }
 
         private void PrintUsage(CommandTextWriter writer, CommandMethodDescriptor[] descriptors)
         {
-            writer.WriteLine(Resources.Usage);
-            writer.Indent++;
-
+            writer.BeginGroup(Resources.Usage);
             writer.WriteLine("{0} <sub-command> [options...]", this.Name);
-
-            writer.Indent--;
-            writer.WriteLine();
+            writer.EndGroup();
         }
 
         private void PrintUsage(CommandTextWriter writer, CommandMethodDescriptor descriptor, CommandMemberDescriptor[] memberDescriptors)
         {
-            writer.WriteLine(Resources.Usage);
-            writer.Indent++;
-
+            this.BeginGroup(writer, Resources.Usage);
             this.PrintMethodUsage(writer, descriptor, memberDescriptors);
-
-            writer.Indent--;
-            writer.WriteLine();
+            this.EndGroup(writer);
         }
 
         private void PrintUsage(CommandTextWriter writer, CommandMethodDescriptor descriptor, CommandMemberDescriptor memberDescriptor)
         {
-            writer.WriteLine(Resources.Usage);
-            writer.Indent++;
-
+            this.BeginGroup(writer, Resources.Usage);
             this.PrintOption(writer, memberDescriptor);
-
-            writer.Indent--;
-            writer.WriteLine();
+            this.EndGroup(writer);
         }
 
         private void PrintMethodUsage(CommandTextWriter writer, CommandMethodDescriptor descriptor, CommandMemberDescriptor[] memberDescriptors)
@@ -214,16 +187,12 @@ namespace Ntreev.Library.Commands
             var query = from item in memberDescriptors
                         orderby item.IsRequired descending
                         select this.GetString(item);
-
             var maxWidth = writer.Width - (writer.TabString.Length * writer.Indent);
-
             var line = this.Name + " " + descriptor.Name;
-
             foreach (var item in query)
             {
                 if (line != string.Empty)
                     line += " ";
-
                 if (line.Length + item.Length >= maxWidth)
                 {
                     writer.WriteLine(line);
@@ -231,7 +200,6 @@ namespace Ntreev.Library.Commands
                 }
                 line += item;
             }
-
             writer.WriteLine(line);
             writer.Indent = indent;
         }
@@ -242,8 +210,7 @@ namespace Ntreev.Library.Commands
             if (items.Any() == false)
                 return;
 
-            writer.WriteLine(Resources.Requirements);
-            writer.Indent++;
+            writer.BeginGroup(Resources.Requirements);
             for (var i = 0; i < items.Length; i++)
             {
                 var item = items[i];
@@ -251,21 +218,18 @@ namespace Ntreev.Library.Commands
                 if (i + 1 < items.Length)
                     writer.WriteLine();
             }
-            writer.Indent--;
-            writer.WriteLine();
+            writer.EndGroup();
         }
 
         private void PrintVariables(CommandTextWriter writer, CommandMethodDescriptor descriptor, CommandMemberDescriptor[] memberDescriptors)
         {
             var variables = memberDescriptors.FirstOrDefault(item => item is CommandMemberArrayDescriptor);
-            if (variables == null)
-                return;
-
-            writer.WriteLine(Resources.Variables);
-            writer.Indent++;
-            this.PrintVariables(writer, variables);
-            writer.Indent--;
-            writer.WriteLine();
+            if (variables != null)
+            {
+                this.BeginGroup(writer, Resources.Variables);
+                this.PrintVariables(writer, variables);
+                this.EndGroup(writer);
+            }
         }
 
         private void PrintOptions(CommandTextWriter writer, CommandMethodDescriptor descriptor, CommandMemberDescriptor[] memberDescriptors)
@@ -276,9 +240,7 @@ namespace Ntreev.Library.Commands
             if (items.Any() == false)
                 return;
 
-            writer.WriteLine(Resources.Options);
-            writer.Indent++;
-
+            writer.BeginGroup(Resources.Options);
             for (var i = 0; i < items.Length; i++)
             {
                 var item = items[i];
@@ -286,8 +248,7 @@ namespace Ntreev.Library.Commands
                 if (i + 1 < items.Length)
                     writer.WriteLine();
             }
-            writer.Indent--;
-            writer.WriteLine();
+            writer.EndGroup();
         }
 
         private void PrintRequirement(CommandTextWriter writer, CommandMemberDescriptor descriptor)
@@ -298,10 +259,7 @@ namespace Ntreev.Library.Commands
             }
             else
             {
-                if (descriptor.ShortNamePattern != string.Empty)
-                    writer.WriteLine(descriptor.ShortNamePattern);
-                if (descriptor.NamePattern != string.Empty)
-                    writer.WriteLine(descriptor.NamePattern);
+                writer.WriteLine(descriptor.DisplayName);
             }
 
             var description = descriptor.Summary != string.Empty ? descriptor.Summary : descriptor.Description;
@@ -315,12 +273,9 @@ namespace Ntreev.Library.Commands
 
         private void PrintVariables(CommandTextWriter writer, CommandMemberDescriptor descriptor)
         {
-            writer.WriteLine(descriptor.Name + " ...");
-
-            writer.Indent++;
+            writer.BeginGroup(descriptor.Name + " ...");
             writer.WriteMultiline(descriptor.Description);
-            writer.Indent--;
-            writer.WriteLine();
+            writer.EndGroup();
         }
 
         private void PrintOption(CommandTextWriter writer, CommandMemberDescriptor descriptor)
@@ -343,30 +298,26 @@ namespace Ntreev.Library.Commands
         {
             if (descriptor.IsRequired == true)
             {
-                var text = string.Empty;
-                if (descriptor.IsRequired == true)
-                {
-                    text = descriptor.DisplayName;
-                }
-                else
-                {
-                    var patternItems = new string[] { descriptor.ShortNamePattern, descriptor.NamePattern };
-                    text = string.Join(" | ", patternItems.Where(item => item != string.Empty).ToArray());
-                }
+                var name = descriptor.DisplayName;
+                var value = $"{descriptor.DefaultValue ?? "null"}";
                 if (descriptor.DefaultValue == DBNull.Value)
-                    return string.Format("<{0}>", text);
-                return string.Format("<{0}={1}>", text, descriptor.DefaultValue ?? "null");
+                    return $"<{name}>";
+                return $"<{name}={value}>";
             }
             else
             {
-                var patternItems = new string[] { descriptor.ShortNamePattern, descriptor.NamePattern };
-                var patternText = string.Join(" | ", patternItems.Where(item => item != string.Empty).ToArray());
-                if (descriptor is CommandParameterArrayDescriptor == true)
-                {
-                    patternText += " ...";
-                }
-                return string.Format("[{0}]", patternText);
+                return $"[{descriptor.DisplayName}]";
             }
+        }
+
+        private void BeginGroup(CommandTextWriter writer, string text)
+        {
+            writer.BeginGroup(text);
+        }
+
+        private void EndGroup(CommandTextWriter writer)
+        {
+            writer.EndGroup();
         }
     }
 }

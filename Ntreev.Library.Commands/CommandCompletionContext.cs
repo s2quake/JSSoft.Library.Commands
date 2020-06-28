@@ -30,15 +30,14 @@ namespace Ntreev.Library.Commands
         public CommandCompletionContext(object command, IEnumerable<CommandMemberDescriptor> members, IEnumerable<string> args, string find)
         {
             var parser = new ParseDescriptor(typeof(CommandPropertyDescriptor), members, args);
+
             this.Command = command;
             this.Find = find;
             this.Arguments = args.ToArray();
-
             foreach (var item in parser.Descriptors)
             {
                 var descriptor = item.Key;
                 var parseInfo = item.Value;
-
                 if (parseInfo.IsParsed == true)
                 {
                     this.properties.Add(descriptor.DescriptorName, parseInfo.Desiredvalue);
@@ -53,16 +52,15 @@ namespace Ntreev.Library.Commands
         public CommandCompletionContext(object command, CommandMethodDescriptor methodDescriptor, IEnumerable<CommandMemberDescriptor> members, IEnumerable<string> args, string find)
         {
             var parser = new ParseDescriptor(typeof(CommandParameterDescriptor), members, args, false);
+
             this.Command = command;
             this.MethodDescriptor = methodDescriptor;
             this.Find = find;
             this.Arguments = args.ToArray();
-
             foreach (var item in parser.Descriptors)
             {
                 var descriptor = item.Key;
                 var parseInfo = item.Value;
-
                 if (parseInfo.IsParsed == true)
                 {
                     this.properties.Add(descriptor.DescriptorName, parseInfo.Desiredvalue);
@@ -74,15 +72,15 @@ namespace Ntreev.Library.Commands
             }
         }
 
-        public object Command { get; private set; }
+        public object Command { get; }
 
-        public CommandMethodDescriptor MethodDescriptor { get; private set; }
+        public CommandMethodDescriptor MethodDescriptor { get; }
 
-        public CommandMemberDescriptor MemberDescriptor { get; private set; }
+        public CommandMemberDescriptor MemberDescriptor { get; }
 
-        public string Find { get; private set; }
+        public string Find { get; }
 
-        public string[] Arguments { get; private set; }
+        public string[] Arguments { get; }
 
         public IDictionary<string, object> Properties => this.properties;
     }

@@ -46,7 +46,9 @@ namespace Ntreev.Library.Commands
 
         public abstract IEnumerable<Attribute> Attributes { get; }
 
-        public MethodInfo MethodInfo { get; private set; }
+        public abstract bool IsAsync { get; }
+
+        public MethodInfo MethodInfo { get; }
 
         protected abstract void OnInvoke(object instance, object[] parameters);
 
@@ -57,7 +59,6 @@ namespace Ntreev.Library.Commands
 
             var values = new ArrayList();
             var nameToDescriptors = descriptors.ToDictionary(item => item.DescriptorName);
-
             foreach (var item in this.MethodInfo.GetParameters())
             {
                 var descriptor = nameToDescriptors[item.Name];

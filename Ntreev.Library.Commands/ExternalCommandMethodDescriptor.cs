@@ -47,6 +47,8 @@ namespace Ntreev.Library.Commands
 
         public override IEnumerable<Attribute> Attributes => this.methodDescriptor.Attributes;
 
+        public override bool IsAsync { get; }
+
         public object Instance { get; private set; }
 
         protected override void OnInvoke(object instance, object[] parameters)

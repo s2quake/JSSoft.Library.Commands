@@ -13,7 +13,7 @@ namespace Ntreev.Library.Commands
             this.MethodName = methodName;
         }
 
-        public string MethodName { get; private set; }
+        public string MethodName { get; }
 
         public string TypeName
         {

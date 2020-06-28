@@ -18,42 +18,24 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
+using System.ComponentModel;
+using System.Reflection;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace Ntreev.Library.Commands
 {
-    /// <summary>
-    /// 메소드에 추가적으로 사용할 스위치가 정의되어 있는 static class 타입을 설정합니다.
-    /// 속성의 이름을 설정하지 않을 경우에는 static class 내에 CommandPropertyAttribute 특성을 갖고 있는 public 모든 속성이 추가됩니다.
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-    public class CommandMethodStaticPropertyAttribute : Attribute
+    static class PropertyInfoExtensions
     {
-        public CommandMethodStaticPropertyAttribute(string typeName, params string[] propertyNames)
-            : this(Type.GetType(typeName), propertyNames)
+        public static string GetSummary(this PropertyInfo propertyInfo)
         {
-            
+            return CommandDescriptor.GetUsageDescriptionProvider(propertyInfo.DeclaringType).GetSummary(propertyInfo);
         }
 
-        public CommandMethodStaticPropertyAttribute(Type type, params string[] propertyNames)
+        public static string GetDescription(this PropertyInfo propertyInfo)
         {
-            if (type.GetConstructor(Type.EmptyTypes) == null && type.IsAbstract && type.IsSealed)
-            {
-                this.StaticType = type;
-                this.TypeName = type.AssemblyQualifiedName;
-            }
-            else
-            {
-                throw new ArgumentException("type is not static class.", nameof(type));
-            }
-            this.PropertyNames = propertyNames;
+            return CommandDescriptor.GetUsageDescriptionProvider(propertyInfo.DeclaringType).GetDescription(propertyInfo);
         }
-
-        public string TypeName { get; }
-
-        public string[] PropertyNames { get; }
-
-        internal Type StaticType { get; }
     }
 }

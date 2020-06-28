@@ -41,16 +41,7 @@ namespace Ntreev.Library.Commands
             this.value = this.parameterInfo.DefaultValue;
         }
 
-        public override string DisplayName
-        {
-            get
-            {
-                var displayName = this.parameterInfo.GetDisplayName();
-                if (displayName != string.Empty)
-                    return displayName;
-                return this.Name;
-            }
-        }
+        public override string DisplayName => base.DisplayName + "...";
 
         public override string Summary => this.summary;
 

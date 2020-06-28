@@ -40,10 +40,8 @@ namespace Ntreev.Library.Commands
                 var query = from item in descriptors
                             where item.DescriptorName == name
                             select item;
-
                 if (query.Any() == false)
                     throw new KeyNotFoundException(string.Format(Resources.MemberDoesNotExist_Format, name));
-
                 return query.First();
             }
         }
@@ -60,7 +58,6 @@ namespace Ntreev.Library.Commands
                         orderby item.IsExplicit
                         orderby item is CommandMemberArrayDescriptor
                         select item;
-
             var items = query.ToArray();
             this.descriptors.Clear();
             this.descriptors.AddRange(items);
@@ -103,8 +100,6 @@ namespace Ntreev.Library.Commands
         {
             return this.descriptors.GetEnumerator();
         }
-
-
 
         #endregion
     }

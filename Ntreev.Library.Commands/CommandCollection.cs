@@ -53,6 +53,8 @@ namespace Ntreev.Library.Commands
 
         internal void Add(ICommand command)
         {
+            if (command is null)
+                throw new ArgumentNullException(nameof(command));
             if (this.commands.ContainsKey(command.Name) == true)
                 throw new ArgumentException($"command '{command.Name}' is already registered.");
             this.commands.Add(command.Name, command);

@@ -16,6 +16,7 @@
 //OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using Ntreev.Library;
+using Ntreev.Library.Linq;
 using Ntreev.Library.Commands.Properties;
 using System;
 using System.CodeDom.Compiler;
@@ -35,45 +36,48 @@ namespace Ntreev.Library.Commands
         public HelpCommand(CommandContextBase commandContext)
         {
             this.commandContext = commandContext;
-            this.CommandName = string.Empty;
-            this.MethodName = string.Empty;
         }
 
         public override string[] GetCompletions(CommandCompletionContext completionContext)
         {
-            if (completionContext.Arguments.Length == 0)
+            var arguments = completionContext.Arguments;
+            if (arguments.IsEmpty())
             {
                 return this.GetCommandNames();
             }
-            else if (completionContext.Arguments.Length == 1)
+            else if (arguments.IsSingle() == true)
             {
-                return this.GetCommandMethodNames(completionContext.Arguments[0]);
+                return this.GetCommandMethodNames(arguments.First());
             }
             return base.GetCompletions(completionContext);
         }
 
-        [CommandProperty("CommandName", IsRequired = true)]
+        [CommandProperty(IsRequired = true)]
         [DisplayName("command")]
         [DefaultValue("")]
-        public string CommandName { get; set; }
+        public string CommandName { get; set; } = string.Empty;
 
         [CommandProperty("sub-command", IsRequired = true)]
         [DefaultValue("")]
-        public string MethodName { get; set; }
+        public string MethodName { get; set; } = string.Empty;
+
+        [CommandProperty("detail")]
+        public bool IsDetail { get; set; }
 
         protected override void OnExecute()
         {
             try
             {
-                if (this.CommandName == string.Empty)
+                var commandName = this.CommandName;
+                if (commandName == string.Empty)
                 {
                     this.PrintList();
                 }
                 else
                 {
-                    var command = this.commandContext.Commands[this.CommandName];
-                    if (command == null || this.commandContext.IsCommandEnabled(command) == false || this.IsCommandUsageBrowsable(command) == false)
-                        throw new CommandNotFoundException(this.CommandName);
+                    var command = this.commandContext.Commands[commandName];
+                    if (command == null || this.commandContext.IsCommandEnabled(command) == false)
+                        throw new CommandNotFoundException(commandName);
 
                     var parser = this.commandContext.Parsers[command];
                     parser.Out = this.commandContext.Out;
@@ -89,10 +93,11 @@ namespace Ntreev.Library.Commands
         protected virtual void PrintUsage(ICommand command, CommandLineParser parser)
         {
             using var sw = new StringWriter();
+            var methodName = this.MethodName;
             if (command is IExecutable == false && command is IExecutableAsync == false)
             {
-                if (this.MethodName != string.Empty)
-                    parser.PrintMethodUsage(sw, this.MethodName);
+                if (methodName != string.Empty)
+                    parser.PrintMethodUsage(sw, methodName);
                 else
                     parser.PrintMethodUsage(sw);
             }
@@ -106,15 +111,14 @@ namespace Ntreev.Library.Commands
         private void PrintList()
         {
             using var writer = new CommandTextWriter();
-            this.commandContext.Parsers[this].PrintUsage(writer.InnerWriter);
+            var parser = this.commandContext.Parsers[this];
 
+            parser.PrintUsage(writer.InnerWriter);
             writer.WriteLine(Resources.AvaliableCommands);
             writer.Indent++;
             foreach (var item in this.commandContext.Commands)
             {
                 if (this.commandContext.IsCommandEnabled(item) == false)
-                    continue;
-                if (this.IsCommandUsageBrowsable(item) == false)
                     continue;
                 var summary = CommandDescriptor.GetUsageDescriptionProvider(item.GetType()).GetSummary(item);
 
@@ -126,12 +130,13 @@ namespace Ntreev.Library.Commands
                 writer.Indent--;
             }
             writer.Indent--;
-            this.commandContext.Out.Write(writer.ToString());
+            this.Out.Write(writer.ToString());
         }
 
         private string[] GetCommandNames()
         {
-            var query = from item in this.commandContext.Commands
+            var commands = this.commandContext.Commands;
+            var query = from item in commands
                         where item.IsEnabled
                         orderby item.Name
                         select item.Name;
@@ -140,6 +145,7 @@ namespace Ntreev.Library.Commands
 
         private string[] GetCommandMethodNames(string commandName)
         {
+            var commands = this.commandContext.Commands;
             if (this.commandContext.Commands.Contains(commandName) == false)
                 return null;
             var command = this.commandContext.Commands[commandName];
@@ -152,14 +158,6 @@ namespace Ntreev.Library.Commands
                         orderby item.Name
                         select item.Name;
             return query.ToArray();
-        }
-
-        private bool IsCommandUsageBrowsable(ICommand command)
-        {
-            var attr = command.GetType().GetCustomAttribute<UsageBrowsableAttribute>();
-            if (attr == null)
-                return true;
-            return attr.IsBrowsable;
         }
     }
 }

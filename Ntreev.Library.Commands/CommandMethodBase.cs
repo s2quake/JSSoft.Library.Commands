@@ -26,7 +26,7 @@ using System.Text.RegularExpressions;
 
 namespace Ntreev.Library.Commands
 {
-    public abstract class CommandMethodBase : ICommand, ICommandHost
+    public abstract class CommandMethodBase : ICommand, ICommandHost, ICommandNode
     {
         private CommandContextBase commandContext;
 
@@ -40,7 +40,7 @@ namespace Ntreev.Library.Commands
             this.Name = name ?? throw new ArgumentNullException(nameof(name));
         }
 
-        public string Name { get; private set; }
+        public string Name { get; }
 
         public virtual bool IsEnabled => true;
 
@@ -70,6 +70,8 @@ namespace Ntreev.Library.Commands
             get => this.commandContext;
             set => this.commandContext = value;
         }
+
+        public IEnumerable<ICommand> Commands => throw new NotImplementedException();
 
         #endregion
     }

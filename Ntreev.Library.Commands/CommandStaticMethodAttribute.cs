@@ -52,10 +52,10 @@ namespace Ntreev.Library.Commands
             this.MethodNames = methodNames;
         }
 
-        public string TypeName { get; private set; }
+        public string TypeName { get; }
 
-        public string[] MethodNames { get; private set; }
+        public string[] MethodNames { get; }
 
-        internal Type StaticType { get; private set; }
+        internal Type StaticType { get; }
     }
 }

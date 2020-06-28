@@ -121,10 +121,6 @@ namespace Ntreev.Library.Commands
 
         public virtual bool IsCommandEnabled(ICommand command)
         {
-            if (this.HelpCommand == command)
-                return false;
-            if (this.VersionCommand == command)
-                return false;
             if (this.Parsers.Contains(command) == false)
                 return false;
 

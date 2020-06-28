@@ -23,6 +23,7 @@ using System.Text;
 namespace Ntreev.Library.Commands
 {
     [AttributeUsage(AttributeTargets.Class)]
+    [Obsolete]
     public class UsageBrowsableAttribute : Attribute
     {
         public UsageBrowsableAttribute(bool isBrowsable)

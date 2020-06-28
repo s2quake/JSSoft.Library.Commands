@@ -40,24 +40,22 @@ namespace Ntreev.Library.Commands
             this.Name = attribute.GetName(descriptorName);
             this.ShortName = attribute.InternalShortName;
             this.isRequired = attribute.IsRequired;
-            this.isExplicit = attribute.IsExplicit;
+            this.isExplicit = attribute.IsRequired == false ? true : attribute.IsExplicit;
         }
 
-        public string Name { get; private set; }
+        public string Name { get; }
 
-        public string ShortName { get; private set; }
+        public string ShortName { get; }
 
         public virtual string DisplayName
         {
             get
             {
-                if (this.IsRequired == true && this.isExplicit == false)
-                    return this.DescriptorName;
-                var nameItems = this.isExplicit == true ? new string[] { this.ShortNamePattern, this.NamePattern } : new string[] { this.ShortName, this.Name };
-                var displayName = string.Join(" | ", nameItems.Where(item => item != string.Empty).ToArray());
-                if (displayName == string.Empty)
+                var items = this.isExplicit == true ? new string[] { this.ShortNamePattern, this.NamePattern } : new string[] { this.ShortName, this.Name };
+                var name = string.Join(" | ", items.Where(item => item != string.Empty).ToArray());
+                if (name == string.Empty)
                     return CommandSettings.NameGenerator(this.DescriptorName);
-                return displayName;
+                return name;
             }
         }
 
@@ -77,7 +75,7 @@ namespace Ntreev.Library.Commands
 
         public virtual IEnumerable<Attribute> Attributes { get { yield break; } }
 
-        public string DescriptorName { get; private set; }
+        public string DescriptorName { get; }
 
         protected abstract void SetValue(object instance, object value);
 
@@ -105,11 +103,13 @@ namespace Ntreev.Library.Commands
 
         internal string[] GetCompletion(object target)
         {
-            if (this.MemberType.IsEnum == true)
+            var memberType = this.MemberType;
+            var attributes = this.Attributes;
+            if (memberType.IsEnum == true)
             {
-                return Enum.GetNames(this.MemberType).Select(item => CommandSettings.NameGenerator(item)).ToArray();
+                return Enum.GetNames(memberType).Select(item => CommandSettings.NameGenerator(item)).ToArray();
             }
-            else if (this.Attributes.FirstOrDefault(item => item is CommandCompletionAttribute) is CommandCompletionAttribute attr)
+            else if (attributes.FirstOrDefault(item => item is CommandCompletionAttribute) is CommandCompletionAttribute attr)
             {
                 if (attr.Type == null)
                 {
@@ -125,7 +125,7 @@ namespace Ntreev.Library.Commands
             return null;
         }
 
-        public string NamePattern
+        public virtual string NamePattern
         {
             get
             {
@@ -135,7 +135,7 @@ namespace Ntreev.Library.Commands
             }
         }
 
-        public string ShortNamePattern
+        public virtual string ShortNamePattern
         {
             get
             {
@@ -145,15 +145,14 @@ namespace Ntreev.Library.Commands
             }
         }
 
-        public string DisplayPattern
-        {
-            get
-            {
-                var patternItems = new string[] { this.ShortNamePattern, this.NamePattern };
-                var patternText = string.Join(" | ", patternItems.Where(item => item != string.Empty).ToArray());
-                return patternText;
-            }
-        }
+        // public virtual string DisplayPattern
+        // {
+        //     get
+        //     {
+        //         var items = new string[] { this.ShortNamePattern, this.NamePattern };
+        //         return string.Join(" | ", items.Where(item => item != string.Empty).ToArray());
+        //     }
+        // }
 
         internal void SetValueInternal(object instance, object value)
         {
