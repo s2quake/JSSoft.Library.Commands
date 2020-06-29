@@ -27,18 +27,23 @@ using System.Threading.Tasks;
 
 namespace Ntreev.Library.Commands
 {
-    class SubCommandAsyncBase : ICommand, ICommandCompletor, IExecutableAsync
+    class SubCommandAsyncBase : ICommand, ICommandCompletor, IExecutableAsync, ICommandDescriptor
     {
         private readonly CommandMethodBase command;
+        private readonly CommandMethodDescriptor descriptor;
 
-        public SubCommandAsyncBase(CommandMethodBase command, MethodInfo methodInfo)
+        public SubCommandAsyncBase(CommandMethodBase command, CommandMethodDescriptor descriptor)
         {
             this.command = command;
+            this.descriptor = descriptor;
+            this.Members = descriptor.Members.Select(item => new SubCommandPropertyDescriptor(command, item)).ToArray();
         }
 
-        public string Name { get; }
+        public string Name => this.descriptor.Name;
 
-        public virtual bool IsEnabled => true;
+        public virtual bool IsEnabled => this.descriptor.CanExecute(this.command);
+
+        public IEnumerable<CommandMemberDescriptor> Members { get; }
 
         public Task ExecuteAsync()
         {

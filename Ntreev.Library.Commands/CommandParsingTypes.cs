@@ -30,11 +30,13 @@ namespace Ntreev.Library.Commands
         /// <summary>
         /// 명령구문에 이름이 포함하지 않고 인자값만 전달합니다.
         /// </summary>
+        [Obsolete]
         OmitCommandName = 1,
 
         /// <summary>
         /// 설정되지 않은 속성은 초기화하지 않습니다.
         /// </summary>
+        [Obsolete]
         OmitInitialize = 2,
     }
 }

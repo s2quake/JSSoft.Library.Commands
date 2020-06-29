@@ -19,11 +19,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Ntreev.Library.ObjectModel;
 
 namespace Ntreev.Library.Commands
 {
     public interface ICommandNode
     {
-        IEnumerable<ICommand> Commands { get; }
+        IContainer<ICommand> Commands { get; }
     }
 }

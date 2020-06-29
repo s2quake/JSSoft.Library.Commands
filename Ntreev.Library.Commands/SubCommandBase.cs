@@ -26,22 +26,27 @@ using System.Text.RegularExpressions;
 
 namespace Ntreev.Library.Commands
 {
-    class SubCommandBase : ICommand, ICommandCompletor, IExecutable
+    class SubCommandBase : ICommand, ICommandCompletor, IExecutable, ICommandDescriptor
     {
         private readonly CommandMethodBase command;
+        private readonly CommandMethodDescriptor descriptor;
 
-        public SubCommandBase(CommandMethodBase command, MethodInfo methodInfo)
+        public SubCommandBase(CommandMethodBase command, CommandMethodDescriptor descriptor)
         {
             this.command = command;
+            this.descriptor = descriptor;
+            this.Members = descriptor.Members.Select(item => new SubCommandPropertyDescriptor(command, item)).ToArray();
         }
 
-        public string Name { get; }
+        public string Name => this.descriptor.Name;
 
-        public virtual bool IsEnabled => true;
+        public virtual bool IsEnabled => this.descriptor.CanExecute(this.command);
+
+        public IEnumerable<CommandMemberDescriptor> Members { get; }
 
         public void Execute()
         {
-            throw new NotImplementedException();
+            this.descriptor.Invoke(this.command, this.descriptor.Members, true);
         }
 
         public string[] GetCompletions(CommandCompletionContext completionContext)

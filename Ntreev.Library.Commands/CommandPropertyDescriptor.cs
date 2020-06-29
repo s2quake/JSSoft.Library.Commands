@@ -34,22 +34,24 @@ namespace Ntreev.Library.Commands
         {
             this.propertyInfo = propertyInfo;
             this.triggers = propertyInfo.GetTriggerAttributes();
+            this.MemberType = propertyInfo.PropertyType;
             this.Summary = propertyInfo.GetSummary();
             this.Description = propertyInfo.GetDescription();
+            this.Attributes = propertyInfo.GetCustomAttributes();
         }
 
         public override string DisplayName
         {
             get
             {
-                var displayName = this.propertyInfo.GetDisplayName();
+                var displayName = propertyInfo.GetDisplayName();
                 if (displayName != string.Empty)
                     return displayName;
                 return base.DisplayName;
             }
         }
 
-        public override Type MemberType => this.propertyInfo.PropertyType;
+        public override Type MemberType { get; }
 
         public override string Summary { get; }
 
@@ -67,16 +69,7 @@ namespace Ntreev.Library.Commands
 
         public override bool IsExplicit => this.MemberType == typeof(bool) ? true : base.IsExplicit;
 
-        public override IEnumerable<Attribute> Attributes
-        {
-            get
-            {
-                foreach (Attribute item in this.propertyInfo.GetCustomAttributes(true))
-                {
-                    yield return item;
-                }
-            }
-        }
+        public override IEnumerable<Attribute> Attributes { get; }
 
         public override TypeConverter Converter => this.propertyInfo.GetConverter();
 

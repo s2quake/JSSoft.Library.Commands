@@ -33,6 +33,14 @@ namespace Ntreev.Library.Commands
 
         }
 
+        internal CommandMemberDescriptorCollection(ICommandDescriptor descriptor)
+        {
+            foreach (var item in descriptor.Members)
+            {
+                this.descriptors.Add(item);
+            }
+        }
+
         public CommandMemberDescriptor this[string name]
         {
             get

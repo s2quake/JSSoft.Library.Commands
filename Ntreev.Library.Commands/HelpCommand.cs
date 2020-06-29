@@ -146,7 +146,7 @@ namespace Ntreev.Library.Commands
         private string[] GetCommandMethodNames(string commandName)
         {
             var commands = this.commandContext.Commands;
-            if (this.commandContext.Commands.Contains(commandName) == false)
+            if (this.commandContext.Commands.ContainsKey(commandName) == false)
                 return null;
             var command = this.commandContext.Commands[commandName];
             if (command is IExecutable == true)

@@ -152,7 +152,7 @@ namespace Ntreev.Library.Commands
             return this.GetValue(instance);
         }
 
-        internal void ValidateTrigger(Dictionary<CommandMemberDescriptor, ParseDescriptorItem> descriptors)
+        internal void ValidateTrigger(IDictionary<CommandMemberDescriptor, ParseDescriptorItem> descriptors)
         {
             this.OnValidateTrigger(descriptors);
         }

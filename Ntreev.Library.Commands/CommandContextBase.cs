@@ -16,6 +16,7 @@
 //OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using Ntreev.Library.Commands.Properties;
+using Ntreev.Library.ObjectModel;
 using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
@@ -34,6 +35,7 @@ namespace Ntreev.Library.Commands
     {
         private const string redirectionPattern = "(>{1,2}[^>]+)";
         private readonly static TextWriter defaultWriter = new ConsoleTextWriter();
+        private readonly CommandCollection commands = new CommandCollection();
         private string name;
         private Version version;
         private TextWriter writer;
@@ -60,7 +62,7 @@ namespace Ntreev.Library.Commands
             {
                 if (CommandSettings.IsConsoleMode == false && item.GetType().GetCustomAttribute<ConsoleModeOnlyAttribute>() != null)
                     continue;
-                this.Commands.Add(item);
+                this.commands.Add(item);
                 this.Parsers.Add(item, this.CreateInstance(this, item));
                 if (item is ICommandHost commandHost)
                 {
@@ -93,10 +95,7 @@ namespace Ntreev.Library.Commands
 
         public void Execute(string commandLine)
         {
-            var segments = CommandStringUtility.Split(commandLine);
-
-            var name = segments[0];
-            var arguments = segments[1];
+            var (name, arguments) = CommandStringUtility.Split(commandLine);
 
             if (File.Exists(name) == true)
                 name = Path.GetFileName(Assembly.GetEntryAssembly().CodeBase);
@@ -107,7 +106,8 @@ namespace Ntreev.Library.Commands
             arguments = this.InitializeRedirection(arguments);
             try
             {
-                this.Execute(CommandStringUtility.Split(arguments));
+                var (arg1, arg2) = CommandStringUtility.Split(arguments);
+                this.Execute(arg1, arg2);
             }
             finally
             {
@@ -232,7 +232,7 @@ namespace Ntreev.Library.Commands
             set => this.version = value;
         }
 
-        public CommandCollection Commands { get; } = new CommandCollection();
+        public IContainer<ICommand> Commands => this.commands;
 
         public CommandLineParserCollection Parsers { get; } = new CommandLineParserCollection();
 
@@ -282,30 +282,31 @@ namespace Ntreev.Library.Commands
         protected virtual bool OnExecute(ICommand command, string arguments)
         {
             var parser = this.Parsers[command];
-            if (command is IExecutable == true)
-            {
-                if (parser.Parse(command.Name + " " + arguments) == false)
-                {
-                    return false;
-                }
+            parser.Invoke(command.Name + " " + arguments);
+            // if (command is IExecutable == true)
+            // {
+            //     if (parser.Parse(command.Name + " " + arguments) == false)
+            //     {
+            //         return false;
+            //     }
 
-                (command as IExecutable).Execute();
-            }
-            else if (command is IExecutableAsync == true)
-            {
-                if (parser.Parse(command.Name + " " + arguments) == false)
-                {
-                    return false;
-                }
-                (command as IExecutableAsync).ExecuteAsync().Wait();
-            }
-            else
-            {
-                if (parser.Invoke(parser.Name + " " + arguments) == false)
-                {
-                    return false;
-                }
-            }
+            //     (command as IExecutable).Execute();
+            // }
+            // else if (command is IExecutableAsync == true)
+            // {
+            //     if (parser.Parse(command.Name + " " + arguments) == false)
+            //     {
+            //         return false;
+            //     }
+            //     (command as IExecutableAsync).ExecuteAsync().Wait();
+            // }
+            // else
+            // {
+            //     if (parser.Invoke(parser.Name + " " + arguments) == false)
+            //     {
+            //         return false;
+            //     }
+            // }
             this.OnExecuted(EventArgs.Empty);
             return true;
         }
@@ -472,10 +473,10 @@ namespace Ntreev.Library.Commands
             return patternList.Where(item => item.StartsWith(find)).ToArray();
         }
 
-        private bool Execute(string[] args)
+        private bool Execute(string commandName, string arguments)
         {
-            var commandName = args[0];
-            var arguments = args[1];
+            // var commandName = args[0];
+            // var arguments = args[1];
 
             if (commandName == string.Empty)
             {
@@ -491,7 +492,7 @@ namespace Ntreev.Library.Commands
             {
                 return this.OnExecute(this.VersionCommand, arguments);
             }
-            else if (this.Commands.Contains(commandName) == true)
+            else if (this.commands.Contains(commandName) == true)
             {
                 var command = this.Commands[commandName];
                 if (this.IsCommandEnabled(command) == true)

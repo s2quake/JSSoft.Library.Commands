@@ -52,11 +52,34 @@ namespace Ntreev.Library.Commands
 
         protected abstract void OnInvoke(object instance, object[] parameters);
 
+        protected virtual bool OnCanExecute(object instance)
+        {
+            return true;
+        }
+
+        internal bool CanExecute(object instance)
+        {
+            return this.OnCanExecute(instance);
+        }
+
         internal void Invoke(object instance, string arguments, IEnumerable<CommandMemberDescriptor> descriptors, bool init)
         {
             var parser = new ParseDescriptor(typeof(CommandParameterDescriptor), descriptors, arguments, init);
             parser.SetValue(instance);
 
+            var values = new ArrayList();
+            var nameToDescriptors = descriptors.ToDictionary(item => item.DescriptorName);
+            foreach (var item in this.MethodInfo.GetParameters())
+            {
+                var descriptor = nameToDescriptors[item.Name];
+                var value = descriptor.GetValueInternal(instance);
+                values.Add(value);
+            }
+            this.OnInvoke(instance, values.ToArray());
+        }
+
+        internal void Invoke(object instance, IEnumerable<CommandMemberDescriptor> descriptors, bool init)
+        {
             var values = new ArrayList();
             var nameToDescriptors = descriptors.ToDictionary(item => item.DescriptorName);
             foreach (var item in this.MethodInfo.GetParameters())

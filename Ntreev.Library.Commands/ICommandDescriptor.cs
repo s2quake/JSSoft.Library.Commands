@@ -16,24 +16,14 @@
 //OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Ntreev.Library.ObjectModel;
 
 namespace Ntreev.Library.Commands
 {
-    public class CommandCollection : ContainerBase<ICommand>
+    public interface ICommandDescriptor
     {
-        public void Add(ICommand command)
-        {
-            base.AddBase(command.Name, command);
-        }
-
-        public bool Contains(string commandName)
-        {
-            return base.ContainsKey(commandName);
-        }
+        IEnumerable<CommandMemberDescriptor> Members { get; }
     }
 }

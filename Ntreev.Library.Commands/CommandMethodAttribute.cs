@@ -28,7 +28,6 @@ namespace Ntreev.Library.Commands
         public CommandMethodAttribute()
             : this(string.Empty)
         {
-
         }
 
         public CommandMethodAttribute(string name)

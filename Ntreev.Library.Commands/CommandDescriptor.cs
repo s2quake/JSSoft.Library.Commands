@@ -27,7 +27,7 @@ namespace Ntreev.Library.Commands
     public static class CommandDescriptor
     {
         private static readonly Dictionary<Type, CommandMethodDescriptorCollection> typeToMethodDescriptors = new Dictionary<Type, CommandMethodDescriptorCollection>();
-        private static readonly Dictionary<Type, CommandMemberDescriptorCollection> typeToMemberDescriptors = new Dictionary<Type, CommandMemberDescriptorCollection>();
+        private static readonly Dictionary<object, CommandMemberDescriptorCollection> membersByInstance = new Dictionary<object, CommandMemberDescriptorCollection>();
         private static readonly Dictionary<ICustomAttributeProvider, CommandMemberDescriptorCollection> providerToMemberDescriptors = new Dictionary<ICustomAttributeProvider, CommandMemberDescriptorCollection>();
         private static readonly Dictionary<ICustomAttributeProvider, CommandMethodDescriptorCollection> providerToMethodDescriptors = new Dictionary<ICustomAttributeProvider, CommandMethodDescriptorCollection>();
         private static readonly Dictionary<Type, IUsageDescriptionProvider> typeToUsageDescriptionProvider = new Dictionary<Type, IUsageDescriptionProvider>();
@@ -81,13 +81,23 @@ namespace Ntreev.Library.Commands
 
         public static CommandMemberDescriptorCollection GetMemberDescriptors(object instance)
         {
-            var type = instance is Type ? (Type)instance : instance.GetType();
-            if (typeToMemberDescriptors.ContainsKey(type) == false)
+            if (instance is ICommandDescriptor descriptor)
             {
-                typeToMemberDescriptors.Add(type, CreateMemberDescriptors(type));
+                if (membersByInstance.ContainsKey(descriptor) == false)
+                {
+                    membersByInstance.Add(descriptor, new CommandMemberDescriptorCollection(descriptor));
+                }
+                return membersByInstance[descriptor];
             }
-
-            return typeToMemberDescriptors[type];
+            else
+            {
+                var type = instance is Type ? (Type)instance : instance.GetType();
+                if (membersByInstance.ContainsKey(type) == false)
+                {
+                    membersByInstance.Add(type, CreateMemberDescriptors(type));
+                }
+                return membersByInstance[type];
+            }
         }
 
         public static CommandMemberDescriptorCollection CreateStaticMemberDescriptors(ICustomAttributeProvider provider)
@@ -139,6 +149,8 @@ namespace Ntreev.Library.Commands
                     continue;
                 if (CommandSettings.IsConsoleMode == false && item.GetCustomAttribute<ConsoleModeOnlyAttribute>() != null)
                     continue;
+                if (item.GetCustomAttribute<BrowsableAttribute>() is BrowsableAttribute browsableAttribute && browsableAttribute.Browsable == false)
+                    continue;
                 descriptors.Add(new StandardCommandMethodDescriptor(item));
             }
 
@@ -161,6 +173,8 @@ namespace Ntreev.Library.Commands
                 if (attr == null)
                     continue;
                 if (CommandSettings.IsConsoleMode == false && item.GetCustomAttribute<ConsoleModeOnlyAttribute>() != null)
+                    continue;
+                if (item.GetCustomAttribute<BrowsableAttribute>() is BrowsableAttribute browsableAttribute && browsableAttribute.Browsable == false)
                     continue;
                 if (item.CanWrite == false)
                     throw new Exception(string.Format("'{0}' is not available because it cannot write.", item.Name));

@@ -41,12 +41,12 @@ namespace Ntreev.Library.Commands
             completionPattern = string.Format("({0}|{1}|{2}|\\s+$)", doubleQuotesPattern, singleQuotePattern, textPattern);
         }
 
-        public static string[] Split(string text)
+        public static (string first, string rest) Split(string text)
         {
             var match = Regex.Match(text, fullPattern);
             var name = TrimQuot(match.Value);
             var arguments = text.Substring(match.Length).Trim();
-            return new string[] { name, arguments };
+            return (name, arguments);
         }
 
         public static string[] SplitAll(string text)
