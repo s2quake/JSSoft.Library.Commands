@@ -76,49 +76,12 @@ namespace Ntreev.Library.Commands
                 {
                     var commandName = string.Join(" ", this.CommandNames);
                     var parser = new CommandLineParser(commandName, command);
-                    parser.PrintUsage(string.Empty);
+                    if (command is ICommandNode)
+                        parser.PrintMethodUsage(string.Empty, string.Empty);
+                    else
+                        parser.PrintUsage(string.Empty);
                 }
             }
-            // try
-            // {
-            //     var commandName = this.CommandName;
-            //     if (commandName == string.Empty)
-            //     {
-            //         this.PrintList();
-            //     }
-            //     else
-            //     {
-            //         using var sw = new StringWriter();
-            //         var command = this.commandContext.Commands[commandName];
-            //         if (command == null || command.IsEnabled == false)
-            //             throw new CommandNotFoundException(commandName);
-
-            //         var parser = this.commandContext.Parsers[command];
-            //         parser.Out = sw;
-            //         this.PrintUsage(command, parser);
-            //         this.Out.Write(sw.ToString());
-            //     }
-            // }
-            // finally
-            // {
-            //     this.CommandName = string.Empty;
-            // }
-        }
-
-        protected virtual void PrintUsage(ICommand command, CommandLineParser parser)
-        {
-            // var methodName = this.MethodName;
-            // if (command is IExecutable == false && command is IExecutableAsync == false)
-            // {
-            //     if (methodName != string.Empty)
-            //         parser.PrintMethodUsage(methodName, string.Empty);
-            //     else
-            //         parser.PrintMethodUsage(string.Empty, string.Empty);
-            // }
-            // else
-            // {
-            //     parser.PrintUsage(string.Empty);
-            // }
         }
 
         private void PrintList()
