@@ -43,6 +43,7 @@ namespace Ntreev.Library.Commands
             this.MemberType = parameterInfo.ParameterType;
             this.Attributes = parameterInfo.GetCustomAttributes();
             this.value = parameterInfo.DefaultValue;
+            this.IsExplicit = false;
         }
 
         public override string DisplayName { get; }
@@ -56,6 +57,8 @@ namespace Ntreev.Library.Commands
         public override Type MemberType { get; }
 
         public override IEnumerable<Attribute> Attributes { get; }
+
+        public override bool IsExplicit { get; }
 
         protected override void SetValue(object instance, object value)
         {

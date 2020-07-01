@@ -27,7 +27,7 @@ using Ntreev.Library.ObjectModel;
 
 namespace Ntreev.Library.Commands
 {
-    public abstract class CommandMethodBase : ICommand, ICommandHost, ICommandNode
+    public abstract class CommandMethodBase : ICommand, ICommandHost, ICommandNode, ICommandCompletor
     {
         private CommandContextBase commandContext;
         private readonly CommandCollection commands = new CommandCollection();
@@ -87,6 +87,11 @@ namespace Ntreev.Library.Commands
         internal bool InvokeIsMethodEnabled(CommandMethodDescriptor descriptor)
         {
             return this.IsMethodEnabled(descriptor);
+        }
+
+        public string[] GetCompletions(CommandCompletionContext completionContext)
+        {
+            return null;
         }
 
         #region ICommandHost

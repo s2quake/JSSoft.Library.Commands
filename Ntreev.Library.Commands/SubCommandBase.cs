@@ -51,7 +51,7 @@ namespace Ntreev.Library.Commands
 
         public string[] GetCompletions(CommandCompletionContext completionContext)
         {
-            throw new NotImplementedException();
+            return this.command.GetCompletions(this.descriptor, completionContext.MemberDescriptor, completionContext.Find);
         }
     }
 }

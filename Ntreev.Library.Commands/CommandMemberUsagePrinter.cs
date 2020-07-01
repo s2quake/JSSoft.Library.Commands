@@ -115,8 +115,7 @@ namespace Ntreev.Library.Commands
 
         private void PrintRequirements(CommandTextWriter writer, CommandMemberDescriptor[] descriptors)
         {
-            var items = descriptors.Where(item => item.GetType() == typeof(CommandPropertyDescriptor))
-                                   .Where(item => item.IsRequired == true);
+            var items = descriptors.Where(item => item.IsRequired == true);
             if (items.Any() == true)
             {
                 this.BeginGroup(writer, Resources.Requirements);
@@ -141,8 +140,7 @@ namespace Ntreev.Library.Commands
 
         private void PrintOptions(CommandTextWriter writer, CommandMemberDescriptor[] descriptors)
         {
-            var items = descriptors.Where(item => item.GetType() == typeof(CommandPropertyDescriptor))
-                                   .Where(item => item.IsRequired == false);
+            var items = descriptors.Where(item => item.IsRequired == false);
             if (items.Any() == true)
             {
                 this.BeginGroup(writer, Resources.Options);

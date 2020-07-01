@@ -40,6 +40,11 @@ namespace Ntreev.Library.Commands
             this.IsExplicit = attribute.IsRequired == false ? true : attribute.IsExplicit;
         }
 
+        public override string ToString()
+        {
+            return $"{this.DescriptorName} [{this.DisplayName}]";
+        }
+
         public string Name { get; }
 
         public string ShortName { get; }

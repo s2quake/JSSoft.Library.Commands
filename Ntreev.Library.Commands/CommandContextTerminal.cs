@@ -118,107 +118,7 @@ namespace Ntreev.Library.Commands
 
         protected override string[] GetCompletion(string[] items, string find)
         {
-            if (items.Length == 0)
-            {
-                var query = from item in this.commandContext.Commands
-                            let name = item.Name
-                            where this.commandContext.IsCommandEnabled(item)
-                            where name.StartsWith(find)
-                            select name;
-                return query.ToArray();
-            }
-            else if (items.Length == 1)
-            {
-                var commandName = items[0];
-                var command = this.GetCommand(commandName);
-                if (command == null)
-                    return null;
-                if (command is IExecutable == false)
-                {
-                    var query = from item in CommandDescriptor.GetMethodDescriptors(command)
-                                let name = item.Name
-                                where this.commandContext.IsMethodEnabled(command, item)
-                                where name.StartsWith(find)
-                                select name;
-                    return query.ToArray();
-                }
-                else
-                {
-                    var memberList = new List<CommandMemberDescriptor>(CommandDescriptor.GetMemberDescriptors(command));
-                    var argList = new List<string>(items.Skip(1));
-                    var completionContext = new CommandCompletionContext(command, memberList, argList, find);
-                    return this.GetCompletions(completionContext);
-                }
-            }
-            else if (items.Length >= 2)
-            {
-                var commandName = items[0];
-                var command = this.GetCommand(commandName);
-                if (command == null)
-                    return null;
-
-                if (command is IExecutable == true)
-                {
-                    var memberList = new List<CommandMemberDescriptor>(CommandDescriptor.GetMemberDescriptors(command));
-                    var argList = new List<string>(items.Skip(1));
-                    var completionContext = new CommandCompletionContext(command, memberList, argList, find);
-                    return this.GetCompletions(completionContext);
-                }
-                else
-                {
-                    var methodName = items[1];
-                    var methodDescriptor = this.GetMethodDescriptor(command, methodName);
-                    if (methodDescriptor == null)
-                        return null;
-
-                    if (methodDescriptor.Members.Length == 0)
-                        return null;
-
-                    var commandTarget = this.GetCommandTarget(command, methodDescriptor);
-                    var memberList = new List<CommandMemberDescriptor>(methodDescriptor.Members);
-                    var argList = new List<string>(items.Skip(2));
-                    var completionContext = new CommandCompletionContext(command, methodDescriptor, memberList, argList, find);
-                    if (completionContext.MemberDescriptor == null && find != string.Empty)
-                        return this.GetCompletions(memberList, find);
-
-                    return this.GetCompletions(completionContext);
-                }
-            }
-
-            return null;
-        }
-
-        protected virtual string[] GetCompletions(CommandCompletionContext completionContext)
-        {
-            var query = from item in GetCompletionsCore() ?? emptyStrings
-                        where item.StartsWith(completionContext.Find)
-                        select item;
-            return query.ToArray();
-
-            string[] GetCompletionsCore()
-            {
-                if (completionContext.Command is CommandBase commandBase)
-                {
-                    if (completionContext.MemberDescriptor?.GetCompletion(completionContext.Command) is string[] completions)
-                    {
-                        return completions;
-                    }
-                    return commandBase.GetCompletions(completionContext);
-                }
-                else if (completionContext.Command is CommandMethodBase commandMethodBase)
-                {
-                    if (completionContext.MemberDescriptor?.GetCompletion(completionContext.Command) is string[] completions)
-                    {
-                        return completions;
-                    }
-                    return commandMethodBase.GetCompletions(completionContext.MethodDescriptor, completionContext.MemberDescriptor, completionContext.Find);
-                }
-                else if (completionContext.Command is CommandProviderBase consoleCommandProvider)
-                {
-                    return consoleCommandProvider.GetCompletions(completionContext.MethodDescriptor, completionContext.MemberDescriptor);
-                }
-                return null;
-            }
+            return this.commandContext.GetCompletionInternal(items, find);
         }
 
         private CommandMemberDescriptor FindMemberDescriptor(List<string> argList, List<CommandMemberDescriptor> memberList)
@@ -256,7 +156,7 @@ namespace Ntreev.Library.Commands
             if (commandNames.Contains(commandName) == true)
             {
                 var command = this.commandContext.Commands[commandName];
-                if (this.commandContext.IsCommandEnabled(command) == true)
+                if (command.IsEnabled == true)
                     return command;
             }
             if (commandName == this.commandContext.HelpCommand.Name)
@@ -264,18 +164,18 @@ namespace Ntreev.Library.Commands
             return null;
         }
 
-        private CommandMethodDescriptor GetMethodDescriptor(ICommand command, string methodName)
-        {
-            if (command is IExecutable == true)
-                return null;
-            var descriptors = CommandDescriptor.GetMethodDescriptors(command);
-            if (descriptors.Contains(methodName) == false)
-                return null;
-            var descriptor = descriptors[methodName];
-            if (this.commandContext.IsMethodEnabled(command, descriptor) == false)
-                return null;
-            return descriptor;
-        }
+        // private CommandMethodDescriptor GetMethodDescriptor(ICommand command, string methodName)
+        // {
+        //     if (command is IExecutable == true)
+        //         return null;
+        //     var descriptors = CommandDescriptor.GetMethodDescriptors(command);
+        //     if (descriptors.Contains(methodName) == false)
+        //         return null;
+        //     var descriptor = descriptors[methodName];
+        //     if (this.commandContext.IsMethodEnabled(command, descriptor) == false)
+        //         return null;
+        //     return descriptor;
+        // }
 
         private CommandMemberDescriptor FindMemberDescriptor(IEnumerable<CommandMemberDescriptor> descriptors, string argument)
         {
@@ -317,7 +217,7 @@ namespace Ntreev.Library.Commands
             }
             return patternList.Where(item => item.StartsWith(find)).ToArray();
         }
-
+    
         private void WriteException(Exception e)
         {
             if (this.DetailErrorMessage == true)

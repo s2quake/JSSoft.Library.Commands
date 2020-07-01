@@ -31,9 +31,11 @@ namespace Ntreev.Library.Commands
 {
     public class CommandLineParser
     {
-        private TextWriter writer;
+        private TextWriter writer = Console.Out;
         private CommandMemberUsagePrinter commandUsagePrinter;
         private CommandMethodUsagePrinter methodUsagePrinter;
+        private FileVersionInfo versionInfo;
+        private string fullName;
 
         public CommandLineParser(object instance)
             : this(Assembly.GetEntryAssembly(), instance)
@@ -45,9 +47,11 @@ namespace Ntreev.Library.Commands
         {
             if (assembly == null)
                 throw new ArgumentNullException(nameof(assembly));
-            this.Name = assembly.Location;
+            this.Name = Path.GetFileName(assembly.Location);
+            this.fullName = assembly.Location;
             this.Instance = instance ?? throw new ArgumentNullException(nameof(instance));
-            this.Version = new Version(FileVersionInfo.GetVersionInfo(assembly.Location).ProductVersion);
+            this.versionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
+            this.Version = new Version(this.versionInfo.ProductVersion);
         }
 
         public CommandLineParser(string name, object instance)
@@ -55,228 +59,186 @@ namespace Ntreev.Library.Commands
             if (name == string.Empty)
                 throw new ArgumentException("empty string not allowed.");
             this.Name = name ?? throw new ArgumentNullException(nameof(name));
+            this.fullName = name;
             this.Instance = instance ?? throw new ArgumentNullException(nameof(instance));
         }
 
         public bool Parse(string commandLine)
         {
-            var (name, command) = CommandStringUtility.Split(commandLine);
-            return this.Parse(name, command);
+            var (name, arguments) = CommandStringUtility.Split(commandLine);
+            return this.Parse(name, arguments);
         }
 
-        public bool Parse(string name, string command)
+        public bool Parse(string name, string arguments)
         {
-            if (this.Name != name)
+            if (this.Name != name && this.fullName != name)
                 throw new ArgumentException(string.Format(Resources.InvalidCommandName_Format, name));
 
-            var (first, rest) = CommandStringUtility.Split(command);
-            if (first == this.HelpName)
+            var (first, rest) = CommandStringUtility.Split(arguments);
+            if (first == string.Empty)
             {
-                if (rest == string.Empty)
-                    this.PrintUsage(this.Out);
-                else
-                    this.PrintUsage(this.Out, rest);
-                return false;
+                this.OnPrintSummary();
+            }
+            else if (first == this.HelpName)
+            {
+                this.OnPrintUsage(rest);
             }
             else if (first == this.VersionName)
             {
-                this.PrintVersion(this.Out);
-                return false;
+                this.OnPrintVersion();
             }
             else
             {
                 var descriptors = CommandDescriptor.GetMemberDescriptors(this.Instance).ToArray();
-                // var omitInitialize = (types & CommandParsingTypes.OmitInitialize) == CommandParsingTypes.OmitInitialize;
-                var parser = new ParseDescriptor(typeof(CommandPropertyDescriptor), descriptors, command, false);
+                var parser = new ParseDescriptor(typeof(CommandPropertyDescriptor), descriptors, arguments, false);
                 parser.SetValue(this.Instance);
                 return true;
             }
+            return false;
         }
 
-        public bool Parse(string commandLine, CommandParsingTypes types)
+        public bool Invoke(string name, string arguments)
         {
-            return this.Parse(commandLine);
-        }
-
-        public bool Invoke(string name, string command)
-        {
-            if (this.Name != name)
+            if (this.Name != name && this.fullName != name)
                 throw new ArgumentException(string.Format(Resources.InvalidCommandName_Format, name));
 
-            var (method, arguments) = CommandStringUtility.Split(command);
-            var isSwitch = CommandStringUtility.IsSwitch(method);
-
-            if (method == string.Empty)
+            var (first, rest) = CommandStringUtility.Split(arguments);
+            var isSwitch = CommandStringUtility.IsSwitch(first);
+            var instance = this.Instance;
+            if (first == this.HelpName)
             {
-                // if (this.Parse(commandLine) == true)
-                // {
-                //     if (this.Instance is IExecutable executable)
-                //     {
-                //         executable.Execute();
-                //     }
-                // }
-                return false;
+                var (arg1, arg2) = CommandStringUtility.Split(rest);
+                this.OnPrintMethodUsage(arg1, arg2);
             }
-            else if (method == this.HelpName)
+            else if (first == this.VersionName)
             {
-                var (first, rest) = CommandStringUtility.Split(arguments);
-                if (rest == string.Empty)
-                    this.PrintMethodUsage(this.Out);
-                else if (rest == string.Empty)
-                    this.PrintMethodUsage(this.Out, rest);
-                else
-                    this.PrintMethodUsage(this.Out, first, rest);
-                return false;
+                this.OnPrintVersion();
             }
-            else if (method == this.VersionName)
+            else if (instance is ICommandNode commandNode && commandNode.Commands.ContainsKey(first) == true)
             {
-                this.PrintVersion(this.Out);
-                return false;
+                var command = commandNode.Commands[first];
+                var parser = new CommandLineParser(first, arguments);
+                var args = string.Join(" ", arguments);
+                if (parser.Parse(args) == false)
+                    return false;
+                if (command is IExecutable executable1)
+                    executable1.Execute();
+                else if (command is IExecutableAsync executable2)
+                    executable2.ExecuteAsync().Wait();
+            }
+            else if (instance is IExecutable executable1)
+            {
+                if (arguments == string.Empty || this.Parse(name, arguments) == true)
+                {
+                    executable1.Execute();
+                    return true;
+                }
+            }
+            else if (instance is IExecutableAsync executable2)
+            {
+                if (arguments == string.Empty || this.Parse(name, arguments) == true)
+                {
+                    executable2.ExecuteAsync().Wait();
+                    return true;
+                }
+            }
+            else if (CommandDescriptor.GetMethodDescriptor(instance, first) is CommandMethodDescriptor descriptor)
+            {
+                if (descriptor is ExternalCommandMethodDescriptor externalDescriptor)
+                    instance = externalDescriptor.Instance;
+                var enabledDescriptors = descriptor.Members;
+                descriptor.Invoke(instance, arguments, enabledDescriptors, false);
+                return true;
             }
             else
             {
-                var instance = this.Instance;
-                if (instance is ICommandNode commandNode && commandNode.Commands.ContainsKey(method) == true)
-                {
-                    var cmd = commandNode.Commands[method];
-                    var parser = new CommandLineParser(method, command);
-                    var args = string.Join(" ", arguments);
-                    if (parser.Parse(args) == false)
-                        return false;
-                    if (cmd is IExecutable executable)
-                        executable.Execute();
-                }
-                else if (instance is IExecutable executable1)
-                {
-                    if (this.Parse(command) == true)
-                    {
-                        executable1.Execute();
-                        return true;
-                    }
-                }
-
-                // var descriptor = CommandDescriptor.GetMethodDescriptor(this.Instance, method);
-                // if (descriptor == null || this.IsMethodEnabled(descriptor) == false)
-                //     throw new CommandNotFoundException(method);
-                // if (descriptor is ExternalCommandMethodDescriptor externalDescriptor)
-                //     instance = externalDescriptor.Instance;
-                // var enabledDescriptors = descriptor.Members.Where(item => this.IsMemberEnabled(item));
-                // var omitInitialize = (types & CommandParsingTypes.OmitInitialize) == CommandParsingTypes.OmitInitialize;
-                // descriptor.Invoke(instance, arguments1[1], enabledDescriptors, omitInitialize == false);
-                return true;
+                this.OnPrintSummary();
             }
+            return false;
         }
 
         public bool Invoke(string commandLine)
         {
-            var (name, command) = CommandStringUtility.Split(commandLine);
-            return this.Invoke(name, command);
-
+            var (name, arguments) = CommandStringUtility.Split(commandLine);
+            return this.Invoke(name, arguments);
         }
 
-        public bool Invoke(string commandLine, CommandParsingTypes types)
+        public void PrintSummary()
         {
-            // if ((types & CommandParsingTypes.OmitCommandName) == CommandParsingTypes.OmitCommandName)
-            // {
-            //     commandLine = $"{this.Name} {commandLine}";
-            // }
-            return this.Invoke(commandLine);
-            
+            // if (this.CommandContext != null)
+            //     this.Out.WriteLine("Type '{0} {1}' for usage.", this.CommandContext.HelpCommand.Name, this.Name);
+            // else
+                this.Out.WriteLine("Type '{0} {1}' for usage.", this.Name, this.HelpName);
         }
 
-        public virtual void PrintSummary(TextWriter writer)
+        public void PrintVersion()
         {
-            if (writer == null)
-                throw new ArgumentNullException(nameof(writer));
-            if (this.CommandContext != null)
-                writer.WriteLine("Type '{0} {1}' for usage.", this.CommandContext.HelpCommand.Name, this.Name);
-            else
-                writer.WriteLine("Type '{0} {1}' for usage.", this.Name, this.HelpName);
-        }
-
-        public virtual void PrintUsage(TextWriter writer)
-        {
-            if (writer == null)
-                throw new ArgumentNullException(nameof(writer));
-            var enabledDescriptors = CommandDescriptor.GetMemberDescriptors(this.Instance);
-            this.MemberUsagePrinter.Print(writer, enabledDescriptors.ToArray());
-        }
-
-        public virtual void PrintUsage(TextWriter writer, string memberName)
-        {
-            if (writer == null)
-                throw new ArgumentNullException(nameof(writer));
-            if (memberName == null)
-                throw new ArgumentNullException(nameof(memberName));
-            var descriptor = CommandDescriptor.GetMemberDescriptors(this.Instance)
-                                              .FirstOrDefault(item => (item.IsRequired == true && memberName == item.Name) ||
-                                                                       memberName == item.NamePattern ||
-                                                                       memberName == item.ShortNamePattern);
-            if (descriptor == null)
-                throw new InvalidOperationException(string.Format(Resources.MemberDoesNotExist_Format, memberName));
-            this.MemberUsagePrinter.Print(writer, descriptor);
-        }
-
-        public virtual void PrintVersion(TextWriter writer)
-        {
-            if (writer == null)
-                throw new ArgumentNullException(nameof(writer));
             var name = this.Name;
             var version = this.Version;
-            // var info = FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location);
+            var versionInfo = this.versionInfo;
+            var writer = this.Out;
             writer.WriteLine($"{name} {version}");
-            // writer.WriteLine(info.LegalCopyright);
+            if (versionInfo != null)
+                writer.WriteLine(versionInfo.LegalCopyright);
         }
 
-        public virtual void PrintMethodUsage(TextWriter writer)
+        public void PrintUsage(string memberName)
         {
-            if (writer == null)
-                throw new ArgumentNullException(nameof(writer));
-            var descriptors = CommandDescriptor.GetMethodDescriptors(this.Instance);
-            this.MethodUsagePrinter.Print(writer, descriptors.ToArray());
+            if (memberName == null)
+                throw new ArgumentNullException(nameof(memberName));
+            var instance = this.Instance;
+            var printer = this.MemberUsagePrinter;
+            var writer = this.Out;
+            var memberDescriptors = CommandDescriptor.GetMemberDescriptors(instance);
+            if (memberName == string.Empty)
+            {
+                printer.Print(writer, memberDescriptors.ToArray());
+            }
+            else
+            {
+                var descriptor = memberDescriptors.Find(memberName);
+                if (descriptor == null)
+                    throw new InvalidOperationException(string.Format(Resources.MemberDoesNotExist_Format, memberName));
+                printer.Print(writer, descriptor);
+            }
         }
 
-        public virtual void PrintMethodUsage(TextWriter writer, string methodName)
+        public void PrintMethodUsage(string methodName, string memberName)
         {
-            if (writer == null)
-                throw new ArgumentNullException(nameof(writer));
-            if (methodName == null)
-                throw new ArgumentNullException(nameof(methodName));
-            var descriptors = CommandDescriptor.GetMethodDescriptors(this.Instance);
-            var descriptor = descriptors.FirstOrDefault(item => item.Name == methodName);
-            if (descriptor == null)
-                throw new CommandNotFoundException(methodName);
-
-            var enabledDescriptors = descriptor.Members.ToArray();
-            this.MethodUsagePrinter.Print(writer, descriptor, enabledDescriptors);
-        }
-
-        public virtual void PrintMethodUsage(TextWriter writer, string methodName, string memberName)
-        {
-            if (writer == null)
-                throw new ArgumentNullException(nameof(writer));
             if (methodName == null)
                 throw new ArgumentNullException(nameof(methodName));
             if (memberName == null)
                 throw new ArgumentNullException(nameof(memberName));
-            var descriptors = CommandDescriptor.GetMethodDescriptors(this.Instance);
-            var descriptor = descriptors.FirstOrDefault(item => item.Name == methodName);
-            if (descriptor == null)
-                throw new CommandNotFoundException(methodName);
-
-            var visibleDescriptor = descriptor.Members.FirstOrDefault(item => (item.IsRequired == true && memberName == item.Name) ||
-                                                                               memberName == item.NamePattern ||
-                                                                               memberName == item.ShortNamePattern);
-
-            if (visibleDescriptor == null)
-                throw new InvalidOperationException(string.Format(Resources.MemberDoesNotExist_Format, memberName));
-
-            this.MethodUsagePrinter.Print(writer, descriptor, visibleDescriptor);
+            var instance = this.Instance;
+            var printer = this.MethodUsagePrinter;
+            var writer = this.Out;
+            var methodDescriptors = CommandDescriptor.GetMethodDescriptors(instance);
+            if (methodName == string.Empty)
+            {
+                printer.Print(writer, methodDescriptors.ToArray());
+            }
+            else
+            {
+                var methodDescriptor = methodDescriptors.FirstOrDefault(item => item.Name == methodName);
+                if (methodDescriptor == null)
+                    throw new CommandNotFoundException(methodName);
+                if (memberName == string.Empty)
+                {
+                    printer.Print(writer, methodDescriptor, methodDescriptor.Members);
+                }
+                else
+                {
+                    var memberDescriptor = methodDescriptor.Members.Find(memberName);
+                    if (memberDescriptor == null)
+                        throw new InvalidOperationException(string.Format(Resources.MemberDoesNotExist_Format, memberName));
+                    printer.Print(writer, methodDescriptor, memberDescriptor);
+                }
+            }
         }
 
         public TextWriter Out
         {
-            get => this.writer ?? Console.Out;
+            get => this.writer;
             set => this.writer = value;
         }
 
@@ -288,24 +250,39 @@ namespace Ntreev.Library.Commands
 
         public string VersionName { get; set; } = "--version";
 
-        public Version Version {get;set;} = new Version(1, 0);
+        public Version Version { get; set; } = new Version(1, 0);
 
-        // protected virtual bool IsMethodEnabled(CommandMethodDescriptor descriptor)
-        // {
-        //     if (descriptor.Attributes.FirstOrDefault(item => item is BrowsableAttribute) is BrowsableAttribute attr && attr.Browsable == false)
-        //         return false;
-        //     if (this.CommandContext != null)
-        //         return this.CommandContext.IsMethodEnabled(this.Instance as ICommand, descriptor);
-        //     return true;
-        // }
+        protected virtual void OnPrintSummary()
+        {
+            if (this.writer != null)
+            {
+                this.PrintSummary();
+            }
+        }
 
-        // protected virtual bool IsMemberEnabled(CommandMemberDescriptor descriptor)
-        // {
-        //     var attr = descriptor.Attributes.FirstOrDefault(item => item is BrowsableAttribute) as BrowsableAttribute;
-        //     if (attr == null)
-        //         return true;
-        //     return attr.Browsable;
-        // }
+        protected virtual void OnPrintVersion()
+        {
+            if (this.writer != null)
+            {
+                this.PrintVersion();
+            }
+        }
+
+        protected virtual void OnPrintUsage(string memberName)
+        {
+            if (this.writer != null)
+            {
+                this.PrintUsage(memberName);
+            }
+        }
+
+        protected virtual void OnPrintMethodUsage(string methodName, string memberName)
+        {
+            if (this.writer != null)
+            {
+                this.PrintMethodUsage(methodName, memberName);
+            }
+        }
 
         protected virtual CommandMemberUsagePrinter CreateMemberUsagePrinter(string name, object instance)
         {
@@ -337,14 +314,6 @@ namespace Ntreev.Library.Commands
             }
         }
 
-        // internal bool IsMethodVisible(string methodName)
-        // {
-        //     var descriptor = CommandDescriptor.GetMethodDescriptor(this.Instance, methodName);
-        //     if (descriptor == null || this.IsMethodEnabled(descriptor) == false)
-        //         return false;
-        //     return true;
-        // }
-
-        internal CommandContextBase CommandContext { get; set; }
+        // internal CommandContextBase CommandContext { get; set; }
     }
 }

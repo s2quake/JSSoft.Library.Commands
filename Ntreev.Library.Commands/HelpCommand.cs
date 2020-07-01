@@ -25,6 +25,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Ntreev.Library.ObjectModel;
 
 namespace Ntreev.Library.Commands
 {
@@ -40,85 +41,97 @@ namespace Ntreev.Library.Commands
 
         public override string[] GetCompletions(CommandCompletionContext completionContext)
         {
-            var arguments = completionContext.Arguments;
-            if (arguments.IsEmpty())
+            var descriptor = completionContext.MemberDescriptor;
+            var properties = completionContext.Properties;
+            if (descriptor.DescriptorName == nameof(CommandNames))
             {
-                return this.GetCommandNames();
-            }
-            else if (arguments.IsSingle() == true)
-            {
-                return this.GetCommandMethodNames(arguments.First());
+                var commandNames = properties[nameof(CommandNames)] as string[];
+                return this.GetCommandNames(this.commandContext.Commands, commandNames, completionContext.Find);
+
             }
             return base.GetCompletions(completionContext);
         }
 
-        [CommandProperty(IsRequired = true)]
-        [DisplayName("command")]
+        [DisplayName("commands")]
         [DefaultValue("")]
-        public string CommandName { get; set; } = string.Empty;
-
-        [CommandProperty("sub-command", IsRequired = true)]
-        [DefaultValue("")]
-        public string MethodName { get; set; } = string.Empty;
+        [CommandPropertyArray()]
+        public string[] CommandNames { get; set; }
 
         [CommandProperty("detail")]
         public bool IsDetail { get; set; }
 
+        [CommandProperty("option")]
+        public string OptionName { get; set; }
+
         protected override void OnExecute()
         {
-            try
+            if (this.CommandNames.Length == 0)
             {
-                var commandName = this.CommandName;
-                if (commandName == string.Empty)
+                this.PrintList();
+            }
+            else
+            {
+                var command = this.GetCommand(this.commandContext.Commands, this.CommandNames);
+                if (command != null)
                 {
-                    this.PrintList();
+                    var commandName = string.Join(" ", this.CommandNames);
+                    var parser = new CommandLineParser(commandName, command);
+                    parser.PrintUsage(string.Empty);
                 }
-                else
-                {
-                    var command = this.commandContext.Commands[commandName];
-                    if (command == null || this.commandContext.IsCommandEnabled(command) == false)
-                        throw new CommandNotFoundException(commandName);
+            }
+            // try
+            // {
+            //     var commandName = this.CommandName;
+            //     if (commandName == string.Empty)
+            //     {
+            //         this.PrintList();
+            //     }
+            //     else
+            //     {
+            //         using var sw = new StringWriter();
+            //         var command = this.commandContext.Commands[commandName];
+            //         if (command == null || command.IsEnabled == false)
+            //             throw new CommandNotFoundException(commandName);
 
-                    var parser = this.commandContext.Parsers[command];
-                    parser.Out = this.commandContext.Out;
-                    this.PrintUsage(command, parser);
-                }
-            }
-            finally
-            {
-                this.CommandName = string.Empty;
-            }
+            //         var parser = this.commandContext.Parsers[command];
+            //         parser.Out = sw;
+            //         this.PrintUsage(command, parser);
+            //         this.Out.Write(sw.ToString());
+            //     }
+            // }
+            // finally
+            // {
+            //     this.CommandName = string.Empty;
+            // }
         }
 
         protected virtual void PrintUsage(ICommand command, CommandLineParser parser)
         {
-            using var sw = new StringWriter();
-            var methodName = this.MethodName;
-            if (command is IExecutable == false && command is IExecutableAsync == false)
-            {
-                if (methodName != string.Empty)
-                    parser.PrintMethodUsage(sw, methodName);
-                else
-                    parser.PrintMethodUsage(sw);
-            }
-            else
-            {
-                parser.PrintUsage(sw);
-            }
-            this.Out.Write(sw.ToString());
+            // var methodName = this.MethodName;
+            // if (command is IExecutable == false && command is IExecutableAsync == false)
+            // {
+            //     if (methodName != string.Empty)
+            //         parser.PrintMethodUsage(methodName, string.Empty);
+            //     else
+            //         parser.PrintMethodUsage(string.Empty, string.Empty);
+            // }
+            // else
+            // {
+            //     parser.PrintUsage(string.Empty);
+            // }
         }
 
         private void PrintList()
         {
             using var writer = new CommandTextWriter();
             var parser = this.commandContext.Parsers[this];
-
-            parser.PrintUsage(writer.InnerWriter);
+            parser.Out = writer;
+            parser.PrintUsage(string.Empty);
             writer.WriteLine(Resources.AvaliableCommands);
             writer.Indent++;
             foreach (var item in this.commandContext.Commands)
             {
-                if (this.commandContext.IsCommandEnabled(item) == false)
+                if (item.IsEnabled == false)
                     continue;
                 var summary = CommandDescriptor.GetUsageDescriptionProvider(item.GetType()).GetSummary(item);
 
@@ -133,31 +146,45 @@ namespace Ntreev.Library.Commands
             this.Out.Write(writer.ToString());
         }
 
-        private string[] GetCommandNames()
+        private ICommand GetCommand(IContainer<ICommand> commands, string[] commandNames)
         {
-            var commands = this.commandContext.Commands;
-            var query = from item in commands
-                        where item.IsEnabled
-                        orderby item.Name
-                        select item.Name;
-            return query.ToArray();
+            var commandName = commandNames.FirstOrDefault() ?? string.Empty;
+            if (commandName != string.Empty)
+            {
+                if (commands.ContainsKey(commandName) == true)
+                {
+                    var command = commands[commandName];
+                    if (commandNames.Length > 1 && command is ICommandNode commandNode)
+                    {
+                        return this.GetCommand(commandNode.Commands, commandNames.Skip(1).ToArray());
+                    }
+                    return command;
+                }
+            }
+            return null;
         }
 
-        private string[] GetCommandMethodNames(string commandName)
+        private string[] GetCommandNames(IContainer<ICommand> commands, string[] commandNames, string find)
         {
-            var commands = this.commandContext.Commands;
-            if (this.commandContext.Commands.ContainsKey(commandName) == false)
-                return null;
-            var command = this.commandContext.Commands[commandName];
-            if (command is IExecutable == true)
-                return null;
-
-            var descriptors = CommandDescriptor.GetMethodDescriptors(command);
-            var query = from item in descriptors
-                        where this.commandContext.IsMethodEnabled(command, item)
-                        orderby item.Name
-                        select item.Name;
-            return query.ToArray();
+            var commandName = commandNames.FirstOrDefault() ?? string.Empty;
+            if (commandName == string.Empty)
+            {
+                var query = from item in commands
+                            where item.IsEnabled
+                            where item.Name.StartsWith(find)
+                            orderby item.Name
+                            select item.Name;
+                return query.ToArray();
+            }
+            else if (commands.ContainsKey(commandName) == true)
+            {
+                var command = commands[commandName];
+                if (command is ICommandNode commandNode)
+                {
+                    return this.GetCommandNames(commandNode.Commands, commandNames.Skip(1).ToArray(), find);
+                }
+            }
+            return null;
         }
     }
 }

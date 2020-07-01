@@ -45,7 +45,7 @@ namespace Ntreev.Library.Commands
         {
             get
             {
-                var query = from item in descriptors
+                var query = from item in this.descriptors
                             where item.DescriptorName == name
                             select item;
                 if (query.Any() == false)
@@ -63,8 +63,8 @@ namespace Ntreev.Library.Commands
             var query = from item in this.descriptors
                         orderby item.DefaultValue == DBNull.Value descending
                         orderby item.IsRequired descending
-                        orderby item.IsExplicit
                         orderby item is CommandMemberArrayDescriptor
+                        orderby item.IsExplicit
                         select item;
             var items = query.ToArray();
             this.descriptors.Clear();

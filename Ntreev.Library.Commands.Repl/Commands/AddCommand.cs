@@ -73,7 +73,7 @@ namespace Ntreev.Library.Commands.Repl.Commands
         [CommandProperty('P', true)]
         public bool Patch
         {
-            get;set;
+            get; set;
         }
 
         protected override void OnExecute()

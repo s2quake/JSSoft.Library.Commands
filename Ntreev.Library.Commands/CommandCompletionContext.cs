@@ -25,56 +25,84 @@ namespace Ntreev.Library.Commands
 {
     public class CommandCompletionContext
     {
-        private readonly Dictionary<string, object> properties = new Dictionary<string, object>();
-
-        public CommandCompletionContext(object command, IEnumerable<CommandMemberDescriptor> members, IEnumerable<string> args, string find)
+        internal static object Create(ICommand command, IEnumerable<CommandMemberDescriptor> members, IEnumerable<string> args, string find)
         {
             var parser = new ParseDescriptor(typeof(CommandPropertyDescriptor), members, args);
+            var properties = new Dictionary<string, object>();
+            var memberDescriptor = null as CommandMemberDescriptor;
 
-            this.Command = command;
-            this.Find = find;
-            this.Arguments = args.ToArray();
-            foreach (var item in parser.Descriptors)
+            foreach (var item in parser.Descriptors.ToArray())
             {
                 var descriptor = item.Key;
                 var parseInfo = item.Value;
                 if (parseInfo.IsParsed == true)
                 {
-                    this.properties.Add(descriptor.DescriptorName, parseInfo.Desiredvalue);
+                    properties.Add(descriptor.DescriptorName, parseInfo.Desiredvalue);
+                    if (descriptor is CommandMemberArrayDescriptor == false)
+                        parser.Descriptors.Remove(descriptor);
                 }
-                else if (this.MemberDescriptor == null && descriptor is CommandMemberArrayDescriptor == false)
+            }
+
+            if (args.Any() == true)
+            {
+                var arg = args.First();
+
+                foreach (var item in parser.Descriptors)
                 {
-                    this.MemberDescriptor = descriptor;
+                    var descriptor = item.Key;
+                    if (arg == descriptor.ShortNamePattern || arg == descriptor.NamePattern)
+                    {
+                        int qer = 0;
+                    }
                 }
+            }
+            if (find.StartsWith(CommandSettings.Delimiter) == true)
+            {
+                var argList = new List<string>();
+                foreach (var item in parser.Descriptors)
+                {
+                    var descriptor = item.Key;
+                    if (descriptor.NamePattern != string.Empty)
+                        argList.Add(descriptor.NamePattern);
+                }
+                return argList.ToArray();
+            }
+            else if (find.StartsWith(CommandSettings.ShortDelimiter) == true)
+            {
+                var argList = new List<string>();
+                foreach (var item in parser.Descriptors)
+                {
+                    var descriptor = item.Key;
+                    if (descriptor.ShortNamePattern != string.Empty)
+                        argList.Add(descriptor.ShortNamePattern);
+                }
+                return argList.ToArray();
+            }
+            else
+            {
+                foreach (var item in parser.Descriptors)
+                {
+                    var descriptor = item.Key;
+                    var parseInfo = item.Value;
+                    if (memberDescriptor == null)
+                    {
+                        memberDescriptor = descriptor;
+                    }
+                }
+                return new CommandCompletionContext(command, memberDescriptor, args.ToArray(), find, properties);
             }
         }
 
-        public CommandCompletionContext(object command, CommandMethodDescriptor methodDescriptor, IEnumerable<CommandMemberDescriptor> members, IEnumerable<string> args, string find)
+        private CommandCompletionContext(ICommand command, CommandMemberDescriptor member, string[] args, string find, Dictionary<string, object> properties)
         {
-            var parser = new ParseDescriptor(typeof(CommandParameterDescriptor), members, args, false);
-
             this.Command = command;
-            this.MethodDescriptor = methodDescriptor;
+            this.MemberDescriptor = member;
+            this.Arguments = args;
             this.Find = find;
-            this.Arguments = args.ToArray();
-            foreach (var item in parser.Descriptors)
-            {
-                var descriptor = item.Key;
-                var parseInfo = item.Value;
-                if (parseInfo.IsParsed == true)
-                {
-                    this.properties.Add(descriptor.DescriptorName, parseInfo.Desiredvalue);
-                }
-                else if (this.MemberDescriptor == null && descriptor is CommandMemberArrayDescriptor == false)
-                {
-                    this.MemberDescriptor = descriptor;
-                }
-            }
+            this.Properties = properties;
         }
 
-        public object Command { get; }
-
-        public CommandMethodDescriptor MethodDescriptor { get; }
+        public ICommand Command { get; }
 
         public CommandMemberDescriptor MemberDescriptor { get; }
 
@@ -82,6 +110,6 @@ namespace Ntreev.Library.Commands
 
         public string[] Arguments { get; }
 
-        public IDictionary<string, object> Properties => this.properties;
+        public IDictionary<string, object> Properties { get; }
     }
 }

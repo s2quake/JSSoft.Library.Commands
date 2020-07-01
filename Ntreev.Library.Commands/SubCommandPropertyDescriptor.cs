@@ -54,6 +54,10 @@ namespace Ntreev.Library.Commands
 
         public override TypeConverter Converter => this.descriptor.Converter;
 
+        public override string NamePattern => this.descriptor.NamePattern;
+
+        public override string ShortNamePattern => this.descriptor.ShortNamePattern;
+
         protected override void SetValue(object instance, object value)
         {
             this.descriptor.SetValueInternal(this.instance, value);

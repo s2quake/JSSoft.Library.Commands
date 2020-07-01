@@ -42,7 +42,6 @@ namespace Ntreev.Library.Commands
         private TextWriter errorWriter;
         private ICommand helpCommand;
         private ICommand versionCommand;
-        private string category;
         private string baseDirectory;
 
         protected CommandContextBase(IEnumerable<ICommand> commands)
@@ -117,30 +116,6 @@ namespace Ntreev.Library.Commands
                     this.Out = defaultWriter;
                 }
             }
-        }
-
-        public virtual bool IsCommandEnabled(ICommand command)
-        {
-            if (this.Parsers.Contains(command) == false)
-                return false;
-
-            var attr = command.GetType().GetCustomAttribute<CategoryAttribute>();
-            var category = attr == null ? string.Empty : attr.Category;
-            if (this.Category != category)
-                return false;
-
-            return command.IsEnabled;
-        }
-
-        public virtual bool IsMethodEnabled(ICommand command, CommandMethodDescriptor descriptor)
-        {
-            if (command is IExecutable == true || command is IExecutableAsync == true)
-                return false;
-            if (this.IsCommandEnabled(command) == false)
-                return false;
-            if (command is CommandMethodBase commandMethod)
-                return commandMethod.InvokeIsMethodEnabled(descriptor);
-            return true;
         }
 
         public virtual string ReadString(string title)
@@ -260,12 +235,6 @@ namespace Ntreev.Library.Commands
 
         public bool VerifyName { get; set; }
 
-        public string Category
-        {
-            get => this.category ?? string.Empty;
-            set => this.category = value;
-        }
-
         public string BaseDirectory
         {
             get => this.baseDirectory ?? Directory.GetCurrentDirectory();
@@ -282,31 +251,8 @@ namespace Ntreev.Library.Commands
         protected virtual bool OnExecute(ICommand command, string arguments)
         {
             var parser = this.Parsers[command];
-            parser.Invoke(command.Name + " " + arguments);
-            // if (command is IExecutable == true)
-            // {
-            //     if (parser.Parse(command.Name + " " + arguments) == false)
-            //     {
-            //         return false;
-            //     }
-
-            //     (command as IExecutable).Execute();
-            // }
-            // else if (command is IExecutableAsync == true)
-            // {
-            //     if (parser.Parse(command.Name + " " + arguments) == false)
-            //     {
-            //         return false;
-            //     }
-            //     (command as IExecutableAsync).ExecuteAsync().Wait();
-            // }
-            // else
-            // {
-            //     if (parser.Invoke(parser.Name + " " + arguments) == false)
-            //     {
-            //         return false;
-            //     }
-            // }
+            if (parser.Invoke(command.Name + " " + arguments) == false)
+                return false;
             this.OnExecuted(EventArgs.Empty);
             return true;
         }
@@ -316,132 +262,59 @@ namespace Ntreev.Library.Commands
             this.Executed?.Invoke(this, e);
         }
 
-        protected virtual string[] GetCompletion(string[] items, string find)
+        private string[] GetCompletion(IContainer<ICommand> commands, IList<string> itemList, string find)
         {
-            if (items.Length == 0)
+            if (itemList.Count == 0)
             {
-                var query = from item in this.Commands
+                var query = from item in commands
                             let name = item.Name
-                            where this.IsCommandEnabled(item)
+                            where item.IsEnabled
                             where name.StartsWith(find)
                             select name;
                 return query.ToArray();
             }
-            else if (items.Length == 1)
+            else
             {
-                var commandName = items[0];
-                var command = this.GetCommand(commandName);
-                if (command == null)
-                    return null;
-                if (command is IExecutable == false && command is IExecutableAsync == false)
+                var commandName = itemList.First();
+                var command = commands[commandName];
+                if (command is ICommandNode commandNode)
                 {
-                    var query = from item in CommandDescriptor.GetMethodDescriptors(command)
-                                let name = item.Name
-                                where this.IsMethodEnabled(command, item)
-                                where name.StartsWith(find)
-                                select name;
-                    return query.ToArray();
+                    itemList.RemoveAt(0);
+                    return this.GetCompletion(commandNode.Commands, itemList, find);
                 }
-                else
+                else if (command is ICommandCompletor completor)
                 {
                     var memberList = new List<CommandMemberDescriptor>(CommandDescriptor.GetMemberDescriptors(command));
-                    var argList = new List<string>(items.Skip(1));
-                    var completionContext = new CommandCompletionContext(command, memberList, argList, find);
-                    return this.GetCompletions(completionContext);
-                }
-            }
-            else if (items.Length >= 2)
-            {
-                var commandName = items[0];
-                var command = this.GetCommand(commandName);
-                if (command == null)
-                    return null;
-
-                if (command is IExecutable == true || command is IExecutableAsync == true)
-                {
-                    var memberList = new List<CommandMemberDescriptor>(CommandDescriptor.GetMemberDescriptors(command));
-                    var argList = new List<string>(items.Skip(1));
-                    var completionContext = new CommandCompletionContext(command, memberList, argList, find);
-                    return this.GetCompletions(completionContext);
-                }
-                else
-                {
-                    var methodName = items[1];
-                    var methodDescriptor = this.GetMethodDescriptor(command, methodName);
-                    if (methodDescriptor == null)
-                        return null;
-
-                    if (methodDescriptor.Members.Length == 0)
-                        return null;
-
-                    var commandTarget = this.GetCommandTarget(command, methodDescriptor);
-                    var memberList = new List<CommandMemberDescriptor>(methodDescriptor.Members);
-                    var argList = new List<string>(items.Skip(2));
-                    var completionContext = new CommandCompletionContext(command, methodDescriptor, memberList, argList, find);
-                    if (completionContext.MemberDescriptor == null && find != string.Empty)
-                        return this.GetCompletions(memberList, find);
-
-                    return this.GetCompletions(completionContext);
-                }
-            }
-
-            return null;
-        }
-
-        protected virtual string[] GetCompletions(CommandCompletionContext completionContext)
-        {
-            var query = from item in GetCompletionsCore() ?? new string[] { }
-                        where item.StartsWith(completionContext.Find)
-                        select item;
-            return query.ToArray();
-
-            string[] GetCompletionsCore()
-            {
-                if (completionContext.Command is CommandBase commandBase)
-                {
-                    return commandBase.GetCompletions(completionContext);
-                }
-                else if (completionContext.Command is CommandAsyncBase commandAsyncBase)
-                {
-                    return commandAsyncBase.GetCompletions(completionContext);
-                }
-                else if (completionContext.Command is CommandMethodBase commandMethodBase)
-                {
-                    return commandMethodBase.GetCompletions(completionContext.MethodDescriptor, completionContext.MemberDescriptor, completionContext.Find);
-                }
-                else if (completionContext.Command is CommandProviderBase consoleCommandProvider)
-                {
-                    return consoleCommandProvider.GetCompletions(completionContext.MethodDescriptor, completionContext.MemberDescriptor);
+                    var argList = new List<string>(itemList.Skip(1));
+                    var context = CommandCompletionContext.Create(command, memberList, argList, find);
+                    if (context is CommandCompletionContext completionContext)
+                        return completor.GetCompletions(completionContext);
+                    else if (context is string[] completions)
+                        return completions;
                 }
                 return null;
             }
+        }
+
+        protected virtual string[] GetCompletion(string[] items, string find)
+        {
+            return this.GetCompletion(this.commands, new List<string>(items), find);
+        }
+
+        internal string[] GetCompletionInternal(string[] items, string find)
+        {
+            return this.GetCompletion(items, find);
         }
 
         private ICommand GetCommand(string commandName)
         {
-            var commandNames = this.Commands.Select(item => item.Name).ToArray();
-            if (Enumerable.Contains(commandNames, commandName) == true)
+            if (this.Commands.ContainsKey(commandName) == true)
             {
                 var command = this.Commands[commandName];
-                if (this.IsCommandEnabled(command) == true)
+                if (command.IsEnabled == true)
                     return command;
             }
-            if (commandName == this.HelpCommand.Name)
-                return this.HelpCommand;
             return null;
-        }
-
-        private CommandMethodDescriptor GetMethodDescriptor(ICommand command, string methodName)
-        {
-            if (command is IExecutable == true || command is IExecutableAsync == true)
-                return null;
-            var descriptors = CommandDescriptor.GetMethodDescriptors(command);
-            if (descriptors.Contains(methodName) == false)
-                return null;
-            var descriptor = descriptors[methodName];
-            if (this.IsMethodEnabled(command, descriptor) == false)
-                return null;
-            return descriptor;
         }
 
         private object GetCommandTarget(ICommand command, CommandMethodDescriptor methodDescriptor)
@@ -475,27 +348,16 @@ namespace Ntreev.Library.Commands
 
         private bool Execute(string commandName, string arguments)
         {
-            // var commandName = args[0];
-            // var arguments = args[1];
-
             if (commandName == string.Empty)
             {
                 this.Out.WriteLine(Resources.HelpMessage_Format, string.Join(" ", new string[] { this.HelpCommand.Name }.Where(i => i != string.Empty).ToArray()));
                 this.Out.WriteLine(Resources.VersionMessage_Format, string.Join(" ", new string[] { this.VersionCommand.Name }.Where(i => i != string.Empty).ToArray()));
                 return false;
             }
-            else if (commandName == this.HelpCommand.Name)
-            {
-                return this.OnExecute(this.HelpCommand, arguments);
-            }
-            else if (commandName == this.VersionCommand.Name)
-            {
-                return this.OnExecute(this.VersionCommand, arguments);
-            }
             else if (this.commands.Contains(commandName) == true)
             {
                 var command = this.Commands[commandName];
-                if (this.IsCommandEnabled(command) == true)
+                if (command.IsEnabled == true)
                     return this.OnExecute(command, arguments);
             }
 
@@ -505,7 +367,7 @@ namespace Ntreev.Library.Commands
         private CommandLineParser CreateInstance(CommandContextBase commandContext, ICommand command)
         {
             var parser = this.CreateInstance(command);
-            parser.CommandContext = commandContext;
+            // parser.CommandContext = commandContext;
             return parser;
         }
 

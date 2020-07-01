@@ -38,6 +38,17 @@ namespace Ntreev.Library.Commands
             return customAttributeProvider.GetCustomAttribute<CommandMethodAttribute>();
         }
 
+        public static CommandMemberDescriptor Find(this IEnumerable<CommandMemberDescriptor> descriptors, string displayName)
+        {
+            foreach (var item in descriptors)
+            {
+                if (item.DisplayName == displayName || item.NamePattern == displayName || item.ShortNamePattern == displayName)
+                    return item;
+            }
+            return null;
+        }
+
+
         public static object GetDefaultValue(this PropertyInfo propertyInfo)
         {
             var attr = propertyInfo.GetCustomAttribute<DefaultValueAttribute>();
