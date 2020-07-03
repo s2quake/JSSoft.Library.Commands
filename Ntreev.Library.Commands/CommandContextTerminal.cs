@@ -150,19 +150,19 @@ namespace Ntreev.Library.Commands
             return null;
         }
 
-        private ICommand GetCommand(string commandName)
-        {
-            var commandNames = this.commandContext.Commands.Select(item => item.Name).ToArray();
-            if (commandNames.Contains(commandName) == true)
-            {
-                var command = this.commandContext.Commands[commandName];
-                if (command.IsEnabled == true)
-                    return command;
-            }
-            if (commandName == this.commandContext.HelpCommand.Name)
-                return this.commandContext.HelpCommand;
-            return null;
-        }
+        // private ICommand GetCommand(string commandName)
+        // {
+        //     var commandNames = this.commandContext.Commands.Select(item => item.Name).ToArray();
+        //     if (commandNames.Contains(commandName) == true)
+        //     {
+        //         var command = this.commandContext.Commands[commandName];
+        //         if (command.IsEnabled == true)
+        //             return command;
+        //     }
+        //     if (commandName == this.commandContext.HelpCommand.Name)
+        //         return this.commandContext.HelpCommand;
+        //     return null;
+        // }
 
         // private CommandMethodDescriptor GetMethodDescriptor(ICommand command, string methodName)
         // {

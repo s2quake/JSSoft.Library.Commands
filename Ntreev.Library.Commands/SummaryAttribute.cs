@@ -25,22 +25,11 @@ namespace Ntreev.Library.Commands
     [AttributeUsage(AttributeTargets.All)]
     public class SummaryAttribute : Attribute
     {
-        private string summary;
-
-        public SummaryAttribute()
-        {
-
-        }
-
         public SummaryAttribute(string summary)
         {
-            this.summary = summary ?? throw new ArgumentNullException(nameof(summary));
+            this.Summary = summary ?? throw new ArgumentNullException(nameof(summary));
         }
 
-        public string Summary
-        {
-            get => this.summary ?? string.Empty;
-            set => this.summary = value;
-        }
+        public string Summary { get; }
     }
 }

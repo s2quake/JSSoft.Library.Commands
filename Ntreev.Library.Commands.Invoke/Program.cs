@@ -33,7 +33,7 @@ namespace Ntreev.Library.Commands.Invoke
 
             try
             {
-                if (parser.Invoke(Environment.CommandLine) == false)
+                if (parser.TryInvoke(Environment.CommandLine) == false)
                 {
                     Environment.Exit(1);
                 }

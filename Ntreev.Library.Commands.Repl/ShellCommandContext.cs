@@ -35,9 +35,9 @@ namespace Ntreev.Library.Commands.Repl
 
         }
 
-        protected override CommandLineParser CreateInstance(ICommand command)
-        {
-            return new ShellCommandLineParser(command.Name, command);
-        }
+        // protected override CommandLineParser CreateInstance(ICommand command)
+        // {
+        //     return new ShellCommandLineParser(command.Name, command);
+        // }
     }
 }

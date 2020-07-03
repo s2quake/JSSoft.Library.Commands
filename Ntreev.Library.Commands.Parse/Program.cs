@@ -31,7 +31,7 @@ namespace Ntreev.Library.Commands.Parse
 
             try
             {
-                if (parser.Parse(Environment.CommandLine) == false)
+                if (parser.TryParse(Environment.CommandLine) == false)
                 {
                     Environment.Exit(1);
                 }

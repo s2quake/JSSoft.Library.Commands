@@ -33,7 +33,7 @@ namespace Ntreev.Library.Commands
         {
             this.parameterInfo = parameterInfo;
             this.value = parameterInfo.DefaultValue;
-            this.DisplayName = parameterInfo.GetDisplayName();
+            // this.DisplayName = parameterInfo.GetDisplayName();
             this.Summary = parameterInfo.GetSummary();
             this.Description = parameterInfo.GetDescription();
             this.DefaultValue = parameterInfo.DefaultValue;
@@ -41,7 +41,7 @@ namespace Ntreev.Library.Commands
             this.Attributes = parameterInfo.GetCustomAttributes();
         }
 
-        public override string DisplayName { get; }
+        // public override string DisplayName { get; }
 
         public override string Summary { get; }
 

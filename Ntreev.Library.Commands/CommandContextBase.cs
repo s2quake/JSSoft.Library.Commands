@@ -36,12 +36,12 @@ namespace Ntreev.Library.Commands
         private const string redirectionPattern = "(>{1,2}[^>]+)";
         private readonly static TextWriter defaultWriter = new ConsoleTextWriter();
         private readonly CommandCollection commands = new CommandCollection();
+        private readonly ICommand helpCommand;
+        private readonly ICommand versionCommand;
         private string name;
         private Version version;
         private TextWriter writer;
-        private TextWriter errorWriter;
-        private ICommand helpCommand;
-        private ICommand versionCommand;
+        private TextWriter error;
         private string baseDirectory;
 
         protected CommandContextBase(IEnumerable<ICommand> commands)
@@ -52,17 +52,17 @@ namespace Ntreev.Library.Commands
 
         protected CommandContextBase(IEnumerable<ICommand> commands, IEnumerable<ICommandProvider> commandProviders)
         {
-            this.VerifyName = true;
             this.Out = defaultWriter;
             this.CommandProviders = commandProviders.ToArray();
+            this.helpCommand = this.CreateHelpCommand();
+            this.versionCommand = this.CreateVersionCommand();
 
-            var commands2 = commands.Concat(new ICommand[] { this.HelpCommand, this.VersionCommand });
+            var commands2 = commands.Concat(new ICommand[] { this.helpCommand, this.versionCommand });
             foreach (var item in commands2)
             {
                 if (CommandSettings.IsConsoleMode == false && item.GetType().GetCustomAttribute<ConsoleModeOnlyAttribute>() != null)
                     continue;
                 this.commands.Add(item);
-                this.Parsers.Add(item, this.CreateInstance(this, item));
                 if (item is ICommandHost commandHost)
                 {
                     commandHost.CommandContext = this;
@@ -84,29 +84,24 @@ namespace Ntreev.Library.Commands
                     commandHost.CommandContext = this;
                 }
             }
-
-            foreach (var item in this.Parsers)
-            {
-                item.VersionName = null;
-                item.HelpName = null;
-            }
         }
 
         public void Execute(string commandLine)
         {
             var (name, arguments) = CommandStringUtility.Split(commandLine);
+            this.Execute(name, arguments);
+        }
 
-            if (File.Exists(name) == true)
-                name = Path.GetFileName(Assembly.GetEntryAssembly().CodeBase);
-
-            if (this.VerifyName == true && this.Name != name)
+        public void Execute(string name, string arguments)
+        {
+            if (this.Name != name)
                 throw new ArgumentException(string.Format(Resources.InvalidCommandName_Format, name));
 
             arguments = this.InitializeRedirection(arguments);
+
             try
             {
-                var (arg1, arg2) = CommandStringUtility.Split(arguments);
-                this.Execute(arg1, arg2);
+                this.ExecuteInternal(arguments.Trim());
             }
             finally
             {
@@ -118,69 +113,16 @@ namespace Ntreev.Library.Commands
             }
         }
 
-        public virtual string ReadString(string title)
-        {
-            var terminal = new Terminal();
-            return terminal.ReadString(title);
-        }
-
-        public virtual SecureString ReadSecureString(string title)
-        {
-            var terminal = new Terminal();
-            return terminal.ReadSecureString(title);
-        }
-
-        public void WriteList(string[] items)
-        {
-            if (this.Out is RedirectionTextWriter)
-            {
-                this.Out.WriteLine(string.Join(Environment.NewLine, items));
-            }
-            else
-            {
-                this.Out.Print(items);
-            }
-        }
-
-        public void WriteList(TerminalTextItem[] items)
-        {
-            if (this.Out is RedirectionTextWriter)
-            {
-                var texts = items.Select(item => item.ToString()).ToArray();
-                this.Out.WriteLine(string.Join(Environment.NewLine, texts));
-            }
-            else
-            {
-                this.Out.Print(items, (i, w, s) => i.Draw(w, s), (i) => i.ToString());
-            }
-        }
-
-        public void WriteLine(string value) => this.Out.WriteLine(value);
-
-        public void WriteLine() => this.Out.WriteLine();
-
-        public void Write(string value) => this.Out.Write(value);
-
         public TextWriter Out
         {
             get => this.writer ?? Console.Out;
-            set
-            {
-                this.writer = value;
-                foreach (var item in this.Parsers)
-                {
-                    item.Out = value;
-                }
-            }
+            set => this.writer = value;
         }
 
         public TextWriter Error
         {
-            get => this.errorWriter ?? Console.Error;
-            set
-            {
-                this.errorWriter = value;
-            }
+            get => this.error ?? Console.Error;
+            set => this.error = value;
         }
 
         public string Name
@@ -209,31 +151,7 @@ namespace Ntreev.Library.Commands
 
         public IContainer<ICommand> Commands => this.commands;
 
-        public CommandLineParserCollection Parsers { get; } = new CommandLineParserCollection();
-
         public ICommandProvider[] CommandProviders { get; private set; }
-
-        public virtual ICommand HelpCommand
-        {
-            get
-            {
-                if (this.helpCommand == null)
-                    this.helpCommand = new HelpCommand(this);
-                return this.helpCommand;
-            }
-        }
-
-        public virtual ICommand VersionCommand
-        {
-            get
-            {
-                if (this.versionCommand == null)
-                    this.versionCommand = new VersionCommand(this);
-                return this.versionCommand;
-            }
-        }
-
-        public bool VerifyName { get; set; }
 
         public string BaseDirectory
         {
@@ -243,23 +161,23 @@ namespace Ntreev.Library.Commands
 
         public event EventHandler Executed;
 
-        protected virtual CommandLineParser CreateInstance(ICommand command)
-        {
-            return new CommandLineParser(command.Name, command) { Out = this.Out };
-        }
+        protected virtual ICommand CreateHelpCommand() => new HelpCommand(this);
 
-        protected virtual bool OnExecute(ICommand command, string arguments)
-        {
-            var parser = this.Parsers[command];
-            if (parser.Invoke(command.Name + " " + arguments) == false)
-                return false;
-            this.OnExecuted(EventArgs.Empty);
-            return true;
-        }
+        protected virtual ICommand CreateVersionCommand() => new VersionCommand(this);
 
         protected virtual void OnExecuted(EventArgs e)
         {
             this.Executed?.Invoke(this, e);
+        }
+
+        protected virtual string[] GetCompletion(string[] items, string find)
+        {
+            return this.GetCompletion(this.commands, new List<string>(items), find);
+        }
+
+        internal string[] GetCompletionInternal(string[] items, string find)
+        {
+            return this.GetCompletion(items, find);
         }
 
         private string[] GetCompletion(IContainer<ICommand> commands, IList<string> itemList, string find)
@@ -296,27 +214,6 @@ namespace Ntreev.Library.Commands
             }
         }
 
-        protected virtual string[] GetCompletion(string[] items, string find)
-        {
-            return this.GetCompletion(this.commands, new List<string>(items), find);
-        }
-
-        internal string[] GetCompletionInternal(string[] items, string find)
-        {
-            return this.GetCompletion(items, find);
-        }
-
-        private ICommand GetCommand(string commandName)
-        {
-            if (this.Commands.ContainsKey(commandName) == true)
-            {
-                var command = this.Commands[commandName];
-                if (command.IsEnabled == true)
-                    return command;
-            }
-            return null;
-        }
-
         private object GetCommandTarget(ICommand command, CommandMethodDescriptor methodDescriptor)
         {
             var methodInfo = methodDescriptor.MethodInfo;
@@ -330,45 +227,52 @@ namespace Ntreev.Library.Commands
             return query.First();
         }
 
-        private string[] GetCompletions(IEnumerable<CommandMemberDescriptor> descriptors, string find)
+        private void ExecuteInternal(string commandLine)
         {
-            var patternList = new List<string>();
-            foreach (var item in descriptors)
+            if (commandLine == string.Empty)
             {
-                if (item.IsRequired == false)
+                var sb = new StringBuilder();
+                sb.AppendLine(string.Format(Resources.HelpMessage_Format, this.helpCommand.Name));
+                sb.AppendLine(string.Format(Resources.VersionMessage_Format, this.versionCommand.Name));
+                this.Out.Write(sb.ToString());
+            }
+            else
+            {
+                var arguments = CommandStringUtility.SplitAll(commandLine);
+                var argumentList = new List<string>(arguments);
+                var command = this.GetCommand(this.commands, argumentList);
+                if (command != null)
                 {
-                    if (item.NamePattern != string.Empty)
-                        patternList.Add(item.NamePattern);
-                    if (item.ShortNamePattern != string.Empty)
-                        patternList.Add(item.ShortNamePattern);
+                    var parser = new CommandLineParser(command.Name, command);
+                    var arg = string.Join(" ", argumentList);
+                    parser.TryInvoke(command.Name, arg);
+                }
+                else
+                {
+                    throw new ArgumentException(string.Format("'{0}' does not existed command.", commandLine));
                 }
             }
-            return patternList.Where(item => item.StartsWith(find)).ToArray();
         }
 
-        private bool Execute(string commandName, string arguments)
+        private ICommand GetCommand(IContainer<ICommand> commands, List<string> argumentList)
         {
-            if (commandName == string.Empty)
+            var commandName = argumentList.FirstOrDefault() ?? string.Empty;
+            if (commandName != string.Empty)
             {
-                this.Out.WriteLine(Resources.HelpMessage_Format, string.Join(" ", new string[] { this.HelpCommand.Name }.Where(i => i != string.Empty).ToArray()));
-                this.Out.WriteLine(Resources.VersionMessage_Format, string.Join(" ", new string[] { this.VersionCommand.Name }.Where(i => i != string.Empty).ToArray()));
-                return false;
+                if (commands.ContainsKey(commandName) == true)
+                {
+                    var command = commands[commandName];
+                    if (command.IsEnabled == false)
+                        return null;
+                    argumentList.RemoveAt(0);
+                    if (argumentList.Count > 0 && command is ICommandNode commandNode)
+                    {
+                        return this.GetCommand(commandNode.Commands, argumentList);
+                    }
+                    return command;
+                }
             }
-            else if (this.commands.Contains(commandName) == true)
-            {
-                var command = this.Commands[commandName];
-                if (command.IsEnabled == true)
-                    return this.OnExecute(command, arguments);
-            }
-
-            throw new ArgumentException(string.Format("'{0}' does not existed command.", commandName));
-        }
-
-        private CommandLineParser CreateInstance(CommandContextBase commandContext, ICommand command)
-        {
-            var parser = this.CreateInstance(command);
-            // parser.CommandContext = commandContext;
-            return parser;
+            return null;
         }
 
         private IEnumerable<CommandMethodDescriptor> GetExternalMethodDescriptors(ICommandProvider commandProvider)

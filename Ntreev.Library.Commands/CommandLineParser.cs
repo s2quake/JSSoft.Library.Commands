@@ -32,6 +32,7 @@ namespace Ntreev.Library.Commands
     public class CommandLineParser
     {
         private TextWriter writer = Console.Out;
+        private TextWriter error = Console.Error;
         private CommandMemberUsagePrinter commandUsagePrinter;
         private CommandMethodUsagePrinter methodUsagePrinter;
         private FileVersionInfo versionInfo;
@@ -63,41 +64,103 @@ namespace Ntreev.Library.Commands
             this.Instance = instance ?? throw new ArgumentNullException(nameof(instance));
         }
 
-        public bool Parse(string commandLine)
+        public bool TryParse(string commandLine)
         {
             var (name, arguments) = CommandStringUtility.Split(commandLine);
-            return this.Parse(name, arguments);
+            return this.TryParse(name, arguments);
         }
 
-        public bool Parse(string name, string arguments)
+        public bool TryParse(string name, string arguments)
+        {
+            try
+            {
+                this.Parse(name, arguments);
+                return true;
+            }
+            catch (Exception e)
+            {
+                if (this.Name == name && this.Out != null)
+                {
+                    var (first, rest) = CommandStringUtility.Split(arguments);
+                    if (first == string.Empty)
+                    {
+                        this.OnPrintSummary();
+                    }
+                    else if (first == this.HelpName)
+                    {
+                        this.OnPrintUsage(rest);
+                    }
+                    else if (first == this.VersionName)
+                    {
+                        this.OnPrintVersion();
+                    }
+                }
+                else if (this.Name != name && this.Error != null)
+                {
+                    this.Error.WriteLine(e.Message);
+                }
+                return false;
+            }
+        }
+
+        public void Parse(string commandLine)
+        {
+            var (name, arguments) = CommandStringUtility.Split(commandLine);
+            this.Parse(name, arguments);
+        }
+
+        public void Parse(string name, string arguments)
         {
             if (this.Name != name && this.fullName != name)
                 throw new ArgumentException(string.Format(Resources.InvalidCommandName_Format, name));
-
-            var (first, rest) = CommandStringUtility.Split(arguments);
-            if (first == string.Empty)
-            {
-                this.OnPrintSummary();
-            }
-            else if (first == this.HelpName)
-            {
-                this.OnPrintUsage(rest);
-            }
-            else if (first == this.VersionName)
-            {
-                this.OnPrintVersion();
-            }
-            else
-            {
-                var descriptors = CommandDescriptor.GetMemberDescriptors(this.Instance).ToArray();
-                var parser = new ParseDescriptor(typeof(CommandPropertyDescriptor), descriptors, arguments, false);
-                parser.SetValue(this.Instance);
-                return true;
-            }
-            return false;
+            var descriptors = CommandDescriptor.GetMemberDescriptors(this.Instance).ToArray();
+            var parser = new ParseDescriptor(typeof(CommandPropertyDescriptor), descriptors, arguments, false);
+            parser.SetValue(this.Instance);
         }
 
-        public bool Invoke(string name, string arguments)
+        public bool TryInvoke(string name, string arguments)
+        {
+            try
+            {
+                this.Invoke(name, arguments);
+                return true;
+            }
+            catch (Exception e)
+            {
+                if (this.Name == name && this.Out != null)
+                {
+                    var (first, rest) = CommandStringUtility.Split(arguments);
+                    var isSwitch = CommandStringUtility.IsSwitch(first);
+                    if (first == this.HelpName)
+                    {
+                        var (arg1, arg2) = CommandStringUtility.Split(rest);
+                        this.OnPrintMethodUsage(arg1, arg2);
+                    }
+                    else if (first == this.VersionName)
+                    {
+                        this.OnPrintVersion();
+                    }
+                    else
+                    {
+                        this.OnPrintSummary();
+                    }
+
+                }
+                else if (this.Name != name && this.Error != null)
+                {
+                    this.Error.WriteLine(e.Message);
+                }
+                return false;
+            }
+        }
+
+        public bool TryInvoke(string commandLine)
+        {
+            var (name, arguments) = CommandStringUtility.Split(commandLine);
+            return this.TryInvoke(name, arguments);
+        }
+
+        public void Invoke(string name, string arguments)
         {
             if (this.Name != name && this.fullName != name)
                 throw new ArgumentException(string.Format(Resources.InvalidCommandName_Format, name));
@@ -105,22 +168,12 @@ namespace Ntreev.Library.Commands
             var (first, rest) = CommandStringUtility.Split(arguments);
             var isSwitch = CommandStringUtility.IsSwitch(first);
             var instance = this.Instance;
-            if (first == this.HelpName)
-            {
-                var (arg1, arg2) = CommandStringUtility.Split(rest);
-                this.OnPrintMethodUsage(arg1, arg2);
-            }
-            else if (first == this.VersionName)
-            {
-                this.OnPrintVersion();
-            }
-            else if (instance is ICommandNode commandNode && commandNode.Commands.ContainsKey(first) == true)
+            if (instance is ICommandNode commandNode && commandNode.Commands.ContainsKey(first) == true)
             {
                 var command = commandNode.Commands[first];
                 var parser = new CommandLineParser(first, arguments);
                 var args = string.Join(" ", arguments);
-                if (parser.Parse(args) == false)
-                    return false;
+                parser.Parse(args);
                 if (command is IExecutable executable1)
                     executable1.Execute();
                 else if (command is IExecutableAsync executable2)
@@ -128,19 +181,13 @@ namespace Ntreev.Library.Commands
             }
             else if (instance is IExecutable executable1)
             {
-                if (arguments == string.Empty || this.Parse(name, arguments) == true)
-                {
-                    executable1.Execute();
-                    return true;
-                }
+                this.Parse(name, arguments);
+                executable1.Execute();
             }
             else if (instance is IExecutableAsync executable2)
             {
-                if (arguments == string.Empty || this.Parse(name, arguments) == true)
-                {
-                    executable2.ExecuteAsync().Wait();
-                    return true;
-                }
+                this.Parse(name, arguments);
+                executable2.ExecuteAsync().Wait();
             }
             else if (CommandDescriptor.GetMethodDescriptor(instance, first) is CommandMethodDescriptor descriptor)
             {
@@ -148,27 +195,18 @@ namespace Ntreev.Library.Commands
                     instance = externalDescriptor.Instance;
                 var enabledDescriptors = descriptor.Members;
                 descriptor.Invoke(instance, arguments, enabledDescriptors, false);
-                return true;
             }
-            else
-            {
-                this.OnPrintSummary();
-            }
-            return false;
         }
 
-        public bool Invoke(string commandLine)
+        public void Invoke(string commandLine)
         {
             var (name, arguments) = CommandStringUtility.Split(commandLine);
-            return this.Invoke(name, arguments);
+            this.Invoke(name, arguments);
         }
 
         public void PrintSummary()
         {
-            // if (this.CommandContext != null)
-            //     this.Out.WriteLine("Type '{0} {1}' for usage.", this.CommandContext.HelpCommand.Name, this.Name);
-            // else
-                this.Out.WriteLine("Type '{0} {1}' for usage.", this.Name, this.HelpName);
+            this.Out.WriteLine("Type '{0} {1}' for usage.", this.Name, this.HelpName);
         }
 
         public void PrintVersion()
@@ -242,6 +280,12 @@ namespace Ntreev.Library.Commands
             set => this.writer = value;
         }
 
+        public TextWriter Error
+        {
+            get => this.error;
+            set => this.error = value;
+        }
+
         public string Name { get; }
 
         public object Instance { get; }
@@ -313,7 +357,5 @@ namespace Ntreev.Library.Commands
                 return this.methodUsagePrinter;
             }
         }
-
-        // internal CommandContextBase CommandContext { get; set; }
     }
 }

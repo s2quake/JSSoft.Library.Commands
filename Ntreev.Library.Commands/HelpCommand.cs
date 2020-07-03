@@ -55,7 +55,7 @@ namespace Ntreev.Library.Commands
         [DisplayName("commands")]
         [DefaultValue("")]
         [CommandPropertyArray()]
-        public string[] CommandNames { get; set; }
+        public string[] CommandNames { get; set; } = new string[] { };
 
         [CommandProperty("detail")]
         public bool IsDetail { get; set; }
@@ -87,7 +87,7 @@ namespace Ntreev.Library.Commands
         private void PrintList()
         {
             using var writer = new CommandTextWriter();
-            var parser = this.commandContext.Parsers[this];
+            var parser = new CommandLineParser(this.Name, this);
             parser.Out = writer;
             parser.PrintUsage(string.Empty);
             writer.WriteLine(Resources.AvaliableCommands);
@@ -117,6 +117,8 @@ namespace Ntreev.Library.Commands
                 if (commands.ContainsKey(commandName) == true)
                 {
                     var command = commands[commandName];
+                    if (command.IsEnabled == false)
+                        return null;
                     if (commandNames.Length > 1 && command is ICommandNode commandNode)
                     {
                         return this.GetCommand(commandNode.Commands, commandNames.Skip(1).ToArray());
