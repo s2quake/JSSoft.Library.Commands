@@ -169,7 +169,7 @@ namespace Ntreev.Library.Commands
 
             foreach (var item in properties)
             {
-                var attr = item.GetCommandPropertyAttribute();
+                var attr = item.GetCustomAttribute<CommandPropertyAttribute>();
                 if (attr == null)
                     continue;
                 if (CommandSettings.IsConsoleMode == false && item.GetCustomAttribute<ConsoleModeOnlyAttribute>() != null)

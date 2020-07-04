@@ -15,43 +15,51 @@
 //COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR 
 //OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using Ntreev.Library;
 using System;
-using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
+using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using Ntreev.Library.ObjectModel;
 
 namespace Ntreev.Library.Commands
 {
-    [UsageDescriptionProvider(typeof(ResourceUsageDescriptionProvider))]
-    class VersionCommand : CommandBase
+    public interface ICommandNode
     {
-        public VersionCommand()
-        {
-        }
+        ICommandNode Parent { get; }
 
-        [CommandProperty('q')]
-        public bool IsQuiet { get; set; }
+        IContainer<ICommandNode> Childs { get; }
 
-        protected override void OnExecute()
-        {
-            using var writer = new CommandTextWriter(this.Out);
-            var name = this.CommandContext.Name;
-            var version = this.CommandContext.Version;
-            var info = FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location);
-            if (this.IsQuiet == false)
-            {
-                writer.WriteLine($"{name} {version}");
-                writer.WriteLine(info.LegalCopyright);
-            }
-            else
-            {
-                writer.WriteLine(version);
-            }
-        }
+        string Name { get; }
+
+        ICommand Command { get; }
+
+        bool IsEnabled { get; }
+
+        IEnumerable<ICommand> Commands { get; }
+    }
+
+    class CommandNode : ICommandNode
+    {
+        public CommandNode Parent { get; set; }
+
+        public CommandNodeCollection Childs { get; } = new CommandNodeCollection();
+
+        public ICommand Command { get; set; }
+
+        public List<ICommand> CommandList { get; } = new List<ICommand>();
+
+        public string Name { get; set; } = string.Empty;
+
+        public bool IsEnabled => this.CommandList.Any(item => item.IsEnabled);
+
+        IEnumerable<ICommand> ICommandNode.Commands => this.CommandList;
+
+        ICommandNode ICommandNode.Parent => this.Parent;
+
+        IContainer<ICommandNode> ICommandNode.Childs => this.Childs;
     }
 }

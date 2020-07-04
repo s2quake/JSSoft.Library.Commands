@@ -24,7 +24,7 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace Ntreev.Library.Commands
+namespace Ntreev.Library.Commands.Extensions
 {
     static class MethodInfoExtensions
     {

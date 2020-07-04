@@ -34,56 +34,45 @@ namespace Ntreev.Library.Commands
     public abstract class CommandContextBase
     {
         private const string redirectionPattern = "(>{1,2}[^>]+)";
-        private readonly static TextWriter defaultWriter = new ConsoleTextWriter();
-        private readonly CommandCollection commands = new CommandCollection();
+        private readonly CommandNode commandNode = new CommandNode();
         private readonly ICommand helpCommand;
         private readonly ICommand versionCommand;
-        private string name;
-        private Version version;
-        private TextWriter writer;
-        private TextWriter error;
-        private string baseDirectory;
+        private FileVersionInfo versionInfo;
+        private string fullName;
 
         protected CommandContextBase(IEnumerable<ICommand> commands)
-            : this(commands, new ICommandProvider[] { })
+            : this(Assembly.GetEntryAssembly(), commands)
         {
 
         }
 
-        protected CommandContextBase(IEnumerable<ICommand> commands, IEnumerable<ICommandProvider> commandProviders)
+        protected CommandContextBase(Assembly assembly, IEnumerable<ICommand> commands)
         {
-            this.Out = defaultWriter;
-            this.CommandProviders = commandProviders.ToArray();
+            if (assembly == null)
+                throw new ArgumentNullException(nameof(assembly));
+            this.Name = Path.GetFileName(assembly.Location);
+            this.fullName = assembly.Location;
+            this.versionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
+            this.Version = new Version(this.versionInfo.ProductVersion);
             this.helpCommand = this.CreateHelpCommand();
             this.versionCommand = this.CreateVersionCommand();
+            this.Initialize(this.commandNode, commands);
+        }
 
-            var commands2 = commands.Concat(new ICommand[] { this.helpCommand, this.versionCommand });
-            foreach (var item in commands2)
-            {
-                if (CommandSettings.IsConsoleMode == false && item.GetType().GetCustomAttribute<ConsoleModeOnlyAttribute>() != null)
-                    continue;
-                this.commands.Add(item);
-                if (item is ICommandHost commandHost)
-                {
-                    commandHost.CommandContext = this;
-                }
-            }
+        protected CommandContextBase(string name, IEnumerable<ICommand> commands)
+        {
+            if (name == string.Empty)
+                throw new ArgumentException("empty string not allowed.");
+            this.Name = name ?? throw new ArgumentNullException(nameof(name));
+            this.fullName = name;
+            this.helpCommand = this.CreateHelpCommand();
+            this.versionCommand = this.CreateVersionCommand();
+            this.Initialize(this.commandNode, commands);
+        }
 
-            foreach (var item in commandProviders)
-            {
-                if (CommandSettings.IsConsoleMode == false && item.GetType().GetCustomAttribute<ConsoleModeOnlyAttribute>() != null)
-                    continue;
-                var command = commands.FirstOrDefault(i => i.Name == item.CommandName);
-                if (command == null)
-                    throw new CommandNotFoundException(item.CommandName);
-
-                var descriptors = CommandDescriptor.GetMethodDescriptors(command);
-                descriptors.AddRange(this.GetExternalMethodDescriptors(item));
-                if (item is ICommandHost commandHost)
-                {
-                    commandHost.CommandContext = this;
-                }
-            }
+        public ICommand GetCommand(params string[] commandNames)
+        {
+            return this.GetCommand(this.commandNode, new List<string>(commandNames));
         }
 
         public void Execute(string commandLine)
@@ -97,73 +86,42 @@ namespace Ntreev.Library.Commands
             if (this.Name != name)
                 throw new ArgumentException(string.Format(Resources.InvalidCommandName_Format, name));
 
-            arguments = this.InitializeRedirection(arguments);
-
-            try
-            {
-                this.ExecuteInternal(arguments.Trim());
-            }
-            finally
-            {
-                if (this.Out is RedirectionTextWriter == true)
-                {
-                    (this.Out as RedirectionTextWriter).Dispose();
-                    this.Out = defaultWriter;
-                }
-            }
+            this.ExecuteInternal(arguments);
         }
 
-        public TextWriter Out
-        {
-            get => this.writer ?? Console.Out;
-            set => this.writer = value;
-        }
+        public TextWriter Out { get; set; } = Console.Out;
 
-        public TextWriter Error
-        {
-            get => this.error ?? Console.Error;
-            set => this.error = value;
-        }
+        public TextWriter Error { get; set; } = Console.Error;
 
-        public string Name
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(this.name) == true)
-                    return Path.GetFileName(Assembly.GetEntryAssembly().CodeBase); ;
-                return this.name;
-            }
-            set => this.name = value;
-        }
+        public string Name { get; }
 
-        public Version Version
-        {
-            get
-            {
-                if (this.version == null)
-                {
-                    return new Version(FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location).ProductVersion);
-                }
-                return this.version;
-            }
-            set => this.version = value;
-        }
+        public Version Version { get; set; } = new Version(1, 0);
 
-        public IContainer<ICommand> Commands => this.commands;
+        public ICommandNode Node => this.commandNode;
 
-        public ICommandProvider[] CommandProviders { get; private set; }
-
-        public string BaseDirectory
-        {
-            get => this.baseDirectory ?? Directory.GetCurrentDirectory();
-            set => this.baseDirectory = value;
-        }
+        public string BaseDirectory { get; set; } = Directory.GetCurrentDirectory();
 
         public event EventHandler Executed;
 
-        protected virtual ICommand CreateHelpCommand() => new HelpCommand(this);
+        protected virtual IEnumerable<ICommand> ValidateCommands(IEnumerable<ICommand> commands)
+        {
+            var query = from item in commands
+                        where CommandSettings.IsConsoleMode == true || item.GetType().GetCustomAttribute<ConsoleModeOnlyAttribute>() == null
+                        orderby item.Name
+                        orderby item.GetType().GetCustomAttribute<PartialCommand>()
+                        select item;
 
-        protected virtual ICommand CreateVersionCommand() => new VersionCommand(this);
+            yield return this.helpCommand;
+            yield return this.versionCommand;
+            foreach (var item in query)
+            {
+                yield return item;
+            }
+        }
+
+        protected virtual ICommand CreateHelpCommand() => new HelpCommand();
+
+        protected virtual ICommand CreateVersionCommand() => new VersionCommand();
 
         protected virtual void OnExecuted(EventArgs e)
         {
@@ -172,7 +130,7 @@ namespace Ntreev.Library.Commands
 
         protected virtual string[] GetCompletion(string[] items, string find)
         {
-            return this.GetCompletion(this.commands, new List<string>(items), find);
+            return this.GetCompletion(this.commandNode, new List<string>(items), find);
         }
 
         internal string[] GetCompletionInternal(string[] items, string find)
@@ -180,11 +138,59 @@ namespace Ntreev.Library.Commands
             return this.GetCompletion(items, find);
         }
 
-        private string[] GetCompletion(IContainer<ICommand> commands, IList<string> itemList, string find)
+        private void Initialize(CommandNode node, IEnumerable<ICommand> commands)
+        {
+            this.CollectCommands(node, this.ValidateCommands(commands));
+            this.InitializeCommand(node);
+        }
+
+        private void CollectCommands(CommandNode node, IEnumerable<ICommand> commands)
+        {
+            foreach (var item in commands)
+            {
+                var commandName = item.Name;
+                if (node.Childs.ContainsKey(commandName) == true && item.GetType().GetCustomAttribute<PartialCommand>() == null)
+                    throw new InvalidOperationException("command already exists.");
+
+                if (node.Childs.ContainsKey(commandName) == false)
+                {
+                    node.Childs.Add(new CommandNode()
+                    {
+                        Parent = node,
+                        Name = commandName,
+                        Command = item
+                    });
+                }
+                var commandNode = node.Childs[commandName];
+                commandNode.CommandList.Add(item);
+
+                if (item is ICommandHierarchy hierarchy)
+                {
+                    this.CollectCommands(commandNode, hierarchy.Commands);
+                }
+            }
+        }
+
+        private void InitializeCommand(CommandNode node)
+        {
+            foreach (var item in node.CommandList)
+            {
+                if (item is ICommandHost commandHost)
+                {
+                    commandHost.CommandContext = this;
+                }
+            }
+            foreach (var item in node.Childs)
+            {
+                this.InitializeCommand(item);
+            }
+        }
+
+        private string[] GetCompletion(CommandNode parent, IList<string> itemList, string find)
         {
             if (itemList.Count == 0)
             {
-                var query = from item in commands
+                var query = from item in parent.Childs
                             let name = item.Name
                             where item.IsEnabled
                             where name.StartsWith(find)
@@ -194,37 +200,42 @@ namespace Ntreev.Library.Commands
             else
             {
                 var commandName = itemList.First();
-                var command = commands[commandName];
-                if (command is ICommandNode commandNode)
+                var commandNode = parent.Childs[commandName];
+                if (commandNode.Childs.Any() == true)
                 {
                     itemList.RemoveAt(0);
-                    return this.GetCompletion(commandNode.Commands, itemList, find);
+                    return this.GetCompletion(commandNode, itemList, find);
                 }
-                else if (command is ICommandCompletor completor)
+                else
                 {
-                    var memberList = new List<CommandMemberDescriptor>(CommandDescriptor.GetMemberDescriptors(command));
-                    var argList = new List<string>(itemList.Skip(1));
-                    var context = CommandCompletionContext.Create(command, memberList, argList, find);
-                    if (context is CommandCompletionContext completionContext)
-                        return completor.GetCompletions(completionContext);
-                    else if (context is string[] completions)
-                        return completions;
+                    var args = itemList.Skip(1).ToArray();
+                    foreach (var item in commandNode.CommandList)
+                    {
+                        if (this.GetCompletion(item, args, find) is string[] completions)
+                            return completions;
+                    }
                 }
                 return null;
             }
         }
 
-        private object GetCommandTarget(ICommand command, CommandMethodDescriptor methodDescriptor)
+        private string[] GetCompletion(ICommand item, string[] arguments, string find)
         {
-            var methodInfo = methodDescriptor.MethodInfo;
-            if (methodInfo.DeclaringType == command.GetType())
-                return command;
-            var query = from item in this.CommandProviders
-                        where item.CommandName == command.Name
-                        where item.GetType() == methodInfo.DeclaringType
-                        select item;
-
-            return query.First();
+            if (item is ICommandCompletor completor)
+            {
+                var memberList = new List<CommandMemberDescriptor>(CommandDescriptor.GetMemberDescriptors(item));
+                var argList = new List<string>(arguments);
+                var context = CommandCompletionContext.Create(item, memberList, argList, find);
+                if (context is CommandCompletionContext completionContext)
+                {
+                    var completion = completor.GetCompletions(completionContext);
+                    if (completion != null)
+                        return completion;
+                }
+                else if (context is string[] completions)
+                    return completions;
+            }
+            return null;
         }
 
         private void ExecuteInternal(string commandLine)
@@ -240,7 +251,7 @@ namespace Ntreev.Library.Commands
             {
                 var arguments = CommandStringUtility.SplitAll(commandLine);
                 var argumentList = new List<string>(arguments);
-                var command = this.GetCommand(this.commands, argumentList);
+                var command = this.GetCommand(this.commandNode, argumentList);
                 if (command != null)
                 {
                     var parser = new CommandLineParser(command.Name, command);
@@ -254,182 +265,25 @@ namespace Ntreev.Library.Commands
             }
         }
 
-        private ICommand GetCommand(IContainer<ICommand> commands, List<string> argumentList)
+        private ICommand GetCommand(CommandNode parent, List<string> argumentList)
         {
             var commandName = argumentList.FirstOrDefault() ?? string.Empty;
             if (commandName != string.Empty)
             {
-                if (commands.ContainsKey(commandName) == true)
+                if (parent.Childs.ContainsKey(commandName) == true)
                 {
-                    var command = commands[commandName];
-                    if (command.IsEnabled == false)
+                    var commandNode = parent.Childs[commandName];
+                    if (commandNode.IsEnabled == false)
                         return null;
                     argumentList.RemoveAt(0);
-                    if (argumentList.Count > 0 && command is ICommandNode commandNode)
+                    if (argumentList.Count > 0)
                     {
-                        return this.GetCommand(commandNode.Commands, argumentList);
+                        return this.GetCommand(commandNode, argumentList);
                     }
-                    return command;
+                    return commandNode.CommandList.LastOrDefault();
                 }
             }
             return null;
         }
-
-        private IEnumerable<CommandMethodDescriptor> GetExternalMethodDescriptors(ICommandProvider commandProvider)
-        {
-            foreach (var item in CommandDescriptor.GetMethodDescriptors(commandProvider))
-            {
-                yield return new ExternalCommandMethodDescriptor(commandProvider, item);
-            }
-        }
-
-        private string InitializeRedirection(string arguments)
-        {
-            var args = CommandStringUtility.SplitAll(arguments, false);
-            var argList = new List<string>(args.Length);
-
-            for (var i = 0; i < args.Length; i++)
-            {
-                var arg = args[i];
-                var isWrpped = arg.Length > 1 && arg.First() == '\"' && arg.Last() == '\"';
-
-                if (args[i] == ">")
-                {
-                    i++;
-                    this.AddRedirection(args[i], false);
-                }
-                else if (args[i].StartsWith(">>"))
-                {
-                    this.AddRedirection(args[i].Substring(2), true);
-                }
-                else if (args[i].StartsWith(">"))
-                {
-                    this.AddRedirection(args[i].Substring(1), false);
-                }
-                else
-                {
-                    if (isWrpped == false)
-                    {
-                        arg = this.InitializeRedirectionFromArgument(arg);
-                    }
-                    argList.Add(arg);
-                }
-            }
-
-            return string.Join(" ", argList.ToArray());
-        }
-
-        private string InitializeRedirectionFromArgument(string input)
-        {
-            var match = Regex.Match(input, redirectionPattern);
-            var matchList = new List<Match>();
-            while (match.Success)
-            {
-                matchList.Insert(0, match);
-                if (match.Value.StartsWith(">>"))
-                {
-                    this.AddRedirection(match.Value.Substring(2), true);
-                }
-                else if (match.Value.StartsWith(">"))
-                {
-                    this.AddRedirection(match.Value.Substring(1), false);
-                }
-                match = match.NextMatch();
-            }
-
-            foreach (var item in matchList)
-            {
-                input = input.Remove(item.Index, item.Length);
-            }
-            return input;
-        }
-
-        private void AddRedirection(string filename, bool appendMode)
-        {
-            if (this.Out is RedirectionTextWriter == false)
-            {
-                this.Out = new RedirectionTextWriter(this.BaseDirectory, this.Out.Encoding);
-            }
-
-            (this.Out as RedirectionTextWriter).Add(CommandStringUtility.TrimQuot(filename), false);
-        }
-
-        #region classes
-
-        class ConsoleTextWriter : TextWriter
-        {
-            public override Encoding Encoding
-            {
-                get { return Console.OutputEncoding; }
-            }
-
-            public override void Write(char value)
-            {
-                Console.Write(value);
-            }
-
-            public override void Write(string value)
-            {
-                Console.Write(value);
-            }
-
-            public override void WriteLine(string value)
-            {
-                Console.WriteLine(value);
-            }
-        }
-
-        class RedirectionTextWriter : StringWriter
-        {
-            private readonly List<string> writeList = new List<string>();
-            private readonly List<string> appendList = new List<string>();
-            private readonly string baseDirectory;
-            private readonly Encoding encoding;
-
-            public RedirectionTextWriter(string baseDirectory, Encoding encoding)
-            {
-                this.baseDirectory = baseDirectory;
-                this.encoding = encoding;
-            }
-
-            public void Add(string filename, bool appendMode)
-            {
-                if (appendMode == true)
-                    this.appendList.Add(filename);
-                else
-                    this.writeList.Add(filename);
-            }
-
-            public override Encoding Encoding => this.encoding;
-
-            protected override void Dispose(bool disposing)
-            {
-                var directory = Directory.GetCurrentDirectory();
-                try
-                {
-                    if (Directory.Exists(baseDirectory) == false)
-                        Directory.CreateDirectory(baseDirectory);
-                    Directory.SetCurrentDirectory(baseDirectory);
-                    foreach (var item in this.writeList)
-                    {
-                        File.WriteAllText(item, this.ToString());
-                    }
-                    foreach (var item in this.appendList)
-                    {
-                        File.AppendAllText(item, this.ToString());
-                    }
-                }
-                finally
-                {
-                    Directory.SetCurrentDirectory(directory);
-                    this.writeList.Clear();
-                    this.appendList.Clear();
-                }
-
-                base.Dispose(disposing);
-            }
-        }
-
-        #endregion
     }
 }

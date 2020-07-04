@@ -53,6 +53,8 @@ namespace Ntreev.Library.Commands
 
         public TextWriter Error => this.commandContext.Error;
 
+        public CommandContextBase CommandContext => this.commandContext;
+
         protected abstract void OnExecute();
 
         protected CommandMemberDescriptor GetDescriptor(string propertyName)

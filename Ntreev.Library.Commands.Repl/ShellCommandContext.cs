@@ -29,15 +29,10 @@ namespace Ntreev.Library.Commands.Repl
     class ShellCommandContext : CommandContextBase
     {
         [ImportingConstructor]
-        public ShellCommandContext([ImportMany]IEnumerable<ICommand> commands, [ImportMany]IEnumerable<ICommandProvider> methods)
-            : base(commands, methods)
+        public ShellCommandContext([ImportMany]IEnumerable<ICommand> commands)
+            : base(commands)
         {
 
         }
-
-        // protected override CommandLineParser CreateInstance(ICommand command)
-        // {
-        //     return new ShellCommandLineParser(command.Name, command);
-        // }
     }
 }

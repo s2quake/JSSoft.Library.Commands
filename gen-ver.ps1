@@ -1,4 +1,4 @@
-$majorVersion = 4
+$majorVersion = 5
 $minorVersion = 0
 $version = "$majorVersion.$minorVersion"
 $fileVersion = "$majorVersion.$minorVersion" + "." + (Get-Date -Format yy) + (Get-Date).DayOfYear + "." + (Get-Date -Format HHmm)

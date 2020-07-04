@@ -19,23 +19,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.ComponentModel;
-using System.Reflection;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using Ntreev.Library.ObjectModel;
 
 namespace Ntreev.Library.Commands
 {
-    static class PropertyInfoExtensions
+    public interface ICommandHierarchy
     {
-        public static string GetSummary(this PropertyInfo propertyInfo)
-        {
-            return CommandDescriptor.GetUsageDescriptionProvider(propertyInfo.DeclaringType).GetSummary(propertyInfo);
-        }
-
-        public static string GetDescription(this PropertyInfo propertyInfo)
-        {
-            return CommandDescriptor.GetUsageDescriptionProvider(propertyInfo.DeclaringType).GetDescription(propertyInfo);
-        }
+        IContainer<ICommand> Commands { get; }
     }
 }

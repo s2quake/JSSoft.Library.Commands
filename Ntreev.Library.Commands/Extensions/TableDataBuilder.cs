@@ -19,23 +19,42 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.ComponentModel;
-using System.Reflection;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
-namespace Ntreev.Library.Commands
+namespace Ntreev.Library.Commands.Extensions
 {
-    static class ParameterInfoExtensions
+    public class TableDataBuilder
     {
-        public static string GetSummary(this ParameterInfo parameterInfo)
+        private readonly object[] headers;
+        private readonly List<string[]> rows = new List<string[]>();
+        private string[][] data;
+
+        public TableDataBuilder(params object[] headers)
         {
-            return CommandDescriptor.GetUsageDescriptionProvider(parameterInfo.ParameterType).GetSummary(parameterInfo);
+            this.headers = headers;
         }
 
-        public static string GetDescription(this ParameterInfo parameterInfo)
+        public void Add(params object[] items)
         {
-            return CommandDescriptor.GetUsageDescriptionProvider(parameterInfo.ParameterType).GetDescription(parameterInfo);
+            if (this.headers != null && this.headers.Length != items.Length)
+                throw new ArgumentOutOfRangeException();
+
+            this.rows.Add(items.Select(item => item == null ? string.Empty : item.ToString().Replace(Environment.NewLine, string.Empty)).ToArray());
         }
+
+        public string[][] Data
+        {
+            get
+            {
+                if (this.data == null)
+                {
+                    if (this.headers != null)
+                        this.rows.Insert(0, this.headers.Select(item => item.ToString()).ToArray());
+                    this.data = this.rows.ToArray();
+                }
+                return this.data;
+            }
+        }
+
+        public bool HasHeader => this.headers != null;
     }
 }

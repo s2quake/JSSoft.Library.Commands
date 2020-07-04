@@ -32,11 +32,8 @@ namespace Ntreev.Library.Commands
     [UsageDescriptionProvider(typeof(ResourceUsageDescriptionProvider))]
     class HelpCommand : CommandBase
     {
-        private readonly CommandContextBase commandContext;
-
-        public HelpCommand(CommandContextBase commandContext)
+        public HelpCommand()
         {
-            this.commandContext = commandContext;
         }
 
         public override string[] GetCompletions(CommandCompletionContext completionContext)
@@ -46,7 +43,7 @@ namespace Ntreev.Library.Commands
             if (descriptor.DescriptorName == nameof(CommandNames))
             {
                 var commandNames = properties[nameof(CommandNames)] as string[];
-                return this.GetCommandNames(this.commandContext.Commands, commandNames, completionContext.Find);
+                return this.GetCommandNames(this.CommandContext.Node, commandNames, completionContext.Find);
 
             }
             return base.GetCompletions(completionContext);
@@ -71,16 +68,16 @@ namespace Ntreev.Library.Commands
             }
             else
             {
-                var command = this.GetCommand(this.commandContext.Commands, this.CommandNames);
-                if (command != null)
-                {
-                    var commandName = string.Join(" ", this.CommandNames);
-                    var parser = new CommandLineParser(commandName, command);
-                    if (command is ICommandNode)
-                        parser.PrintMethodUsage(string.Empty, string.Empty);
-                    else
-                        parser.PrintUsage(string.Empty);
-                }
+                // var command = this.GetCommand(this.CommandContext.Commands, this.CommandNames);
+                // if (command != null)
+                // {
+                //     var commandName = string.Join(" ", this.CommandNames);
+                //     var parser = new CommandLineParser(commandName, command);
+                //     if (command is ICommandNode)
+                //         parser.PrintMethodUsage(string.Empty, string.Empty);
+                //     else
+                //         parser.PrintUsage(string.Empty);
+                // }
             }
         }
 
@@ -92,19 +89,19 @@ namespace Ntreev.Library.Commands
             parser.PrintUsage(string.Empty);
             writer.WriteLine(Resources.AvaliableCommands);
             writer.Indent++;
-            foreach (var item in this.commandContext.Commands)
-            {
-                if (item.IsEnabled == false)
-                    continue;
-                var summary = CommandDescriptor.GetUsageDescriptionProvider(item.GetType()).GetSummary(item);
+            // foreach (var item in this.CommandContext.CommandNode.Childs)
+            // {
+            //     if (item.IsEnabled == false)
+            //         continue;
+            //     var summary = CommandDescriptor.GetUsageDescriptionProvider(item.GetType()).GetSummary(item);
 
-                writer.WriteLine(item.Name);
-                writer.Indent++;
-                writer.WriteMultiline(summary);
-                if (summary != string.Empty)
-                    writer.WriteLine();
-                writer.Indent--;
-            }
+            //     writer.WriteLine(item.Name);
+            //     writer.Indent++;
+            //     writer.WriteMultiline(summary);
+            //     if (summary != string.Empty)
+            //         writer.WriteLine();
+            //     writer.Indent--;
+            // }
             writer.Indent--;
             this.Out.Write(writer.ToString());
         }
@@ -119,9 +116,9 @@ namespace Ntreev.Library.Commands
                     var command = commands[commandName];
                     if (command.IsEnabled == false)
                         return null;
-                    if (commandNames.Length > 1 && command is ICommandNode commandNode)
+                    if (commandNames.Length > 1 && command is ICommandHierarchy hierarchy)
                     {
-                        return this.GetCommand(commandNode.Commands, commandNames.Skip(1).ToArray());
+                        return this.GetCommand(hierarchy.Commands, commandNames.Skip(1).ToArray());
                     }
                     return command;
                 }
@@ -129,25 +126,23 @@ namespace Ntreev.Library.Commands
             return null;
         }
 
-        private string[] GetCommandNames(IContainer<ICommand> commands, string[] commandNames, string find)
+        private string[] GetCommandNames(ICommandNode parent, string[] commandNames, string find)
         {
             var commandName = commandNames.FirstOrDefault() ?? string.Empty;
             if (commandName == string.Empty)
             {
-                var query = from item in commands
+                var query = from item in parent.Childs
                             where item.IsEnabled
                             where item.Name.StartsWith(find)
+                            where item.Name != this.Name
                             orderby item.Name
                             select item.Name;
                 return query.ToArray();
             }
-            else if (commands.ContainsKey(commandName) == true)
+            else if (parent.Childs.ContainsKey(commandName) == true)
             {
-                var command = commands[commandName];
-                if (command is ICommandNode commandNode)
-                {
-                    return this.GetCommandNames(commandNode.Commands, commandNames.Skip(1).ToArray(), find);
-                }
+                var node = parent.Childs[commandName];
+                return this.GetCommandNames(node, commandNames.Skip(1).ToArray(), find);
             }
             return null;
         }

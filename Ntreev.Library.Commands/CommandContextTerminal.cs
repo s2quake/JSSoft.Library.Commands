@@ -189,18 +189,18 @@ namespace Ntreev.Library.Commands
             return null;
         }
 
-        private object GetCommandTarget(ICommand command, CommandMethodDescriptor methodDescriptor)
-        {
-            var methodInfo = methodDescriptor.MethodInfo;
-            if (methodInfo.DeclaringType == command.GetType())
-                return command;
-            var query = from item in this.commandContext.CommandProviders
-                        where item.CommandName == command.Name
-                        where item.GetType() == methodInfo.DeclaringType
-                        select item;
+        // private object GetCommandTarget(ICommand command, CommandMethodDescriptor methodDescriptor)
+        // {
+        //     var methodInfo = methodDescriptor.MethodInfo;
+        //     if (methodInfo.DeclaringType == command.GetType())
+        //         return command;
+        //     var query = from item in this.commandContext.CommandProviders
+        //                 where item.CommandName == command.Name
+        //                 where item.GetType() == methodInfo.DeclaringType
+        //                 select item;
 
-            return query.First();
-        }
+        //     return query.First();
+        // }
 
         private string[] GetCompletions(IEnumerable<CommandMemberDescriptor> descriptors, string find)
         {

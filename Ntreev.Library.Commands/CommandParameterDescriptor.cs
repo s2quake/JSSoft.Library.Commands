@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Ntreev.Library.Commands.Extensions;
 
 namespace Ntreev.Library.Commands
 {
@@ -33,15 +34,12 @@ namespace Ntreev.Library.Commands
         {
             this.parameterInfo = parameterInfo;
             this.value = parameterInfo.DefaultValue;
-            // this.DisplayName = parameterInfo.GetDisplayName();
             this.Summary = parameterInfo.GetSummary();
             this.Description = parameterInfo.GetDescription();
             this.DefaultValue = parameterInfo.DefaultValue;
             this.MemberType = parameterInfo.ParameterType;
             this.Attributes = parameterInfo.GetCustomAttributes();
         }
-
-        // public override string DisplayName { get; }
 
         public override string Summary { get; }
 

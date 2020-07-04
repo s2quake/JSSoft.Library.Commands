@@ -27,7 +27,7 @@ using Ntreev.Library.ObjectModel;
 
 namespace Ntreev.Library.Commands
 {
-    public abstract class CommandMethodBase : ICommand, ICommandHost, ICommandNode, ICommandCompletor
+    public abstract class CommandMethodBase : ICommand, ICommandHost, ICommandHierarchy, ICommandCompletor
     {
         private CommandContextBase commandContext;
         private readonly CommandCollection commands = new CommandCollection();

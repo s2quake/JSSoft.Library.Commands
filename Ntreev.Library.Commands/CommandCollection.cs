@@ -26,12 +26,22 @@ namespace Ntreev.Library.Commands
 {
     public class CommandCollection : ContainerBase<ICommand>
     {
-        public void Add(ICommand command)
+        internal void Add(string commandName, ICommand command)
+        {
+            base.AddBase(commandName, command);
+        }
+
+        internal void Add(ICommand command)
         {
             base.AddBase(command.Name, command);
         }
 
-        public bool Contains(string commandName)
+        internal void Remove(string commandName)
+        {
+            base.RemoveBase(commandName);
+        }
+
+        internal bool Contains(string commandName)
         {
             return base.ContainsKey(commandName);
         }

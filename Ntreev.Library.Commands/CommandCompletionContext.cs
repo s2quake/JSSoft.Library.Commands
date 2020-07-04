@@ -52,7 +52,7 @@ namespace Ntreev.Library.Commands
                     var descriptor = item.Key;
                     if (arg == descriptor.ShortNamePattern || arg == descriptor.NamePattern)
                     {
-                        int qer = 0;
+                        // int qer = 0;
                     }
                 }
             }

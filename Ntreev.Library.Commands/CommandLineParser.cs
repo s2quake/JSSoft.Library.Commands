@@ -31,8 +31,6 @@ namespace Ntreev.Library.Commands
 {
     public class CommandLineParser
     {
-        private TextWriter writer = Console.Out;
-        private TextWriter error = Console.Error;
         private CommandMemberUsagePrinter commandUsagePrinter;
         private CommandMethodUsagePrinter methodUsagePrinter;
         private FileVersionInfo versionInfo;
@@ -168,9 +166,9 @@ namespace Ntreev.Library.Commands
             var (first, rest) = CommandStringUtility.Split(arguments);
             var isSwitch = CommandStringUtility.IsSwitch(first);
             var instance = this.Instance;
-            if (instance is ICommandNode commandNode && commandNode.Commands.ContainsKey(first) == true)
+            if (instance is ICommandHierarchy hierarchy && hierarchy.Commands.ContainsKey(first) == true)
             {
-                var command = commandNode.Commands[first];
+                var command = hierarchy.Commands[first];
                 var parser = new CommandLineParser(first, arguments);
                 var args = string.Join(" ", arguments);
                 parser.Parse(args);
@@ -234,7 +232,7 @@ namespace Ntreev.Library.Commands
             }
             else
             {
-                var descriptor = memberDescriptors.Find(memberName);
+                var descriptor = CommandMemberDescriptor.Find(memberDescriptors, memberName);
                 if (descriptor == null)
                     throw new InvalidOperationException(string.Format(Resources.MemberDoesNotExist_Format, memberName));
                 printer.Print(writer, descriptor);
@@ -266,7 +264,7 @@ namespace Ntreev.Library.Commands
                 }
                 else
                 {
-                    var memberDescriptor = methodDescriptor.Members.Find(memberName);
+                    var memberDescriptor = CommandMemberDescriptor.Find(methodDescriptor.Members, memberName);
                     if (memberDescriptor == null)
                         throw new InvalidOperationException(string.Format(Resources.MemberDoesNotExist_Format, memberName));
                     printer.Print(writer, methodDescriptor, memberDescriptor);
@@ -274,17 +272,9 @@ namespace Ntreev.Library.Commands
             }
         }
 
-        public TextWriter Out
-        {
-            get => this.writer;
-            set => this.writer = value;
-        }
+        public TextWriter Out { get; set; } = Console.Out;
 
-        public TextWriter Error
-        {
-            get => this.error;
-            set => this.error = value;
-        }
+        public TextWriter Error { get; set; } = Console.Error;
 
         public string Name { get; }
 
@@ -298,7 +288,7 @@ namespace Ntreev.Library.Commands
 
         protected virtual void OnPrintSummary()
         {
-            if (this.writer != null)
+            if (this.Out != null)
             {
                 this.PrintSummary();
             }
@@ -306,7 +296,7 @@ namespace Ntreev.Library.Commands
 
         protected virtual void OnPrintVersion()
         {
-            if (this.writer != null)
+            if (this.Out != null)
             {
                 this.PrintVersion();
             }
@@ -314,7 +304,7 @@ namespace Ntreev.Library.Commands
 
         protected virtual void OnPrintUsage(string memberName)
         {
-            if (this.writer != null)
+            if (this.Out != null)
             {
                 this.PrintUsage(memberName);
             }
@@ -322,7 +312,7 @@ namespace Ntreev.Library.Commands
 
         protected virtual void OnPrintMethodUsage(string methodName, string memberName)
         {
-            if (this.writer != null)
+            if (this.Out != null)
             {
                 this.PrintMethodUsage(methodName, memberName);
             }

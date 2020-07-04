@@ -19,12 +19,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Ntreev.Library.ObjectModel;
 
 namespace Ntreev.Library.Commands
 {
-    public interface ICommandNode
+    [AttributeUsage(AttributeTargets.Class)]
+    public class PartialCommand : Attribute
     {
-        IContainer<ICommand> Commands { get; }
+        public PartialCommand()
+        {
+        }
     }
 }

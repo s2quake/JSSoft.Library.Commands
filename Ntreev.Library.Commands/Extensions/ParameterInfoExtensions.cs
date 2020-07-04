@@ -15,43 +15,32 @@
 //COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR 
 //OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using Ntreev.Library;
 using System;
-using System.CodeDom.Compiler;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using System.Text;
+using System.ComponentModel;
+using System.Reflection;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
-namespace Ntreev.Library.Commands
+namespace Ntreev.Library.Commands.Extensions
 {
-    [UsageDescriptionProvider(typeof(ResourceUsageDescriptionProvider))]
-    class VersionCommand : CommandBase
+    static class ParameterInfoExtensions
     {
-        public VersionCommand()
+        public static TypeConverter GetConverter(this ParameterInfo parameterInfo)
         {
+            return (parameterInfo as ICustomAttributeProvider).GetConverter(parameterInfo.ParameterType);
         }
 
-        [CommandProperty('q')]
-        public bool IsQuiet { get; set; }
-
-        protected override void OnExecute()
+        public static string GetSummary(this ParameterInfo parameterInfo)
         {
-            using var writer = new CommandTextWriter(this.Out);
-            var name = this.CommandContext.Name;
-            var version = this.CommandContext.Version;
-            var info = FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location);
-            if (this.IsQuiet == false)
-            {
-                writer.WriteLine($"{name} {version}");
-                writer.WriteLine(info.LegalCopyright);
-            }
-            else
-            {
-                writer.WriteLine(version);
-            }
+            return CommandDescriptor.GetUsageDescriptionProvider(parameterInfo.ParameterType).GetSummary(parameterInfo);
+        }
+
+        public static string GetDescription(this ParameterInfo parameterInfo)
+        {
+            return CommandDescriptor.GetUsageDescriptionProvider(parameterInfo.ParameterType).GetDescription(parameterInfo);
         }
     }
 }

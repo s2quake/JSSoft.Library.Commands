@@ -23,6 +23,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Ntreev.Library.Commands.Extensions;
 
 namespace Ntreev.Library.Commands.Repl.Commands
 {

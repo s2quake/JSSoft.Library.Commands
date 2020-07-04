@@ -45,6 +45,16 @@ namespace Ntreev.Library.Commands
             return $"{this.DescriptorName} [{this.DisplayName}]";
         }
 
+        public static CommandMemberDescriptor Find(IEnumerable<CommandMemberDescriptor> descriptors, string displayName)
+        {
+            foreach (var item in descriptors)
+            {
+                if (item.DisplayName == displayName || item.NamePattern == displayName || item.ShortNamePattern == displayName)
+                    return item;
+            }
+            return null;
+        }
+
         public string Name { get; }
 
         public string ShortName { get; }

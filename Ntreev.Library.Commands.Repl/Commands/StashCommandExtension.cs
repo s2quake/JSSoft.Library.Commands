@@ -26,8 +26,9 @@ using System.Threading.Tasks;
 
 namespace Ntreev.Library.Commands.Repl.Commands
 {
-    [Export(typeof(ICommandProvider))]
-    class StashCommandExtension : CommandProviderBase
+    [Export(typeof(ICommand))]
+    [PartialCommand]
+    class StashCommandExtension : CommandMethodBase
     {
         public StashCommandExtension()
             : base("stash")

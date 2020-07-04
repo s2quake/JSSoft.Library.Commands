@@ -21,6 +21,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Ntreev.Library.Commands.Extensions;
 
 namespace Ntreev.Library.Commands
 {
@@ -108,7 +109,7 @@ namespace Ntreev.Library.Commands
                     if (parseInfo.IsParsed == false)
                         continue;
                     var value1 = parseInfo.Desiredvalue;
-                    var value2 = ClassExtension.GetDefaultValue(triggerDescriptor.MemberType, item.Value);
+                    var value2 = GetDefaultValue(triggerDescriptor.MemberType, item.Value);
 
                     if (item.IsInequality == false)
                     {
@@ -122,6 +123,23 @@ namespace Ntreev.Library.Commands
                     }
                 }
             }
+        }
+
+        private static object GetDefaultValue(Type propertyType, object value)
+        {
+            if (value == DBNull.Value)
+                return value;
+            if (value == null)
+            {
+                if (propertyType.IsClass == false)
+                    return DBNull.Value;
+                return null;
+            }
+            if (value.GetType() == propertyType)
+                return value;
+            if (propertyType.IsArray == true)
+                return Parser.ParseArray(propertyType, value.ToString());
+            return TypeDescriptor.GetConverter(propertyType).ConvertFrom(value);
         }
     }
 }
