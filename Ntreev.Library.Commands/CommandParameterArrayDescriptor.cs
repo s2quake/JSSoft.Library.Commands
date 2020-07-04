@@ -27,19 +27,14 @@ namespace Ntreev.Library.Commands
     public sealed class CommandParameterArrayDescriptor : CommandMemberArrayDescriptor
     {
         private readonly ParameterInfo parameterInfo;
-        private readonly string summary;
-        private readonly string description;
         private object value;
 
         public CommandParameterArrayDescriptor(ParameterInfo parameterInfo)
             : base(new CommandPropertyAttribute(), parameterInfo.Name)
         {
-            var provider = CommandDescriptor.GetUsageDescriptionProvider(parameterInfo.Member.DeclaringType);
-            var paramAttr = parameterInfo.GetCustomAttribute<ParamArrayAttribute>();
             this.parameterInfo = parameterInfo;
-            this.DisplayName = parameterInfo.GetDisplayName() + "...";
-            this.summary = parameterInfo.GetSummary();
-            this.description = parameterInfo.GetDescription();
+            this.Summary = parameterInfo.GetSummary();
+            this.Description = parameterInfo.GetDescription();
             this.DefaultValue = parameterInfo.DefaultValue;
             this.MemberType = parameterInfo.ParameterType;
             this.Attributes = parameterInfo.GetCustomAttributes();
@@ -47,7 +42,16 @@ namespace Ntreev.Library.Commands
             this.IsExplicit = false;
         }
 
-        public override string DisplayName { get; }
+        public override string DisplayName
+        {
+            get
+            {
+                var displayName = this.parameterInfo.GetDisplayName();
+                if (displayName != string.Empty)
+                    return displayName;
+                return base.DisplayName + "...";
+            }
+        }
 
         public override string Summary { get; }
 

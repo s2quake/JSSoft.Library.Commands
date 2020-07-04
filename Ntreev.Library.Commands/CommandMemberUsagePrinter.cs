@@ -196,9 +196,14 @@ namespace Ntreev.Library.Commands
 
         private void PrintVariables(CommandTextWriter writer, CommandMemberDescriptor descriptor)
         {
-            writer.BeginGroup(descriptor.Name + " ...");
-            writer.WriteMultiline(descriptor.Description);
-            writer.EndGroup();
+            writer.WriteLine(descriptor.DisplayName);
+            if (descriptor.Summary != string.Empty)
+            {
+                writer.Indent++;
+                writer.WriteMultiline(descriptor.Summary);
+                writer.Indent--;
+            }
+            writer.WriteLine();
         }
 
         private void PrintOption(CommandTextWriter writer, CommandMemberDescriptor descriptor)
@@ -237,10 +242,6 @@ namespace Ntreev.Library.Commands
                     else
                         return $"<{descriptorName}='{value}'>";
                 }
-            }
-            else if (descriptor is CommandMemberArrayDescriptor)
-            {
-                return $"[{descriptor.Name} ...]";
             }
             else
             {

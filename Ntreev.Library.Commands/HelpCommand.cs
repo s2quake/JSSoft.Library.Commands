@@ -49,7 +49,7 @@ namespace Ntreev.Library.Commands
             return base.GetCompletions(completionContext);
         }
 
-        [DisplayName("commands")]
+        // [DisplayName("commands ...")]
         [DefaultValue("")]
         [CommandPropertyArray()]
         public string[] CommandNames { get; set; } = new string[] { };
@@ -102,7 +102,6 @@ namespace Ntreev.Library.Commands
                 if (item.IsEnabled == false)
                     continue;
                 var summary = CommandDescriptor.GetUsageDescriptionProvider(item.GetType()).GetSummary(item);
-
                 writer.WriteLine(item.Name);
                 writer.Indent++;
                 writer.WriteMultiline(summary);

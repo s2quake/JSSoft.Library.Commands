@@ -27,7 +27,7 @@ namespace Ntreev.Library.Commands.Invoke
     static class StaticCommand
     {
         [CommandMethod]
-        [CommandMethodProperty("Value")]
+        [CommandMethodProperty(nameof(Value))]
         public static void List()
         {
             Console.WriteLine("list invoked.");

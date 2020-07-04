@@ -35,6 +35,7 @@ namespace Ntreev.Library.Commands
         private CommandMethodUsagePrinter methodUsagePrinter;
         private FileVersionInfo versionInfo;
         private string fullName;
+        private string filename;
 
         public CommandLineParser(object instance)
             : this(Assembly.GetEntryAssembly(), instance)
@@ -46,7 +47,8 @@ namespace Ntreev.Library.Commands
         {
             if (assembly == null)
                 throw new ArgumentNullException(nameof(assembly));
-            this.Name = Path.GetFileName(assembly.Location);
+            this.Name = Path.GetFileNameWithoutExtension(assembly.Location);
+            this.filename = Path.GetFileName(assembly.Location);
             this.fullName = assembly.Location;
             this.Instance = instance ?? throw new ArgumentNullException(nameof(instance));
             this.versionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
@@ -59,6 +61,7 @@ namespace Ntreev.Library.Commands
                 throw new ArgumentException("empty string not allowed.");
             this.Name = name ?? throw new ArgumentNullException(nameof(name));
             this.fullName = name;
+            this.filename = name;
             this.Instance = instance ?? throw new ArgumentNullException(nameof(instance));
         }
 
@@ -77,7 +80,7 @@ namespace Ntreev.Library.Commands
             }
             catch (Exception e)
             {
-                if (this.Name == name && this.Out != null)
+                if (this.VerifyName(name) == true && this.Out != null)
                 {
                     var (first, rest) = CommandStringUtility.Split(arguments);
                     if (first == string.Empty)
@@ -93,7 +96,7 @@ namespace Ntreev.Library.Commands
                         this.OnPrintVersion();
                     }
                 }
-                else if (this.Name != name && this.Error != null)
+                else if (this.VerifyName(name) == false && this.Error != null)
                 {
                     this.Error.WriteLine(e.Message);
                 }
@@ -109,8 +112,10 @@ namespace Ntreev.Library.Commands
 
         public void Parse(string name, string arguments)
         {
-            if (this.Name != name && this.fullName != name)
+            if (this.VerifyName(name) == false)
                 throw new ArgumentException(string.Format(Resources.InvalidCommandName_Format, name));
+            if (arguments == this.HelpName || arguments == this.VersionName)
+                throw new ArgumentException();
             var descriptors = CommandDescriptor.GetMemberDescriptors(this.Instance).ToArray();
             var parser = new ParseDescriptor(typeof(CommandPropertyDescriptor), descriptors, arguments);
             parser.SetValue(this.Instance);
@@ -125,7 +130,7 @@ namespace Ntreev.Library.Commands
             }
             catch (Exception e)
             {
-                if (this.Name == name && this.Out != null)
+                if (this.VerifyName(name) == true && this.Out != null)
                 {
                     var (first, rest) = CommandStringUtility.Split(arguments);
                     var isSwitch = CommandStringUtility.IsSwitch(first);
@@ -144,7 +149,7 @@ namespace Ntreev.Library.Commands
                     }
 
                 }
-                else if (this.Name != name && this.Error != null)
+                else if (this.VerifyName(name) == false && this.Error != null)
                 {
                     this.Error.WriteLine(e.Message);
                 }
@@ -160,7 +165,7 @@ namespace Ntreev.Library.Commands
 
         public void Invoke(string name, string arguments)
         {
-            if (this.Name != name && this.fullName != name)
+            if (this.VerifyName(name) == false)
                 throw new ArgumentException(string.Format(Resources.InvalidCommandName_Format, name));
 
             var (first, rest) = CommandStringUtility.Split(arguments);
@@ -192,7 +197,7 @@ namespace Ntreev.Library.Commands
                 if (descriptor is ExternalCommandMethodDescriptor externalDescriptor)
                     instance = externalDescriptor.Instance;
                 var enabledDescriptors = descriptor.Members;
-                descriptor.Invoke(instance, arguments, enabledDescriptors);
+                descriptor.Invoke(instance, rest, enabledDescriptors);
             }
         }
 
@@ -346,6 +351,17 @@ namespace Ntreev.Library.Commands
                     this.methodUsagePrinter = this.CreateMethodUsagePrinter(this.Name, this.Instance);
                 return this.methodUsagePrinter;
             }
+        }
+
+        private bool VerifyName(string name)
+        {
+            if (this.Name == name)
+                return true;
+            if (this.fullName == name)
+                return true;
+            if (this.filename == name)
+                return true;
+            return false;
         }
     }
 }

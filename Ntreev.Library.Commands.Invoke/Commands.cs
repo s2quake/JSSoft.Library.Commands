@@ -35,10 +35,20 @@ namespace Ntreev.Library.Commands.Invoke
 
         [CommandMethod("init")]
         [CommandMethodStaticProperty(typeof(GlobalSettings))]
-        [CommandMethodProperty("Message", nameof(Message1))]
+        [CommandMethodProperty(nameof(Message), nameof(Message1))]
         public void Initialize(string path)
         {
             Console.WriteLine("{0} initialized.", path);
+        }
+
+        [CommandMethod]
+        [CommandMethodProperty(nameof(Message1))]
+        public void Add(params string[] paths)
+        {
+            foreach (var item in paths)
+            {
+                Console.WriteLine("{0} added.", item);
+            }
         }
 
         [CommandMethod]
@@ -57,7 +67,7 @@ namespace Ntreev.Library.Commands.Invoke
 
         [CommandMethod]
         [CommandMethodProperty(nameof(Message))]
-        public void Commit(string path, string wow=null)
+        public void Commit(string path, string wow = null)
         {
             if (this.Message == string.Empty)
                 Console.WriteLine("{0} committed.", path);
@@ -65,14 +75,7 @@ namespace Ntreev.Library.Commands.Invoke
                 Console.WriteLine("{0} committed. : {1}", path, this.Message);
         }
 
-        [CommandMethod]
-        [CommandMethodProperty("Message")]
-        public void Add(params string[] items)
-        {
-
-        }
-
-        [CommandProperty('m', true, IsRequired = true)]
+        [CommandProperty('m', true, IsRequired = true, IsExplicit = true)]
         [ConsoleModeOnly]
         public string Message
         {

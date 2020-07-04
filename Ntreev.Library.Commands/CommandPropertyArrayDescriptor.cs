@@ -33,7 +33,6 @@ namespace Ntreev.Library.Commands
             : base(propertyInfo.GetCommandPropertyAttribute(), propertyInfo.Name)
         {
             this.propertyInfo = propertyInfo;
-            this.DisplayName = propertyInfo.GetDisplayName();
             this.MemberType = propertyInfo.PropertyType;
             this.Summary = propertyInfo.GetSummary();
             this.Description = propertyInfo.GetDescription();
@@ -42,7 +41,16 @@ namespace Ntreev.Library.Commands
             this.IsExplicit = false;
         }
 
-        public override string DisplayName { get; }
+        public override string DisplayName
+        {
+            get
+            {
+                var displayName = this.propertyInfo.GetDisplayName();
+                if (displayName != string.Empty)
+                    return displayName;
+                return base.DisplayName + "...";
+            }
+        }
 
         public override Type MemberType { get; }
 

@@ -71,13 +71,11 @@ namespace Ntreev.Library.Commands
             while (arguments.Any())
             {
                 var arg = arguments.Dequeue();
-
                 if (descriptors.ContainsKey(arg) == true)
                 {
                     var descriptor = descriptors[arg];
                     var nextArg = arguments.FirstOrDefault();
                     var isValue = CommandStringUtility.IsSwitch(nextArg) == false && nextArg != "--";
-
                     if (nextArg != null && isValue == true && descriptor.MemberType != typeof(bool))
                     {
                         var textValue = arguments.Dequeue();
@@ -174,7 +172,7 @@ namespace Ntreev.Library.Commands
                 {
                     descriptor.SetValueInternal(instance, parseInfo.Desiredvalue);
                 }
-                else if (parseInfo.DefaultValue != DBNull.Value && descriptor.IsExplicit == false)
+                else if (parseInfo.DefaultValue != DBNull.Value)
                 {
                     descriptor.SetValueInternal(instance, parseInfo.DefaultValue);
                 }
@@ -196,17 +194,6 @@ namespace Ntreev.Library.Commands
             if (this.unparsedArguments.Any())
             {
                 var items = new Dictionary<string, string>(this.unparsedArguments);
-                if (instance is IUnknownArgument parser)
-                {
-                    foreach (var item in this.unparsedArguments)
-                    {
-                        if (parser.Parse(item.Key, item.Value) == true)
-                        {
-                            items.Remove(item.Key);
-                        }
-                    }
-                }
-
                 if (items.Any() == true)
                 {
                     var sb = new StringBuilder();

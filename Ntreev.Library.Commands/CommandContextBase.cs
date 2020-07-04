@@ -39,6 +39,7 @@ namespace Ntreev.Library.Commands
         private readonly ICommand versionCommand;
         private FileVersionInfo versionInfo;
         private string fullName;
+        private string filename;
 
         protected CommandContextBase(IEnumerable<ICommand> commands)
             : this(Assembly.GetEntryAssembly(), commands)
@@ -50,7 +51,8 @@ namespace Ntreev.Library.Commands
         {
             if (assembly == null)
                 throw new ArgumentNullException(nameof(assembly));
-            this.Name = Path.GetFileName(assembly.Location);
+            this.Name = Path.GetFileNameWithoutExtension(assembly.Location);
+            this.filename = Path.GetFileName(assembly.Location);
             this.fullName = assembly.Location;
             this.versionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
             this.Version = new Version(this.versionInfo.ProductVersion);
@@ -65,14 +67,25 @@ namespace Ntreev.Library.Commands
                 throw new ArgumentException("empty string not allowed.");
             this.Name = name ?? throw new ArgumentNullException(nameof(name));
             this.fullName = name;
+            this.filename = name;
             this.helpCommand = this.CreateHelpCommand();
             this.versionCommand = this.CreateVersionCommand();
             this.Initialize(this.commandNode, commands);
         }
 
-        public ICommand GetCommand(params string[] commandNames)
+        public ICommand GetCommand(string commandLine)
         {
-            return this.GetCommand(this.commandNode, new List<string>(commandNames));
+            var (name, arguments) = CommandStringUtility.Split(commandLine);
+            return this.GetCommand(name, arguments);
+        }
+
+        public ICommand GetCommand(string name, string arguments)
+        {
+            if (this.VerifyName(name) == false)
+                return null;
+            var args = CommandStringUtility.SplitAll(arguments);
+            var argList = new List<string>(args);
+            return this.GetCommand(this.commandNode, argList);
         }
 
         public void Execute(string commandLine)
@@ -83,7 +96,7 @@ namespace Ntreev.Library.Commands
 
         public void Execute(string name, string arguments)
         {
-            if (this.Name != name)
+            if (this.VerifyName(name) == false)
                 throw new ArgumentException(string.Format(Resources.InvalidCommandName_Format, name));
 
             this.ExecuteInternal(arguments);
@@ -138,32 +151,32 @@ namespace Ntreev.Library.Commands
             return this.GetCompletion(items, find);
         }
 
-        private void Initialize(CommandNode node, IEnumerable<ICommand> commands)
+        private void Initialize(CommandNode commandNode, IEnumerable<ICommand> commands)
         {
-            this.CollectCommands(node, this.ValidateCommands(commands));
-            this.InitializeCommand(node);
+            this.CollectCommands(commandNode, this.ValidateCommands(commands));
+            this.InitializeCommand(commandNode);
         }
 
-        private void CollectCommands(CommandNode node, IEnumerable<ICommand> commands)
+        private void CollectCommands(CommandNode parentNode, IEnumerable<ICommand> commands)
         {
             foreach (var item in commands)
             {
                 var commandName = item.Name;
-                if (node.Childs.ContainsKey(commandName) == true && item.GetType().GetCustomAttribute<PartialCommand>() == null)
-                    throw new InvalidOperationException("command already exists.");
-
-                if (node.Childs.ContainsKey(commandName) == false)
+                if (parentNode.Childs.ContainsKey(commandName) == true && item.GetType().GetCustomAttribute<PartialCommand>() == null)
+                    throw new InvalidOperationException($"'{commandName}' command already exists.");
+                if (parentNode.Childs.ContainsKey(commandName) == false && item.GetType().GetCustomAttribute<PartialCommand>() != null)
+                    throw new InvalidOperationException($"'{commandName}' command does not exists.");
+                if (parentNode.Childs.ContainsKey(commandName) == false)
                 {
-                    node.Childs.Add(new CommandNode()
+                    parentNode.Childs.Add(new CommandNode()
                     {
-                        Parent = node,
+                        Parent = parentNode,
                         Name = commandName,
                         Command = item
                     });
                 }
-                var commandNode = node.Childs[commandName];
+                var commandNode = parentNode.Childs[commandName];
                 commandNode.CommandList.Add(item);
-
                 if (item is ICommandHierarchy hierarchy)
                 {
                     this.CollectCommands(commandNode, hierarchy.Commands);
@@ -171,26 +184,26 @@ namespace Ntreev.Library.Commands
             }
         }
 
-        private void InitializeCommand(CommandNode node)
+        private void InitializeCommand(CommandNode commandNode)
         {
-            foreach (var item in node.CommandList)
+            var query = from item in commandNode.CommandList
+                        where item is ICommandHost commandHost
+                        select item as ICommandHost;
+            foreach (var item in query)
             {
-                if (item is ICommandHost commandHost)
-                {
-                    commandHost.CommandContext = this;
-                }
+                item.CommandContext = this;
             }
-            foreach (var item in node.Childs)
+            foreach (var item in commandNode.Childs)
             {
                 this.InitializeCommand(item);
             }
         }
 
-        private string[] GetCompletion(CommandNode parent, IList<string> itemList, string find)
+        private string[] GetCompletion(CommandNode parentNode, IList<string> itemList, string find)
         {
             if (itemList.Count == 0)
             {
-                var query = from item in parent.Childs
+                var query = from item in parentNode.Childs
                             let name = item.Name
                             where item.IsEnabled
                             where name.StartsWith(find)
@@ -200,7 +213,7 @@ namespace Ntreev.Library.Commands
             else
             {
                 var commandName = itemList.First();
-                var commandNode = parent.Childs[commandName];
+                var commandNode = parentNode.Childs[commandName];
                 if (commandNode.Childs.Any() == true)
                 {
                     itemList.RemoveAt(0);
@@ -223,9 +236,8 @@ namespace Ntreev.Library.Commands
         {
             if (item is ICommandCompletor completor)
             {
-                var memberList = new List<CommandMemberDescriptor>(CommandDescriptor.GetMemberDescriptors(item));
-                var argList = new List<string>(arguments);
-                var context = CommandCompletionContext.Create(item, memberList, argList, find);
+                var members = CommandDescriptor.GetMemberDescriptors(item);
+                var context = CommandCompletionContext.Create(item, members, arguments, find);
                 if (context is CommandCompletionContext completionContext)
                 {
                     var completion = completor.GetCompletions(completionContext);
@@ -256,7 +268,7 @@ namespace Ntreev.Library.Commands
                 {
                     var parser = new CommandLineParser(command.Name, command);
                     var arg = string.Join(" ", argumentList);
-                    parser.TryInvoke(command.Name, arg);
+                    parser.Invoke(command.Name, arg);
                 }
                 else
                 {
@@ -265,14 +277,14 @@ namespace Ntreev.Library.Commands
             }
         }
 
-        private ICommand GetCommand(CommandNode parent, List<string> argumentList)
+        private ICommand GetCommand(CommandNode parentNode, List<string> argumentList)
         {
             var commandName = argumentList.FirstOrDefault() ?? string.Empty;
             if (commandName != string.Empty)
             {
-                if (parent.Childs.ContainsKey(commandName) == true)
+                if (parentNode.Childs.ContainsKey(commandName) == true)
                 {
-                    var commandNode = parent.Childs[commandName];
+                    var commandNode = parentNode.Childs[commandName];
                     if (commandNode.IsEnabled == false)
                         return null;
                     argumentList.RemoveAt(0);
@@ -284,6 +296,17 @@ namespace Ntreev.Library.Commands
                 }
             }
             return null;
+        }
+
+        private bool VerifyName(string name)
+        {
+            if (this.Name == name)
+                return true;
+            if (this.fullName == name)
+                return true;
+            if (this.filename == name)
+                return true;
+            return false;
         }
     }
 }
