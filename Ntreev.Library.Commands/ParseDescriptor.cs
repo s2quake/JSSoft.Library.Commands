@@ -37,21 +37,14 @@ namespace Ntreev.Library.Commands
         /// </param>
         /// <param name="members"></param>
         /// <param name="commandLine"></param>
-        /// <param name="isInitializable"></param>
-        public ParseDescriptor(Type type, IEnumerable<CommandMemberDescriptor> members, string commandLine, bool isInitializable)
-            : this(type, members, CommandStringUtility.SplitAll(commandLine), isInitializable)
+        public ParseDescriptor(Type type, IEnumerable<CommandMemberDescriptor> members, string commandLine)
+            : this(type, members, CommandStringUtility.SplitAll(commandLine))
         {
 
 
         }
 
         public ParseDescriptor(Type type, IEnumerable<CommandMemberDescriptor> members, IEnumerable<string> args)
-            : this(type, members, args, true)
-        {
-
-        }
-
-        public ParseDescriptor(Type type, IEnumerable<CommandMemberDescriptor> members, IEnumerable<string> args, bool isInitializable)
         {
             foreach (var item in members)
             {

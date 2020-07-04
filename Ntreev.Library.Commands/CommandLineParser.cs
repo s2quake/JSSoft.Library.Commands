@@ -112,7 +112,7 @@ namespace Ntreev.Library.Commands
             if (this.Name != name && this.fullName != name)
                 throw new ArgumentException(string.Format(Resources.InvalidCommandName_Format, name));
             var descriptors = CommandDescriptor.GetMemberDescriptors(this.Instance).ToArray();
-            var parser = new ParseDescriptor(typeof(CommandPropertyDescriptor), descriptors, arguments, false);
+            var parser = new ParseDescriptor(typeof(CommandPropertyDescriptor), descriptors, arguments);
             parser.SetValue(this.Instance);
         }
 
@@ -192,7 +192,7 @@ namespace Ntreev.Library.Commands
                 if (descriptor is ExternalCommandMethodDescriptor externalDescriptor)
                     instance = externalDescriptor.Instance;
                 var enabledDescriptors = descriptor.Members;
-                descriptor.Invoke(instance, arguments, enabledDescriptors, false);
+                descriptor.Invoke(instance, arguments, enabledDescriptors);
             }
         }
 
