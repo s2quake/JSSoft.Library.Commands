@@ -194,10 +194,7 @@ namespace Ntreev.Library.Commands
             }
             else if (CommandDescriptor.GetMethodDescriptor(instance, first) is CommandMethodDescriptor descriptor)
             {
-                if (descriptor is ExternalCommandMethodDescriptor externalDescriptor)
-                    instance = externalDescriptor.Instance;
-                var enabledDescriptors = descriptor.Members;
-                descriptor.Invoke(instance, rest, enabledDescriptors);
+                descriptor.Invoke(instance, rest, descriptor.Members);
             }
         }
 

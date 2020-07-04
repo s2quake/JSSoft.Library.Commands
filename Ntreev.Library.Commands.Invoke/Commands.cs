@@ -35,14 +35,14 @@ namespace Ntreev.Library.Commands.Invoke
 
         [CommandMethod("init")]
         [CommandMethodStaticProperty(typeof(GlobalSettings))]
-        [CommandMethodProperty(nameof(Message), nameof(Message1))]
+        [CommandMethodProperty(nameof(Message))]
         public void Initialize(string path)
         {
             Console.WriteLine("{0} initialized.", path);
         }
 
         [CommandMethod]
-        [CommandMethodProperty(nameof(Message1))]
+        [CommandMethodProperty(nameof(Message))]
         public void Add(params string[] paths)
         {
             foreach (var item in paths)
@@ -58,11 +58,12 @@ namespace Ntreev.Library.Commands.Invoke
         }
 
         [CommandMethod]
-        [CommandMethodProperty(nameof(Message))]
-        [Browsable(false)]
-        public void Delete(string path)
+        public void Delete(params string[] paths)
         {
-            Console.WriteLine("{0} deleted.", path);
+            foreach (var item in paths)
+            {
+                Console.WriteLine("{0} deleted.", item);
+            }
         }
 
         [CommandMethod]
@@ -78,12 +79,6 @@ namespace Ntreev.Library.Commands.Invoke
         [CommandProperty('m', true, IsRequired = true, IsExplicit = true)]
         [ConsoleModeOnly]
         public string Message
-        {
-            get; set;
-        }
-
-        [CommandProperty('q')]
-        public string Message1
         {
             get; set;
         }
