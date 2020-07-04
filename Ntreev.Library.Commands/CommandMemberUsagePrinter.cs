@@ -57,6 +57,8 @@ namespace Ntreev.Library.Commands
 
         public string Description { get; }
 
+        public bool IsDetailed { get; set; }
+
         private void Print(CommandTextWriter writer, CommandMemberDescriptor[] descriptors)
         {
             this.PrintSummary(writer, descriptors);
@@ -105,7 +107,7 @@ namespace Ntreev.Library.Commands
         private void PrintDescription(CommandTextWriter writer, CommandMemberDescriptor[] descriptors)
         {
             var description = this.Description;
-            if (description != string.Empty)
+            if (description != string.Empty && this.IsDetailed == true)
             {
                 writer.BeginGroup(Resources.Description);
                 writer.WriteMultiline(description);

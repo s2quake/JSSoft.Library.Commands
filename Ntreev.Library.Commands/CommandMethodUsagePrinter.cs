@@ -62,10 +62,12 @@ namespace Ntreev.Library.Commands
 
         public string Description { get; }
 
+        public bool IsDetailed { get; set; }
+
         private void Print(CommandTextWriter writer, CommandMethodDescriptor[] descriptors)
         {
             this.PrintSummary(writer, descriptors);
-            // this.PrintDescription(writer, descriptors);
+            this.PrintDescription(writer, descriptors);
             this.PrintUsage(writer, descriptors);
             this.PrintSubcommands(writer, descriptors);
         }
@@ -73,7 +75,7 @@ namespace Ntreev.Library.Commands
         private void Print(CommandTextWriter writer, CommandMethodDescriptor descriptor, CommandMemberDescriptor[] memberDescriptors)
         {
             this.PrintSummary(writer, descriptor, memberDescriptors);
-            // this.PrintDescription(writer, descriptor, memberDescriptors);
+            this.PrintDescription(writer, descriptor, memberDescriptors);
             this.PrintUsage(writer, descriptor, memberDescriptors);
             this.PrintRequirements(writer, descriptor, memberDescriptors);
             this.PrintVariables(writer, descriptor, memberDescriptors);
@@ -118,7 +120,7 @@ namespace Ntreev.Library.Commands
         private void PrintDescription(CommandTextWriter writer, CommandMethodDescriptor[] descriptors)
         {
             var description = this.Description;
-            if (description != string.Empty)
+            if (description != string.Empty && this.IsDetailed == true)
             {
                 writer.BeginGroup(Resources.Description);
                 writer.WriteMultiline(description);
@@ -128,7 +130,7 @@ namespace Ntreev.Library.Commands
 
         private void PrintDescription(CommandTextWriter writer, CommandMethodDescriptor descriptor, CommandMemberDescriptor[] memberDescriptors)
         {
-            if (descriptor.Description != string.Empty)
+            if (descriptor.Description != string.Empty && this.IsDetailed == true)
             {
                 writer.BeginGroup(Resources.Description);
                 writer.WriteMultiline(descriptor.Description);

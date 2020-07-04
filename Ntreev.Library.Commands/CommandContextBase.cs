@@ -276,11 +276,11 @@ namespace Ntreev.Library.Commands
                     if (commandNode.IsEnabled == false)
                         return null;
                     argumentList.RemoveAt(0);
-                    if (argumentList.Count > 0)
+                    if (argumentList.Count > 0 && commandNode.Childs.Any())
                     {
                         return this.GetCommand(commandNode, argumentList);
                     }
-                    return commandNode.CommandList.LastOrDefault();
+                    return commandNode.Command;
                 }
             }
             return null;

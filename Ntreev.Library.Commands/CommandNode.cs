@@ -27,23 +27,10 @@ using Ntreev.Library.ObjectModel;
 
 namespace Ntreev.Library.Commands
 {
-    public interface ICommandNode
-    {
-        ICommandNode Parent { get; }
-
-        IContainer<ICommandNode> Childs { get; }
-
-        string Name { get; }
-
-        ICommand Command { get; }
-
-        bool IsEnabled { get; }
-
-        IEnumerable<ICommand> Commands { get; }
-    }
-
     class CommandNode : ICommandNode
     {
+        public override string ToString() => this.Name;
+        
         public CommandNode Parent { get; set; }
 
         public CommandNodeCollection Childs { get; } = new CommandNodeCollection();
@@ -56,10 +43,14 @@ namespace Ntreev.Library.Commands
 
         public bool IsEnabled => this.CommandList.Any(item => item.IsEnabled);
 
+        #region ICommandNode
+
         IEnumerable<ICommand> ICommandNode.Commands => this.CommandList;
 
         ICommandNode ICommandNode.Parent => this.Parent;
 
         IContainer<ICommandNode> ICommandNode.Childs => this.Childs;
+
+        #endregion
     }
 }

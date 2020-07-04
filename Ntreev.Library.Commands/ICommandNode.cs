@@ -16,7 +16,6 @@
 //OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,11 +23,18 @@ using Ntreev.Library.ObjectModel;
 
 namespace Ntreev.Library.Commands
 {
-    public class CommandCollection : ContainerBase<ICommand>
+    public interface ICommandNode
     {
-        internal void Add(ICommand command)
-        {
-            base.AddBase(command.Name, command);
-        }
+        ICommandNode Parent { get; }
+
+        IContainer<ICommandNode> Childs { get; }
+
+        string Name { get; }
+
+        ICommand Command { get; }
+
+        bool IsEnabled { get; }
+
+        IEnumerable<ICommand> Commands { get; }
     }
 }
