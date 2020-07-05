@@ -81,18 +81,7 @@ namespace Ntreev.Library.Commands
                             textValue = Regex.Unescape(textValue);
                         this.itemList[descriptor].Desiredvalue = Parser.Parse(descriptor, textValue);
                     }
-                    //else if (descriptor.IsExplicit == true && descriptor.ExplicitValue != DBNull.Value)
-                    //{
-                    //    this.itemList[descriptor].Desiredvalue = descriptor.ExplicitValue;
-                    //}
-                    //else if (descriptor.MemberType == typeof(bool))
-                    //{
-                    //    this.itemList[descriptor].Desiredvalue = true;
-                    //}
-                    // else
-                    // {
-                    //     return;
-                    // }
+                    this.itemList[descriptor].MemberName = arg;
                 }
                 else if (arg == "--")
                 {
@@ -219,11 +208,18 @@ namespace Ntreev.Library.Commands
             {
                 var descriptor = item.Key;
                 var parseInfo = item.Value;
+                if (descriptor.IsExplicit == true)
+                {
+                    if (parseInfo.MemberName != string.Empty &&  parseInfo.Desiredvalue == DBNull.Value && descriptor.ExplicitValue == DBNull.Value)
+                        throw new ArgumentException($"{descriptor.DisplayName}에 값이 설정되지 않았습니다.");
+                }
                 if (parseInfo.IsParsed == true)
                     continue;
-
                 if (descriptor.IsRequired == true)
                 {
+                    if (descriptor.IsExplicit == false && descriptor.DefaultValue != DBNull.Value)
+                        continue;
+
                     throw new ArgumentException($"필수 인자 {descriptor.DisplayName}가 빠져있습니다");
                 }
             }
