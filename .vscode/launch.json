@@ -22,7 +22,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/Ntreev.Library.Commands.Test/bin/Debug/netcoreapp3.0/Ntreev.Library.Commands.Test.dll",
+            "program": "${workspaceFolder}/Ntreev.Library.Commands.Parse/bin/Debug/netcoreapp3.0/Ntreev.Library.Commands.Parse.dll",
             "args": [],
             "cwd": "${workspaceFolder}",
             "stopAtEntry": false,

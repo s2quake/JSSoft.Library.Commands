@@ -81,18 +81,6 @@ namespace Ntreev.Library.Commands
                             textValue = Regex.Unescape(textValue);
                         this.itemList[descriptor].Desiredvalue = Parser.Parse(descriptor, textValue);
                     }
-                    //else if (descriptor.IsExplicit == true && descriptor.ExplicitValue != DBNull.Value)
-                    //{
-                    //    this.itemList[descriptor].Desiredvalue = descriptor.ExplicitValue;
-                    //}
-                    //else if (descriptor.MemberType == typeof(bool))
-                    //{
-                    //    this.itemList[descriptor].Desiredvalue = true;
-                    //}
-                    // else
-                    // {
-                    //     return;
-                    // }
                 }
                 else if (arg == "--")
                 {
