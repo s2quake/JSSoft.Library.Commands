@@ -4,6 +4,7 @@
    // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
    "version": "0.2.0",
    "configurations": [
+       
         {
             "name": ".NET Core Launch (console)",
             "type": "coreclr",
@@ -15,6 +16,17 @@
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
             "console": "externalTerminal",
             "stopAtEntry": false
+        },
+        {
+            "name": ".NET Core Launch (test)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/Ntreev.Library.Commands.Test/bin/Debug/netcoreapp3.0/Ntreev.Library.Commands.Test.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "stopAtEntry": false,
+            "console": "internalConsole"
         },
         {
             "name": ".NET Core Attach",

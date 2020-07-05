@@ -100,10 +100,10 @@ namespace Ntreev.Library.Commands
                 foreach (var item in items)
                 {
                     if (nameToDescriptor.ContainsKey(item.PropertyName) == false)
-                        throw new Exception(string.Format("'{0}' property does not exists.", item.PropertyName));
+                        throw new InvalidOperationException(string.Format("'{0}' property does not exists.", item.PropertyName));
                     var triggerDescriptor = nameToDescriptor[item.PropertyName];
                     if (triggerDescriptor is CommandPropertyDescriptor == false)
-                        throw new Exception(string.Format("'{0}' is not property", item.PropertyName));
+                        throw new InvalidOperationException(string.Format("'{0}' is not property", item.PropertyName));
 
                     var parseInfo = descriptors[triggerDescriptor];
                     if (parseInfo.IsParsed == false)
@@ -114,12 +114,12 @@ namespace Ntreev.Library.Commands
                     if (item.IsInequality == false)
                     {
                         if (object.Equals(value1, value2) == false)
-                            throw new Exception(string.Format("'{0}' can not use. '{1}' property value must be '{2}'", this.DisplayName, triggerDescriptor.DisplayName, value2));
+                            throw new InvalidOperationException(string.Format("'{0}' can not use. '{1}' property value must be '{2}'", this.DisplayName, triggerDescriptor.DisplayName, value2));
                     }
                     else
                     {
                         if (object.Equals(value1, value2) == true)
-                            throw new Exception(string.Format("'{0}' can not use. '{1}' property value must be not '{2}'", this.DisplayName, triggerDescriptor.DisplayName, value2));
+                            throw new InvalidOperationException(string.Format("'{0}' can not use. '{1}' property value must be not '{2}'", this.DisplayName, triggerDescriptor.DisplayName, value2));
                     }
                 }
             }

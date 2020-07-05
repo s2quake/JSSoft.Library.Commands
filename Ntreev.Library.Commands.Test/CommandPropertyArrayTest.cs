@@ -15,12 +15,12 @@
 //COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR 
 //OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Ntreev.Library.Commands.Test
 {
@@ -31,16 +31,16 @@ namespace Ntreev.Library.Commands.Test
         public void Test1()
         {
             var parser = new CommandLineParser(this);
-            parser.Parse("get database=a port=123 userid=abc password=1234 comment=\"connect database to \\\"a\\\"\"", CommandParsingTypes.OmitCommandName);
+            parser.Parse(parser.Name, "get database=a port=123 userid=abc password=1234 comment=\"connect database to \\\"a\\\"\"");
 
-            CommandStringUtility.ArgumentsToDictionary(this.Arguments);
+            var props = CommandStringUtility.ArgumentsToDictionary(this.Arguments);
         }
 
         [TestMethod]
         public void Test2()
         {
             var parser = new CommandLineParser(this);
-            parser.Parse("get \"database=a b c\"", CommandParsingTypes.OmitCommandName);
+            parser.Parse(parser.Name, "get \"database=a b c\"");
 
             CommandStringUtility.ArgumentsToDictionary(this.Arguments);
         }
@@ -49,7 +49,7 @@ namespace Ntreev.Library.Commands.Test
         public void Test3()
         {
             var parser = new CommandLineParser(this);
-            parser.Parse("get \"database=\\\"a b c\\\"\"", CommandParsingTypes.OmitCommandName);
+            parser.Parse(parser.Name, "get \"database=\\\"a b c\\\"\"");
 
             CommandStringUtility.ArgumentsToDictionary(this.Arguments);
         }
@@ -59,14 +59,14 @@ namespace Ntreev.Library.Commands.Test
         public void ValueIncludedEqualsTest()
         {
             var parser = new CommandLineParser(this);
-            parser.Parse("--value=0", CommandParsingTypes.OmitCommandName);
+            parser.Parse(parser.Name, "--value=0");
         }
 
         [TestMethod]
         public void ValueIncludedEqualsTest2()
         {
             var parser = new CommandLineParser(this);
-            parser.Parse("value=0", CommandParsingTypes.OmitCommandName);
+            parser.Parse(parser.Name, "value=0");
         }
 
         [CommandProperty(IsRequired = true)]

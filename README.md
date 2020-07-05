@@ -20,69 +20,70 @@ Parse
 
 IsRequired 가 설정된 속성은 명령구문에서 스위치값을 생략할 수 있으며 그 외에 속성은 --[이름] [변수] 또는 -[짧은이름] [변수] 형태여야 합니다.
 
-    using System;
-    using Ntreev.Library.Commands;
-    using System.ComponentModel;
+```csharp
+using System;
+using Ntreev.Library.Commands;
+using System.ComponentModel;
 
-    namespace ConsoleApp
+namespace ConsoleApp
+{
+    class Settings
     {
-        class Settings
+        [CommandProperty("param1", IsRequired = true)]
+        [Description("parameter1 description")]
+        public string Parameter1
         {
-            [CommandProperty("param1", IsRequired = true)]
-            [Description("parameter1 description")]
-            public string Parameter1
-            {
-                get; set;
-            }
-
-            [CommandProperty("param2", IsRequired = true)]
-            [Description("parameter2 description")]
-            public int Parameter2
-            {
-                get; set;
-            }
-
-            [CommandProperty('o')]
-            [Description("option1 description")]
-            public bool Option1
-            {
-                get; set;
-            }
-
-            [CommandProperty("text-option")]
-            [Description("option2 description")]
-            public string Option2
-            {
-                get; set;
-            }
+            get; set;
         }
 
-        class Program
+        [CommandProperty("param2", IsRequired = true)]
+        [Description("parameter2 description")]
+        public int Parameter2
         {
-            static void Main(string[] args)
-            {
-                var settings = new Settings();
-                var parser = new CommandLineParser(settings);
+            get; set;
+        }
 
-                try
-                {
-                    if (parser.Parse(Environment.CommandLine) == false)
-                    {
-                        Environment.Exit(1);
-                    }
+        [CommandProperty('o')]
+        [Description("option1 description")]
+        public bool Option1
+        {
+            get; set;
+        }
 
-                    // todo
-
-                }
-                catch (Exception e)
-                {
-                    Console.Error.WriteLine(e);
-                    Environment.Exit(2);
-                }
-            }
+        [CommandProperty("text-option")]
+        [Description("option2 description")]
+        public string Option2
+        {
+            get; set;
         }
     }
 
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var settings = new Settings();
+            var parser = new CommandLineParser(settings);
+
+            try
+            {
+                if (parser.Parse(Environment.CommandLine) == false)
+                {
+                    Environment.Exit(1);
+                }
+
+                // todo
+
+            }
+            catch (Exception e)
+            {
+                Console.Error.WriteLine(e);
+                Environment.Exit(2);
+            }
+        }
+    }
+}
+```
 
 You can call like this in console:
 

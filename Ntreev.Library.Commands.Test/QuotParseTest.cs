@@ -34,7 +34,7 @@ namespace Ntreev.Library.Commands.Test
             var text1 = "abc test 123";
             var text2 = "'abc test 123'";
             var args = string.Join(" ", "--value", text2);
-            parser.Parse(args, CommandParsingTypes.OmitCommandName);
+            parser.Parse(args);
 
             Assert.AreEqual(text1, this.Value);
         }
@@ -46,7 +46,7 @@ namespace Ntreev.Library.Commands.Test
             var text1 = "abc 'test' 123";
             var text2 = "'abc \\'test\\' 123'";
             var args = string.Join(" ", "--value", text2);
-            parser.Parse(args, CommandParsingTypes.OmitCommandName);
+            parser.Parse(args);
 
             Assert.AreEqual(text1, this.Value);
         }
@@ -59,7 +59,7 @@ namespace Ntreev.Library.Commands.Test
             var text1 = "abc 'test' 123";
             var text2 = "'abc 'test' 123'";
             var args = string.Join(" ", "--value", text2);
-            parser.Parse(args, CommandParsingTypes.OmitCommandName);
+            parser.Parse(args);
 
             Assert.AreEqual(text1, this.Value);
         }
@@ -71,7 +71,7 @@ namespace Ntreev.Library.Commands.Test
             var text1 = "abc test 123";
             var text2 = "\"abc test 123\"";
             var args = string.Join(" ", "--value", text2);
-            parser.Parse(args, CommandParsingTypes.OmitCommandName);
+            parser.Parse(args);
 
             Assert.AreEqual(text1, this.Value);
         }
@@ -83,7 +83,7 @@ namespace Ntreev.Library.Commands.Test
             var text1 = "abc \"test\" 123";
             var text2 = "\"abc \\\"test\\\" 123\"";
             var args = string.Join(" ", "--value", text2);
-            parser.Parse(args, CommandParsingTypes.OmitCommandName);
+            parser.Parse(args);
 
             Assert.AreEqual(text1, this.Value);
         }

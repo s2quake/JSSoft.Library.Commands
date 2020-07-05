@@ -7,5 +7,7 @@
         "**/.DS_Store": true,
         "**/bin": true,
         "**/obj": true
-    }
+    },
+    "dotnet-test-explorer.testProjectPath": "Ntreev.Library.Commands.Test/Ntreev.Library.Commands.Test.csproj",
+    "dotnet-test-explorer.testArguments": "-f netcoreapp3.0"
 }

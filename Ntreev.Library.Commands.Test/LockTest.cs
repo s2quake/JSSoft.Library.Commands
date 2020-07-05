@@ -33,7 +33,6 @@ namespace Ntreev.Library.Commands.Test
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
         public void TestMethod1()
         {
             this.parser.Parse("lock");
@@ -70,7 +69,7 @@ namespace Ntreev.Library.Commands.Test
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void TestMethod6()
         {
             this.parser.Parse("lock current_path -m 123 -i");
