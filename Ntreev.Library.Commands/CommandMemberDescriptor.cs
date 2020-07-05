@@ -38,6 +38,7 @@ namespace Ntreev.Library.Commands
             this.ShortName = attribute.InternalShortName;
             this.IsRequired = attribute.IsRequired;
             this.IsExplicit = attribute.IsRequired == false ? true : attribute.IsExplicit;
+            this.ExplicitValue = attribute.ExplicitValue;
         }
 
         public override string ToString()
@@ -77,7 +78,7 @@ namespace Ntreev.Library.Commands
 
         public virtual object DefaultValue { get; } = DBNull.Value;
 
-        public virtual object ExplicitValue { get; } = DBNull.Value;
+        public virtual object ExplicitValue { get; }
 
         public virtual bool IsRequired { get; }
 

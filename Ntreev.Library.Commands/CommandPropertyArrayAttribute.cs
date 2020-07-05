@@ -34,7 +34,6 @@ namespace Ntreev.Library.Commands
 
         protected override void Validate(object target)
         {
-            base.Validate(target);
             if (this.Usage != CommandPropertyUsage.Variables)
                 throw new InvalidOperationException($"'{nameof(CommandPropertyArrayAttribute)}.{nameof(Usage)}' can use only '{CommandPropertyUsage.Variables}'.");
             if (this.IsExplicit == false && this.ExplicitValue != DBNull.Value)

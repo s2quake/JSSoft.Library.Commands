@@ -149,10 +149,6 @@ namespace Ntreev.Library.Commands
 
         private static object ParseBoolean(CommandMemberDescriptor descriptor, string arg)
         {
-            if (descriptor.MemberType == typeof(bool))
-            {
-                return true;
-            }
             return ParseDefault(descriptor, arg);
         }
 

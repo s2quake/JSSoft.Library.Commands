@@ -78,9 +78,10 @@ namespace Ntreev.Library.Commands
                     {
                         var textValue = arguments.Dequeue();
                         if (CommandStringUtility.IsWrappedOfQuote(textValue) == true)
-                            textValue = Regex.Unescape(textValue);
+                            textValue = CommandStringUtility.TrimQuot(textValue);
                         this.itemList[descriptor].Desiredvalue = Parser.Parse(descriptor, textValue);
                     }
+                    this.itemList[descriptor].MemberName = arg;
                 }
                 else if (arg == "--")
                 {
@@ -101,6 +102,10 @@ namespace Ntreev.Library.Commands
                     arguments.Clear();
                 }
                 else if (CommandStringUtility.IsSwitch(arg) == true)
+                {
+                    this.unparsedArguments.Add(arg, null);
+                }
+                else if (arg.StartsWith("--") || arg.StartsWith("-"))
                 {
                     this.unparsedArguments.Add(arg, null);
                 }
@@ -162,7 +167,7 @@ namespace Ntreev.Library.Commands
                 {
                     descriptor.SetValueInternal(instance, parseInfo.DefaultValue);
                 }
-                else if (parseInfo.ExplicitValue != DBNull.Value)
+                else if (parseInfo.ExplicitValue != DBNull.Value && parseInfo.MemberName != string.Empty)
                 {
                     descriptor.SetValueInternal(instance, parseInfo.ExplicitValue);
                 }
@@ -207,11 +212,18 @@ namespace Ntreev.Library.Commands
             {
                 var descriptor = item.Key;
                 var parseInfo = item.Value;
+                if (descriptor.IsExplicit == true)
+                {
+                    if (parseInfo.MemberName != string.Empty && parseInfo.Desiredvalue == DBNull.Value && descriptor.ExplicitValue == DBNull.Value)
+                        throw new ArgumentException($"{descriptor.DisplayName}에 값이 설정되지 않았습니다.");
+                }
                 if (parseInfo.IsParsed == true)
                     continue;
-
                 if (descriptor.IsRequired == true)
                 {
+                    if (descriptor.IsExplicit == false && descriptor.DefaultValue != DBNull.Value)
+                        continue;
+
                     throw new ArgumentException($"필수 인자 {descriptor.DisplayName}가 빠져있습니다");
                 }
             }

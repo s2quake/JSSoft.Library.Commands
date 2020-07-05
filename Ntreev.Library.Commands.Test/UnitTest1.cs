@@ -70,8 +70,7 @@ namespace Ntreev.Library.Commands.Test
 
         class Settings
         {
-            [CommandProperty]
-            [DefaultValue("")]
+            [CommandProperty(ExplicitValue = "")]
             public string List { get; set; }
 
             [CommandProperty('c')]

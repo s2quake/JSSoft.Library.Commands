@@ -31,7 +31,7 @@ namespace Ntreev.Library.Commands.Test
         public void Test1()
         {
             var parser = new CommandLineParser(this);
-            parser.Parse(parser.Name, "get database=a port=123 userid=abc password=1234 comment=\"connect database to \\\"a\\\"\"");
+            parser.ParseWith("get database=a port=123 userid=abc password=1234 comment=\"connect database to \\\"a\\\"\"");
 
             var props = CommandStringUtility.ArgumentsToDictionary(this.Arguments);
         }
@@ -59,7 +59,7 @@ namespace Ntreev.Library.Commands.Test
         public void ValueIncludedEqualsTest()
         {
             var parser = new CommandLineParser(this);
-            parser.Parse(parser.Name, "--value=0");
+            parser.ParseWith("--value=0");
         }
 
         [TestMethod]

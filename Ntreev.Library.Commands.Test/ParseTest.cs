@@ -33,11 +33,10 @@ namespace Ntreev.Library.Commands.Test
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
         public void TestMethod1()
         {
             this.parser.Parse("parse --boolean false");
-            Assert.IsTrue(this.Boolean);
+            Assert.IsFalse(this.Boolean);
         }
 
         [CommandProperty]

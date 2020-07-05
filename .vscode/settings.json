@@ -8,6 +8,7 @@
         "**/bin": false,
         "**/obj": false
     },
-    "dotnet-test-explorer.testProjectPath": "Ntreev.Library.Commands.Test/Ntreev.Library.Commands.Test.csproj",
-    "dotnet-test-explorer.testArguments": "-f netcoreapp3.0"
+    "csharp.unitTestDebuggingOptions": {
+        "type": "coreclr",
+    }
 }

@@ -51,7 +51,7 @@ namespace Ntreev.Library.Commands
 
         public static string[] SplitAll(string text)
         {
-            return SplitAll(text, true);
+            return SplitAll(text, false);
         }
 
         public static string[] SplitAll(string text, bool removeQuote)
@@ -143,12 +143,17 @@ namespace Ntreev.Library.Commands
 
         public static string TrimQuot(string text)
         {
-            if (IsWrappedOfSingleQuot(text) == true || IsWrappedOfDoubleQuote(text) == true)
+            if (IsWrappedOfSingleQuot(text) == true)
+            {
+                text = text.Substring(1);
+                text = text.Remove(text.Length - 1);
+                text = text.Replace("\\'", "'");
+            }
+            else if (IsWrappedOfDoubleQuote(text) == true)
             {
                 text = text.Substring(1);
                 text = text.Remove(text.Length - 1);
                 text = text.Replace("\\\"", "\"");
-                text = text.Replace("\\'", "'");
             }
             return text;
         }

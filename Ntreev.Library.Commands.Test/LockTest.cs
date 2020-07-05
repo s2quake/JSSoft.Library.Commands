@@ -54,7 +54,6 @@ namespace Ntreev.Library.Commands.Test
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
         public void TestMethod4()
         {
             this.parser.Parse("lock current_path");
