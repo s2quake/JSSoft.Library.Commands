@@ -28,12 +28,8 @@ namespace Ntreev.Library.Commands
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class CommandPropertyAttribute : Attribute
     {
-        private readonly string name;
-        private readonly bool useName;
-
         public CommandPropertyAttribute()
         {
-            this.useName = true;
         }
 
         public CommandPropertyAttribute(string name)
@@ -51,48 +47,32 @@ namespace Ntreev.Library.Commands
             CommandSettings.ValidateIdentifier(name);
             if (shortName != char.MinValue && Regex.IsMatch(shortName.ToString(), "[a-z]", RegexOptions.IgnoreCase) == false)
                 throw new ArgumentException("shortName must be a alphabet character");
-            this.name = name;
+            this.Name = name;
             this.ShortName = shortName;
-            this.useName = true;
         }
 
         public CommandPropertyAttribute(char shortName)
-            : this(shortName, false)
-        {
-
-        }
-
-        public CommandPropertyAttribute(char shortName, bool useName)
         {
             if (shortName != char.MinValue && Regex.IsMatch(shortName.ToString(), "[a-z]", RegexOptions.IgnoreCase) == false)
                 throw new ArgumentException("shortName must be a alphabet character", nameof(shortName));
             this.ShortName = shortName;
-            this.useName = useName;
+            this.IsNameEnabled = false;
         }
 
-        public string Name => this.name ?? string.Empty;
+        public string Name { get; } = string.Empty;
 
         public char ShortName { get; }
 
-        /// <summary>
-        /// 필수 인자를 나타냅니다. 필수 인자는 스위치 없이 값만 설정할 수 있습니다. 단 IsExplicit 가 true일 경우에는 스위치가 필요합니다.
-        /// 기본값이 있는 경우 정렬시 뒤로 밀리게 됩니다. 
-        /// </summary>
-        public bool IsRequired { get; set; }
+        public bool IsNameEnabled { get; set; } = true;
 
-        /// <summary>
-        /// 일반적인 형태는 --name value와 같이 스위치와 값의 형식이 필요하지만 때로는 value를 생략할 경우가 필요합니다.
-        /// 이럴때는 IsExplicit 값을 true로 설정하여 스위치만으로도 동작을 할 수 있게 합니다.
-        /// 명령구문에 해당 스위치가 정의된 경우 DefaultValueAttribute의 값으로 설정되며 이 특성이 선언되어 있지 않은 경우에는
-        /// 타입의 초기값으로 설정됩니다.
-        /// </summary>
-        public bool IsExplicit { get; set; }
+        public CommandPropertyUsage Usage { get; set; } = CommandPropertyUsage.General;
 
-        public int Group { get; set; }
+        public object ExplicitValue { get; set; } = DBNull.Value;
 
         protected virtual void Validate(object target)
         {
-
+            if (this.Usage == CommandPropertyUsage.Variables)
+                throw new InvalidOperationException($"use {nameof(CommandPropertyArrayAttribute)} instead.");
         }
 
         internal void InvokeValidate(object target)
@@ -102,15 +82,19 @@ namespace Ntreev.Library.Commands
 
         internal string GetName(string descriptorName)
         {
-            if (this.name == null)
+            if (this.Name == string.Empty)
             {
-                if (this.useName == true)
+                if (this.IsNameEnabled == true)
                     return CommandSettings.NameGenerator(descriptorName);
                 return string.Empty;
             }
-            return CommandSettings.NameGenerator(this.name);
+            return this.Name;
         }
 
         internal string InternalShortName => this.ShortName == char.MinValue ? string.Empty : this.ShortName.ToString();
+
+        internal bool IsRequired => this.Usage == CommandPropertyUsage.Required || this.Usage == CommandPropertyUsage.ExplicitRequired;
+
+        internal bool IsExplicit => this.Usage == CommandPropertyUsage.General || this.Usage == CommandPropertyUsage.ExplicitRequired;
     }
 }

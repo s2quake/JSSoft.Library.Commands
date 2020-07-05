@@ -77,6 +77,8 @@ namespace Ntreev.Library.Commands
 
         public virtual object DefaultValue { get; } = DBNull.Value;
 
+        public virtual object ExplicitValue { get; } = DBNull.Value;
+
         public virtual bool IsRequired { get; }
 
         public virtual bool IsExplicit { get; }
@@ -85,7 +87,7 @@ namespace Ntreev.Library.Commands
 
         public virtual TypeConverter Converter => TypeDescriptor.GetConverter(this.MemberType);
 
-        public virtual IEnumerable<Attribute> Attributes { get { yield break; } }
+        //public virtual IEnumerable<Attribute> Attributes { get { yield break; } }
 
         public string DescriptorName { get; }
 
@@ -113,29 +115,29 @@ namespace Ntreev.Library.Commands
             }
         }
 
-        internal string[] GetCompletion(object target)
-        {
-            var memberType = this.MemberType;
-            var attributes = this.Attributes;
-            if (memberType.IsEnum == true)
-            {
-                return Enum.GetNames(memberType).Select(item => CommandSettings.NameGenerator(item)).ToArray();
-            }
-            else if (attributes.FirstOrDefault(item => item is CommandCompletionAttribute) is CommandCompletionAttribute attr)
-            {
-                if (attr.Type == null)
-                {
-                    var methodInfo = target.GetType().GetMethod(attr.MethodName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public, null, new Type[] { }, null);
-                    return methodInfo.Invoke(target, null) as string[];
-                }
-                else
-                {
-                    var methodInfo = attr.Type.GetMethod(attr.MethodName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static, null, new Type[] { }, null);
-                    return methodInfo.Invoke(null, null) as string[];
-                }
-            }
-            return null;
-        }
+        //internal string[] GetCompletion(object target)
+        //{
+        //    var memberType = this.MemberType;
+        //    var attributes = this.Attributes;
+        //    if (memberType.IsEnum == true)
+        //    {
+        //        return Enum.GetNames(memberType).Select(item => CommandSettings.NameGenerator(item)).ToArray();
+        //    }
+        //    else if (attributes.FirstOrDefault(item => item is CommandCompletionAttribute) is CommandCompletionAttribute attr)
+        //    {
+        //        if (attr.Type == null)
+        //        {
+        //            var methodInfo = target.GetType().GetMethod(attr.MethodName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public, null, new Type[] { }, null);
+        //            return methodInfo.Invoke(target, null) as string[];
+        //        }
+        //        else
+        //        {
+        //            var methodInfo = attr.Type.GetMethod(attr.MethodName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static, null, new Type[] { }, null);
+        //            return methodInfo.Invoke(null, null) as string[];
+        //        }
+        //    }
+        //    return null;
+        //}
 
         public virtual string NamePattern
         {

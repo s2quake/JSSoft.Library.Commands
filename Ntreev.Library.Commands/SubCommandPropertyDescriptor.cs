@@ -50,7 +50,7 @@ namespace Ntreev.Library.Commands
 
         public override bool IsExplicit => this.descriptor.IsExplicit;
 
-        public override IEnumerable<Attribute> Attributes => this.descriptor.Attributes;
+        //public override IEnumerable<Attribute> Attributes => this.descriptor.Attributes;
 
         public override TypeConverter Converter => this.descriptor.Converter;
 

@@ -39,38 +39,38 @@ namespace Ntreev.Library.Commands.Repl.Commands
             this.Path = string.Empty;
         }
 
-        [CommandProperty(IsRequired = true)]
+        [CommandProperty(Usage = CommandPropertyUsage.Required)]
         [DisplayName("<pathspec>...")]
         public string Path
         {
             get; set;
         }
 
-        [CommandProperty('n', true)]
+        [CommandProperty('n', IsNameEnabled = true)]
         public bool DryRun
         {
             get; set;
         }
 
-        [CommandProperty('v', true)]
+        [CommandProperty('v', IsNameEnabled = true)]
         public bool Verbose
         {
             get; set;
         }
 
-        [CommandProperty('f', true)]
+        [CommandProperty('f', IsNameEnabled = true)]
         public bool Force
         {
             get; set;
         }
 
-        [CommandProperty('i', true)]
+        [CommandProperty('i', IsNameEnabled = true)]
         public bool Interactive
         {
             get; set;
         }
 
-        [CommandProperty('P', true)]
+        [CommandProperty('P', IsNameEnabled = true)]
         public bool Patch
         {
             get; set;

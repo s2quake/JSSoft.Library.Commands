@@ -29,7 +29,7 @@ namespace Ntreev.Library.Commands.Test
         {
             var settings = new Settings();
             var parser = new CommandLineParser(settings);
-            parser.Parse("--list -c");
+            parser.ParseWith("--list -c");
 
             Assert.AreEqual("", settings.List);
             Assert.AreEqual(true, settings.IsCancel);
@@ -41,7 +41,7 @@ namespace Ntreev.Library.Commands.Test
         {
             var settings = new Settings();
             var parser = new CommandLineParser(settings);
-            parser.Parse("--list wer -c");
+            parser.ParseWith("--list wer -c");
 
             Assert.AreEqual("wer", settings.List);
             Assert.AreEqual(true, settings.IsCancel);
@@ -53,7 +53,7 @@ namespace Ntreev.Library.Commands.Test
         {
             var settings = new Settings();
             var parser = new CommandLineParser(settings);
-            parser.Parse("--list \"a \\\"b\\\" c\" -c");
+            parser.ParseWith("--list \"a \\\"b\\\" c\" -c");
 
             Assert.AreEqual("a \"b\" c", settings.List);
             Assert.AreEqual(true, settings.IsCancel);
@@ -65,12 +65,12 @@ namespace Ntreev.Library.Commands.Test
         {
             var commands = new Commands();
             var parser = new CommandLineParser(commands);
-            parser.Invoke("test a -m wow");
+            parser.InvokeWith("test a -m wow");
         }
 
         class Settings
         {
-            [CommandProperty(IsExplicit = true)]
+            [CommandProperty]
             [DefaultValue("")]
             public string List { get; set; }
 
@@ -93,7 +93,7 @@ namespace Ntreev.Library.Commands.Test
                 Assert.AreEqual("wow", this.Message);
             }
 
-            [CommandProperty('m', IsRequired = true)]
+            [CommandProperty('m', Usage = CommandPropertyUsage.ExplicitRequired)]
             public string Message
             {
                 get; set;

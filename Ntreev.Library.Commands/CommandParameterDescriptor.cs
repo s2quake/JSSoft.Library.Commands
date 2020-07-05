@@ -26,19 +26,17 @@ namespace Ntreev.Library.Commands
 {
     public sealed class CommandParameterDescriptor : CommandMemberDescriptor
     {
-        private readonly ParameterInfo parameterInfo;
         private object value;
 
         public CommandParameterDescriptor(ParameterInfo parameterInfo)
-            : base(new CommandPropertyAttribute() { IsRequired = true }, parameterInfo.Name)
+            : base(new CommandPropertyAttribute() { Usage = CommandPropertyUsage.Required }, parameterInfo.Name)
         {
-            this.parameterInfo = parameterInfo;
             this.value = parameterInfo.DefaultValue;
             this.Summary = parameterInfo.GetSummary();
             this.Description = parameterInfo.GetDescription();
             this.DefaultValue = parameterInfo.DefaultValue;
             this.MemberType = parameterInfo.ParameterType;
-            this.Attributes = parameterInfo.GetCustomAttributes();
+            //this.Attributes = parameterInfo.GetCustomAttributes();
         }
 
         public override string Summary { get; }
@@ -49,7 +47,7 @@ namespace Ntreev.Library.Commands
 
         public override Type MemberType { get; }
 
-        public override IEnumerable<Attribute> Attributes { get; }
+        //public override IEnumerable<Attribute> Attributes { get; }
 
         protected override void SetValue(object instance, object value)
         {

@@ -147,6 +147,8 @@ namespace Ntreev.Library.Commands
             {
                 text = text.Substring(1);
                 text = text.Remove(text.Length - 1);
+                text = text.Replace("\\\"", "\"");
+                text = text.Replace("\\'", "'");
             }
             return text;
         }

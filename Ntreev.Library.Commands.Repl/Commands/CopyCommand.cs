@@ -35,19 +35,19 @@ namespace Ntreev.Library.Commands.Repl.Commands
 
         }
 
-        [CommandProperty(IsRequired = true)]
+        [CommandProperty(Usage = CommandPropertyUsage.Required)]
         public string SourcePath
         {
             get; set;
         }
 
-        [CommandProperty(IsRequired = true)]
+        [CommandProperty(Usage = CommandPropertyUsage.Required)]
         public string TargetPath
         {
             get; set;
         }
 
-        [CommandProperty('o', true)]
+        [CommandProperty('o', IsNameEnabled = true)]
         public bool OverWrite
         {
             get; set;

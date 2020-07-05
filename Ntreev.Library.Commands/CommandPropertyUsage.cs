@@ -15,28 +15,24 @@
 //COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR 
 //OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-// using System;
-// using System.Collections.Generic;
-// using System.Linq;
-// using System.Text;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.ComponentModel;
+using Ntreev.Library.Commands.Properties;
+using System.Text.RegularExpressions;
 
-// namespace Ntreev.Library.Commands
-// {
-//     [Flags]
-//     public enum CommandParsingTypes
-//     {
-//         None = 0,
+namespace Ntreev.Library.Commands
+{
+    public enum CommandPropertyUsage
+    {
+        General,
 
-//         /// <summary>
-//         /// 명령구문에 이름이 포함하지 않고 인자값만 전달합니다.
-//         /// </summary>
-//         [Obsolete]
-//         OmitCommandName = 1,
+        Required,
 
-//         /// <summary>
-//         /// 설정되지 않은 속성은 초기화하지 않습니다.
-//         /// </summary>
-//         [Obsolete]
-//         OmitInitialize = 2,
-//     }
-// }
+        ExplicitRequired,
+
+        Variables,
+    }
+}

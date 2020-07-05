@@ -38,7 +38,7 @@ namespace Ntreev.Library.Commands
             this.MemberType = propertyInfo.PropertyType;
             this.Summary = propertyInfo.GetSummary();
             this.Description = propertyInfo.GetDescription();
-            this.Attributes = propertyInfo.GetCustomAttributes();
+            //this.Attributes = propertyInfo.GetCustomAttributes();
         }
 
         public override string DisplayName
@@ -62,15 +62,28 @@ namespace Ntreev.Library.Commands
         {
             get
             {
-                if (this.IsRequired == false && this.MemberType == typeof(bool))
-                    return true;
-                return this.propertyInfo.GetDefaultValue();
+                var defaultValue = this.propertyInfo.GetDefaultValue();
+                // if (this.MemberType == typeof(bool) && defaultValue is DBNull)
+                // {
+                //     return true;
+                // }
+                return defaultValue;
             }
         }
 
-        public override bool IsExplicit => this.MemberType == typeof(bool) ? true : base.IsExplicit;
+        public override object ExplicitValue
+        {
+            get
+            {
+                if (this.IsExplicit == true && this.MemberType == typeof(bool) && base.ExplicitValue == DBNull.Value)
+                {
+                    return true;
+                }
+                return base.ExplicitValue;
+            }
+        }
 
-        public override IEnumerable<Attribute> Attributes { get; }
+        //public override IEnumerable<Attribute> Attributes { get; }
 
         public override TypeConverter Converter => this.propertyInfo.GetConverter();
 

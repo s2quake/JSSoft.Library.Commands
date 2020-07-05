@@ -24,58 +24,70 @@ using System.Threading.Tasks;
 
 namespace Ntreev.Library.Commands.Parse
 {
-    [CommandStaticProperty(typeof(GlobalSettings))]
+    // [CommandStaticProperty(typeof(GlobalSettings))]
     class Settings
     {
         public Settings()
         {
-            this.Libraries = new string[] { };
+            // this.Libraries = new string[] { };
         }
 
-        [CommandProperty(IsRequired = true)]
-        [Description("service name")]
-        public string ServiceName
+        [CommandProperty(Usage = CommandPropertyUsage.Required)]
+        public string Path
         {
             get; set;
         }
 
-        [CommandProperty("path", IsRequired = true, IsExplicit = true)]
-        [Description("path to work")]
-        [DefaultValue("")]
-        public string WorkingPath
+        [CommandProperty('b')]
+        public bool IsBoolean
         {
             get; set;
         }
 
-        [CommandProperty(IsRequired = true)]
-        [DefaultValue("10001")]
-        [Description("port")]
-        [Browsable(true)]
-        public int Port
-        {
-            get; set;
-        }
+        // [CommandProperty(Usage = CommandPropertyUsage.Required)]
+        // [Description("service name")]
+        // public string ServiceName
+        // {
+        //     get; set;
+        // }
 
-        [CommandProperty('c')]
-        [Description("use cache")]
-        public bool UseCache
-        {
-            get; set;
-        }
+        // [CommandProperty("path", Usage = CommandPropertyUsage.Required, IsExplicit = true)]
+        // [Description("path to work")]
+        // [DefaultValue("")]
+        // public string WorkingPath
+        // {
+        //     get; set;
+        // }
 
-        [CommandProperty("cache-size", IsExplicit = true)]
-        [Description("cache size. default is 1024")]
-        [DefaultValue("1024")]
-        public int CacheSize
-        {
-            get; set;
-        }
+        // [CommandProperty(Usage = CommandPropertyUsage.Required)]
+        // [DefaultValue("10001")]
+        // [Description("port")]
+        // [Browsable(true)]
+        // public int Port
+        // {
+        //     get; set;
+        // }
 
-        [CommandPropertyArray]
-        [Description("library paths.")]
-        public string[] Libraries
-        {
-            get; set;
-        }
+        // [CommandProperty('c')]
+        // [Description("use cache")]
+        // public bool UseCache
+        // {
+        //     get; set;
+        // }
+
+        // [CommandProperty("cache-size", IsExplicit = true)]
+        // [Description("cache size. default is 1024")]
+        // [DefaultValue("1024")]
+        // public int CacheSize
+        // {
+        //     get; set;
+        // }
+
+        // [CommandPropertyArray]
+        // [Description("library paths.")]
+        // public string[] Libraries
+        // {
+        //     get; set;
+        // }
     }
 }

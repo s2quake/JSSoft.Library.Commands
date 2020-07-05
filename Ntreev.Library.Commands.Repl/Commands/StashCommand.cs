@@ -66,25 +66,25 @@ namespace Ntreev.Library.Commands.Repl.Commands
             get; set;
         }
 
-        [CommandProperty('k', true)]
+        [CommandProperty('k', IsNameEnabled = true)]
         public bool KeepIndex
         {
             get; set;
         }
 
-        [CommandProperty('u', true)]
+        [CommandProperty('u', IsNameEnabled = true)]
         public bool IncludeUntracked
         {
             get; set;
         }
 
-        [CommandProperty('a', true)]
+        [CommandProperty('a', IsNameEnabled = true)]
         public bool All
         {
             get; set;
         }
 
-        [CommandProperty('q', true)]
+        [CommandProperty('q', IsNameEnabled = true)]
         public bool Quit
         {
             get; set;
@@ -96,7 +96,7 @@ namespace Ntreev.Library.Commands.Repl.Commands
             get; set;
         }
 
-        [CommandProperty('t', IsRequired = true)]
+        [CommandProperty('t', Usage = CommandPropertyUsage.Required)]
         public int Port
         {
             get; set;

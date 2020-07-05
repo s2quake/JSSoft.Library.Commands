@@ -33,9 +33,9 @@ namespace Ntreev.Library.Commands
     {
         private CommandMemberUsagePrinter commandUsagePrinter;
         private CommandMethodUsagePrinter methodUsagePrinter;
-        private FileVersionInfo versionInfo;
-        private string fullName;
-        private string filename;
+        private readonly FileVersionInfo versionInfo;
+        private readonly string fullName;
+        private readonly string filename;
 
         public CommandLineParser(object instance)
             : this(Assembly.GetEntryAssembly(), instance)
@@ -121,6 +121,11 @@ namespace Ntreev.Library.Commands
             parser.SetValue(this.Instance);
         }
 
+        public void ParseWith(string arguments)
+        {
+            this.Parse(this.Name, arguments);
+        }
+
         public bool TryInvoke(string name, string arguments)
         {
             try
@@ -133,7 +138,7 @@ namespace Ntreev.Library.Commands
                 if (this.VerifyName(name) == true && this.Out != null)
                 {
                     var (first, rest) = CommandStringUtility.Split(arguments);
-                    var isSwitch = CommandStringUtility.IsSwitch(first);
+                    //var isSwitch = CommandStringUtility.IsSwitch(first);
                     if (first == this.HelpName)
                     {
                         var (arg1, arg2) = CommandStringUtility.Split(rest);
@@ -169,7 +174,7 @@ namespace Ntreev.Library.Commands
                 throw new ArgumentException(string.Format(Resources.InvalidCommandName_Format, name));
 
             var (first, rest) = CommandStringUtility.Split(arguments);
-            var isSwitch = CommandStringUtility.IsSwitch(first);
+            //var isSwitch = CommandStringUtility.IsSwitch(first);
             var instance = this.Instance;
             if (instance is ICommandHierarchy hierarchy && hierarchy.Commands.ContainsKey(first) == true)
             {
@@ -202,6 +207,11 @@ namespace Ntreev.Library.Commands
         {
             var (name, arguments) = CommandStringUtility.Split(commandLine);
             this.Invoke(name, arguments);
+        }
+
+        public void InvokeWith(string arguments)
+        {
+            this.Invoke(this.Name, arguments);
         }
 
         public void PrintSummary()

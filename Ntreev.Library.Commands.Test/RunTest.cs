@@ -70,14 +70,13 @@ namespace Ntreev.Library.Commands.Test
             Assert.AreEqual("member", this.Authentication);
         }
 
-        [CommandProperty(IsRequired = true)]
+        [CommandProperty(Usage = CommandPropertyUsage.Required)]
         public string RepositoryPath
         {
             get; set;
         }
 
-        [CommandProperty('l', IsExplicit = true)]
-        [DefaultValue("admin")]
+        [CommandProperty('l', ExplicitValue = "admin")]
         public string Authentication
         {
             get; set;

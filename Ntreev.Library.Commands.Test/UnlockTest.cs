@@ -53,7 +53,7 @@ namespace Ntreev.Library.Commands.Test
             Assert.AreEqual("current_path", this.Path);
         }
 
-        [CommandProperty(IsRequired = true)]
+        [CommandProperty(Usage = CommandPropertyUsage.Required)]
         [DefaultValue("")]
         public string Path
         {

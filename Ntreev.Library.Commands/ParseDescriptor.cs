@@ -54,9 +54,7 @@ namespace Ntreev.Library.Commands
             var descriptors = new Dictionary<string, CommandMemberDescriptor>();
             foreach (var item in members)
             {
-                if (item is CommandMemberArrayDescriptor)
-                    continue;
-                if (item.IsRequired == true && item.IsExplicit == false)
+                if (item.IsExplicit == false)
                     continue;
                 if (item.NamePattern != string.Empty)
                     descriptors.Add(item.NamePattern, item);
@@ -74,27 +72,27 @@ namespace Ntreev.Library.Commands
                 if (descriptors.ContainsKey(arg) == true)
                 {
                     var descriptor = descriptors[arg];
-                    var nextArg = arguments.FirstOrDefault();
-                    var isValue = CommandStringUtility.IsSwitch(nextArg) == false && nextArg != "--";
-                    if (nextArg != null && isValue == true && descriptor.MemberType != typeof(bool))
+                    var nextArg = arguments.FirstOrDefault() ?? string.Empty;
+                    var isValue = nextArg != string.Empty && CommandStringUtility.IsSwitch(nextArg) == false && nextArg != "--";
+                    if (isValue == true)
                     {
                         var textValue = arguments.Dequeue();
                         if (CommandStringUtility.IsWrappedOfQuote(textValue) == true)
                             textValue = Regex.Unescape(textValue);
                         this.itemList[descriptor].Desiredvalue = Parser.Parse(descriptor, textValue);
                     }
-                    else if (descriptor.MemberType == typeof(bool))
-                    {
-                        this.itemList[descriptor].Desiredvalue = true;
-                    }
-                    else if (descriptor.IsExplicit == true && descriptor.DefaultValue != DBNull.Value)
-                    {
-                        this.itemList[descriptor].Desiredvalue = descriptor.DefaultValue;
-                    }
-                    else
-                    {
-                        return;
-                    }
+                    //else if (descriptor.IsExplicit == true && descriptor.ExplicitValue != DBNull.Value)
+                    //{
+                    //    this.itemList[descriptor].Desiredvalue = descriptor.ExplicitValue;
+                    //}
+                    //else if (descriptor.MemberType == typeof(bool))
+                    //{
+                    //    this.itemList[descriptor].Desiredvalue = true;
+                    //}
+                    // else
+                    // {
+                    //     return;
+                    // }
                 }
                 else if (arg == "--")
                 {
@@ -176,6 +174,10 @@ namespace Ntreev.Library.Commands
                 {
                     descriptor.SetValueInternal(instance, parseInfo.DefaultValue);
                 }
+                else if (parseInfo.ExplicitValue != DBNull.Value)
+                {
+                    descriptor.SetValueInternal(instance, parseInfo.ExplicitValue);
+                }
                 else if (descriptor.MemberType.IsValueType == true)
                 {
                     descriptor.SetValueInternal(instance, Activator.CreateInstance(descriptor.MemberType));
@@ -220,7 +222,7 @@ namespace Ntreev.Library.Commands
                 if (parseInfo.IsParsed == true)
                     continue;
 
-                if (descriptor.IsRequired == true && parseInfo.DefaultValue == DBNull.Value)
+                if (descriptor.IsRequired == true)
                 {
                     throw new ArgumentException($"필수 인자 {descriptor.DisplayName}가 빠져있습니다");
                 }

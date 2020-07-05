@@ -75,7 +75,7 @@ namespace Ntreev.Library.Commands.Test
             this.parser.Parse("lock current_path -m 123 -i");
         }
 
-        [CommandProperty(IsRequired = true)]
+        [CommandProperty(Usage = CommandPropertyUsage.Required)]
         [DefaultValue("")]
         public string Path
         {
@@ -84,14 +84,13 @@ namespace Ntreev.Library.Commands.Test
 
         [CommandProperty('m')]
         [CommandPropertyTrigger(nameof(Information), false)]
-        [DefaultValue("")]
         public string Comment
         {
             get; set;
         }
 
         [CommandProperty('i')]
-        [CommandPropertyTrigger(nameof(Comment), "")]
+        [CommandPropertyTrigger(nameof(Comment), null)]
         public bool Information
         {
             get; set;

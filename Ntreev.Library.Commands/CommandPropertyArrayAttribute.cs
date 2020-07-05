@@ -29,16 +29,16 @@ namespace Ntreev.Library.Commands
     {
         public CommandPropertyArrayAttribute()
         {
-
+            this.Usage = CommandPropertyUsage.Variables;
         }
 
         protected override void Validate(object target)
         {
             base.Validate(target);
-            if (this.IsRequired == true)
-                throw new InvalidOperationException();
-            if (this.IsExplicit == true)
-                throw new InvalidOperationException();
+            if (this.Usage != CommandPropertyUsage.Variables)
+                throw new InvalidOperationException($"'{nameof(CommandPropertyArrayAttribute)}.{nameof(Usage)}' can use only '{CommandPropertyUsage.Variables}'.");
+            if (this.IsExplicit == false && this.ExplicitValue != DBNull.Value)
+                throw new InvalidOperationException($"explicit property does not {nameof(ExplicitValue)}: '{this.ExplicitValue}'.");
         }
     }
 }
