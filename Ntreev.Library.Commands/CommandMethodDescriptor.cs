@@ -64,7 +64,7 @@ namespace Ntreev.Library.Commands
 
         internal void Invoke(object instance, string arguments, IEnumerable<CommandMemberDescriptor> descriptors)
         {
-            var parser = new ParseDescriptor(typeof(CommandParameterDescriptor), descriptors, arguments);
+            var parser = new ParseDescriptor(descriptors, arguments);
             parser.SetValue(instance);
 
             var values = new ArrayList();

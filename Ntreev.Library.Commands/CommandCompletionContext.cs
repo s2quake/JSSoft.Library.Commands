@@ -27,7 +27,7 @@ namespace Ntreev.Library.Commands
     {
         internal static object Create(ICommand command, IEnumerable<CommandMemberDescriptor> members, string[] args, string find)
         {
-            var parser = new ParseDescriptor(typeof(CommandPropertyDescriptor), members, args);
+            var parser = new ParseDescriptor(members, args);
             var properties = new Dictionary<string, object>();
             var memberDescriptor = null as CommandMemberDescriptor;
 

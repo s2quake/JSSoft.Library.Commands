@@ -32,19 +32,14 @@ namespace Ntreev.Library.Commands
 
         private readonly Dictionary<CommandMemberDescriptor, ParseDescriptorItem> itemList = new Dictionary<CommandMemberDescriptor, ParseDescriptorItem>();
 
-        /// <param name="type">
-        /// 스위치를 직접 명시하지 않아도 되는 타입
-        /// </param>
         /// <param name="members"></param>
         /// <param name="commandLine"></param>
-        public ParseDescriptor(Type type, IEnumerable<CommandMemberDescriptor> members, string commandLine)
-            : this(type, members, CommandStringUtility.SplitAll(commandLine))
+        public ParseDescriptor(IEnumerable<CommandMemberDescriptor> members, string commandLine)
+            : this(members, CommandStringUtility.SplitAll(commandLine))
         {
-
-
         }
 
-        public ParseDescriptor(Type type, IEnumerable<CommandMemberDescriptor> members, IEnumerable<string> args)
+        public ParseDescriptor(IEnumerable<CommandMemberDescriptor> members, string[] args)
         {
             foreach (var item in members)
             {

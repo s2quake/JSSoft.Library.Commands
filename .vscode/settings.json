@@ -8,6 +8,7 @@
         "**/bin": false,
         "**/obj": false
     },
+    "editor.codeLens": false,
     "csharp.unitTestDebuggingOptions": {
         "type": "coreclr",
     }

@@ -117,7 +117,7 @@ namespace Ntreev.Library.Commands
             if (arguments == this.HelpName || arguments == this.VersionName)
                 throw new ArgumentException();
             var descriptors = CommandDescriptor.GetMemberDescriptors(this.Instance).ToArray();
-            var parser = new ParseDescriptor(typeof(CommandPropertyDescriptor), descriptors, arguments);
+            var parser = new ParseDescriptor(descriptors, arguments);
             parser.SetValue(this.Instance);
         }
 
