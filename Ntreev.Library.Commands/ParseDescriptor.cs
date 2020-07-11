@@ -76,7 +76,7 @@ namespace Ntreev.Library.Commands
                             textValue = CommandStringUtility.TrimQuot(textValue);
                         this.itemList[descriptor].Desiredvalue = Parser.Parse(descriptor, textValue);
                     }
-                    this.itemList[descriptor].MemberName = arg;
+                    this.itemList[descriptor].DescriptorName = arg;
                 }
                 else if (arg == "--")
                 {
@@ -162,7 +162,7 @@ namespace Ntreev.Library.Commands
                 {
                     descriptor.SetValueInternal(instance, parseInfo.DefaultValue);
                 }
-                else if (parseInfo.ExplicitValue != DBNull.Value && parseInfo.MemberName != string.Empty)
+                else if (parseInfo.ExplicitValue != DBNull.Value && parseInfo.DescriptorName != string.Empty)
                 {
                     descriptor.SetValueInternal(instance, parseInfo.ExplicitValue);
                 }
@@ -209,7 +209,7 @@ namespace Ntreev.Library.Commands
                 var parseInfo = item.Value;
                 if (descriptor.IsExplicit == true)
                 {
-                    if (parseInfo.MemberName != string.Empty && parseInfo.Desiredvalue == DBNull.Value && descriptor.ExplicitValue == DBNull.Value)
+                    if (parseInfo.DescriptorName != string.Empty && parseInfo.Desiredvalue == DBNull.Value && descriptor.ExplicitValue == DBNull.Value)
                         throw new ArgumentException($"{descriptor.DisplayName}에 값이 설정되지 않았습니다.");
                 }
                 if (parseInfo.IsParsed == true)

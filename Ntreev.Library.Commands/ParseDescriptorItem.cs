@@ -39,12 +39,13 @@ namespace Ntreev.Library.Commands
         {
             get
             {
-                if (this.Desiredvalue != DBNull.Value)
-                    return true;
-                if (this.Descriptor.IsExplicit == true && this.MemberName != string.Empty && this.Descriptor.ExplicitValue != DBNull.Value)
-                    return true;
-
-                return false;
+                if (this.Desiredvalue == DBNull.Value)
+                    return false;
+                if (this.DescriptorName == string.Empty && this.Desiredvalue == DBNull.Value && this.ExplicitValue == DBNull.Value)
+                    return false;
+                // if (this.Descriptor.IsExplicit == true && this.DescriptorName != string.Empty && this.Descriptor.ExplicitValue != DBNull.Value)
+                //     return true;
+                return true;
             }
         }
 
@@ -54,6 +55,6 @@ namespace Ntreev.Library.Commands
 
         public object Desiredvalue { get; internal set; } = DBNull.Value;
 
-        public string MemberName { get; internal set; } = string.Empty;
+        public string DescriptorName { get; internal set; } = string.Empty;
     }
 }
