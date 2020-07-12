@@ -23,9 +23,9 @@ using System.Text;
 namespace Ntreev.Library.Commands
 {
     [AttributeUsage(AttributeTargets.Class)]
-    public class PartialCommand : Attribute
+    public class PartialCommandAttribute : Attribute
     {
-        public PartialCommand()
+        public PartialCommandAttribute()
         {
         }
     }

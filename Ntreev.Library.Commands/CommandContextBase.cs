@@ -121,7 +121,7 @@ namespace Ntreev.Library.Commands
             var query = from item in commands
                         where CommandSettings.IsConsoleMode == true || item.GetType().GetCustomAttribute<ConsoleModeOnlyAttribute>() == null
                         orderby item.Name
-                        orderby item.GetType().GetCustomAttribute<PartialCommand>()
+                        orderby item.GetType().GetCustomAttribute<PartialCommandAttribute>()
                         select item;
 
             yield return this.helpCommand;
@@ -162,9 +162,9 @@ namespace Ntreev.Library.Commands
             foreach (var item in commands)
             {
                 var commandName = item.Name;
-                if (parentNode.Childs.ContainsKey(commandName) == true && item.GetType().GetCustomAttribute<PartialCommand>() == null)
+                if (parentNode.Childs.ContainsKey(commandName) == true && item.GetType().GetCustomAttribute<PartialCommandAttribute>() == null)
                     throw new InvalidOperationException($"'{commandName}' command already exists.");
-                if (parentNode.Childs.ContainsKey(commandName) == false && item.GetType().GetCustomAttribute<PartialCommand>() != null)
+                if (parentNode.Childs.ContainsKey(commandName) == false && item.GetType().GetCustomAttribute<PartialCommandAttribute>() != null)
                     throw new InvalidOperationException($"'{commandName}' command does not exists.");
                 if (parentNode.Childs.ContainsKey(commandName) == false)
                 {
