@@ -39,7 +39,7 @@ namespace Ntreev.Library.Commands
         }
 
         public CommandPropertyAttribute(string name, char shortName)
-        {
+        { 
             if (name == null)
                 throw new ArgumentNullException(nameof(name));
             if (name.Length <= 1)
@@ -56,14 +56,14 @@ namespace Ntreev.Library.Commands
             if (shortName != char.MinValue && Regex.IsMatch(shortName.ToString(), "[a-z]", RegexOptions.IgnoreCase) == false)
                 throw new ArgumentException("shortName must be a alphabet character", nameof(shortName));
             this.ShortName = shortName;
-            this.IsNameEnabled = false;
+            this.AllowName = false;
         }
 
         public string Name { get; } = string.Empty;
 
         public char ShortName { get; }
 
-        public bool IsNameEnabled { get; set; } = true;
+        public bool AllowName { get; set; } = true;
 
         public CommandPropertyUsage Usage { get; set; } = CommandPropertyUsage.General;
 
@@ -86,7 +86,7 @@ namespace Ntreev.Library.Commands
         {
             if (this.Name == string.Empty)
             {
-                if (this.IsNameEnabled == true)
+                if (this.AllowName == true)
                     return CommandSettings.NameGenerator(descriptorName);
                 return string.Empty;
             }

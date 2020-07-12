@@ -46,31 +46,31 @@ namespace Ntreev.Library.Commands.Repl.Commands
             get; set;
         }
 
-        [CommandProperty('n', IsNameEnabled = true)]
+        [CommandProperty('n', AllowName = true)]
         public bool DryRun
         {
             get; set;
         }
 
-        [CommandProperty('v', IsNameEnabled = true)]
+        [CommandProperty('v', AllowName = true)]
         public bool Verbose
         {
             get; set;
         }
 
-        [CommandProperty('f', IsNameEnabled = true)]
+        [CommandProperty('f', AllowName = true)]
         public bool Force
         {
             get; set;
         }
 
-        [CommandProperty('i', IsNameEnabled = true)]
+        [CommandProperty('i', AllowName = true)]
         public bool Interactive
         {
             get; set;
         }
 
-        [CommandProperty('P', IsNameEnabled = true)]
+        [CommandProperty('P', AllowName = true)]
         public bool Patch
         {
             get; set;

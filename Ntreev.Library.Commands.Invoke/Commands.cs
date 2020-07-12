@@ -76,7 +76,7 @@ namespace Ntreev.Library.Commands.Invoke
                 Console.WriteLine("{0} committed. : {1}", path, this.Message);
         }
 
-        [CommandProperty('m', IsNameEnabled = true, Usage = CommandPropertyUsage.ExplicitRequired)]
+        [CommandProperty('m', AllowName = true, Usage = CommandPropertyUsage.ExplicitRequired)]
         [ConsoleModeOnly]
         public string Message
         {

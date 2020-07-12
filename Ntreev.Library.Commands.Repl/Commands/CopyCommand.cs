@@ -47,7 +47,7 @@ namespace Ntreev.Library.Commands.Repl.Commands
             get; set;
         }
 
-        [CommandProperty('o', IsNameEnabled = true)]
+        [CommandProperty('o', AllowName = true)]
         public bool OverWrite
         {
             get; set;

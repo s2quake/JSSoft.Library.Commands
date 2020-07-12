@@ -66,25 +66,25 @@ namespace Ntreev.Library.Commands.Repl.Commands
             get; set;
         }
 
-        [CommandProperty('k', IsNameEnabled = true)]
+        [CommandProperty('k', AllowName = true)]
         public bool KeepIndex
         {
             get; set;
         }
 
-        [CommandProperty('u', IsNameEnabled = true)]
+        [CommandProperty('u', AllowName = true)]
         public bool IncludeUntracked
         {
             get; set;
         }
 
-        [CommandProperty('a', IsNameEnabled = true)]
+        [CommandProperty('a', AllowName = true)]
         public bool All
         {
             get; set;
         }
 
-        [CommandProperty('q', IsNameEnabled = true)]
+        [CommandProperty('q', AllowName = true)]
         public bool Quit
         {
             get; set;

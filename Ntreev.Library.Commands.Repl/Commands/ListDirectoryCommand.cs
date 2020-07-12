@@ -37,7 +37,7 @@ namespace Ntreev.Library.Commands.Repl.Commands
 
         }
 
-        [CommandProperty('s', IsNameEnabled = true)]
+        [CommandProperty('s', AllowName = true)]
         public bool IsRecursive
         {
             get; set;
