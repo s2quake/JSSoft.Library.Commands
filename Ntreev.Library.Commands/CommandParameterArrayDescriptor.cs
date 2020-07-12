@@ -35,9 +35,8 @@ namespace Ntreev.Library.Commands
             this.parameterInfo = parameterInfo;
             this.Summary = parameterInfo.GetSummary();
             this.Description = parameterInfo.GetDescription();
-            this.DefaultValue = parameterInfo.DefaultValue;
+            this.InitValue = parameterInfo.DefaultValue;
             this.MemberType = parameterInfo.ParameterType;
-            //this.Attributes = parameterInfo.GetCustomAttributes();
             this.value = parameterInfo.DefaultValue;
             this.IsExplicit = false;
             this.IsRequired = false;
@@ -58,11 +57,9 @@ namespace Ntreev.Library.Commands
 
         public override string Description { get; }
 
-        public override object DefaultValue { get; }
+        public override object InitValue { get; }
 
         public override Type MemberType { get; }
-
-        //public override IEnumerable<Attribute> Attributes { get; }
 
         public override bool IsExplicit { get; }
 

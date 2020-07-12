@@ -38,7 +38,7 @@ namespace Ntreev.Library.Commands
             this.MemberType = propertyInfo.PropertyType;
             this.Summary = propertyInfo.GetSummary();
             this.Description = propertyInfo.GetDescription();
-            //this.Attributes = propertyInfo.GetCustomAttributes();
+            this.InitValue = propertyInfo.GetDefaultValue();
         }
 
         public override string DisplayName
@@ -58,32 +58,19 @@ namespace Ntreev.Library.Commands
 
         public override string Description { get; }
 
+        public override object InitValue { get; }
+
         public override object DefaultValue
         {
             get
             {
-                var defaultValue = this.propertyInfo.GetDefaultValue();
-                // if (this.MemberType == typeof(bool) && defaultValue is DBNull)
-                // {
-                //     return true;
-                // }
-                return defaultValue;
-            }
-        }
-
-        public override object ExplicitValue
-        {
-            get
-            {
-                if (this.IsExplicit == true && this.MemberType == typeof(bool) && base.ExplicitValue == DBNull.Value)
+                if (this.IsExplicit == true && this.MemberType == typeof(bool) && base.DefaultValue == DBNull.Value)
                 {
                     return true;
                 }
-                return base.ExplicitValue;
+                return base.DefaultValue;
             }
         }
-
-        //public override IEnumerable<Attribute> Attributes { get; }
 
         public override TypeConverter Converter => this.propertyInfo.GetConverter();
 
@@ -97,31 +84,30 @@ namespace Ntreev.Library.Commands
             return this.propertyInfo.GetValue(instance, null);
         }
 
-        protected override void OnValidateTrigger(IDictionary<CommandMemberDescriptor, ParseDescriptorItem> descriptors)
+        protected override void OnValidateTrigger(ParseDescriptorItem[] parseItems)
         {
-            if (this.triggers.Any() == false || descriptors[this].IsParsed == false)
+            if (this.triggers.Any() == false)
                 return;
 
             var query = from item in this.triggers
                         group item by item.Group into groups
                         select groups;
 
-            var nameToDescriptor = descriptors.Keys.ToDictionary(item => item.DescriptorName);
+            var descriptorByName = parseItems.ToDictionary(item => item.Descriptor.DescriptorName, item => item.Descriptor);
+            var infoByDescriptor = parseItems.ToDictionary(item => item.Descriptor);
 
             foreach (var items in query)
             {
                 foreach (var item in items)
                 {
-                    if (nameToDescriptor.ContainsKey(item.PropertyName) == false)
+                    if (descriptorByName.ContainsKey(item.PropertyName) == false)
                         throw new InvalidOperationException(string.Format("'{0}' property does not exists.", item.PropertyName));
-                    var triggerDescriptor = nameToDescriptor[item.PropertyName];
+                    var triggerDescriptor = descriptorByName[item.PropertyName];
                     if (triggerDescriptor is CommandPropertyDescriptor == false)
                         throw new InvalidOperationException(string.Format("'{0}' is not property", item.PropertyName));
 
-                    var parseInfo = descriptors[triggerDescriptor];
-                    if (parseInfo.IsParsed == false)
-                        continue;
-                    var value1 = parseInfo.Desiredvalue;
+                    var parseInfo = infoByDescriptor[triggerDescriptor];
+                    var value1 = parseInfo.ActualValue;
                     var value2 = GetDefaultValue(triggerDescriptor.MemberType, item.Value);
 
                     if (item.IsInequality == false)

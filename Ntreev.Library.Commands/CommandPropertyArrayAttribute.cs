@@ -36,8 +36,8 @@ namespace Ntreev.Library.Commands
         {
             if (this.Usage != CommandPropertyUsage.Variables)
                 throw new InvalidOperationException($"'{nameof(CommandPropertyArrayAttribute)}.{nameof(Usage)}' can use only '{CommandPropertyUsage.Variables}'.");
-            if (this.IsExplicit == false && this.ExplicitValue != DBNull.Value)
-                throw new InvalidOperationException($"explicit property does not {nameof(ExplicitValue)}: '{this.ExplicitValue}'.");
+            if (this.IsExplicit == false && this.DefaultValue != DBNull.Value)
+                throw new InvalidOperationException($"non explicit property does not have {nameof(DefaultValue)}: '{this.DefaultValue}'.");
         }
     }
 }

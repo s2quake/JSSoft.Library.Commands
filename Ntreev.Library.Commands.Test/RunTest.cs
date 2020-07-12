@@ -76,7 +76,7 @@ namespace Ntreev.Library.Commands.Test
             get; set;
         }
 
-        [CommandProperty('l', ExplicitValue = "admin")]
+        [CommandProperty('l', DefaultValue = "admin")]
         public string Authentication
         {
             get; set;

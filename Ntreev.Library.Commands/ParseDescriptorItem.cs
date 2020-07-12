@@ -28,33 +28,53 @@ namespace Ntreev.Library.Commands
 {
     public class ParseDescriptorItem
     {
+        private object value = DBNull.Value;
+        
         public ParseDescriptorItem(CommandMemberDescriptor descriptor)
         {
             this.Descriptor = descriptor;
+
         }
 
         public CommandMemberDescriptor Descriptor { get; }
 
-        public bool IsParsed
+        public bool IsParsed => this.value != DBNull.Value;
+
+        public object Value
         {
             get
             {
-                if (this.Desiredvalue == DBNull.Value)
-                    return false;
-                if (this.DescriptorName == string.Empty && this.Desiredvalue == DBNull.Value && this.ExplicitValue == DBNull.Value)
-                    return false;
-                // if (this.Descriptor.IsExplicit == true && this.DescriptorName != string.Empty && this.Descriptor.ExplicitValue != DBNull.Value)
-                //     return true;
-                return true;
+                if (this.value == DBNull.Value)
+                {
+                    if (this.HasSwtich == true && this.Descriptor.DefaultValue != DBNull.Value)
+                        return this.Descriptor.DefaultValue;
+                    if (this.Descriptor.InitValue != DBNull.Value)
+                        return this.Descriptor.InitValue;
+                }
+                return this.value;
+            }
+            set => this.value = value;
+        }
+
+        public object ActualValue
+        {
+            get
+            {
+                if (this.Value == DBNull.Value)
+                {
+                    if (this.Descriptor.MemberType.IsValueType == true)
+                    {
+                        return Activator.CreateInstance(this.Descriptor.MemberType);
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+                return this.Value;
             }
         }
 
-        public object DefaultValue => this.Descriptor.DefaultValue;
-
-        public object ExplicitValue => this.Descriptor.ExplicitValue;
-
-        public object Desiredvalue { get; internal set; } = DBNull.Value;
-
-        public string DescriptorName { get; internal set; } = string.Empty;
+        public bool HasSwtich { get; internal set; }
     }
 }

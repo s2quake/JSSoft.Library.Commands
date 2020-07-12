@@ -14,6 +14,7 @@
     <Authors>s2quake</Authors>
     <RepositoryUrl>https://github.com/NtreevSoft/CommandLineParser</RepositoryUrl>
     <PackageTags>REPL Command Parser Terminal Console</PackageTags>
+    <AssemblyName>repl</AssemblyName>
   </PropertyGroup>
   <ItemGroup Condition="'$(TargetFramework)'=='net45'">
     <Reference Include="System.ComponentModel.Composition" />

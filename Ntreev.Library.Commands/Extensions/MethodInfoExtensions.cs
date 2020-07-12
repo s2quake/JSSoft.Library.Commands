@@ -93,7 +93,7 @@ namespace Ntreev.Library.Commands.Extensions
 
             var query = from item in memberList
                         orderby item.IsRequired == false
-                        orderby item.DefaultValue != DBNull.Value
+                        orderby item.InitValue != DBNull.Value
                         orderby item is CommandMemberArrayDescriptor
                         select item;
 

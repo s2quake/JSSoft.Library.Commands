@@ -30,7 +30,8 @@ namespace Ntreev.Library.Commands
     {
         private readonly Dictionary<string, string> unparsedArguments = new Dictionary<string, string>();
 
-        private readonly Dictionary<CommandMemberDescriptor, ParseDescriptorItem> itemList = new Dictionary<CommandMemberDescriptor, ParseDescriptorItem>();
+        private readonly Dictionary<CommandMemberDescriptor, ParseDescriptorItem> itemByDescriptor = new Dictionary<CommandMemberDescriptor, ParseDescriptorItem>();
+        private readonly ParseDescriptorItem[] items;
 
         /// <param name="members"></param>
         /// <param name="commandLine"></param>
@@ -43,8 +44,9 @@ namespace Ntreev.Library.Commands
         {
             foreach (var item in members)
             {
-                this.itemList.Add(item, new ParseDescriptorItem(item));
+                this.itemByDescriptor.Add(item, new ParseDescriptorItem(item));
             }
+            this.items = this.itemByDescriptor.Values.ToArray();
 
             var descriptors = new Dictionary<string, CommandMemberDescriptor>();
             foreach (var item in members)
@@ -74,9 +76,9 @@ namespace Ntreev.Library.Commands
                         var textValue = arguments.Dequeue();
                         if (CommandStringUtility.IsWrappedOfQuote(textValue) == true)
                             textValue = CommandStringUtility.TrimQuot(textValue);
-                        this.itemList[descriptor].Desiredvalue = Parser.Parse(descriptor, textValue);
+                        this.itemByDescriptor[descriptor].Value = Parser.Parse(descriptor, textValue);
                     }
-                    this.itemList[descriptor].DescriptorName = arg;
+                    this.itemByDescriptor[descriptor].HasSwtich = true;
                 }
                 else if (arg == "--")
                 {
@@ -106,13 +108,13 @@ namespace Ntreev.Library.Commands
                 }
                 else if (CommandStringUtility.IsSwitch(arg) == false)
                 {
-                    var requiredDescriptor = this.itemList.Where(item => item.Key.IsRequired == true && item.Key.IsExplicit == false && item.Value.IsParsed == false)
+                    var requiredDescriptor = this.itemByDescriptor.Where(item => item.Key.IsRequired == true && item.Key.IsExplicit == false && item.Value.IsParsed == false)
                                                           .Select(item => item.Key).FirstOrDefault();
                     if (requiredDescriptor != null)
                     {
-                        var parseInfo = this.itemList[requiredDescriptor];
+                        var parseInfo = this.itemByDescriptor[requiredDescriptor];
                         var value = Parser.Parse(requiredDescriptor, arg);
-                        parseInfo.Desiredvalue = value;
+                        parseInfo.Value = value;
                     }
                     else if (variables != null)
                     {
@@ -135,7 +137,7 @@ namespace Ntreev.Library.Commands
 
             if (variables != null)
             {
-                this.itemList[variables].Desiredvalue = Parser.ParseArray(variables, variableList);
+                this.itemByDescriptor[variables].Value = Parser.ParseArray(variables, variableList);
             }
         }
 
@@ -143,41 +145,23 @@ namespace Ntreev.Library.Commands
         {
             this.ValidateSetValue(instance);
 
-            foreach (var item in this.itemList)
+            var items = this.items;
+            foreach (var item in items)
             {
-                var descriptor = item.Key;
-                descriptor.ValidateTrigger(this.itemList);
+                var descriptor = item.Descriptor;;
+                if (item.IsParsed == false)
+                    continue;
+                descriptor.ValidateTrigger(items);
             }
 
-            foreach (var item in this.itemList)
+            foreach (var item in items)
             {
-                var descriptor = item.Key;
-                var parseInfo = item.Value;
-
-                if (parseInfo.Desiredvalue != DBNull.Value)
-                {
-                    descriptor.SetValueInternal(instance, parseInfo.Desiredvalue);
-                }
-                else if (parseInfo.DefaultValue != DBNull.Value)
-                {
-                    descriptor.SetValueInternal(instance, parseInfo.DefaultValue);
-                }
-                else if (parseInfo.ExplicitValue != DBNull.Value && parseInfo.DescriptorName != string.Empty)
-                {
-                    descriptor.SetValueInternal(instance, parseInfo.ExplicitValue);
-                }
-                else if (descriptor.MemberType.IsValueType == true)
-                {
-                    descriptor.SetValueInternal(instance, Activator.CreateInstance(descriptor.MemberType));
-                }
-                else
-                {
-                    descriptor.SetValueInternal(instance, null);
-                }
+                var descriptor = item.Descriptor;;
+                descriptor.SetValueInternal(instance, item.ActualValue);
             }
         }
 
-        public IDictionary<CommandMemberDescriptor, ParseDescriptorItem> Descriptors => this.itemList;
+        public ParseDescriptorItem[] Items => this.items;
 
         private void ValidateSetValue(object instance)
         {
@@ -203,24 +187,15 @@ namespace Ntreev.Library.Commands
                 }
             }
 
-            foreach (var item in this.itemList)
+            foreach (var item in this.items)
             {
-                var descriptor = item.Key;
-                var parseInfo = item.Value;
-                if (descriptor.IsExplicit == true)
-                {
-                    if (parseInfo.DescriptorName != string.Empty && parseInfo.Desiredvalue == DBNull.Value && descriptor.ExplicitValue == DBNull.Value)
-                        throw new ArgumentException($"{descriptor.DisplayName}에 값이 설정되지 않았습니다.");
-                }
-                if (parseInfo.IsParsed == true)
+                var descriptor = item.Descriptor;
+                if (item.IsParsed == true)
                     continue;
-                if (descriptor.IsRequired == true)
-                {
-                    if (descriptor.IsExplicit == false && descriptor.DefaultValue != DBNull.Value)
-                        continue;
-
+                if (item.HasSwtich == true && item.Value == DBNull.Value)
+                    throw new ArgumentException($"{descriptor.DisplayName}에 값이 설정되지 않았습니다.");
+                if (descriptor.IsRequired == true && item.Value == DBNull.Value)
                     throw new ArgumentException($"필수 인자 {descriptor.DisplayName}가 빠져있습니다");
-                }
             }
         }
     }

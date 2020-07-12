@@ -63,7 +63,7 @@ namespace Ntreev.Library.Commands
         internal void Sort()
         {
             var query = from item in this.descriptors
-                        orderby item.DefaultValue == DBNull.Value descending
+                        orderby item.InitValue == DBNull.Value descending
                         orderby item.IsRequired descending
                         orderby item is CommandMemberArrayDescriptor
                         orderby item.IsExplicit

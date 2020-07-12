@@ -301,8 +301,8 @@ namespace Ntreev.Library.Commands
             if (descriptor.IsRequired == true)
             {
                 var name = descriptor.DisplayName;
-                var value = $"{descriptor.DefaultValue ?? "null"}";
-                if (descriptor.DefaultValue == DBNull.Value)
+                var value = $"{descriptor.InitValue ?? "null"}";
+                if (descriptor.InitValue == DBNull.Value)
                     return $"<{name}>";
                 return $"<{name}={value}>";
             }

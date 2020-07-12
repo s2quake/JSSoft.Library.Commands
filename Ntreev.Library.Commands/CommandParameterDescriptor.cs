@@ -34,20 +34,17 @@ namespace Ntreev.Library.Commands
             this.value = parameterInfo.DefaultValue;
             this.Summary = parameterInfo.GetSummary();
             this.Description = parameterInfo.GetDescription();
-            this.DefaultValue = parameterInfo.DefaultValue;
+            this.InitValue = parameterInfo.DefaultValue;
             this.MemberType = parameterInfo.ParameterType;
-            //this.Attributes = parameterInfo.GetCustomAttributes();
         }
 
         public override string Summary { get; }
 
         public override string Description { get; }
 
-        public override object DefaultValue { get; }
+        public override object InitValue { get; }
 
         public override Type MemberType { get; }
-
-        //public override IEnumerable<Attribute> Attributes { get; }
 
         protected override void SetValue(object instance, object value)
         {

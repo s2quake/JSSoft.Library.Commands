@@ -67,12 +67,14 @@ namespace Ntreev.Library.Commands
 
         public CommandPropertyUsage Usage { get; set; } = CommandPropertyUsage.General;
 
-        public object ExplicitValue { get; set; } = DBNull.Value;
+        public object DefaultValue { get; set; } = DBNull.Value;
 
         protected virtual void Validate(object target)
         {
             if (this.Usage == CommandPropertyUsage.Variables)
                 throw new InvalidOperationException($"use {nameof(CommandPropertyArrayAttribute)} instead.");
+            if (this.IsExplicit == false && this.DefaultValue != DBNull.Value)
+                throw new InvalidOperationException($"non explicit property does not have {nameof(DefaultValue)}: '{this.DefaultValue}'.");
         }
 
         internal void InvokeValidate(object target)

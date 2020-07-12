@@ -44,13 +44,11 @@ namespace Ntreev.Library.Commands
 
         public override string Description => this.descriptor.Description;
 
-        public override object DefaultValue => this.descriptor.DefaultValue;
+        public override object InitValue => this.descriptor.InitValue;
 
         public override bool IsRequired => this.descriptor.IsRequired;
 
         public override bool IsExplicit => this.descriptor.IsExplicit;
-
-        //public override IEnumerable<Attribute> Attributes => this.descriptor.Attributes;
 
         public override TypeConverter Converter => this.descriptor.Converter;
 
@@ -68,9 +66,9 @@ namespace Ntreev.Library.Commands
             return this.descriptor.GetValueInternal(this.instance);
         }
 
-        protected override void OnValidateTrigger(IDictionary<CommandMemberDescriptor, ParseDescriptorItem> descriptors)
+        protected override void OnValidateTrigger(ParseDescriptorItem[] parseItems)
         {
-            this.descriptor.ValidateTrigger(descriptors);
+            this.descriptor.ValidateTrigger(parseItems);
         }
     }
 }

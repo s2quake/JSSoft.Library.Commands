@@ -38,7 +38,7 @@ namespace Ntreev.Library.Commands
             this.ShortName = attribute.InternalShortName;
             this.IsRequired = attribute.IsRequired;
             this.IsExplicit = attribute.IsRequired == false ? true : attribute.IsExplicit;
-            this.ExplicitValue = attribute.ExplicitValue;
+            this.DefaultValue = attribute.DefaultValue;
         }
 
         public override string ToString()
@@ -76,9 +76,9 @@ namespace Ntreev.Library.Commands
 
         public virtual string Description { get; } = string.Empty;
 
-        public virtual object DefaultValue { get; } = DBNull.Value;
+        public virtual object InitValue { get; } = DBNull.Value;
 
-        public virtual object ExplicitValue { get; }
+        public virtual object DefaultValue { get; }
 
         public virtual bool IsRequired { get; }
 
@@ -88,57 +88,24 @@ namespace Ntreev.Library.Commands
 
         public virtual TypeConverter Converter => TypeDescriptor.GetConverter(this.MemberType);
 
-        //public virtual IEnumerable<Attribute> Attributes { get { yield break; } }
-
         public string DescriptorName { get; }
 
         protected abstract void SetValue(object instance, object value);
 
         protected abstract object GetValue(object instance);
 
-        protected virtual void OnValidateTrigger(IDictionary<CommandMemberDescriptor, ParseDescriptorItem> descriptors)
+        protected virtual void OnValidateTrigger(ParseDescriptorItem[] parseItems)
         {
 
         }
 
         internal void Parse(object instance, List<string> arguments)
         {
-            if (this.MemberType == typeof(bool))
-            {
-                this.SetValue(instance, true);
-            }
-            else
-            {
-                var arg = arguments.First();
-                var value = Parser.Parse(this, arg);
-                this.SetValue(instance, value);
-                arguments.RemoveAt(0);
-            }
+            var arg = arguments.First();
+            var value = Parser.Parse(this, arg);
+            this.SetValue(instance, value);
+            arguments.RemoveAt(0);
         }
-
-        //internal string[] GetCompletion(object target)
-        //{
-        //    var memberType = this.MemberType;
-        //    var attributes = this.Attributes;
-        //    if (memberType.IsEnum == true)
-        //    {
-        //        return Enum.GetNames(memberType).Select(item => CommandSettings.NameGenerator(item)).ToArray();
-        //    }
-        //    else if (attributes.FirstOrDefault(item => item is CommandCompletionAttribute) is CommandCompletionAttribute attr)
-        //    {
-        //        if (attr.Type == null)
-        //        {
-        //            var methodInfo = target.GetType().GetMethod(attr.MethodName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public, null, new Type[] { }, null);
-        //            return methodInfo.Invoke(target, null) as string[];
-        //        }
-        //        else
-        //        {
-        //            var methodInfo = attr.Type.GetMethod(attr.MethodName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static, null, new Type[] { }, null);
-        //            return methodInfo.Invoke(null, null) as string[];
-        //        }
-        //    }
-        //    return null;
-        //}
 
         public virtual string NamePattern
         {
@@ -170,9 +137,9 @@ namespace Ntreev.Library.Commands
             return this.GetValue(instance);
         }
 
-        internal void ValidateTrigger(IDictionary<CommandMemberDescriptor, ParseDescriptorItem> descriptors)
+        internal void ValidateTrigger(ParseDescriptorItem[] parseItems)
         {
-            this.OnValidateTrigger(descriptors);
+            this.OnValidateTrigger(parseItems);
         }
     }
 }

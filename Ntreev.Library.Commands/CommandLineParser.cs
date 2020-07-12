@@ -38,7 +38,7 @@ namespace Ntreev.Library.Commands
         private readonly string filename;
 
         public CommandLineParser(object instance)
-            : this(Assembly.GetEntryAssembly(), instance)
+            : this(Assembly.GetEntryAssembly() ?? typeof(CommandLineParser).Assembly, instance)
         {
 
         }
@@ -174,7 +174,6 @@ namespace Ntreev.Library.Commands
                 throw new ArgumentException(string.Format(Resources.InvalidCommandName_Format, name));
 
             var (first, rest) = CommandStringUtility.Split(arguments);
-            //var isSwitch = CommandStringUtility.IsSwitch(first);
             var instance = this.Instance;
             if (instance is ICommandHierarchy hierarchy && hierarchy.Commands.ContainsKey(first) == true)
             {

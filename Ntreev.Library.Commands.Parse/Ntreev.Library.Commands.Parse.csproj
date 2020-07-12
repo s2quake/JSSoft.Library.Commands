@@ -14,6 +14,7 @@
     <Authors>s2quake</Authors>
     <RepositoryUrl>https://github.com/NtreevSoft/CommandLineParser</RepositoryUrl>
     <PackageTags>REPL Command Parser Terminal Console</PackageTags>
+    <AssemblyName>parse</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.ComponentModel.Composition" Version="4.5.0" />

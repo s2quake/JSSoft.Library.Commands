@@ -36,8 +36,7 @@ namespace Ntreev.Library.Commands
             this.MemberType = propertyInfo.PropertyType;
             this.Summary = propertyInfo.GetSummary();
             this.Description = propertyInfo.GetDescription();
-            this.DefaultValue = propertyInfo.GetDefaultValue();
-            //this.Attributes = propertyInfo.GetCustomAttributes();
+            this.InitValue = propertyInfo.GetDefaultValue();
             this.IsExplicit = false;
         }
 
@@ -58,9 +57,7 @@ namespace Ntreev.Library.Commands
 
         public override string Description { get; }
 
-        public override object DefaultValue { get; }
-
-        //public override IEnumerable<Attribute> Attributes { get; }
+        public override object InitValue { get; }
 
         public override bool IsExplicit { get; }
 

@@ -30,16 +30,17 @@ namespace Ntreev.Library.Commands
             var parser = new ParseDescriptor(members, args);
             var properties = new Dictionary<string, object>();
             var memberDescriptor = null as CommandMemberDescriptor;
+            var itemByDescriptor = parser.Items.ToDictionary(item => item.Descriptor);
 
-            foreach (var item in parser.Descriptors.ToArray())
+            foreach (var item in itemByDescriptor)
             {
                 var descriptor = item.Key;
                 var parseInfo = item.Value;
                 if (parseInfo.IsParsed == true)
                 {
-                    properties.Add(descriptor.DescriptorName, parseInfo.Desiredvalue);
+                    properties.Add(descriptor.DescriptorName, parseInfo.Value);
                     if (descriptor is CommandMemberArrayDescriptor == false)
-                        parser.Descriptors.Remove(descriptor);
+                        itemByDescriptor.Remove(descriptor);
                 }
             }
 
@@ -47,7 +48,7 @@ namespace Ntreev.Library.Commands
             {
                 var arg = args.First();
 
-                foreach (var item in parser.Descriptors)
+                foreach (var item in itemByDescriptor)
                 {
                     var descriptor = item.Key;
                     if (arg == descriptor.ShortNamePattern || arg == descriptor.NamePattern)
@@ -59,7 +60,7 @@ namespace Ntreev.Library.Commands
             if (find.StartsWith(CommandSettings.Delimiter) == true)
             {
                 var argList = new List<string>();
-                foreach (var item in parser.Descriptors)
+                foreach (var item in itemByDescriptor)
                 {
                     var descriptor = item.Key;
                     if (descriptor.NamePattern != string.Empty)
@@ -70,7 +71,7 @@ namespace Ntreev.Library.Commands
             else if (find.StartsWith(CommandSettings.ShortDelimiter) == true)
             {
                 var argList = new List<string>();
-                foreach (var item in parser.Descriptors)
+                foreach (var item in itemByDescriptor)
                 {
                     var descriptor = item.Key;
                     if (descriptor.ShortNamePattern != string.Empty)
@@ -80,7 +81,7 @@ namespace Ntreev.Library.Commands
             }
             else
             {
-                foreach (var item in parser.Descriptors)
+                foreach (var item in itemByDescriptor)
                 {
                     var descriptor = item.Key;
                     var parseInfo = item.Value;

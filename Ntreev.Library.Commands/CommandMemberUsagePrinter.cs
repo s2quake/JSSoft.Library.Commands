@@ -227,7 +227,7 @@ namespace Ntreev.Library.Commands
                 if (descriptorName == string.Empty)
                     descriptorName = CommandSettings.NameGenerator(descriptor.DescriptorName);
 
-                if (descriptor.DefaultValue == DBNull.Value)
+                if (descriptor.InitValue == DBNull.Value)
                 {
                     if (descriptor.IsExplicit == true)
                         return $"<{patternText} {descriptorName}>";
@@ -236,7 +236,7 @@ namespace Ntreev.Library.Commands
                 }
                 else
                 {
-                    var value = descriptor.DefaultValue ?? "null";
+                    var value = descriptor.InitValue ?? "null";
                     if (descriptor.IsExplicit == true)
                         return $"<{patternText} {descriptorName}='{value}'>";
                     else
