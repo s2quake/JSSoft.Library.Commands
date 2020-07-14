@@ -39,7 +39,7 @@ namespace Ntreev.Library.Commands.Repl.Commands
             this.DirectoryName = string.Empty;
         }
 
-        [CommandProperty("dir", Usage = CommandPropertyUsage.Required)]
+        [CommandRequiredProperty("dir")]
         [DefaultValue("")]
         public string DirectoryName
         {

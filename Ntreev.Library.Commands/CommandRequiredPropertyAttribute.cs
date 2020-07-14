@@ -18,42 +18,44 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
-using Ntreev.Library.Commands.Extensions;
+using System.ComponentModel;
+using Ntreev.Library.Commands.Properties;
+using System.Text.RegularExpressions;
 
 namespace Ntreev.Library.Commands
 {
-    public sealed class CommandParameterDescriptor : CommandMemberDescriptor
+    public class CommandRequiredPropertyAttribute : CommandPropertyBaseAttribute
     {
-        private object value;
-
-        public CommandParameterDescriptor(ParameterInfo parameterInfo)
-            : base(new CommandRequiredPropertyAttribute(), parameterInfo.Name)
+        public CommandRequiredPropertyAttribute()
         {
-            this.value = parameterInfo.DefaultValue;
-            this.Summary = parameterInfo.GetSummary();
-            this.Description = parameterInfo.GetDescription();
-            this.InitValue = parameterInfo.DefaultValue;
-            this.MemberType = parameterInfo.ParameterType;
         }
 
-        public override string Summary { get; }
-
-        public override string Description { get; }
-
-        public override object InitValue { get; }
-
-        public override Type MemberType { get; }
-
-        protected override void SetValue(object instance, object value)
+        public CommandRequiredPropertyAttribute(string name)
+            : base(name)
         {
-            this.value = value;
         }
 
-        protected override object GetValue(object instance)
+        public CommandRequiredPropertyAttribute(string name, char shortName)
+            : base(name, shortName)
         {
-            return this.value;
+        }
+
+        public CommandRequiredPropertyAttribute(char shortName)
+            : base(shortName)
+        {
+        }
+
+        public bool IsExplicit
+        {
+            get => base.Usage == CommandPropertyUsage.ExplicitRequired;
+            set
+            {
+                if (value == true)
+                    base.Usage = CommandPropertyUsage.ExplicitRequired;
+                else
+                    base.Usage = CommandPropertyUsage.Required;
+            }
         }
     }
 }

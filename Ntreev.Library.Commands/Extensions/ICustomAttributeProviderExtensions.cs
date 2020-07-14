@@ -28,9 +28,9 @@ namespace Ntreev.Library.Commands.Extensions
 {
     static class ICustomAttributeProviderExtensions
     {
-        public static CommandPropertyAttribute GetCommandPropertyAttribute(this ICustomAttributeProvider customAttributeProvider)
+        public static CommandPropertyBaseAttribute GetCommandPropertyAttribute(this ICustomAttributeProvider customAttributeProvider)
         {
-            return customAttributeProvider.GetCustomAttribute<CommandPropertyAttribute>();
+            return customAttributeProvider.GetCustomAttribute<CommandPropertyBaseAttribute>();
         }
 
         public static CommandMethodAttribute GetCommandMethodAttribute(this ICustomAttributeProvider customAttributeProvider)

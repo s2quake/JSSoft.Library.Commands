@@ -69,7 +69,7 @@ namespace Ntreev.Library.Commands.Test
             parser.Parse(parser.Name, "value=0");
         }
 
-        [CommandProperty(Usage = CommandPropertyUsage.Required)]
+        [CommandRequiredProperty]
         public string Command
         {
             get; set;

@@ -39,7 +39,7 @@ namespace Ntreev.Library.Commands.Repl.Commands
             this.Path = string.Empty;
         }
 
-        [CommandProperty(Usage = CommandPropertyUsage.Required)]
+        [CommandRequiredProperty]
         [DisplayName("<pathspec>...")]
         public string Path
         {

@@ -7,9 +7,30 @@
             "label": "build",
             "command": "dotnet",
             "type": "shell",
-            "group": "build",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
             "args": [
                 "build",
+                "--framework",
+                "netcoreapp3.0"
+            ],
+            "presentation": {
+                "reveal": "always"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "test",
+            "command": "dotnet",
+            "type": "shell",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "args": [
+                "test",
                 "--framework",
                 "netcoreapp3.0"
             ],

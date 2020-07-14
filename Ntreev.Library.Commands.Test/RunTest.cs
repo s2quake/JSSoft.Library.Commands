@@ -70,7 +70,7 @@ namespace Ntreev.Library.Commands.Test
             Assert.AreEqual("member", this.Authentication);
         }
 
-        [CommandProperty(Usage = CommandPropertyUsage.Required)]
+        [CommandRequiredProperty]
         public string RepositoryPath
         {
             get; set;

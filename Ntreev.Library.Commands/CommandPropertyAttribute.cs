@@ -25,78 +25,31 @@ using System.Text.RegularExpressions;
 
 namespace Ntreev.Library.Commands
 {
-    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class CommandPropertyAttribute : Attribute
+    public class CommandPropertyAttribute : CommandPropertyBaseAttribute
     {
         public CommandPropertyAttribute()
         {
         }
 
         public CommandPropertyAttribute(string name)
-            : this(name, char.MinValue)
+            : base(name)
         {
-
         }
 
         public CommandPropertyAttribute(string name, char shortName)
-        { 
-            if (name == null)
-                throw new ArgumentNullException(nameof(name));
-            if (name.Length <= 1)
-                throw new ArgumentException("name length must be greater than 1", nameof(name));
-            CommandSettings.ValidateIdentifier(name);
-            if (shortName != char.MinValue && Regex.IsMatch(shortName.ToString(), "[a-z]", RegexOptions.IgnoreCase) == false)
-                throw new ArgumentException("shortName must be a alphabet character");
-            this.Name = name;
-            this.ShortName = shortName;
+            : base(name, shortName)
+        {
         }
 
         public CommandPropertyAttribute(char shortName)
+            : base(shortName)
         {
-            if (shortName != char.MinValue && Regex.IsMatch(shortName.ToString(), "[a-z]", RegexOptions.IgnoreCase) == false)
-                throw new ArgumentException("shortName must be a alphabet character", nameof(shortName));
-            this.ShortName = shortName;
-            this.AllowName = false;
         }
 
-        public string Name { get; } = string.Empty;
-
-        public char ShortName { get; }
-
-        public bool AllowName { get; set; } = true;
-
-        public CommandPropertyUsage Usage { get; set; } = CommandPropertyUsage.General;
-
-        public object DefaultValue { get; set; } = DBNull.Value;
-
-        protected virtual void Validate(object target)
+        public new CommandPropertyUsage Usage
         {
-            if (this.Usage == CommandPropertyUsage.Variables)
-                throw new InvalidOperationException($"use {nameof(CommandPropertyArrayAttribute)} instead.");
-            if (this.IsExplicit == false && this.DefaultValue != DBNull.Value)
-                throw new InvalidOperationException($"non explicit property does not have {nameof(DefaultValue)}: '{this.DefaultValue}'.");
+            get => base.Usage;
+            set => base.Usage = value;
         }
-
-        internal void InvokeValidate(object target)
-        {
-            this.Validate(target);
-        }
-
-        internal string GetName(string descriptorName)
-        {
-            if (this.Name == string.Empty)
-            {
-                if (this.AllowName == true)
-                    return CommandSettings.NameGenerator(descriptorName);
-                return string.Empty;
-            }
-            return this.Name;
-        }
-
-        internal string InternalShortName => this.ShortName == char.MinValue ? string.Empty : this.ShortName.ToString();
-
-        internal bool IsRequired => this.Usage == CommandPropertyUsage.Required || this.Usage == CommandPropertyUsage.ExplicitRequired;
-
-        internal bool IsExplicit => this.Usage == CommandPropertyUsage.General || this.Usage == CommandPropertyUsage.ExplicitRequired;
     }
 }

@@ -35,13 +35,13 @@ namespace Ntreev.Library.Commands.Repl.Commands
 
         }
 
-        [CommandProperty(Usage = CommandPropertyUsage.Required)]
+        [CommandRequiredProperty]
         public string SourcePath
         {
             get; set;
         }
 
-        [CommandProperty(Usage = CommandPropertyUsage.Required)]
+        [CommandRequiredProperty]
         public string TargetPath
         {
             get; set;

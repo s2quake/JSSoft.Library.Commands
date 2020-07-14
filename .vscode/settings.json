@@ -10,7 +10,8 @@
     },
     "editor.codeLens": false,
     "csharp.unitTestDebuggingOptions": {
-        "type": "coreclr",
+
     },
-    "dotnet-test-explorer.testArguments": "--framework netcoreapp3.0"
+    "dotnet-test-explorer.testArguments": "--framework netcoreapp3.0",
+    "dotnet-test-explorer.testProjectPath": "**/*Test.@(csproj|vbproj|fsproj)"
 }

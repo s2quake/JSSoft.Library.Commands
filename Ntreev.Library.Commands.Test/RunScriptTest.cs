@@ -73,7 +73,7 @@ namespace Ntreev.Library.Commands.Test
             this.parser.Parse("run log(1); arg1=1 arg2=text");
         }
 
-        [CommandProperty(Usage = CommandPropertyUsage.Required)]
+        [CommandRequiredProperty]
         [CommandPropertyTrigger(nameof(Filename), "")]
         [CommandPropertyTrigger(nameof(List), false)]
         [DefaultValue("")]

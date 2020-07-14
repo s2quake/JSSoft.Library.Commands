@@ -28,7 +28,7 @@ namespace Ntreev.Library.Commands
 {
     public abstract class CommandMemberArrayDescriptor : CommandMemberDescriptor
     {
-        protected CommandMemberArrayDescriptor(CommandPropertyAttribute attribute, string descriptorName)
+        protected CommandMemberArrayDescriptor(CommandPropertyBaseAttribute attribute, string descriptorName)
             : base(attribute, descriptorName)
         {
 

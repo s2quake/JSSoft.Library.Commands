@@ -28,7 +28,7 @@ namespace Ntreev.Library.Commands
 {
     public abstract class CommandMemberDescriptor
     {
-        protected CommandMemberDescriptor(CommandPropertyAttribute attribute, string descriptorName)
+        protected CommandMemberDescriptor(CommandPropertyBaseAttribute attribute, string descriptorName)
         {
             if (attribute == null)
                 throw new ArgumentNullException(nameof(attribute));
@@ -36,8 +36,8 @@ namespace Ntreev.Library.Commands
             this.DescriptorName = descriptorName ?? throw new ArgumentNullException(nameof(descriptorName));
             this.Name = attribute.GetName(descriptorName);
             this.ShortName = attribute.InternalShortName;
-            this.IsRequired = attribute.IsRequired;
-            this.IsExplicit = attribute.IsRequired == false ? true : attribute.IsExplicit;
+            this.IsRequired = attribute.IsRequiredProperty;
+            this.IsExplicit = attribute.IsRequiredProperty == false ? true : attribute.IsExplicitProperty;
             this.DefaultValue = attribute.DefaultValue;
         }
 

@@ -29,14 +29,14 @@ namespace ConsoleApp
 {
     class Settings
     {
-        [CommandProperty("param1", Usage = CommandPropertyUsage.Required)]
+        [CommandRequiredProperty("param1")]
         [Description("parameter1 description")]
         public string Parameter1
         {
             get; set;
         }
 
-        [CommandProperty("param2", Usage = CommandPropertyUsage.Required)]
+        [CommandRequiredProperty("param2")]
         [Description("parameter2 description")]
         public int Parameter2
         {

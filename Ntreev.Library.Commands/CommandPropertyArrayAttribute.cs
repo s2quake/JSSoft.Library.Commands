@@ -24,20 +24,11 @@ using Ntreev.Library.Commands.Properties;
 
 namespace Ntreev.Library.Commands
 {
-    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class CommandPropertyArrayAttribute : CommandPropertyAttribute
+    public class CommandPropertyArrayAttribute : CommandPropertyBaseAttribute
     {
         public CommandPropertyArrayAttribute()
         {
             this.Usage = CommandPropertyUsage.Variables;
-        }
-
-        protected override void Validate(object target)
-        {
-            if (this.Usage != CommandPropertyUsage.Variables)
-                throw new InvalidOperationException($"'{nameof(CommandPropertyArrayAttribute)}.{nameof(Usage)}' can use only '{CommandPropertyUsage.Variables}'.");
-            if (this.IsExplicit == false && this.DefaultValue != DBNull.Value)
-                throw new InvalidOperationException($"non explicit property does not have {nameof(DefaultValue)}: '{this.DefaultValue}'.");
         }
     }
 }
