@@ -29,7 +29,7 @@ namespace Ntreev.Library.Commands
         private object value;
 
         public CommandParameterDescriptor(ParameterInfo parameterInfo)
-            : base(new CommandRequiredPropertyAttribute(), parameterInfo.Name)
+            : base(new CommandPropertyRequiredAttribute(), parameterInfo.Name)
         {
             this.value = parameterInfo.DefaultValue;
             this.Summary = parameterInfo.GetSummary();

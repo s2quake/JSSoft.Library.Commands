@@ -32,27 +32,27 @@ namespace Ntreev.Library.Commands.Parse
             // this.Libraries = new string[] { };
         }
 
-        [CommandRequiredProperty]
+        [CommandPropertyRequired]
         public string Path
         {
             get; set;
         }
 
-        [CommandRequiredProperty]
+        [CommandPropertyRequired]
         [Description("service name")]
         public string ServiceName
         {
             get; set;
         }
 
-        [CommandRequiredProperty("path", IsExplicit = true)]
+        [CommandPropertyRequired("path", IsExplicit = true)]
         [Description("path to work")]
         public string WorkingPath
         {
             get; set;
         }
 
-        [CommandRequiredProperty]
+        [CommandPropertyRequired]
         [DefaultValue("10001")]
         [Description("port")]
         [Browsable(true)]

@@ -46,7 +46,9 @@ namespace Ntreev.Library.Commands
             {
                 if (this.value == DBNull.Value)
                 {
-                    if (this.HasSwtich == true && this.Descriptor.DefaultValue != DBNull.Value)
+                    if (this.Descriptor.IsExplicit == true && this.HasSwtich == true && this.Descriptor.DefaultValue != DBNull.Value)
+                        return this.Descriptor.DefaultValue;
+                    if (this.Descriptor.IsExplicit == false && this.Descriptor.DefaultValue != DBNull.Value)
                         return this.Descriptor.DefaultValue;
                     if (this.Descriptor.InitValue != DBNull.Value)
                         return this.Descriptor.InitValue;

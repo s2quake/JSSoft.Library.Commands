@@ -37,7 +37,7 @@ namespace Ntreev.Library.Commands.Repl.Commands
 
         }
 
-        [CommandRequiredProperty(DefaultValue = 0)]
+        [CommandPropertyRequired(DefaultValue = 0)]
         public int ExitCode
         {
             get; set;

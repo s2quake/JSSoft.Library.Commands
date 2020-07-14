@@ -96,7 +96,7 @@ namespace Ntreev.Library.Commands.Repl.Commands
             get; set;
         }
 
-        [CommandRequiredProperty('t')]
+        [CommandPropertyRequired('t')]
         public int Port
         {
             get; set;

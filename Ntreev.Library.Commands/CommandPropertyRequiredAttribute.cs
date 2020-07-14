@@ -25,25 +25,29 @@ using System.Text.RegularExpressions;
 
 namespace Ntreev.Library.Commands
 {
-    public class CommandRequiredPropertyAttribute : CommandPropertyBaseAttribute
+    public class CommandPropertyRequiredAttribute : CommandPropertyBaseAttribute
     {
-        public CommandRequiredPropertyAttribute()
+        public CommandPropertyRequiredAttribute()
         {
+            this.Usage = CommandPropertyUsage.Required;
         }
 
-        public CommandRequiredPropertyAttribute(string name)
+        public CommandPropertyRequiredAttribute(string name)
             : base(name)
         {
+            this.Usage = CommandPropertyUsage.Required;
         }
 
-        public CommandRequiredPropertyAttribute(string name, char shortName)
+        public CommandPropertyRequiredAttribute(string name, char shortName)
             : base(name, shortName)
         {
+            this.Usage = CommandPropertyUsage.Required;
         }
 
-        public CommandRequiredPropertyAttribute(char shortName)
+        public CommandPropertyRequiredAttribute(char shortName)
             : base(shortName)
         {
+            this.Usage = CommandPropertyUsage.Required;
         }
 
         public bool IsExplicit

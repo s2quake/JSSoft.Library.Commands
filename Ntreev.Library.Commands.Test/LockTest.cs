@@ -74,7 +74,7 @@ namespace Ntreev.Library.Commands.Test
             this.parser.Parse("lock current_path -m 123 -i");
         }
 
-        [CommandRequiredProperty]
+        [CommandPropertyRequired]
         [DefaultValue("")]
         public string Path
         {
