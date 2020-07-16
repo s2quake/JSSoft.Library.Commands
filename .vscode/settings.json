@@ -5,13 +5,10 @@
         "**/.hg": true,
         "**/CVS": true,
         "**/.DS_Store": true,
-        "**/bin": false,
-        "**/obj": false
+        "**/bin": true,
+        "**/obj": true
     },
     "editor.codeLens": false,
     "csharp.unitTestDebuggingOptions": {
-
-    },
-    "dotnet-test-explorer.testArguments": "--framework netcoreapp3.0",
-    "dotnet-test-explorer.testProjectPath": "**/*Test.@(csproj|vbproj|fsproj)"
+    }
 }

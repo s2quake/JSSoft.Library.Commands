@@ -47,12 +47,12 @@ namespace Ntreev.Library.Commands
 
         public Task ExecuteAsync()
         {
-            throw new NotImplementedException();
+            return Task.Run(() => this.descriptor.Invoke(this.command, this.descriptor.Members, true));
         }
 
         public string[] GetCompletions(CommandCompletionContext completionContext)
         {
-            throw new NotImplementedException();
+            return this.command.GetCompletions(this.descriptor, completionContext.MemberDescriptor, completionContext.Find);
         }
     }
 }

@@ -13,14 +13,8 @@
     <Authors>s2quake</Authors>
     <RepositoryUrl>https://github.com/NtreevSoft/CommandLineParser</RepositoryUrl>
     <PackageTags>REPL Command Parser Terminal Console</PackageTags>
-    <FileUpgradeFlags>
-    </FileUpgradeFlags>
-    <UpgradeBackupLocation>
-    </UpgradeBackupLocation>
-    <OldToolsVersion>2.0</OldToolsVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.1.18" />
     <PackageReference Include="MSTest.TestFramework" Version="1.1.18" />
     <ProjectReference Include="..\Ntreev.Library.Commands\Ntreev.Library.Commands.csproj" />

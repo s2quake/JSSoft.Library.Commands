@@ -39,6 +39,27 @@ namespace Ntreev.Library.Commands.Test
             Assert.IsFalse(this.Boolean);
         }
 
+        [TestMethod]
+        public void TestMethod2()
+        {
+            this.parser.Parse("parse --number 1");
+            Assert.AreEqual(this.Number, 1);
+        }
+
+        [TestMethod]
+        public void TestMethod3()
+        {
+            this.parser.Parse("parse --string qwer");
+            Assert.AreEqual(this.String, "qwer");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(FormatException))]
+        public void TestMethod4()
+        {
+            this.parser.Parse("parse --boolean ewe");
+        }
+
         [CommandProperty]
         public bool Boolean
         {

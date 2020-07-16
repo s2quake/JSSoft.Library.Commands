@@ -69,8 +69,6 @@ namespace Ntreev.Library.Commands
 
         protected virtual void Validate(object target)
         {
-            //if (this.IsExplicitProperty == false && this.DefaultValue != DBNull.Value)
-            //    throw new InvalidOperationException($"non explicit property does not have {nameof(DefaultValue)}: '{this.DefaultValue}'.");
         }
 
         protected CommandPropertyUsage Usage { get; set; } = CommandPropertyUsage.General;
