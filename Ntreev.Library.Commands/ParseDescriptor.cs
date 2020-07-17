@@ -60,7 +60,7 @@ namespace Ntreev.Library.Commands
             }
 
             var variableList = new List<string>();
-            var variables = members.Where(item => item is CommandMemberArrayDescriptor).FirstOrDefault();
+            var variablesDescriptor = members.Where(item => item is CommandMemberArrayDescriptor).FirstOrDefault();
             var arguments = new Queue<string>(args);
 
             while (arguments.Any())
@@ -82,7 +82,7 @@ namespace Ntreev.Library.Commands
                 }
                 else if (arg == "--")
                 {
-                    if (variables != null)
+                    if (variablesDescriptor != null)
                     {
                         foreach (var item in arguments)
                         {
@@ -116,7 +116,7 @@ namespace Ntreev.Library.Commands
                         var value = Parser.Parse(requiredDescriptor, arg);
                         parseInfo.Value = value;
                     }
-                    else if (variables != null)
+                    else if (variablesDescriptor != null)
                     {
                         variableList.Add(arg);
                     }
@@ -135,9 +135,14 @@ namespace Ntreev.Library.Commands
                 }
             }
 
-            if (variables != null)
+            if (variableList.Any() == true)
             {
-                this.itemByDescriptor[variables].Value = Parser.ParseArray(variables, variableList);
+                this.itemByDescriptor[variablesDescriptor].Value = Parser.ParseArray(variablesDescriptor, variableList);
+            }
+            else if (variablesDescriptor.DefaultValue != DBNull.Value)
+            {
+                var ss = variablesDescriptor.Converter.ConvertFrom(variablesDescriptor.DefaultValue);
+                int qer = 0;
             }
         }
 
@@ -156,7 +161,7 @@ namespace Ntreev.Library.Commands
 
             foreach (var item in items)
             {
-                var descriptor = item.Descriptor;;
+                var descriptor = item.Descriptor;
                 descriptor.SetValueInternal(instance, item.ActualValue);
             }
         }

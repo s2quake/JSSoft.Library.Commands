@@ -29,6 +29,7 @@ namespace Ntreev.Library.Commands
         public CommandPropertyArrayAttribute()
         {
             this.Usage = CommandPropertyUsage.Variables;
+            this.DefaultValue = new string[] { string.Empty };
         }
     }
 }

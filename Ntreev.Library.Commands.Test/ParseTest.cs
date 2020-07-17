@@ -54,10 +54,18 @@ namespace Ntreev.Library.Commands.Test
         }
 
         [TestMethod]
-        [ExpectedException(typeof(FormatException))]
+        [ExpectedException(typeof(ArgumentException))]
         public void TestMethod4()
         {
             this.parser.Parse("parse --boolean ewe");
+        }
+
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void TestMethod5()
+        {
+            this.parser.Parse("parse --number ewe");
         }
 
         [CommandProperty]

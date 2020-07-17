@@ -20,6 +20,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.ComponentModel;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Ntreev.Library.Commands.Test
 {
@@ -31,46 +32,69 @@ namespace Ntreev.Library.Commands.Test
         public RunScriptTest()
         {
             this.parser = new CommandLineParser("run", this);
-
-            // run --filename path
-            // run "log(1);"
-            // run --list
         }
 
         [TestMethod]
         public void TestMethod1()
         {
             this.parser.Parse("run --filename \"C:\\script.js\"");
+            Assert.AreEqual(this.Filename, "C:\\script.js");
+            Assert.AreEqual(this.Script, string.Empty);
+            Assert.IsFalse(this.List);
+            Assert.IsNull(this.Arguments);
         }
 
         [TestMethod]
         public void TestMethod2()
         {
             this.parser.Parse("run log(1);");
+            Assert.AreEqual(this.Script, "log(1);");
+            Assert.AreEqual(this.Filename, string.Empty);
+            Assert.IsFalse(this.List);
+            Assert.IsNull(this.Arguments);
         }
 
         [TestMethod]
         public void TestMethod3()
         {
             this.parser.Parse("run --list");
+            Assert.IsTrue(this.List);
+            Assert.AreEqual(this.Script, string.Empty);
+            Assert.AreEqual(this.Filename, string.Empty);
+            Assert.IsNull(this.Arguments);
         }
 
         [TestMethod]
         public void TestMethod4()
         {
             this.parser.Parse("run -l");
+            Assert.AreEqual(this.Script, string.Empty);
+            Assert.AreEqual(this.Filename, string.Empty);
+            Assert.IsNull(this.Arguments);
         }
 
         [TestMethod]
         public void TestMethod4_With_Args()
         {
             this.parser.Parse("run -l -- db=string port=number async=boolean");
+            Assert.IsTrue(this.List);
+            Assert.AreEqual(this.Script, string.Empty);
+            Assert.AreEqual(this.Filename, string.Empty);
+            foreach (var item in this.Arguments)
+            {
+                Assert.IsTrue(Regex.IsMatch(item, ".+=.+"));
+            }
         }
 
         [TestMethod]
         public void TestMethod5()
         {
             this.parser.Parse("run log(1); arg1=1 arg2=text");
+            Assert.AreEqual(this.Script, "log(1);");
+            foreach (var item in this.Arguments)
+            {
+                Assert.IsTrue(Regex.IsMatch(item, ".+=.+"));
+            }
         }
 
         [CommandPropertyRequired]
@@ -83,9 +107,9 @@ namespace Ntreev.Library.Commands.Test
         }
 
         [CommandProperty()]
-        [DefaultValue("")]
         [CommandPropertyTrigger(nameof(Script), "")]
         [CommandPropertyTrigger(nameof(List), false)]
+        [DefaultValue("")]
         public string Filename
         {
             get; set;
@@ -103,8 +127,7 @@ namespace Ntreev.Library.Commands.Test
         [CommandPropertyArray]
         public string[] Arguments
         {
-            get;
-            set;
+            get; set;
         }
     }
 }

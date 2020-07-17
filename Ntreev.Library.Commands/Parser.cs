@@ -61,7 +61,6 @@ namespace Ntreev.Library.Commands
         public static object ParseArray(Type propertyType, IEnumerable<string> args)
         {
             System.Collections.IList list;
-
             if (propertyType.IsArray == true)
             {
                 list = new System.Collections.ArrayList() as System.Collections.IList;
@@ -194,7 +193,6 @@ namespace Ntreev.Library.Commands
             else
             {
                 var properties = TypeDescriptor.GetReflectionType(propertyType).GetProperties(BindingFlags.Public | BindingFlags.Instance);
-
                 foreach (var item in properties)
                 {
                     if (item.Name.Equals("Item") || item.Name.Equals("Items"))

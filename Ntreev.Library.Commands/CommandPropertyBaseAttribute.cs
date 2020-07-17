@@ -67,15 +67,17 @@ namespace Ntreev.Library.Commands
 
         public object DefaultValue { get; set; } = DBNull.Value;
 
-        protected virtual void Validate(object target)
+        protected virtual void Validate(CommandMemberDescriptor descriptor)
         {
+            if (this.Usage == CommandPropertyUsage.Variables && descriptor.MemberType.IsArray == false)
+                throw new InvalidOperationException($"{nameof(CommandPropertyUsage.Variables)} property must be an array type.");
         }
 
         protected CommandPropertyUsage Usage { get; set; } = CommandPropertyUsage.General;
 
-        internal void InvokeValidate(object target)
+        internal void InvokeValidate(CommandMemberDescriptor descriptor)
         {
-            this.Validate(target);
+            this.Validate(descriptor);
         }
 
         internal string GetName(string descriptorName)
