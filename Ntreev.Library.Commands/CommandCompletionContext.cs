@@ -47,7 +47,6 @@ namespace Ntreev.Library.Commands
             if (args.Any() == true)
             {
                 var arg = args.First();
-
                 foreach (var item in itemByDescriptor)
                 {
                     var descriptor = item.Key;
@@ -76,6 +75,8 @@ namespace Ntreev.Library.Commands
                     var descriptor = item.Key;
                     if (descriptor.ShortNamePattern != string.Empty)
                         argList.Add(descriptor.ShortNamePattern);
+                    if (descriptor.NamePattern != string.Empty)
+                        argList.Add(descriptor.NamePattern);
                 }
                 return argList.ToArray();
             }

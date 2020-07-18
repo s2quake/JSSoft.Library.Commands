@@ -42,15 +42,17 @@ namespace Ntreev.Library.Commands
             var properties = completionContext.Properties;
             if (descriptor.DescriptorName == nameof(CommandNames))
             {
-                var commandNames = properties[nameof(CommandNames)] as string[];
+                var commandNames = new string[] { };
+                if (properties.TryGetValue(nameof(CommandNames), out var value) == true)
+                {
+                    commandNames = value as string[];
+                }
                 return this.GetCommandNames(this.CommandContext.Node, commandNames, completionContext.Find);
-
             }
             return base.GetCompletions(completionContext);
         }
 
-        [DefaultValue("")]
-        [CommandPropertyArray()]
+        [CommandPropertyArray]
         public string[] CommandNames { get; set; } = new string[] { };
 
         [CommandProperty("detail")]
