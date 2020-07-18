@@ -24,33 +24,18 @@ using Ntreev.Library.Commands.Extensions;
 
 namespace Ntreev.Library.Commands
 {
-    public sealed class CommandParameterArrayDescriptor : CommandMemberArrayDescriptor
+    public sealed class CommandParameterArrayDescriptor : CommandMemberDescriptor
     {
-        private readonly ParameterInfo parameterInfo;
         private object value;
 
         public CommandParameterArrayDescriptor(ParameterInfo parameterInfo)
-            : base(new CommandPropertyAttribute(), parameterInfo.Name)
+            : base(new CommandPropertyArrayAttribute(), parameterInfo.Name)
         {
-            this.parameterInfo = parameterInfo;
             this.Summary = parameterInfo.GetSummary();
             this.Description = parameterInfo.GetDescription();
             this.InitValue = parameterInfo.DefaultValue;
             this.MemberType = parameterInfo.ParameterType;
             this.value = parameterInfo.DefaultValue;
-            this.IsExplicit = false;
-            this.IsRequired = false;
-        }
-
-        public override string DisplayName
-        {
-            get
-            {
-                var displayName = this.parameterInfo.GetDisplayName();
-                if (displayName != string.Empty)
-                    return displayName;
-                return base.DisplayName + "...";
-            }
         }
 
         public override string Summary { get; }

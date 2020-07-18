@@ -201,7 +201,8 @@ namespace Ntreev.Library.Commands.Extensions
 
             foreach (var item in items)
             {
-                var text = $"{item.Key.PadRight(maxWidth)} : {selector(item.Value)}";
+                var key = item.Key.PadRight(maxWidth);
+                var text = $"{key} : {selector(item.Value)}";
                 action(item.Value, () => writer.WriteLine(text));
             }
         }

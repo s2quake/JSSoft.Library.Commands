@@ -178,10 +178,7 @@ namespace Ntreev.Library.Commands
                     continue;
                 if (item.CanWrite == false)
                     throw new Exception(string.Format("'{0}' is not available because it cannot write.", item.Name));
-                if (attr.GetUsage() == CommandPropertyUsage.Variables)
-                    descriptors.Add(new CommandPropertyArrayDescriptor(item));
-                else
-                    descriptors.Add(new CommandPropertyDescriptor(item));
+                descriptors.Add(new CommandPropertyDescriptor(item));
             }
 
             foreach (var item in GetStaticMemberDescriptors(type))
@@ -189,8 +186,8 @@ namespace Ntreev.Library.Commands
                 descriptors.Add(item);
             }
 
-            if (descriptors.Where(item => item is CommandMemberArrayDescriptor).Count() > 1)
-                throw new InvalidOperationException("CommandPropertyArrayDescriptor is can be used only once.");
+            if (descriptors.Where(item => item.Usage == CommandPropertyUsage.Variables).Count() > 1)
+                throw new InvalidOperationException($"{nameof(CommandPropertyUsage.Variables)} is can be used only once.");
 
             descriptors.Sort();
 

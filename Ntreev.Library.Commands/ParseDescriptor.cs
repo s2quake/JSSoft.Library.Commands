@@ -60,7 +60,7 @@ namespace Ntreev.Library.Commands
             }
 
             var variableList = new List<string>();
-            var variablesDescriptor = members.Where(item => item is CommandMemberArrayDescriptor).FirstOrDefault();
+            var variablesDescriptor = members.Where(item => item.Usage == CommandPropertyUsage.Variables).FirstOrDefault();
             var arguments = new Queue<string>(args);
 
             while (arguments.Any())
@@ -139,11 +139,6 @@ namespace Ntreev.Library.Commands
             {
                 this.itemByDescriptor[variablesDescriptor].Value = Parser.ParseArray(variablesDescriptor, variableList);
             }
-            else if (variablesDescriptor.DefaultValue != DBNull.Value)
-            {
-                var ss = variablesDescriptor.Converter.ConvertFrom(variablesDescriptor.DefaultValue);
-                int qer = 0;
-            }
         }
 
         public void SetValue(object instance)
@@ -151,12 +146,27 @@ namespace Ntreev.Library.Commands
             this.ValidateSetValue(instance);
 
             var items = this.items;
+            var initObj = instance as ISupportInitialize;
             foreach (var item in items)
             {
-                var descriptor = item.Descriptor;;
+                var descriptor = item.Descriptor;
                 if (item.IsParsed == false)
                     continue;
                 descriptor.ValidateTrigger(items);
+            }
+
+            if (initObj != null)
+            {
+                initObj.BeginInit();
+            }
+            foreach (var item in items)
+            {
+                var descriptor = item.Descriptor;
+                descriptor.SetValueInternal(instance, item.InitValue);
+            }
+            if (initObj != null)
+            {
+                initObj.EndInit();
             }
 
             foreach (var item in items)
@@ -168,7 +178,7 @@ namespace Ntreev.Library.Commands
 
         public ParseDescriptorItem[] Items => this.items;
 
-        private void ValidateSetValue(object instance)
+        private void ValidateSetValue(object _)
         {
             if (this.unparsedArguments.Any())
             {

@@ -138,7 +138,6 @@ namespace Ntreev.Library.Commands
                 if (this.VerifyName(name) == true && this.Out != null)
                 {
                     var (first, rest) = CommandStringUtility.Split(arguments);
-                    //var isSwitch = CommandStringUtility.IsSwitch(first);
                     if (first == this.HelpName)
                     {
                         var (arg1, arg2) = CommandStringUtility.Split(rest);

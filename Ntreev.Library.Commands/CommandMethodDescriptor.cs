@@ -44,8 +44,6 @@ namespace Ntreev.Library.Commands
 
         public abstract string Description { get; }
 
-        public abstract IEnumerable<Attribute> Attributes { get; }
-
         public abstract bool IsAsync { get; }
 
         public MethodInfo MethodInfo { get; }
@@ -65,11 +63,11 @@ namespace Ntreev.Library.Commands
         internal void Invoke(object instance, string arguments, IEnumerable<CommandMemberDescriptor> descriptors)
         {
             var parser = new ParseDescriptor(descriptors, arguments);
-            parser.SetValue(instance);
-
             var values = new ArrayList();
             var nameToDescriptors = descriptors.ToDictionary(item => item.DescriptorName);
-            foreach (var item in this.MethodInfo.GetParameters())
+            var parameters = this.MethodInfo.GetParameters();
+            parser.SetValue(instance);
+            foreach (var item in parameters)
             {
                 var descriptor = nameToDescriptors[item.Name];
                 var value = descriptor.GetValueInternal(instance);
@@ -78,11 +76,12 @@ namespace Ntreev.Library.Commands
             this.OnInvoke(instance, values.ToArray());
         }
 
-        internal void Invoke(object instance, IEnumerable<CommandMemberDescriptor> descriptors, bool init)
+        internal void Invoke(object instance, IEnumerable<CommandMemberDescriptor> descriptors)
         {
             var values = new ArrayList();
             var nameToDescriptors = descriptors.ToDictionary(item => item.DescriptorName);
-            foreach (var item in this.MethodInfo.GetParameters())
+            var parameters = this.MethodInfo.GetParameters();
+            foreach (var item in parameters)
             {
                 var descriptor = nameToDescriptors[item.Name];
                 var value = descriptor.GetValueInternal(instance);

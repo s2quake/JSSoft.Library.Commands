@@ -32,8 +32,6 @@ namespace Ntreev.Library.Commands.Test
         {
             var parser = new CommandLineParser(this);
             parser.ParseWith("get database=a port=123 userid=abc password=1234 comment=\"connect database to \\\"a\\\"\"");
-
-            var props = CommandStringUtility.ArgumentsToDictionary(this.Arguments);
         }
 
         [TestMethod]

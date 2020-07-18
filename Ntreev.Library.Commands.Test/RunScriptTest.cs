@@ -41,7 +41,8 @@ namespace Ntreev.Library.Commands.Test
             Assert.AreEqual(this.Filename, "C:\\script.js");
             Assert.AreEqual(this.Script, string.Empty);
             Assert.IsFalse(this.List);
-            Assert.IsNull(this.Arguments);
+            Assert.IsNotNull(this.Arguments);
+            Assert.AreEqual(0, this.Arguments.Length);
         }
 
         [TestMethod]
@@ -51,7 +52,8 @@ namespace Ntreev.Library.Commands.Test
             Assert.AreEqual(this.Script, "log(1);");
             Assert.AreEqual(this.Filename, string.Empty);
             Assert.IsFalse(this.List);
-            Assert.IsNull(this.Arguments);
+            Assert.IsNotNull(this.Arguments);
+            Assert.AreEqual(0, this.Arguments.Length);
         }
 
         [TestMethod]
@@ -61,7 +63,8 @@ namespace Ntreev.Library.Commands.Test
             Assert.IsTrue(this.List);
             Assert.AreEqual(this.Script, string.Empty);
             Assert.AreEqual(this.Filename, string.Empty);
-            Assert.IsNull(this.Arguments);
+            Assert.IsNotNull(this.Arguments);
+            Assert.AreEqual(0, this.Arguments.Length);
         }
 
         [TestMethod]
@@ -70,7 +73,8 @@ namespace Ntreev.Library.Commands.Test
             this.parser.Parse("run -l");
             Assert.AreEqual(this.Script, string.Empty);
             Assert.AreEqual(this.Filename, string.Empty);
-            Assert.IsNull(this.Arguments);
+            Assert.IsNotNull(this.Arguments);
+            Assert.AreEqual(0, this.Arguments.Length);
         }
 
         [TestMethod]
@@ -80,6 +84,7 @@ namespace Ntreev.Library.Commands.Test
             Assert.IsTrue(this.List);
             Assert.AreEqual(this.Script, string.Empty);
             Assert.AreEqual(this.Filename, string.Empty);
+            Assert.AreEqual(3, this.Arguments.Length);
             foreach (var item in this.Arguments)
             {
                 Assert.IsTrue(Regex.IsMatch(item, ".+=.+"));
@@ -91,6 +96,7 @@ namespace Ntreev.Library.Commands.Test
         {
             this.parser.Parse("run log(1); arg1=1 arg2=text");
             Assert.AreEqual(this.Script, "log(1);");
+            Assert.AreEqual(2, this.Arguments.Length);
             foreach (var item in this.Arguments)
             {
                 Assert.IsTrue(Regex.IsMatch(item, ".+=.+"));

@@ -28,7 +28,6 @@ namespace Ntreev.Library.Commands
 {
     class StandardCommandMethodDescriptor : CommandMethodDescriptor
     {
-        private readonly CommandMethodAttribute attribute;
         private readonly CommandMemberDescriptor[] members;
 
         public StandardCommandMethodDescriptor(MethodInfo methodInfo)
@@ -36,12 +35,10 @@ namespace Ntreev.Library.Commands
         {
             this.DescriptorName = methodInfo.Name;
             this.IsAsync = methodInfo.IsAsync();
-            this.attribute = methodInfo.GetCommandMethodAttribute();
             this.Name = methodInfo.GetName();
             this.DisplayName = methodInfo.GetDisplayName();
             this.Summary = methodInfo.GetSummary();
             this.Description = methodInfo.GetDescription();
-            this.Attributes = methodInfo.GetCustomAttributes();
             this.members = methodInfo.GetMemberDescriptors();
         }
 
@@ -56,8 +53,6 @@ namespace Ntreev.Library.Commands
         public override string Summary { get; }
 
         public override string Description { get; }
-
-        public override IEnumerable<Attribute> Attributes { get; }
 
         public override bool IsAsync { get; }
 

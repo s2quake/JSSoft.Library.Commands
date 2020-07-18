@@ -32,13 +32,13 @@ namespace Ntreev.Library.Commands
         {
             if (attribute == null)
                 throw new ArgumentNullException(nameof(attribute));
-            attribute.InvokeValidate(this);
             this.DescriptorName = descriptorName ?? throw new ArgumentNullException(nameof(descriptorName));
             this.Name = attribute.GetName(descriptorName);
             this.ShortName = attribute.InternalShortName;
             this.IsRequired = attribute.IsRequiredProperty;
-            this.IsExplicit = attribute.IsRequiredProperty == false ? true : attribute.IsExplicitProperty;
+            this.IsExplicit = attribute.IsExplicitProperty;
             this.DefaultValue = attribute.DefaultValue;
+            this.Usage = attribute.GetUsage();
         }
 
         public override string ToString()
@@ -86,9 +86,9 @@ namespace Ntreev.Library.Commands
 
         public abstract Type MemberType { get; }
 
-        public virtual TypeConverter Converter => TypeDescriptor.GetConverter(this.MemberType);
-
         public string DescriptorName { get; }
+
+        public CommandPropertyUsage Usage { get; }
 
         protected abstract void SetValue(object instance, object value);
 

@@ -46,7 +46,7 @@ namespace Ntreev.Library.Commands
 
         public void Execute()
         {
-            this.descriptor.Invoke(this.command, this.descriptor.Members, true);
+            this.descriptor.Invoke(this.command, this.descriptor.Members);
         }
 
         public string[] GetCompletions(CommandCompletionContext completionContext)

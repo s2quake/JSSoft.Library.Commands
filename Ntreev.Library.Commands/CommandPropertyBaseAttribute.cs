@@ -35,7 +35,6 @@ namespace Ntreev.Library.Commands
         protected CommandPropertyBaseAttribute(string name)
             : this(name, char.MinValue)
         {
-
         }
 
         protected CommandPropertyBaseAttribute(string name, char shortName)
@@ -67,18 +66,7 @@ namespace Ntreev.Library.Commands
 
         public object DefaultValue { get; set; } = DBNull.Value;
 
-        protected virtual void Validate(CommandMemberDescriptor descriptor)
-        {
-            if (this.Usage == CommandPropertyUsage.Variables && descriptor.MemberType.IsArray == false)
-                throw new InvalidOperationException($"{nameof(CommandPropertyUsage.Variables)} property must be an array type.");
-        }
-
         protected CommandPropertyUsage Usage { get; set; } = CommandPropertyUsage.General;
-
-        internal void InvokeValidate(CommandMemberDescriptor descriptor)
-        {
-            this.Validate(descriptor);
-        }
 
         internal string GetName(string descriptorName)
         {

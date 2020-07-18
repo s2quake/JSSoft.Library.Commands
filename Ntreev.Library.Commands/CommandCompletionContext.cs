@@ -29,7 +29,7 @@ namespace Ntreev.Library.Commands
         {
             var parser = new ParseDescriptor(members, args);
             var properties = new Dictionary<string, object>();
-            var memberDescriptor = null as CommandMemberDescriptor;
+            var memberDescriptor = (CommandMemberDescriptor)null;
             var itemByDescriptor = parser.Items.ToDictionary(item => item.Descriptor);
 
             foreach (var item in itemByDescriptor)
@@ -39,7 +39,7 @@ namespace Ntreev.Library.Commands
                 if (parseInfo.IsParsed == true)
                 {
                     properties.Add(descriptor.DescriptorName, parseInfo.Value);
-                    if (descriptor is CommandMemberArrayDescriptor == false)
+                    if (descriptor.Usage != CommandPropertyUsage.Variables)
                         itemByDescriptor.Remove(descriptor);
                 }
             }

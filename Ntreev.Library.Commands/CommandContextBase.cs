@@ -33,13 +33,12 @@ namespace Ntreev.Library.Commands
 {
     public abstract class CommandContextBase
     {
-        private const string redirectionPattern = "(>{1,2}[^>]+)";
         private readonly CommandNode commandNode = new CommandNode();
         private readonly ICommand helpCommand;
         private readonly ICommand versionCommand;
-        private FileVersionInfo versionInfo;
-        private string fullName;
-        private string filename;
+        private readonly FileVersionInfo versionInfo;
+        private readonly string fullName;
+        private readonly string filename;
 
         protected CommandContextBase(IEnumerable<ICommand> commands)
             : this(Assembly.GetEntryAssembly(), commands)

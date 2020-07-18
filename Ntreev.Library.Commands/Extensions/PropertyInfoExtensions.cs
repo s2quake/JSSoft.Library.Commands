@@ -23,6 +23,8 @@ using System.ComponentModel;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Collections;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace Ntreev.Library.Commands.Extensions
 {
@@ -35,30 +37,6 @@ namespace Ntreev.Library.Commands.Extensions
                         where item is CommandPropertyTriggerAttribute
                         select item as CommandPropertyTriggerAttribute;
             return query.ToArray();
-        }
-
-        public static object GetDefaultValue(this PropertyInfo propertyInfo)
-        {
-            var attr = propertyInfo.GetCustomAttribute<DefaultValueAttribute>();
-            if (attr == null)
-                return DBNull.Value;
-            var value = attr.Value;
-            if (value == null)
-            {
-                if (propertyInfo.PropertyType.IsClass == false)
-                    return DBNull.Value;
-                return null;
-            }
-            if (value.GetType() == propertyInfo.PropertyType)
-                return value;
-            if (propertyInfo.PropertyType.IsArray == true)
-                return Parser.ParseArray(propertyInfo.PropertyType, value.ToString());
-            return propertyInfo.GetConverter().ConvertFrom(value);
-        }
-
-        public static TypeConverter GetConverter(this PropertyInfo propertyInfo)
-        {
-            return (propertyInfo as ICustomAttributeProvider).GetConverter(propertyInfo.PropertyType);
         }
 
         public static string GetSummary(this PropertyInfo propertyInfo)

@@ -77,6 +77,18 @@ namespace Ntreev.Library.Commands
             }
         }
 
+        public object InitValue
+        {
+            get
+            {
+                if (this.Descriptor.InitValue != DBNull.Value)
+                    return this.Descriptor.InitValue;
+                if (this.Descriptor.MemberType.IsValueType == true)
+                    return Activator.CreateInstance(this.Descriptor.MemberType);
+                return null;
+            }
+        }
+
         public bool HasSwtich { get; internal set; }
     }
 }

@@ -23,7 +23,7 @@ using System.IO;
 namespace Ntreev.Library.Commands.Test
 {
     [TestClass]
-    public class ParseTest
+    public class ParseTest : ISupportInitialize
     {
         private readonly CommandLineParser parser;
 
@@ -85,5 +85,19 @@ namespace Ntreev.Library.Commands.Test
         {
             get; set;
         }
+
+        #region ISupportInitialize
+
+        void ISupportInitialize.BeginInit()
+        {
+
+        }
+
+        void ISupportInitialize.EndInit()
+        {
+
+        }
+
+        #endregion
     }
 }

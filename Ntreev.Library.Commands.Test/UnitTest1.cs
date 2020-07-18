@@ -92,7 +92,7 @@ namespace Ntreev.Library.Commands.Test
                 Assert.AreEqual("wow", this.Message);
             }
 
-            [CommandProperty('m', Usage = CommandPropertyUsage.ExplicitRequired)]
+            [CommandPropertyRequired('m', IsExplicit = true)]
             public string Message
             {
                 get; set;

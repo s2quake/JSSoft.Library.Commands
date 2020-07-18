@@ -16,6 +16,7 @@
 //OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -38,7 +39,9 @@ namespace Ntreev.Library.Commands
             this.MemberType = propertyInfo.PropertyType;
             this.Summary = propertyInfo.GetSummary();
             this.Description = propertyInfo.GetDescription();
-            this.InitValue = propertyInfo.GetDefaultValue();
+            this.InitValue = GetDefaultValue(propertyInfo);
+            if (this.Usage == CommandPropertyUsage.Variables && this.MemberType.IsArray == false)
+                throw new InvalidOperationException($"{nameof(CommandPropertyUsage.Variables)} property must be an array type.");
         }
 
         public override string DisplayName
@@ -48,6 +51,8 @@ namespace Ntreev.Library.Commands
                 var displayName = propertyInfo.GetDisplayName();
                 if (displayName != string.Empty)
                     return displayName;
+                if (Usage == CommandPropertyUsage.Variables)
+                    return $"{base.DisplayName}...";
                 return base.DisplayName;
             }
         }
@@ -71,8 +76,6 @@ namespace Ntreev.Library.Commands
                 return base.DefaultValue;
             }
         }
-
-        public override TypeConverter Converter => this.propertyInfo.GetConverter();
 
         protected override void SetValue(object instance, object value)
         {
@@ -126,8 +129,6 @@ namespace Ntreev.Library.Commands
 
         private static object GetDefaultValue(Type propertyType, object value)
         {
-            if (value == DBNull.Value)
-                return value;
             if (value == null)
             {
                 if (propertyType.IsClass == false)
@@ -137,8 +138,29 @@ namespace Ntreev.Library.Commands
             if (value.GetType() == propertyType)
                 return value;
             if (propertyType.IsArray == true)
-                return Parser.ParseArray(propertyType, value.ToString());
+            {
+                if (value is IEnumerable enumerable)
+                {
+                    var itemList = new List<object>();
+                    var elementType = propertyType.GetElementType();
+                    var elementConverter = TypeDescriptor.GetConverter(elementType);
+                    foreach (var item in enumerable)
+                    {
+                        itemList.Add(elementConverter.ConvertFrom(item));
+                    }
+                    return itemList.ToArray();
+                }
+            }
             return TypeDescriptor.GetConverter(propertyType).ConvertFrom(value);
+        }
+
+        private static object GetDefaultValue(PropertyInfo propertyInfo)
+        {
+            var attr = propertyInfo.GetCustomAttribute<DefaultValueAttribute>();
+            var propertyType = propertyInfo.PropertyType;
+            if (attr == null)
+                return DBNull.Value;
+            return GetDefaultValue(propertyType, attr.Value);
         }
     }
 }

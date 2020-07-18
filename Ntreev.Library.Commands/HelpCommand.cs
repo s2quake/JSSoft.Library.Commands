@@ -49,7 +49,6 @@ namespace Ntreev.Library.Commands
             return base.GetCompletions(completionContext);
         }
 
-        // [DisplayName("commands ...")]
         [DefaultValue("")]
         [CommandPropertyArray()]
         public string[] CommandNames { get; set; } = new string[] { };
@@ -92,8 +91,10 @@ namespace Ntreev.Library.Commands
         private void PrintList()
         {
             using var writer = new CommandTextWriter();
-            var parser = new CommandLineParser(this.Name, this);
-            parser.Out = writer;
+            var parser = new CommandLineParser(this.Name, this)
+            {
+                Out = writer
+            };
             parser.PrintUsage(string.Empty);
             writer.WriteLine(Resources.AvaliableCommands);
             writer.Indent++;

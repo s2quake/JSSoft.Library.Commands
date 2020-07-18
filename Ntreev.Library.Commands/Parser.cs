@@ -100,7 +100,6 @@ namespace Ntreev.Library.Commands
         private static object ParseArray(CommandMemberDescriptor descriptor, string arg)
         {
             System.Collections.IList list;
-
             if (descriptor.MemberType.IsArray == true)
             {
                 list = new System.Collections.ArrayList() as System.Collections.IList;
@@ -115,7 +114,6 @@ namespace Ntreev.Library.Commands
                 throw new NotSupportedException();
 
             var segments = arg.Split(new char[] { CommandSettings.ItemSperator });
-
             try
             {
                 var converter = TypeDescriptor.GetConverter(itemType);
@@ -169,8 +167,7 @@ namespace Ntreev.Library.Commands
 
         private static object ParseDefault(CommandMemberDescriptor descriptor, string arg)
         {
-            var converter = descriptor.Converter;
-
+            var converter = TypeDescriptor.GetConverter(descriptor.MemberType);
             if (converter.CanConvertFrom(typeof(string)) == false)
                 throw new NotSupportedException(string.Format(Resources.CannotConvert_Format, arg));
 

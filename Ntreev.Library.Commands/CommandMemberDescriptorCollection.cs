@@ -64,9 +64,10 @@ namespace Ntreev.Library.Commands
         {
             var query = from item in this.descriptors
                         orderby item.InitValue == DBNull.Value descending
-                        orderby item.IsRequired descending
-                        orderby item is CommandMemberArrayDescriptor
-                        orderby item.IsExplicit
+                        orderby item.Usage == CommandPropertyUsage.Required
+                        orderby item.Usage == CommandPropertyUsage.ExplicitRequired
+                        orderby item.Usage == CommandPropertyUsage.General
+                        orderby item.Usage == CommandPropertyUsage.Variables
                         select item;
             var items = query.ToArray();
             this.descriptors.Clear();

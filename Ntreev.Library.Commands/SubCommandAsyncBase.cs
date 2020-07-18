@@ -47,7 +47,7 @@ namespace Ntreev.Library.Commands
 
         public Task ExecuteAsync()
         {
-            return Task.Run(() => this.descriptor.Invoke(this.command, this.descriptor.Members, true));
+            return Task.Run(() => this.descriptor.Invoke(this.command, this.descriptor.Members));
         }
 
         public string[] GetCompletions(CommandCompletionContext completionContext)
