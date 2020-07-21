@@ -19,10 +19,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using Ntreev.Library.Commands.Extensions;
+using Ntreev.Library.Commands.Properties;
 
 namespace Ntreev.Library.Commands
 {
@@ -41,7 +43,7 @@ namespace Ntreev.Library.Commands
             this.Description = propertyInfo.GetDescription();
             this.InitValue = GetDefaultValue(propertyInfo);
             if (this.Usage == CommandPropertyUsage.Variables && this.MemberType.IsArray == false)
-                throw new InvalidOperationException($"{nameof(CommandPropertyUsage.Variables)} property must be an array type.");
+                throw new InvalidOperationException(string.Format(Resources.Exception_VariablesPropertyMustBeAnArrayType_Format, nameof(CommandPropertyUsage.Variables)));
         }
 
         public override string DisplayName
@@ -104,10 +106,10 @@ namespace Ntreev.Library.Commands
                 foreach (var item in items)
                 {
                     if (descriptorByName.ContainsKey(item.PropertyName) == false)
-                        throw new InvalidOperationException(string.Format("'{0}' property does not exists.", item.PropertyName));
+                        throw new InvalidOperationException(string.Format(Resources.Exception_PropertyDoesNotExists_Format, item.PropertyName));
                     var triggerDescriptor = descriptorByName[item.PropertyName];
                     if (triggerDescriptor is CommandPropertyDescriptor == false)
-                        throw new InvalidOperationException(string.Format("'{0}' is not property", item.PropertyName));
+                        throw new InvalidOperationException(string.Format(Resources.Exception_NotProperty_Format, item.PropertyName));
 
                     var parseInfo = infoByDescriptor[triggerDescriptor];
                     var value1 = parseInfo.ActualValue;
@@ -116,12 +118,12 @@ namespace Ntreev.Library.Commands
                     if (item.IsInequality == false)
                     {
                         if (object.Equals(value1, value2) == false)
-                            throw new InvalidOperationException(string.Format("'{0}' can not use. '{1}' property value must be '{2}'", this.DisplayName, triggerDescriptor.DisplayName, value2));
+                            throw new InvalidOperationException(string.Format(Resources.Exception_Trigger_CannotUseProperty_Format, this.DisplayName, triggerDescriptor.DisplayName, value2));
                     }
                     else
                     {
                         if (object.Equals(value1, value2) == true)
-                            throw new InvalidOperationException(string.Format("'{0}' can not use. '{1}' property value must be not '{2}'", this.DisplayName, triggerDescriptor.DisplayName, value2));
+                            throw new InvalidOperationException(string.Format(Resources.Exception_Trigger_CannotUsePropertyNot_Format, this.DisplayName, triggerDescriptor.DisplayName, value2));
                     }
                 }
             }

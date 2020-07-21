@@ -26,7 +26,7 @@ namespace Ntreev.Library.Commands
     public class CommandNotFoundException : Exception
     {
         public CommandNotFoundException(string methodName)
-            : base(string.Format(Resources.MethodDoesNotExist_Format, methodName))
+            : base(string.Format(Resources.Exception_MethodDoesNotExist_Format, methodName))
         {
 
         }

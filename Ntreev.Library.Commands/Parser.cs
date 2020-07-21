@@ -139,7 +139,7 @@ namespace Ntreev.Library.Commands
             }
             catch (Exception e)
             {
-                throw new ArgumentException(Resources.InvalidArgumentType, descriptor.Name, e);
+                throw new ArgumentException(Resources.Exception_InvalidArgumentType, descriptor.Name, e);
             }
             return list;
         }
@@ -157,7 +157,7 @@ namespace Ntreev.Library.Commands
             foreach (var item in segments)
             {
                 if (names.ContainsKey(item) == false)
-                    throw new InvalidOperationException(string.Format("'{0}' is invalid value", arg));
+                    throw new InvalidOperationException(string.Format(Resources.Exception_InvalidValue_Format, arg));
 
                 nameList.Add(names[item]);
             }
@@ -169,7 +169,7 @@ namespace Ntreev.Library.Commands
         {
             var converter = TypeDescriptor.GetConverter(descriptor.MemberType);
             if (converter.CanConvertFrom(typeof(string)) == false)
-                throw new NotSupportedException(string.Format(Resources.CannotConvert_Format, arg));
+                throw new NotSupportedException(string.Format(Resources.Exception_CannotConvert_Format, arg));
 
             try
             {
@@ -177,7 +177,7 @@ namespace Ntreev.Library.Commands
             }
             catch (Exception e)
             {
-                throw new ArgumentException(Resources.InvalidArgumentType, descriptor.Name, e);
+                throw new ArgumentException(Resources.Exception_InvalidArgumentType, descriptor.Name, e);
             }
         }
 

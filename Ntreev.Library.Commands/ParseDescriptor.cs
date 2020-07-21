@@ -208,9 +208,9 @@ namespace Ntreev.Library.Commands
                 if (item.IsParsed == true)
                     continue;
                 if (item.HasSwtich == true && item.Value == DBNull.Value)
-                    throw new ArgumentException($"{descriptor.DisplayName}에 값이 설정되지 않았습니다.");
+                    throw new ArgumentException(string.Format(Resources.Exception_ValudIsNotSet_Format, descriptor.DisplayName));
                 if (descriptor.IsRequired == true && item.Value == DBNull.Value)
-                    throw new ArgumentException($"필수 인자 {descriptor.DisplayName}가 빠져있습니다");
+                    throw new ArgumentException(string.Format(Resources.Exception_ValudIsNotSet_Format, descriptor.DisplayName));
             }
         }
     }

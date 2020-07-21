@@ -48,7 +48,7 @@ namespace Ntreev.Library.Commands
                             where item.Name == name
                             select item;
                 if (query.Any() == false)
-                    throw new KeyNotFoundException(string.Format(Resources.MethodDoesNotExist_Format, name));
+                    throw new KeyNotFoundException(string.Format(Resources.Exception_MethodDoesNotExist_Format, name));
                 return query.First();
             }
         }

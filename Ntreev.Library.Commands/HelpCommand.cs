@@ -98,7 +98,7 @@ namespace Ntreev.Library.Commands
                 Out = writer
             };
             parser.PrintUsage(string.Empty);
-            writer.WriteLine(Resources.AvaliableCommands);
+            writer.WriteLine(Resources.Text_AvaliableCommands);
             writer.Indent++;
             foreach (var item in this.CommandContext.Node.Childs)
             {

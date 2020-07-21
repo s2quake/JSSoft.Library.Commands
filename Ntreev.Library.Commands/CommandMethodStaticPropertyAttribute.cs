@@ -15,6 +15,7 @@
 //COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR 
 //OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using Ntreev.Library.Commands.Properties;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,7 +46,7 @@ namespace Ntreev.Library.Commands
             }
             else
             {
-                throw new ArgumentException("type is not static class.", nameof(type));
+                throw new ArgumentException(Resources.Exception_TypeIsNotStaticClass, nameof(type));
             }
             this.PropertyNames = propertyNames;
         }

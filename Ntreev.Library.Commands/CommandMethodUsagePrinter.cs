@@ -94,7 +94,7 @@ namespace Ntreev.Library.Commands
             var summary = this.Summary;
             if (summary != string.Empty)
             {
-                writer.BeginGroup(Resources.Summary);
+                writer.BeginGroup(Resources.Text_Summary);
                 writer.WriteLine(summary);
                 writer.EndGroup();
             }
@@ -104,7 +104,7 @@ namespace Ntreev.Library.Commands
         {
             if (descriptor.Summary != string.Empty)
             {
-                writer.BeginGroup(Resources.Summary);
+                writer.BeginGroup(Resources.Text_Summary);
                 writer.WriteLine(descriptor.Summary);
                 writer.EndGroup();
             }
@@ -112,7 +112,7 @@ namespace Ntreev.Library.Commands
 
         private void PrintSummary(CommandTextWriter writer, CommandMethodDescriptor _, CommandMemberDescriptor memberDescriptor)
         {
-            writer.BeginGroup(Resources.Summary);
+            writer.BeginGroup(Resources.Text_Summary);
             writer.WriteLine(memberDescriptor.Summary);
             writer.EndGroup();
         }
@@ -122,7 +122,7 @@ namespace Ntreev.Library.Commands
             var description = this.Description;
             if (description != string.Empty && this.IsDetailed == true)
             {
-                writer.BeginGroup(Resources.Description);
+                writer.BeginGroup(Resources.Text_Description);
                 writer.WriteMultiline(description);
                 writer.EndGroup();
             }
@@ -132,7 +132,7 @@ namespace Ntreev.Library.Commands
         {
             if (descriptor.Description != string.Empty && this.IsDetailed == true)
             {
-                writer.BeginGroup(Resources.Description);
+                writer.BeginGroup(Resources.Text_Description);
                 writer.WriteMultiline(descriptor.Description);
                 writer.EndGroup();
             }
@@ -140,14 +140,14 @@ namespace Ntreev.Library.Commands
 
         private void PrintDescription(CommandTextWriter writer, CommandMethodDescriptor _, CommandMemberDescriptor memberDescriptor)
         {
-            writer.BeginGroup(Resources.Description);
+            writer.BeginGroup(Resources.Text_Description);
             writer.WriteMultiline(memberDescriptor.Description);
             writer.EndGroup();
         }
 
         private void PrintSubcommands(CommandTextWriter writer, CommandMethodDescriptor[] descriptors)
         {
-            writer.BeginGroup(Resources.CommandMethod);
+            writer.BeginGroup(Resources.Text_Subcommands);
             foreach (var item in descriptors)
             {
                 writer.WriteLine(item.Name);
@@ -164,21 +164,21 @@ namespace Ntreev.Library.Commands
 
         private void PrintUsage(CommandTextWriter writer, CommandMethodDescriptor[] _)
         {
-            writer.BeginGroup(Resources.Usage);
+            writer.BeginGroup(Resources.Text_Usage);
             writer.WriteLine("{0} <sub-command> [options...]", this.Name);
             writer.EndGroup();
         }
 
         private void PrintUsage(CommandTextWriter writer, CommandMethodDescriptor descriptor, CommandMemberDescriptor[] memberDescriptors)
         {
-            this.BeginGroup(writer, Resources.Usage);
+            this.BeginGroup(writer, Resources.Text_Usage);
             this.PrintMethodUsage(writer, descriptor, memberDescriptors);
             this.EndGroup(writer);
         }
 
         private void PrintUsage(CommandTextWriter writer, CommandMethodDescriptor _, CommandMemberDescriptor memberDescriptor)
         {
-            this.BeginGroup(writer, Resources.Usage);
+            this.BeginGroup(writer, Resources.Text_Usage);
             this.PrintOption(writer, memberDescriptor);
             this.EndGroup(writer);
         }
@@ -212,7 +212,7 @@ namespace Ntreev.Library.Commands
             if (items.Any() == false)
                 return;
 
-            writer.BeginGroup(Resources.Requirements);
+            writer.BeginGroup(Resources.Text_Requirements);
             for (var i = 0; i < items.Length; i++)
             {
                 var item = items[i];
@@ -228,7 +228,7 @@ namespace Ntreev.Library.Commands
             var variables = memberDescriptors.FirstOrDefault(item => item.Usage == CommandPropertyUsage.Variables);
             if (variables != null)
             {
-                this.BeginGroup(writer, Resources.Variables);
+                this.BeginGroup(writer, Resources.Text_Variables);
                 this.PrintVariables(writer, variables);
                 this.EndGroup(writer);
             }
@@ -242,7 +242,7 @@ namespace Ntreev.Library.Commands
             if (items.Any() == false)
                 return;
 
-            writer.BeginGroup(Resources.Options);
+            writer.BeginGroup(Resources.Text_Options);
             for (var i = 0; i < items.Length; i++)
             {
                 var item = items[i];
