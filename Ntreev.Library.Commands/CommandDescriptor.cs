@@ -21,6 +21,7 @@ using System.Linq;
 using System.Text;
 using System.ComponentModel;
 using System.Reflection;
+using Ntreev.Library.Commands.Properties;
 
 namespace Ntreev.Library.Commands
 {
@@ -177,7 +178,7 @@ namespace Ntreev.Library.Commands
                 if (item.GetCustomAttribute<BrowsableAttribute>() is BrowsableAttribute browsableAttribute && browsableAttribute.Browsable == false)
                     continue;
                 if (item.CanWrite == false)
-                    throw new Exception(string.Format("'{0}' is not available because it cannot write.", item.Name));
+                    throw new Exception(string.Format(Resources.Exception_PropertyCannotUse_Format, item.Name));
                 descriptors.Add(new CommandPropertyDescriptor(item));
             }
 
@@ -187,7 +188,7 @@ namespace Ntreev.Library.Commands
             }
 
             if (descriptors.Where(item => item.Usage == CommandPropertyUsage.Variables).Count() > 1)
-                throw new InvalidOperationException($"{nameof(CommandPropertyUsage.Variables)} is can be used only once.");
+                throw new InvalidOperationException(string.Format(Resources.Exception_VariablesCannotBeUsedAsMultiple_Format, nameof(CommandPropertyUsage.Variables)));
 
             descriptors.Sort();
 

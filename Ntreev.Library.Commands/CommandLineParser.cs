@@ -58,7 +58,7 @@ namespace Ntreev.Library.Commands
         public CommandLineParser(string name, object instance)
         {
             if (name == string.Empty)
-                throw new ArgumentException("empty string not allowed.");
+                throw new ArgumentException(Resources.Exception_EmptyStringsAreNotAllowed);
             this.Name = name ?? throw new ArgumentNullException(nameof(name));
             this.fullName = name;
             this.filename = name;
@@ -113,7 +113,7 @@ namespace Ntreev.Library.Commands
         public void Parse(string name, string arguments)
         {
             if (this.VerifyName(name) == false)
-                throw new ArgumentException(string.Format(Resources.InvalidCommandName_Format, name));
+                throw new ArgumentException(string.Format(Resources.Exception_InvalidCommandName_Format, name));
             if (arguments == this.HelpName || arguments == this.VersionName)
                 throw new ArgumentException();
             var descriptors = CommandDescriptor.GetMemberDescriptors(this.Instance).ToArray();
@@ -170,7 +170,7 @@ namespace Ntreev.Library.Commands
         public void Invoke(string name, string arguments)
         {
             if (this.VerifyName(name) == false)
-                throw new ArgumentException(string.Format(Resources.InvalidCommandName_Format, name));
+                throw new ArgumentException(string.Format(Resources.Exception_InvalidCommandName_Format, name));
 
             var (first, rest) = CommandStringUtility.Split(arguments);
             var instance = this.Instance;
@@ -244,7 +244,7 @@ namespace Ntreev.Library.Commands
             {
                 var descriptor = CommandMemberDescriptor.Find(memberDescriptors, memberName);
                 if (descriptor == null)
-                    throw new InvalidOperationException(string.Format(Resources.MemberDoesNotExist_Format, memberName));
+                    throw new InvalidOperationException(string.Format(Resources.Exception_MemberDoesNotExist_Format, memberName));
                 printer.Print(writer, descriptor);
             }
         }
@@ -276,7 +276,7 @@ namespace Ntreev.Library.Commands
                 {
                     var memberDescriptor = CommandMemberDescriptor.Find(methodDescriptor.Members, memberName);
                     if (memberDescriptor == null)
-                        throw new InvalidOperationException(string.Format(Resources.MemberDoesNotExist_Format, memberName));
+                        throw new InvalidOperationException(string.Format(Resources.Exception_MemberDoesNotExist_Format, memberName));
                     printer.Print(writer, methodDescriptor, memberDescriptor);
                 }
             }

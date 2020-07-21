@@ -44,7 +44,7 @@ namespace Ntreev.Library.Commands
             set
             {
                 if (value.Any(item => char.IsPunctuation(item)) == false)
-                    throw new Exception(Resources.DelimiterMustBePunctuation);
+                    throw new Exception(Resources.Exception_DelimiterMustBePunctuation);
                 delimiter = value;
             }
         }
@@ -55,7 +55,7 @@ namespace Ntreev.Library.Commands
             set
             {
                 if (value.Any(item => char.IsPunctuation(item)) == false)
-                    throw new Exception(Resources.DelimiterMustBePunctuation);
+                    throw new Exception(Resources.Exception_DelimiterMustBePunctuation);
                 shortDelimiter = value;
             }
         }
@@ -66,7 +66,7 @@ namespace Ntreev.Library.Commands
             set
             {
                 if (char.IsPunctuation(value) == false)
-                    throw new Exception(Resources.DelimiterMustBePunctuation);
+                    throw new Exception(Resources.Exception_DelimiterMustBePunctuation);
                 itemSeparator = value;
             }
         }
@@ -88,7 +88,7 @@ namespace Ntreev.Library.Commands
         internal static void ValidateIdentifier(string name)
         {
             if (Regex.IsMatch(name, $"^{SwitchPattern}") == false)
-                throw new ArgumentException(string.Format("{0} is a invalid member name", name));
+                throw new ArgumentException(string.Format(Resources.Exception_InvalidValue_Format, name));
         }
 
         internal static bool VerifyName(string argument)

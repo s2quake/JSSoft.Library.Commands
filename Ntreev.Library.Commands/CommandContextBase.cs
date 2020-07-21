@@ -63,7 +63,7 @@ namespace Ntreev.Library.Commands
         protected CommandContextBase(string name, IEnumerable<ICommand> commands)
         {
             if (name == string.Empty)
-                throw new ArgumentException("empty string not allowed.");
+                throw new ArgumentException(Resources.Exception_EmptyStringsAreNotAllowed);
             this.Name = name ?? throw new ArgumentNullException(nameof(name));
             this.fullName = name;
             this.filename = name;
@@ -96,7 +96,7 @@ namespace Ntreev.Library.Commands
         public void Execute(string name, string arguments)
         {
             if (this.VerifyName(name) == false)
-                throw new ArgumentException(string.Format(Resources.InvalidCommandName_Format, name));
+                throw new ArgumentException(string.Format(Resources.Exception_InvalidCommandName_Format, name));
 
             this.ExecuteInternal(arguments);
         }
@@ -162,9 +162,9 @@ namespace Ntreev.Library.Commands
             {
                 var commandName = item.Name;
                 if (parentNode.Childs.ContainsKey(commandName) == true && item.GetType().GetCustomAttribute<PartialCommandAttribute>() == null)
-                    throw new InvalidOperationException($"'{commandName}' command already exists.");
+                    throw new InvalidOperationException(string.Format(Resources.Exception_CommandAlreadyExists_Format, commandName));
                 if (parentNode.Childs.ContainsKey(commandName) == false && item.GetType().GetCustomAttribute<PartialCommandAttribute>() != null)
-                    throw new InvalidOperationException($"'{commandName}' command does not exists.");
+                    throw new InvalidOperationException(string.Format(Resources.Exception_CommandDoesNotExists_Format, commandName));
                 if (parentNode.Childs.ContainsKey(commandName) == false)
                 {
                     parentNode.Childs.Add(new CommandNode()
@@ -254,8 +254,8 @@ namespace Ntreev.Library.Commands
             if (commandLine == string.Empty)
             {
                 var sb = new StringBuilder();
-                sb.AppendLine(string.Format(Resources.HelpMessage_Format, this.helpCommand.Name));
-                sb.AppendLine(string.Format(Resources.VersionMessage_Format, this.versionCommand.Name));
+                sb.AppendLine(string.Format(Resources.Message_Help_Format, this.helpCommand.Name));
+                sb.AppendLine(string.Format(Resources.Message_Version_Format, this.versionCommand.Name));
                 this.Out.Write(sb.ToString());
             }
             else
@@ -271,7 +271,7 @@ namespace Ntreev.Library.Commands
                 }
                 else
                 {
-                    throw new ArgumentException(string.Format("'{0}' does not existed command.", commandLine));
+                    throw new ArgumentException(string.Format(Resources.Exception_CommandDoesNotExists_Format, commandLine));
                 }
             }
         }

@@ -42,10 +42,10 @@ namespace Ntreev.Library.Commands
             if (name == null)
                 throw new ArgumentNullException(nameof(name));
             if (name.Length <= 1)
-                throw new ArgumentException("name length must be greater than 1", nameof(name));
+                throw new ArgumentException(Resources.Exception_NameLengthMustBeGreaterThanOne, nameof(name));
             CommandSettings.ValidateIdentifier(name);
             if (shortName != char.MinValue && Regex.IsMatch(shortName.ToString(), "[a-z]", RegexOptions.IgnoreCase) == false)
-                throw new ArgumentException("shortName must be a alphabet character");
+                throw new ArgumentException(Resources.Exception_ShortNameMustBe_AlphabetCharacter, nameof(shortName));
             this.Name = name;
             this.ShortName = shortName;
         }
@@ -53,7 +53,7 @@ namespace Ntreev.Library.Commands
         protected CommandPropertyBaseAttribute(char shortName)
         {
             if (shortName != char.MinValue && Regex.IsMatch(shortName.ToString(), "[a-z]", RegexOptions.IgnoreCase) == false)
-                throw new ArgumentException("shortName must be a alphabet character", nameof(shortName));
+                throw new ArgumentException(Resources.Exception_ShortNameMustBe_AlphabetCharacter, nameof(shortName));
             this.ShortName = shortName;
             this.AllowName = false;
         }

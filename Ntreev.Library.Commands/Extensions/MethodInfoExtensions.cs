@@ -23,6 +23,7 @@ using System.ComponentModel;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Ntreev.Library.Commands.Properties;
 
 namespace Ntreev.Library.Commands.Extensions
 {
@@ -76,7 +77,7 @@ namespace Ntreev.Library.Commands.Extensions
                 {
                     var memberDescriptor = CommandDescriptor.GetMemberDescriptors(methodInfo.DeclaringType)[item];
                     if (memberDescriptor == null)
-                        throw new ArgumentException(string.Format("'{0}' attribute does not existed .", item));
+                        throw new ArgumentException(string.Format(Resources.Exception_AttributeDoesNotExists_Format, item));
                     memberList.Add(memberDescriptor);
                 }
             }

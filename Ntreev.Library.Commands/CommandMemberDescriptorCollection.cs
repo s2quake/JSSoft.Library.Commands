@@ -51,7 +51,7 @@ namespace Ntreev.Library.Commands
                             where item.DescriptorName == name
                             select item;
                 if (query.Any() == false)
-                    throw new KeyNotFoundException(string.Format(Resources.MemberDoesNotExist_Format, name));
+                    throw new KeyNotFoundException(string.Format(Resources.Exception_MemberDoesNotExist_Format, name));
                 return query.First();
             }
         }
@@ -80,12 +80,12 @@ namespace Ntreev.Library.Commands
             {
                 if (item.Name != string.Empty && descriptor.Name != string.Empty && descriptor.Name == item.Name)
                 {
-                    throw new ArgumentException(string.Format("{0} 은(는) 이미 존재하는 이름입니다.", descriptor.Name), nameof(descriptor));
+                    throw new ArgumentException(string.Format(Resources.Exception_NameAlreadyExists_Format, descriptor.Name), nameof(descriptor));
                 }
 
                 if (item.ShortName != string.Empty && descriptor.ShortName != string.Empty && descriptor.ShortName == item.ShortName)
                 {
-                    throw new ArgumentException(string.Format("{0} 은(는) 이미 존재하는 이름입니다.", descriptor.ShortName), nameof(descriptor));
+                    throw new ArgumentException(string.Format(Resources.Exception_NameAlreadyExists_Format, descriptor.ShortName), nameof(descriptor));
                 }
             }
 
