@@ -1,222 +1,412 @@
-===========================================
+# Ntreev.Library.Commands
 
-[![NuGet version (Ntreev.Library.Commands)](https://img.shields.io/nuget/v/Ntreev.Library.Commands.svg)](https://www.nuget.org/packages/Ntreev.Library.Commands/)
+## 개요
 
-Example
-=======
+명령 구문을 분석하여 지정된 객체의 속성의 값을 채우거나 함수를 호출 할 수 있는 기능을 제공합니다.
 
-Parse
---------------
+명령어 집합을 구축하여 응용프로그램을 제어할 수 있도록 콘솔 환경을 제공합니다.
 
-명령구문을 분석해 미리 정의된 속성에 값을 설정하는 기능입니다.
+## Parse
 
-명령구문에 포함시킬 속성은 CommandPropertyAttribute로 설정합니다. 
-
-이름은 [kebab-case (spinal-case, Train-Case, Lisp-case)](https://en.wikipedia.org/wiki/Letter_case) 형태로 설정되며 CommandPropertyAttribute 생성자에 이름을 명시적으로 설정할 수 있습니다.
-
-해당 속성에 대한 요약은 SummaryAttribute를 작성할 수 있고 좀더 자세한 설명이 필요할때는 DescriptionAttribute를 통해서 작성할 수 있습니다.
-
-명령 구문에 특정 속성이 반드시 필요할때는 IsRequired를 true로 설정하면 됩니다.
-
-IsRequired 가 설정된 속성은 명령구문에서 스위치값을 생략할 수 있으며 그 외에 속성은 --[이름] [변수] 또는 -[짧은이름] [변수] 형태여야 합니다.
+명령 구문을 분석하는 가장 기본적인 방법입니다. 지정된 속성에 값을 설정해주는 기능을 제공합니다.
 
 ```csharp
-using System;
-using Ntreev.Library.Commands;
-using System.ComponentModel;
+var settings = new Settings();
+var parser = new CommandLineParser(settings);
+parser.Parse(Environment.CommandLine);
+```
 
-namespace ConsoleApp
+## Invoke
+
+Parse의 확장 기능으로써 명령 구문을 분석하여 지정된 메서드를 호출하는 기능을 제공합니다.
+
+```csharp
+var commands = new Commands();
+var parser = new CommandLineParser(commands);
+parser.Invoke(Environment.CommandLine);
+```
+
+## CommandContext
+
+보다 많은 명령어를 관리하며 처리할 수 있도록 다양한 기능을 제공합니다.
+
+EditBox, TextBox, InputText 와 같은 사용자 입력과 조합하여 콘솔 또는 REPL 과 같은 환경을 구축할 수 있습니다.
+
+```csharp
+var commands = new ICommand[]
 {
-    class Settings
+    new LoginCommand(),
+    new LogoutCommand(),
+    new ExitCommand()
+};
+var commandContext = new CommandContext(commands);
+commandContext.Execute(Environment.CommandLine);
+```
+
+## 속성 정의
+
+### 필수 인자
+
+명령 구문시 필수로 요구되는 값을 정의하기 위해서는 속성에 CommandPropertyRequired 를 정의합니다.
+
+```csharp
+[CommandPropertyRequired]
+public string Value1 { get; set; }
+
+[CommandPropertyRequired]
+public int Value2 { get; set; }
+```
+
+```plain
+"value"   // error! value for Value2 does not exists.
+3         // format error!
+"value" 3 // Value1 is "value", Value2 is 3
+```
+
+다음과 같이 기본값을 설정할 수 있습니다. 명령 구문에 값이 없을 경우 기본값으로 대체 됩니다.
+
+```csharp
+[CommandPropertyRequired]
+public string Value1 { get; set; }
+
+[CommandPropertyRequired(DefaultValue = 1)]
+public int Value2 { get; set; }
+```
+
+```plain
+"value" 2 // Value1 is "value", Value2 is 2
+"value"   // Value1 is "value", Value2 is 1
+```
+
+### 명시적 필수 인자
+
+명시적인 필수 인자는 명령 구문에 반드시 값이 있어야 하지만 --value "2" 처럼 스위치 문을 같이 포함해야 하는 것을 나타냅니다.
+
+```csharp
+[CommandPropertyRequired]
+public string Value1 { get; set; }
+
+[CommandPropertyRequired(IsExplicit = true)]
+public int Value2 { get; set; }
+```
+
+```plain
+"value"            // error!
+"value" 2          // error!
+"value" --value2   // error!
+"value" --value2 3 // Value1 is "value", Value2 is 3
+--value2 3 "value" // Value1 is "value", Value2 is 3
+```
+
+명시적 필수 인자의 기본값을 사용하기 위해서는 명령 구문에 --value 와 같이 스위치문이  포함되야 합니다.
+
+```csharp
+[CommandPropertyRequired]
+public string Value1 { get; set; }
+
+[CommandPropertyRequired(IsExplicit = true, DefaultValue = 1)]
+public int Value2 { get; set; }
+```
+
+```plain
+"value"            // error!
+"value" 2          // error!
+"value" --value2   // Value1 is "value", Value2 is 1
+"value" --value2 3 // Value1 is "value", Value2 is 3
+--value2 3 "value" // Value1 is "value", Value2 is 3
+--value2 "value"   // error! "value" is not int
+```
+
+### 선택 인자
+
+선택 인자는 스위치문을 사용하여 값의 사용 유무를 정할 수 있습니다.
+
+```csharp
+[CommandProperty]
+public string Value { get; set; }
+```
+
+```plain
+--value      // error
+--value text // value is "text"
+```
+
+기본값을 사용하기 위해서는 명령 구문에 --value 와 같이 스위치문이 포함되야 합니다.
+
+```csharp
+[CommandProperty(DefaultValue = "1")]
+public string Value { get; set; }
+```
+
+```plain
+--value      // value is "1"
+--value text // value is "text"
+```
+
+속성이 bool일때 기본값이 명시되어 있지 않다면 자동으로 기본값 true로 설정됩니다.
+
+### 가변 인자
+
+가변 인자는 명령 구문에서 파싱되지 않은 나머지 인자들의 값을 나타냅니다.
+가변 인자의 속성 타입은 반드시 배열이여야만 하고 오직 하나의 속성에만 정의되야 합니다.
+
+```csharp
+[CommandPropertyArray]
+public string[] Values { get; set; }
+```
+
+```plain
+-- value1 value2 value3 "value4"
+```
+
+## 메서드 정의
+
+명령 구문을 통해 특성 메서드를 실행하기 위해서는 다음과 같이 해당 메서드에 CommandMethod를 정의해야 합니다.
+
+메서드의 각각의 파라미터는 자동으로 필수 인자로 정의됩니다.
+
+```csharp
+[CommandMethod]
+public void Save(string message)
+{
+}
+```
+
+```plain
+save "message"
+```
+
+만약에 메서드에 추가적으로 선택인자를 정의하고 싶다면 CommandMethodProperty 를 사용하여 CommandProperty 로 정의된 속성의 이름을 추가하면 됩니다.
+
+```csharp
+[CommandMethod]
+[CommandMethodProperty("Value")]
+public void Save(string message)
+{
+}
+```
+
+```plain
+save "comment"
+save "comment" --value text
+```
+
+아래처럼 params 를 사용하여 가변 인자로 사용할 수 있습니다.
+
+```csharp
+[CommandMethod]
+public void Save(string message, params string[] args)
+{
+}
+```
+
+```plain
+save "comment"
+save "comment" -- "1" "text" "string"
+```
+
+## 공용 속성 및 메소드
+
+static 으로 정의된 속성 및 메소드를 해당 객체에 포함하여 사용할 수 있습니다.
+
+```csharp
+static class GlobalSettings
+{
+    [CommandProperty]
+    public static string ID { get; set; }
+
+    [CommandProperty]
+    public static string Password { get; set; }
+}
+
+[CommandStaticProperty(typeof(GlobalSettings))]
+class Settings
+{
+}
+```
+
+```csharp
+static class StaticCommand
+{
+    [CommandMethod]
+    [CommandMethodProperty(nameof(Value))]
+    public static void List()
     {
-        [CommandRequiredProperty("param1")]
-        [Description("parameter1 description")]
-        public string Parameter1
-        {
-            get; set;
-        }
-
-        [CommandRequiredProperty("param2")]
-        [Description("parameter2 description")]
-        public int Parameter2
-        {
-            get; set;
-        }
-
-        [CommandProperty('o')]
-        [Description("option1 description")]
-        public bool Option1
-        {
-            get; set;
-        }
-
-        [CommandProperty("text-option")]
-        [Description("option2 description")]
-        public string Option2
-        {
-            get; set;
-        }
     }
 
-    class Program
+    [CommandProperty]
+    public static int Value { get; set; }
+}
+
+[CommandStaticMethod(typeof(StaticCommand))]
+class Commands
+{
+}
+```
+
+## 이름
+
+CommandProperty 및 CommandMethod 로 정의된 속성과 메소드 이름을 [kebab-case (spinal-case, Train-Case, Lisp-case)](https://en.wikipedia.org/wiki/Letter_case) 형태로 변경됩니다.
+
+### 속성 이름 예제
+
+| 속성 이름 | 변경된 속성 이름 |
+| --------- | ---------------- |
+| Value     | --value          |
+| Message   | --message        |
+| IsLocked  | --is-locked      |
+
+> 이름과 짧은 이름을 사용할때
+
+```csharp
+[CommandProperty("custom-value", 'v')]
+public string Value { get; set; }
+```
+
+```plain
+--custom-value or -v
+```
+
+> 짧은 이름만 사용할때
+
+```csharp
+[CommandProperty('v')]
+public string Value { get; set; }
+```
+
+```plain
+-v
+```
+
+> 짧은 이름을 사용하고 기본 이름도 사용할때
+
+```csharp
+[CommandProperty('v', AllowName = true)]
+public string Value { get; set; }
+```
+
+```plain
+-v or --value
+```
+
+### 메서드 이름 예제
+
+| 메서드 이름 | 변경된 메서드 이름 |
+| ----------- | ------------------ |
+| Save        | save               |
+| LockTable   | lock-table         |
+
+메서드 이름도 직접 설정할 수 있습니다.
+
+```csharp
+[CommandMethod("save")]
+public void Save(string message)
+{
+}
+```
+
+## 명령어
+
+CommandContext 에 명령어를 정의할 수 있습니다.
+
+```csharp
+class ExitCommand : CommandBase
+{
+    [CommandPropertyRequired(DefaultValue = 0)]
+    public int ExitCode
     {
-        static void Main(string[] args)
-        {
-            var settings = new Settings();
-            var parser = new CommandLineParser(settings);
+        get; set;
+    }
 
-            try
-            {
-                if (parser.Parse(Environment.CommandLine) == false)
-                {
-                    Environment.Exit(1);
-                }
-
-                // todo
-
-            }
-            catch (Exception e)
-            {
-                Console.Error.WriteLine(e);
-                Environment.Exit(2);
-            }
-        }
+    protected override void OnExecute()
+    {
+        Environment.Exit(this.ExitCode);
     }
 }
 ```
 
-You can call like this in console:
+```plain
+exit
+exit 0
+```
 
-    Example.exe help
+## 하위 명령어
 
-    Example.exe --version
+CommandContext 에 하위 명령어를 가지고 있는 명령어를 정의할 수 있습니다.
 
-    Example.exe text1 123 
-
-    Example.exe text1 123 -o --text-option "text string"
-
-Invoke
---------------
-
-명령구문을 분석해 미리 정의된 메소드를 호출하는 기능입니다.
-
-명령구문에 포함시킬 메소드는 CommandMethodAttribute로 설정합니다. 
-
-설명 작성에 대한 부분은 Parsing 부분에서 다룬것과 동일합니다.
-
-기본적으로 메소드의 인자는 IsRequierd가 자동으로 설정되며 추가적으로 선택 인자를 사용할때는 CommandMethodPropertyAttribute를 사용해 속성의 이름을 설정하면 됩니다.
-
-    using System;
-    using Ntreev.Library.Commands;
-    using System.ComponentModel;
-
-    namespace ConsoleApp
+```csharp
+class UserCommand : CommandMethodBase
+{
+    [CommandMethod]
+    [CommandMethodProperty(nameof(Message))]
+    public void Create(string userID)
     {
-        class Commands
-        {
-            [CommandMethod("method1")]
-            public void Method1(string arg)
-            {
-            
-            }
-
-            [CommandMethod]
-            public void Method2(string arg)
-            {
-            
-            }
-
-            [CommandMethod]
-            [CommandMethodProperty(nameof(Message))]
-            public void Method3(string arg0, string arg1 = null)
-            {
-
-            }
-
-            [CommandProperty('m')]
-            [DefaultValue("")]
-            public string Message
-            {
-                get; set;
-            }
-        }
-
-        class Program
-        {
-            static void Main(string[] args)
-            {
-                var commands = new Commands();
-                var parser = new CommandLineParser(commands);
-
-                try
-                {
-                    if (parser.Invoke(Environment.CommandLine) == true)
-                    {
-                        Environment.Exit(1);
-                    }
-
-                    // todo
-
-                }
-                catch (Exception e)
-                {
-                    Console.Error.WriteLine(e.Message);
-                    Environment.Exit(2);
-                }
-            }
-        }
     }
 
+    [CommandMethod]
+    public void Delete(string userID)
+    {
+    }
 
-You can call like this in console:
+    [CommandMethod]
+    public void List()
+    {
+    }
 
-    Example.exe help
+    [CommandProperty]
+    public string Message
+    {
+        get; set;
+    }
+}
+```
 
-    Example.exe --version
+```plain
+user create "user1"
+user create "user1" --message "new user"
+user delete "user1"
+user list
+```
 
-    Example.exe method1 123 
+## 하위 명령어 확장
 
-    Example.exe method2 123
+별도의 클래스를 구현하여 이미 구현되어 있는 명령어에 하위 명령어를 추가할 수 있습니다.
 
-    Example.exe method3 1
+```csharp
+[PartialCommand]
+class UserPartialCommand : CommandMethodBase
+{
+    public UserCommandExtension()
+        : base("user")
+    {
+    }
 
-    or
+    [CommandMethod]
+    public void SendMessage(string userID, string message)
+    {
+    }
+}
+```
 
-    Example.exe method3 1 2
+## License
 
-    or
+Ntreev CommandLineParser for .Net
 
-    Example.exe method3 1 2 -m "message"
-
-
-그 밖의 기능
---------------
-
-- 공통으로 사용할 수 있는 static property
-- 공통으로 사용할 수 있는 static method
-- parse 과 invoke 기능을 합쳐 종합 적인 명령 체계를 나타내는 CommandContext
-- 런타임상에서 사용할 수 있는 터미널
-        
-
-License
-=======
-
-Ntreev CommandLineParser for .Net 
-https://github.com/NtreevSoft/CommandLineParser
+<https://github.com/s2quake/CommandLineParser>
 
 Released under the MIT License.
 
 Copyright (c) 2010 Ntreev Soft co., Ltd.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
-documentation files (the "Software"), to deal in the Software without restriction, including without limitation the 
-rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit 
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
+rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit
 persons to whom the Software is furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the 
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the
 Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE 
-WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR 
-COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR 
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
