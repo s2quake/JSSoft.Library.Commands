@@ -28,20 +28,16 @@ namespace Ntreev.Library.Commands.Invoke
     {
         static void Main(string[] args)
         {
-            var settings = new Commands();
-            var parser = new CommandLineParser(settings);
-
+            var commands = new Commands();
+            var parser = new CommandLineParser(commands);
             try
             {
-                if (parser.TryInvoke(Environment.CommandLine) == false)
-                {
-                    Environment.Exit(1);
-                }
+                parser.Invoke(Environment.CommandLine);
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
-                Environment.Exit(2);
+                Environment.Exit(1);
             }
         }
     }
