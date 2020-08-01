@@ -114,6 +114,8 @@ namespace Ntreev.Library.Commands
 
         public TextWriter Error => this.commandContext.Error;
 
+        public CommandContextBase CommandContext => this.commandContext;
+
         protected abstract Task OnExecuteAsync();
 
         protected CommandMemberDescriptor GetDescriptor(string propertyName)

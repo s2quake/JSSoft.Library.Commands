@@ -74,6 +74,8 @@ namespace Ntreev.Library.Commands
 
         public TextWriter Error => this.commandContext.Error;
 
+        public CommandContextBase CommandContext => this.commandContext;
+
         protected virtual bool IsMethodEnabled(CommandMethodDescriptor descriptor)
         {
             return true;

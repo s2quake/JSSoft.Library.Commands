@@ -1,15 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.0;net45</TargetFrameworks>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <Version>5.0.20203.1935</Version>
     <AssemblyVersion>5.0</AssemblyVersion>
     <FileVersion>5.0.20203.1935</FileVersion>
     <RepositoryType>git</RepositoryType>
     <PackageProjectUrl>https://github.com/NtreevSoft/CommandLineParser</PackageProjectUrl>
     <LicenseUrl>https://github.com/NtreevSoft/CommandLineParser/blob/master/LICENSE.md</LicenseUrl>
-    <Copyright>Copyright © Ntreev Soft 2018</Copyright>
+    <Copyright>Copyright © JSSoft 2020</Copyright>
     <Description>comman line parser</Description>
-    <Company>NtreevSoft</Company>
     <Authors>s2quake</Authors>
     <RepositoryUrl>https://github.com/NtreevSoft/CommandLineParser</RepositoryUrl>
     <PackageTags>REPL Command Parser Terminal Console</PackageTags>
@@ -22,6 +21,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Unix.dat" />
     <EmbeddedResource Include="Win32NT.dat" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">
