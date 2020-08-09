@@ -20,7 +20,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 
@@ -64,29 +63,20 @@ namespace Ntreev.Library.Commands
             }
         }
 
-        public static bool IsOutputRedirected
-        {
-            get
-            {
+        public static bool IsOutputRedirected =>
 #if !NET35
-                return Console.IsOutputRedirected;
+                Console.IsOutputRedirected;
 #else
                 return true;
 #endif
 
-            }
-        }
-        public static bool IsInputRedirected
-        {
-            get
-            {
+        public static bool IsInputRedirected =>
 #if !NET35
-                return Console.IsInputRedirected;
+                Console.IsInputRedirected;
 #else
                 return true;
 #endif
-            }
-        }
+
 
         public static int GetLength(string text)
         {
@@ -130,9 +120,9 @@ namespace Ntreev.Library.Commands
         public long? ReadLong(string prompt)
         {
             var result = this.ReadNumber(prompt, null, i => long.TryParse(i, out long v));
-            if (result is long)
+            if (result is long value)
             {
-                return (long)result;
+                return value;
             }
             return null;
         }
@@ -140,9 +130,9 @@ namespace Ntreev.Library.Commands
         public long? ReadLong(string prompt, long defaultValue)
         {
             var result = this.ReadNumber(prompt, defaultValue, i => long.TryParse(i, out long v));
-            if (result is long)
+            if (result is long value)
             {
-                return (long)result;
+                return value;
             }
             return null;
         }
@@ -150,9 +140,9 @@ namespace Ntreev.Library.Commands
         public double? ReadDouble(string prompt)
         {
             var result = this.ReadNumber(prompt, null, i => double.TryParse(i, out double v));
-            if (result is double)
+            if (result is double value)
             {
-                return (double)result;
+                return value;
             }
             return null;
         }
@@ -160,9 +150,9 @@ namespace Ntreev.Library.Commands
         public double? ReadDouble(string prompt, double defaultValue)
         {
             var result = this.ReadNumber(prompt, defaultValue, i => double.TryParse(i, out double v));
-            if (result is double)
+            if (result is double value)
             {
-                return (double)result;
+                return value;
             }
             return null;
         }
@@ -252,15 +242,9 @@ namespace Ntreev.Library.Commands
             }
         }
 
-        public IList<string> Histories
-        {
-            get { return this.histories; }
-        }
+        public IList<string> Histories => this.histories;
 
-        public IList<string> Completions
-        {
-            get { return this.completions; }
-        }
+        public IList<string> Completions => this.completions;
 
         public void Cancel()
         {
@@ -412,27 +396,15 @@ namespace Ntreev.Library.Commands
 
         public int Index
         {
-            get { return this.FullIndex - this.start; }
-            set
-            {
-                this.FullIndex = value + this.start;
-            }
+            get => this.FullIndex - this.start;
+            set => this.FullIndex = value + this.start;
         }
 
-        public string Text
-        {
-            get { return this.fullText.Substring(this.start); }
-        }
+        public string Text => this.fullText.Substring(this.start);
 
-        public string Prompt
-        {
-            get { return this.fullText.Substring(0, this.start); }
-        }
+        public string Prompt => this.fullText.Substring(0, this.start);
 
-        public bool IsReading
-        {
-            get { return this.writer != null; }
-        }
+        public bool IsReading => this.writer != null;
 
         public int Top
         {
@@ -445,10 +417,7 @@ namespace Ntreev.Library.Commands
                 }
                 return this.y;
             }
-            internal set
-            {
-                this.y = value;
-            }
+            internal set => this.y = value;
         }
 
         public bool IsEnabled { get; set; } = true;
@@ -589,10 +558,7 @@ namespace Ntreev.Library.Commands
             writer.Write(text);
         }
 
-        private int Length
-        {
-            get { return this.fullText.Length - this.start; }
-        }
+        private int Length => this.fullText.Length - this.start;
 
         private void ClearText()
         {
@@ -1010,7 +976,7 @@ namespace Ntreev.Library.Commands
 
         internal int FullIndex
         {
-            get { return this.fullIndex; }
+            get => this.fullIndex;
             set
             {
                 if (value < 0 || value > this.fullText.Length)

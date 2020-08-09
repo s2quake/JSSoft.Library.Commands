@@ -15,13 +15,12 @@
 //COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR 
 //OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using Ntreev.Library.Commands.Properties;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.ComponentModel;
+using System.Linq;
 using System.Reflection;
-using Ntreev.Library.Commands.Properties;
 
 namespace Ntreev.Library.Commands
 {
@@ -52,7 +51,7 @@ namespace Ntreev.Library.Commands
 
         public static CommandMethodDescriptorCollection GetMethodDescriptors(object instance)
         {
-            var type = instance is Type ? (Type)instance : instance.GetType();
+            var type = instance is Type type1 ? type1 : instance.GetType();
             if (typeToMethodDescriptors.ContainsKey(type) == false)
             {
                 typeToMethodDescriptors.Add(type, CreateMethodDescriptors(type));
@@ -92,7 +91,7 @@ namespace Ntreev.Library.Commands
             }
             else
             {
-                var type = instance is Type ? (Type)instance : instance.GetType();
+                var type = instance is Type type1 ? type1 : instance.GetType();
                 if (membersByInstance.ContainsKey(type) == false)
                 {
                     membersByInstance.Add(type, CreateMemberDescriptors(type));

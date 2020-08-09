@@ -15,17 +15,12 @@
 //COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR 
 //OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.ComponentModel;
-using System.IO;
-using System.Text.RegularExpressions;
 using Ntreev.Library.Commands.Properties;
-using System.Reflection;
+using System;
 using System.Diagnostics;
-using System.Collections;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 
 namespace Ntreev.Library.Commands
 {

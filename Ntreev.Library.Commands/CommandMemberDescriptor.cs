@@ -18,11 +18,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.ComponentModel;
-using System.Text.RegularExpressions;
-using System.Reflection;
-using Ntreev.Library.Commands.Properties;
 
 namespace Ntreev.Library.Commands
 {

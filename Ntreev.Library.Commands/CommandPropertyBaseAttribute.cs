@@ -15,12 +15,8 @@
 //COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR 
 //OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.ComponentModel;
 using Ntreev.Library.Commands.Properties;
+using System;
 using System.Text.RegularExpressions;
 
 namespace Ntreev.Library.Commands
@@ -79,7 +75,10 @@ namespace Ntreev.Library.Commands
             return this.Name;
         }
 
-        internal CommandPropertyUsage GetUsage() => this.Usage;
+        internal CommandPropertyUsage GetUsage()
+        {
+            return this.Usage;
+        }
 
         internal string InternalShortName => this.ShortName == char.MinValue ? string.Empty : this.ShortName.ToString();
 

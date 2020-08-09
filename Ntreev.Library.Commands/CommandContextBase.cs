@@ -16,18 +16,13 @@
 //OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using Ntreev.Library.Commands.Properties;
-using Ntreev.Library.ObjectModel;
 using System;
-using System.CodeDom.Compiler;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Security;
 using System.Text;
-using System.Text.RegularExpressions;
 
 namespace Ntreev.Library.Commands
 {
@@ -131,9 +126,15 @@ namespace Ntreev.Library.Commands
             }
         }
 
-        protected virtual ICommand CreateHelpCommand() => new HelpCommand();
+        protected virtual ICommand CreateHelpCommand()
+        {
+            return new HelpCommand();
+        }
 
-        protected virtual ICommand CreateVersionCommand() => new VersionCommand();
+        protected virtual ICommand CreateVersionCommand()
+        {
+            return new VersionCommand();
+        }
 
         protected virtual void OnExecuted(EventArgs e)
         {

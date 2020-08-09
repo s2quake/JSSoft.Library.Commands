@@ -17,10 +17,6 @@
 
 using Ntreev.Library.Commands.Properties;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
 
 namespace Ntreev.Library.Commands
 {
@@ -34,7 +30,7 @@ namespace Ntreev.Library.Commands
         public CommandMethodStaticPropertyAttribute(string typeName, params string[] propertyNames)
             : this(Type.GetType(typeName), propertyNames)
         {
-            
+
         }
 
         public CommandMethodStaticPropertyAttribute(Type type, params string[] propertyNames)

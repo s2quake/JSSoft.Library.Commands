@@ -17,10 +17,7 @@
 
 using System;
 using System.CodeDom.Compiler;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 
 namespace Ntreev.Library.Commands
 {
@@ -43,7 +40,10 @@ namespace Ntreev.Library.Commands
             this.Width = width;
         }
 
-        public override string ToString() => this.InnerWriter.ToString();
+        public override string ToString()
+        {
+            return this.InnerWriter.ToString();
+        }
 
         public void BeginGroup(string text)
         {

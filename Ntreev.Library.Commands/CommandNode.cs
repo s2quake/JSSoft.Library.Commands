@@ -15,22 +15,19 @@
 //COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR 
 //OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Ntreev.Library.ObjectModel;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Ntreev.Library.Commands
 {
     class CommandNode : ICommandNode
     {
-        public override string ToString() => this.Name;
-        
+        public override string ToString()
+        {
+            return this.Name;
+        }
+
         public CommandNode Parent { get; set; }
 
         public CommandNodeCollection Childs { get; } = new CommandNodeCollection();

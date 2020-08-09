@@ -16,20 +16,13 @@
 //OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.ComponentModel;
-using System.Collections;
-using System.Text.RegularExpressions;
-using Ntreev.Library.Commands.Properties;
 
 namespace Ntreev.Library.Commands
 {
     public class ParseDescriptorItem
     {
         private object value = DBNull.Value;
-        
+
         public ParseDescriptorItem(CommandMemberDescriptor descriptor)
         {
             this.Descriptor = descriptor;
