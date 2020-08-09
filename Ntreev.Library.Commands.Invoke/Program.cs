@@ -16,17 +16,12 @@
 //OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Ntreev.Library.Commands.Invoke
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main(string[] _)
         {
             var commands = new Commands();
             var parser = new CommandLineParser(commands);

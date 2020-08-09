@@ -15,26 +15,13 @@
 //COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR 
 //OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Ntreev.Library;
 using System.IO;
-using System.ComponentModel;
-using System.Reflection;
-using System.Text.RegularExpressions;
-using Ntreev.Library.Commands.Repl.Properties;
-using System.Resources;
-using System.Drawing;
-using System.Globalization;
-using System.Runtime.InteropServices;
 
 namespace Ntreev.Library.Commands.Repl
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main(string[] _)
         {
             var shell = Container.GetService<IShell>();
             shell.Prompt = Directory.GetCurrentDirectory();

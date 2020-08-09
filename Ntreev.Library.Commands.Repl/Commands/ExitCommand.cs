@@ -16,25 +16,20 @@
 //OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.ComponentModel.Composition;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Ntreev.Library.Commands.Repl.Commands
 {
     [Export(typeof(ICommand))]
     class ExitCommand : CommandBase
     {
-        [Import]
-        private Lazy<IShell> shell = null;
+        private readonly Lazy<IShell> shell;
 
-        public ExitCommand()
+        [ImportingConstructor]
+        public ExitCommand(Lazy<IShell> shell)
             : base("exit")
         {
-
+            this.shell = shell;
         }
 
         [CommandPropertyRequired(DefaultValue = 0)]

@@ -16,13 +16,9 @@
 //OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Ntreev.Library.Commands.Repl.Commands
 {
@@ -30,12 +26,13 @@ namespace Ntreev.Library.Commands.Repl.Commands
     [UsageDescriptionProvider(typeof(ResourceUsageDescriptionProvider))]
     class ChangeDirectoryCommand : CommandBase
     {
-        [Import]
-        private Lazy<IShell> shell = null;
+        private readonly Lazy<IShell> shell;
 
-        public ChangeDirectoryCommand()
+        [ImportingConstructor]
+        public ChangeDirectoryCommand(Lazy<IShell> shell)
             : base("cd")
         {
+            this.shell = shell;
             this.DirectoryName = string.Empty;
         }
 

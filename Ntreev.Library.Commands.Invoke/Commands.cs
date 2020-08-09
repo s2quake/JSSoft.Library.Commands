@@ -16,12 +16,6 @@
 //OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Ntreev.Library.Commands.Invoke
 {
@@ -68,7 +62,7 @@ namespace Ntreev.Library.Commands.Invoke
 
         [CommandMethod]
         [CommandMethodProperty(nameof(Message))]
-        public void Commit(string path, string wow = null)
+        public void Commit(string path)
         {
             if (this.Message == string.Empty)
                 Console.WriteLine("{0} committed.", path);
