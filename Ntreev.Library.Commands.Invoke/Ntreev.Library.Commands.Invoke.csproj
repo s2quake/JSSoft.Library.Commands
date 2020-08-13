@@ -1,6 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../netfx.props" />
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFrameworks>netcoreapp3.1;net45</TargetFrameworks>
     <OutputType>Exe</OutputType>
     <Version>5.0.20203.1935</Version>
     <AssemblyVersion>5.0</AssemblyVersion>
