@@ -15,6 +15,9 @@
     <RepositoryUrl>https://github.com/s2quake/CommandLineParser</RepositoryUrl>
     <PackageTags>REPL Command Parser Terminal Console</PackageTags>
     <LangVersion>latest</LangVersion>
+    <AppendTargetFrameworkToOutputPath>False</AppendTargetFrameworkToOutputPath>
+    <OutputPath>..\bin\$(Configuration)\$(TargetFramework)\$(AssemblyName)</OutputPath>
+    <IntermediateOutputPath>..\obj\$(Configuration)\$(TargetFramework)\$(AssemblyName)</IntermediateOutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">

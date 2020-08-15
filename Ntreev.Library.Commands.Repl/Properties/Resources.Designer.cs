@@ -22,7 +22,7 @@ namespace Ntreev.Library.Commands.Repl.Properties {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources {
+    public class Resources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace Ntreev.Library.Commands.Repl.Properties {
         ///   이 클래스에서 사용하는 캐시된 ResourceManager 인스턴스를 반환합니다.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Ntreev.Library.Commands.Repl.Properties.Resources", typeof(Resources).Assembly);
@@ -51,7 +51,7 @@ namespace Ntreev.Library.Commands.Repl.Properties {
         ///   재정의합니다.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -65,7 +65,7 @@ namespace Ntreev.Library.Commands.Repl.Properties {
         ///
         ///The &quot;index&quot; holds a snapshot of the content of the working tree, and it is this snapshot that is taken as the conten[나머지 문자열은 잘림]&quot;;과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
-        internal static string AddDescription {
+        public static string AddDescription {
             get {
                 return ResourceManager.GetString("AddDescription", resourceCulture);
             }
@@ -74,7 +74,7 @@ namespace Ntreev.Library.Commands.Repl.Properties {
         /// <summary>
         ///   Add file contents to the index과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
-        internal static string AddSummary {
+        public static string AddSummary {
             get {
                 return ResourceManager.GetString("AddSummary", resourceCulture);
             }
@@ -89,7 +89,7 @@ namespace Ntreev.Library.Commands.Repl.Properties {
         ///
         ///If a command, or a guide, is given, a manual page for that command or guide is brought up. The man program is used by default for thi[나머지 문자열은 잘림]&quot;;과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
-        internal static string HelpDescription {
+        public static string HelpDescription {
             get {
                 return ResourceManager.GetString("HelpDescription", resourceCulture);
             }
@@ -98,7 +98,7 @@ namespace Ntreev.Library.Commands.Repl.Properties {
         /// <summary>
         ///   Display help information about Git과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
-        internal static string HelpSummary {
+        public static string HelpSummary {
             get {
                 return ResourceManager.GetString("HelpSummary", resourceCulture);
             }
@@ -107,7 +107,7 @@ namespace Ntreev.Library.Commands.Repl.Properties {
         /// <summary>
         ///   Add modified contents in the working tree interactively to the index. Optional path arguments may be supplied to limit operation to a subset of the working tree. See “Interactive mode” for details.과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
-        internal static string InteractiveDescription_AddCommand {
+        public static string InteractiveDescription_AddCommand {
             get {
                 return ResourceManager.GetString("InteractiveDescription_AddCommand", resourceCulture);
             }
@@ -120,7 +120,7 @@ namespace Ntreev.Library.Commands.Repl.Properties {
         ///stash@{1}: On master: 9cc0589... Add git-stash
         ///The command takes options applicable to the git log command to control what is shown and how. See git-log[1].과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
-        internal static string ListDescription_AddCommand {
+        public static string ListDescription_AddCommand {
             get {
                 return ResourceManager.GetString("ListDescription_AddCommand", resourceCulture);
             }
@@ -133,7 +133,7 @@ namespace Ntreev.Library.Commands.Repl.Properties {
         ///stash@{1}: On master: 9cc0589... Add git-stash
         ///The command takes options applicable to the git log command to control what is shown and how. See git-log[1].과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
-        internal static string ListDescription_StashCommand {
+        public static string ListDescription_StashCommand {
             get {
                 return ResourceManager.GetString("ListDescription_StashCommand", resourceCulture);
             }
@@ -144,7 +144,7 @@ namespace Ntreev.Library.Commands.Repl.Properties {
         ///
         ///This effectively runs add --interactive, but bypasses the initial command menu and directly jumps to the patch subcommand. See “Interactive mode” for details.과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
-        internal static string PatchDescription_AddCommand {
+        public static string PatchDescription_AddCommand {
             get {
                 return ResourceManager.GetString("PatchDescription_AddCommand", resourceCulture);
             }
@@ -153,7 +153,7 @@ namespace Ntreev.Library.Commands.Repl.Properties {
         /// <summary>
         ///   you can interactively select hunks from the diff between HEAD and the working tree to be stashed. The stash entry is constructed such that its index state is the same as the index state of your repository, and its worktree contains only the changes you selected interactively. The selected changes are then rolled back from your worktree. See the “Interactive Mode” section of git-add[1] to learn how to operate the --patch mode.과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
-        internal static string PatchDescription_StashCommand {
+        public static string PatchDescription_StashCommand {
             get {
                 return ResourceManager.GetString("PatchDescription_StashCommand", resourceCulture);
             }
@@ -162,7 +162,7 @@ namespace Ntreev.Library.Commands.Repl.Properties {
         /// <summary>
         ///   Files to add content from. Fileglobs (e.g. *.c) can be given to add all matching files. Also a leading directory name (e.g. dir to add dir/file1 and dir/file2) can be given to update the index to match the current state of the directory as a whole (e.g. specifying dir will record not just a file dir/file1 modified in the working tree, a file dir/file2 added to the working tree, but also a file dir/file3 removed from the working tree. Note that older versions of Git used to ignore removed files; use --no-all[나머지 문자열은 잘림]&quot;;과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
-        internal static string PathDescription_AddCommand {
+        public static string PathDescription_AddCommand {
             get {
                 return ResourceManager.GetString("PathDescription_AddCommand", resourceCulture);
             }
@@ -175,7 +175,7 @@ namespace Ntreev.Library.Commands.Repl.Properties {
         ///
         ///If the --include-untracked option is used, all u[나머지 문자열은 잘림]&quot;;과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
-        internal static string SaveDescription_StashCommand {
+        public static string SaveDescription_StashCommand {
             get {
                 return ResourceManager.GetString("SaveDescription_StashCommand", resourceCulture);
             }
@@ -186,7 +186,7 @@ namespace Ntreev.Library.Commands.Repl.Properties {
         ///
         ///The modifications stashed away by this command can be listed with git stash list, inspected with git stash show, and restored (potentially on top of a different commit) with git stash apply. Calling git stash without any arguments is equivalent to git sta[나머지 문자열은 잘림]&quot;;과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
-        internal static string StashDescription {
+        public static string StashDescription {
             get {
                 return ResourceManager.GetString("StashDescription", resourceCulture);
             }
@@ -195,7 +195,7 @@ namespace Ntreev.Library.Commands.Repl.Properties {
         /// <summary>
         ///   Stash the changes in a dirty working directory away과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
-        internal static string StashSummary {
+        public static string StashSummary {
             get {
                 return ResourceManager.GetString("StashSummary", resourceCulture);
             }

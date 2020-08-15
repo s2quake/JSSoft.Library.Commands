@@ -12,9 +12,7 @@
                 "isDefault": true
             },
             "args": [
-                "build",
-                "--framework",
-                "netcoreapp3.0"
+                "build"
             ],
             "presentation": {
                 "reveal": "always"
@@ -30,9 +28,7 @@
                 "isDefault": true
             },
             "args": [
-                "test",
-                "--framework",
-                "netcoreapp3.0"
+                "test"
             ],
             "presentation": {
                 "reveal": "always"
