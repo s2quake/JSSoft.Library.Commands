@@ -13,3 +13,5 @@ packages/
 *.VC.db
 /*.bat
 .DS_Store
+.vs/
+.vscode/
