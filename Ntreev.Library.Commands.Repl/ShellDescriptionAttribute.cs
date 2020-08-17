@@ -34,7 +34,7 @@ namespace Ntreev.Library.Commands.Repl
         private static string GetResourceString(string resourceName)
         {
             return (string)typeof(Resources).InvokeMember(resourceName,
-                BindingFlags.GetProperty | BindingFlags.NonPublic | BindingFlags.Static,
+                BindingFlags.GetProperty | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static,
                 null, null, null);
         }
     }

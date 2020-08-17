@@ -47,7 +47,7 @@ namespace Ntreev.Library.Commands
             this.fullName = assembly.Location;
             this.Instance = instance ?? throw new ArgumentNullException(nameof(instance));
             this.versionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
-            this.Version = new Version(this.versionInfo.ProductVersion);
+            this.Version = this.versionInfo.ProductVersion;
         }
 
         public CommandLineParser(string name, object instance)
@@ -289,7 +289,7 @@ namespace Ntreev.Library.Commands
 
         public string VersionName { get; set; } = "--version";
 
-        public Version Version { get; set; } = new Version(1, 0);
+        public string Version { get; set; } = $"{new Version(1, 0)}";
 
         protected virtual void OnPrintSummary()
         {
