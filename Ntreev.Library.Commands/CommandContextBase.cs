@@ -49,7 +49,7 @@ namespace Ntreev.Library.Commands
             this.filename = Path.GetFileName(assembly.Location);
             this.fullName = assembly.Location;
             this.versionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
-            this.Version = new Version(this.versionInfo.ProductVersion);
+            this.Version = this.versionInfo.ProductVersion;
             this.helpCommand = this.CreateHelpCommand();
             this.versionCommand = this.CreateVersionCommand();
             this.Initialize(this.commandNode, commands);
@@ -102,7 +102,7 @@ namespace Ntreev.Library.Commands
 
         public string Name { get; }
 
-        public Version Version { get; set; } = new Version(1, 0);
+        public string Version { get; set; } = $"{new Version(1, 0)}";
 
         public ICommandNode Node => this.commandNode;
 

@@ -5,15 +5,12 @@
     "tasks": [
         {
             "label": "build",
-            "command": "dotnet",
+            "command": "dotnet build --framework netcoreapp3.1",
             "type": "shell",
             "group": {
                 "kind": "build",
                 "isDefault": true
             },
-            "args": [
-                "build"
-            ],
             "presentation": {
                 "reveal": "always"
             },
@@ -21,15 +18,12 @@
         },
         {
             "label": "test",
-            "command": "dotnet",
+            "command": "dotnet test --framework netcoreapp3.1",
             "type": "shell",
             "group": {
                 "kind": "build",
                 "isDefault": true
             },
-            "args": [
-                "test"
-            ],
             "presentation": {
                 "reveal": "always"
             },
