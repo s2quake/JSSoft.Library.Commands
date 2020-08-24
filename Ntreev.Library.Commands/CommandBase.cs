@@ -23,8 +23,6 @@ namespace Ntreev.Library.Commands
 {
     public abstract class CommandBase : ICommand, IExecutable, ICommandHost, ICommandCompletor
     {
-        private CommandContextBase commandContext;
-
         protected CommandBase()
         {
             this.Name = CommandStringUtility.ToSpinalCase(this.GetType());
@@ -44,11 +42,11 @@ namespace Ntreev.Library.Commands
 
         public virtual bool IsEnabled => true;
 
-        public TextWriter Out => this.commandContext.Out;
+        public TextWriter Out => this.CommandContext.Out;
 
-        public TextWriter Error => this.commandContext.Error;
+        public TextWriter Error => this.CommandContext.Error;
 
-        public CommandContextBase CommandContext => this.commandContext;
+        public CommandContextBase CommandContext { get; private set; }
 
         protected abstract void OnExecute();
 
@@ -75,8 +73,8 @@ namespace Ntreev.Library.Commands
 
         CommandContextBase ICommandHost.CommandContext
         {
-            get => this.commandContext;
-            set => this.commandContext = value;
+            get => this.CommandContext;
+            set => this.CommandContext = value;
         }
 
         #endregion
@@ -84,8 +82,6 @@ namespace Ntreev.Library.Commands
 
     public abstract class CommandAsyncBase : ICommand, IExecutableAsync, ICommandHost
     {
-        private CommandContextBase commandContext;
-
         protected CommandAsyncBase()
         {
             this.Name = CommandStringUtility.ToSpinalCase(this.GetType());
@@ -105,11 +101,11 @@ namespace Ntreev.Library.Commands
 
         public virtual bool IsEnabled => true;
 
-        public TextWriter Out => this.commandContext.Out;
+        public TextWriter Out => this.CommandContext.Out;
 
-        public TextWriter Error => this.commandContext.Error;
+        public TextWriter Error => this.CommandContext.Error;
 
-        public CommandContextBase CommandContext => this.commandContext;
+        public CommandContextBase CommandContext { get; private set; }
 
         protected abstract Task OnExecuteAsync();
 
@@ -136,8 +132,8 @@ namespace Ntreev.Library.Commands
 
         CommandContextBase ICommandHost.CommandContext
         {
-            get => this.commandContext;
-            set => this.commandContext = value;
+            get => this.CommandContext;
+            set => this.CommandContext = value;
         }
 
         #endregion
