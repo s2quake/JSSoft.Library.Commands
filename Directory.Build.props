@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp3.1;net45</TargetFrameworks>
+    <Version>5.0.0</Version>
+    <AssemblyVersion>5.0</AssemblyVersion>
+    <FileVersion>5.0.0.0</FileVersion>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/s2quake/CommandLineParser</PackageProjectUrl>
+    <LicenseUrl>https://github.com/s2quake/CommandLineParser/blob/master/LICENSE.md</LicenseUrl>
+    <Copyright>Copyright © JSSoft 2020</Copyright>
+    <Description>comman line parser</Description>
+    <Authors>s2quake</Authors>
+    <RepositoryUrl>https://github.com/s2quake/CommandLineParser</RepositoryUrl>
+    <PackageTags>REPL Command Parser Terminal Console</PackageTags>
+    <LangVersion>latest</LangVersion>
+    <AppendTargetFrameworkToOutputPath>False</AppendTargetFrameworkToOutputPath>
+    <BaseOutputPath>$(MSBuildThisFileDirectory)\bin\$(MSBuildProjectName)</BaseOutputPath>
+    <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)\obj\nuget\$(MSBuildProjectName)</BaseIntermediateOutputPath>
+    <OutputPath>$(MSBuildThisFileDirectory)\bin\$(Configuration)\$(TargetFramework)\$(MSBuildProjectName)</OutputPath>
+    <IntermediateOutputPath>$(MSBuildThisFileDirectory)\obj\$(Configuration)\$(TargetFramework)\$(MSBuildProjectName)</IntermediateOutputPath>
+  </PropertyGroup>
+</Project>
