@@ -29,7 +29,6 @@ namespace Ntreev.Library.Commands
         private readonly Dictionary<string, string> unparsedArguments = new Dictionary<string, string>();
 
         private readonly Dictionary<CommandMemberDescriptor, ParseDescriptorItem> itemByDescriptor = new Dictionary<CommandMemberDescriptor, ParseDescriptorItem>();
-        private readonly ParseDescriptorItem[] items;
 
         /// <param name="members"></param>
         /// <param name="commandLine"></param>
@@ -44,7 +43,7 @@ namespace Ntreev.Library.Commands
             {
                 this.itemByDescriptor.Add(item, new ParseDescriptorItem(item));
             }
-            this.items = this.itemByDescriptor.Values.ToArray();
+            this.Items = this.itemByDescriptor.Values.ToArray();
 
             var descriptors = new Dictionary<string, CommandMemberDescriptor>();
             foreach (var item in members)
@@ -143,7 +142,7 @@ namespace Ntreev.Library.Commands
         {
             this.ValidateSetValue(instance);
 
-            var items = this.items;
+            var items = this.Items;
             var initObj = instance as ISupportInitialize;
             foreach (var item in items)
             {
@@ -174,7 +173,7 @@ namespace Ntreev.Library.Commands
             }
         }
 
-        public ParseDescriptorItem[] Items => this.items;
+        public ParseDescriptorItem[] Items { get; }
 
         private void ValidateSetValue(object _)
         {
@@ -200,7 +199,7 @@ namespace Ntreev.Library.Commands
                 }
             }
 
-            foreach (var item in this.items)
+            foreach (var item in this.Items)
             {
                 var descriptor = item.Descriptor;
                 if (item.IsParsed == true)

@@ -23,7 +23,6 @@ namespace Ntreev.Library.Commands
 {
     public abstract class CommandMethodBase : ICommand, ICommandHost, ICommandHierarchy, ICommandCompletor
     {
-        private CommandContextBase commandContext;
         private readonly CommandCollection commands = new CommandCollection();
 
         protected CommandMethodBase()
@@ -64,11 +63,11 @@ namespace Ntreev.Library.Commands
 
         public virtual bool IsEnabled => true;
 
-        public TextWriter Out => this.commandContext.Out;
+        public TextWriter Out => this.CommandContext.Out;
 
-        public TextWriter Error => this.commandContext.Error;
+        public TextWriter Error => this.CommandContext.Error;
 
-        public CommandContextBase CommandContext => this.commandContext;
+        public CommandContextBase CommandContext { get; private set; }
 
         protected virtual bool IsMethodEnabled(CommandMethodDescriptor descriptor)
         {
@@ -94,8 +93,8 @@ namespace Ntreev.Library.Commands
 
         CommandContextBase ICommandHost.CommandContext
         {
-            get => this.commandContext;
-            set => this.commandContext = value;
+            get => this.CommandContext;
+            set => this.CommandContext = value;
         }
 
         public IContainer<ICommand> Commands => this.commands;
