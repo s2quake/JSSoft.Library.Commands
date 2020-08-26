@@ -13,13 +13,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ntreev.Library.Commands.Rep
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ntreev.Library.Commands.Test", "Ntreev.Library.Commands.Test\Ntreev.Library.Commands.Test.csproj", "{16C6DF61-5111-4162-9CF7-583937AD9708}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{DF2FD188-91BD-43CC-9EDB-A95447DCDBD8}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "etc", "etc", "{DF2FD188-91BD-43CC-9EDB-A95447DCDBD8}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
-		base.props = base.props
+		Directory.Build.props = Directory.Build.props
 		netfx.props = netfx.props
-		version.txt = version.txt
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ntreev.Library", "..\Ntreev.Library\Ntreev.Library\Ntreev.Library.csproj", "{ACDCCD08-4DEE-4EEB-B5FD-266F88E6B631}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -91,6 +92,18 @@ Global
 		{16C6DF61-5111-4162-9CF7-583937AD9708}.Release|x64.Build.0 = Release|Any CPU
 		{16C6DF61-5111-4162-9CF7-583937AD9708}.Release|x86.ActiveCfg = Release|Any CPU
 		{16C6DF61-5111-4162-9CF7-583937AD9708}.Release|x86.Build.0 = Release|Any CPU
+		{ACDCCD08-4DEE-4EEB-B5FD-266F88E6B631}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ACDCCD08-4DEE-4EEB-B5FD-266F88E6B631}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ACDCCD08-4DEE-4EEB-B5FD-266F88E6B631}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{ACDCCD08-4DEE-4EEB-B5FD-266F88E6B631}.Debug|x64.Build.0 = Debug|Any CPU
+		{ACDCCD08-4DEE-4EEB-B5FD-266F88E6B631}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{ACDCCD08-4DEE-4EEB-B5FD-266F88E6B631}.Debug|x86.Build.0 = Debug|Any CPU
+		{ACDCCD08-4DEE-4EEB-B5FD-266F88E6B631}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ACDCCD08-4DEE-4EEB-B5FD-266F88E6B631}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ACDCCD08-4DEE-4EEB-B5FD-266F88E6B631}.Release|x64.ActiveCfg = Release|Any CPU
+		{ACDCCD08-4DEE-4EEB-B5FD-266F88E6B631}.Release|x64.Build.0 = Release|Any CPU
+		{ACDCCD08-4DEE-4EEB-B5FD-266F88E6B631}.Release|x86.ActiveCfg = Release|Any CPU
+		{ACDCCD08-4DEE-4EEB-B5FD-266F88E6B631}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
