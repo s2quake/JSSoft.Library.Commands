@@ -1,4 +1,4 @@
-﻿//Released under the MIT License.
+//Released under the MIT License.
 //
 //Copyright (c) 2018 Ntreev Soft co., Ltd.
 //
@@ -18,7 +18,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Ntreev.Library.Commands
+namespace JSSoft.Library.Commands
 {
     public class CommandCompletionContext
     {

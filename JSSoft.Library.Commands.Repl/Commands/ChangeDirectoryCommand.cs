@@ -1,4 +1,4 @@
-ï»¿//Released under the MIT License.
+//Released under the MIT License.
 //
 //Copyright (c) 2018 Ntreev Soft co., Ltd.
 //
@@ -20,7 +20,7 @@ using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.IO;
 
-namespace Ntreev.Library.Commands.Repl.Commands
+namespace JSSoft.Library.Commands.Repl.Commands
 {
     [Export(typeof(ICommand))]
     [UsageDescriptionProvider(typeof(ResourceUsageDescriptionProvider))]
@@ -64,7 +64,7 @@ namespace Ntreev.Library.Commands.Repl.Commands
             }
             else
             {
-                throw new DirectoryNotFoundException(string.Format("'{0}'ì€(ëŠ”) ì¡´ì¬í•˜ì§€ ì•ŠëŠ” ê²½ë¡œì…ë‹ˆë‹¤.", this.DirectoryName));
+                throw new DirectoryNotFoundException(string.Format("'{0}'Àº(´Â) Á¸ÀçÇÏÁö ¾Ê´Â °æ·ÎÀÔ´Ï´Ù.", this.DirectoryName));
             }
         }
     }

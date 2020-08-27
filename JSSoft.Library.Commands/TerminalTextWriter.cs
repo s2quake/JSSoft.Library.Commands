@@ -1,4 +1,4 @@
-﻿//Released under the MIT License.
+//Released under the MIT License.
 //
 //Copyright (c) 2018 Ntreev Soft co., Ltd.
 //
@@ -19,7 +19,7 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace Ntreev.Library.Commands
+namespace JSSoft.Library.Commands
 {
     class TerminalTextWriter : TextWriter
     {

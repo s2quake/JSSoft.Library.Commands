@@ -1,4 +1,4 @@
-ï»¿//Released under the MIT License.
+//Released under the MIT License.
 //
 //Copyright (c) 2018 Ntreev Soft co., Ltd.
 //
@@ -15,14 +15,14 @@
 //COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR 
 //OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using Ntreev.Library.Commands.Properties;
+using JSSoft.Library.Commands.Properties;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
 
-namespace Ntreev.Library.Commands
+namespace JSSoft.Library.Commands
 {
     class ParseDescriptor
     {
@@ -183,7 +183,7 @@ namespace Ntreev.Library.Commands
                 if (items.Any() == true)
                 {
                     var sb = new StringBuilder();
-                    sb.AppendLine("ì²˜ë¦¬ë˜ì§€ ì•Šì€ ì¸ìê°€ í¬í•¨ë˜ì–´ ìˆìŠµë‹ˆë‹¤.");
+                    sb.AppendLine("Ã³¸®µÇÁö ¾ÊÀº ÀÎÀÚ°¡ Æ÷ÇÔµÇ¾î ÀÖ½À´Ï´Ù.");
                     foreach (var item in items)
                     {
                         if (item.Value != null)

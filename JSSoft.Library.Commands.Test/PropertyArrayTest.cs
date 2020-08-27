@@ -1,4 +1,4 @@
-﻿//Released under the MIT License.
+//Released under the MIT License.
 //
 //Copyright (c) 2018 Ntreev Soft co., Ltd.
 //
@@ -20,7 +20,7 @@ using System;
 using System.ComponentModel;
 using System.Linq;
 
-namespace Ntreev.Library.Commands.Test
+namespace JSSoft.Library.Commands.Test
 {
     [TestClass]
     public class PropertyArrayTest

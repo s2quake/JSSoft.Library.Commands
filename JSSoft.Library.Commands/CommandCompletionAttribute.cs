@@ -1,6 +1,6 @@
-﻿using System;
+using System;
 
-namespace Ntreev.Library.Commands
+namespace JSSoft.Library.Commands
 {
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property)]
     public class CommandCompletionAttribute : Attribute

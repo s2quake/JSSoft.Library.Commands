@@ -1,4 +1,4 @@
-﻿//Released under the MIT License.
+//Released under the MIT License.
 //
 //Copyright (c) 2018 Ntreev Soft co., Ltd.
 //
@@ -15,12 +15,12 @@
 //COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR 
 //OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using Ntreev.Library.Commands.Extensions;
+using JSSoft.Library.Commands.Extensions;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.IO;
 
-namespace Ntreev.Library.Commands.Repl.Commands
+namespace JSSoft.Library.Commands.Repl.Commands
 {
     [Export(typeof(ICommand))]
     [UsageDescriptionProvider(typeof(ResourceUsageDescriptionProvider))]

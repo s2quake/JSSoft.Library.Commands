@@ -1,4 +1,4 @@
-﻿//Released under the MIT License.
+//Released under the MIT License.
 //
 //Copyright (c) 2018 Ntreev Soft co., Ltd.
 //
@@ -17,7 +17,7 @@
 
 using System.IO;
 
-namespace Ntreev.Library.Commands.Repl
+namespace JSSoft.Library.Commands.Repl
 {
     class Program
     {

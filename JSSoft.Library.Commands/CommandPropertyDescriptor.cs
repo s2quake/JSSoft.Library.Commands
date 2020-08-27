@@ -1,4 +1,4 @@
-﻿//Released under the MIT License.
+//Released under the MIT License.
 //
 //Copyright (c) 2018 Ntreev Soft co., Ltd.
 //
@@ -15,8 +15,8 @@
 //COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR 
 //OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using Ntreev.Library.Commands.Extensions;
-using Ntreev.Library.Commands.Properties;
+using JSSoft.Library.Commands.Extensions;
+using JSSoft.Library.Commands.Properties;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -24,7 +24,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 
-namespace Ntreev.Library.Commands
+namespace JSSoft.Library.Commands
 {
     public sealed class CommandPropertyDescriptor : CommandMemberDescriptor
     {

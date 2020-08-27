@@ -6,6 +6,6 @@
     <AssemblyName>invoke</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Ntreev.Library.Commands\Ntreev.Library.Commands.csproj" />
+    <ProjectReference Include="..\JSSoft.Library.Commands\JSSoft.Library.Commands.csproj" />
   </ItemGroup>
 </Project>

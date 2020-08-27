@@ -1,4 +1,4 @@
-ï»¿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <TargetFrameworks>netcoreapp3.1;net45</TargetFrameworks>
@@ -8,7 +8,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageProjectUrl>https://github.com/s2quake/CommandLineParser</PackageProjectUrl>
     <LicenseUrl>https://github.com/s2quake/CommandLineParser/blob/master/LICENSE.md</LicenseUrl>
-    <Copyright>Copyright Â© JSSoft 2020</Copyright>
+    <Copyright>Copyright ¨Ï JSSoft 2020</Copyright>
     <Description>comman line parser</Description>
     <Authors>s2quake</Authors>
     <RepositoryUrl>https://github.com/s2quake/CommandLineParser</RepositoryUrl>

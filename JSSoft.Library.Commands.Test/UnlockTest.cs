@@ -1,4 +1,4 @@
-﻿//Released under the MIT License.
+//Released under the MIT License.
 //
 //Copyright (c) 2018 Ntreev Soft co., Ltd.
 //
@@ -18,7 +18,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
-namespace Ntreev.Library.Commands.Test
+namespace JSSoft.Library.Commands.Test
 {
     [TestClass]
     public class UnunlockTest

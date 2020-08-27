@@ -1,4 +1,4 @@
-﻿//Released under the MIT License.
+//Released under the MIT License.
 //
 //Copyright (c) 2018 Ntreev Soft co., Ltd.
 //
@@ -20,7 +20,7 @@ using System.ComponentModel.Composition;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Ntreev.Library.Commands.Repl.Commands
+namespace JSSoft.Library.Commands.Repl.Commands
 {
     [Export(typeof(ICommand))]
     class TestCommand : CommandMethodBase

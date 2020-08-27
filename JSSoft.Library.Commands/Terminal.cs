@@ -1,4 +1,4 @@
-﻿//Released under the MIT License.
+//Released under the MIT License.
 //
 //Copyright (c) 2018 Ntreev Soft co., Ltd.
 //
@@ -23,7 +23,7 @@ using System.Security;
 using System.Text.RegularExpressions;
 using System.Threading;
 
-namespace Ntreev.Library.Commands
+namespace JSSoft.Library.Commands
 {
     public class Terminal
     {

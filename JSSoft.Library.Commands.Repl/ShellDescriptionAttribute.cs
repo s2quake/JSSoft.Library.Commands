@@ -1,4 +1,4 @@
-﻿//Released under the MIT License.
+//Released under the MIT License.
 //
 //Copyright (c) 2018 Ntreev Soft co., Ltd.
 //
@@ -15,12 +15,12 @@
 //COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR 
 //OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using Ntreev.Library.Commands.Repl.Properties;
+using JSSoft.Library.Commands.Repl.Properties;
 using System;
 using System.ComponentModel;
 using System.Reflection;
 
-namespace Ntreev.Library.Commands.Repl
+namespace JSSoft.Library.Commands.Repl
 {
     [AttributeUsage(AttributeTargets.All)]
     class ShellDescriptionAttribute : DescriptionAttribute

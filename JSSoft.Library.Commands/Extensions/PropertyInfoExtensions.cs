@@ -1,4 +1,4 @@
-﻿//Released under the MIT License.
+//Released under the MIT License.
 //
 //Copyright (c) 2018 Ntreev Soft co., Ltd.
 //
@@ -18,7 +18,7 @@
 using System.Linq;
 using System.Reflection;
 
-namespace Ntreev.Library.Commands.Extensions
+namespace JSSoft.Library.Commands.Extensions
 {
     static class PropertyInfoExtensions
     {

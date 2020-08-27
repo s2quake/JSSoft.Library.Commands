@@ -1,4 +1,4 @@
-ï»¿//Released under the MIT License.
+//Released under the MIT License.
 //
 //Copyright (c) 2018 Ntreev Soft co., Ltd.
 //
@@ -18,11 +18,11 @@
 using System;
 using System.Linq;
 
-namespace Ntreev.Library.Commands
+namespace JSSoft.Library.Commands
 {
     /// <summary>
-    /// CommandMethodë¡œ ì‚¬ìš©í•  ë©”ì†Œë“œì— ì¶”ê°€ì ìœ¼ë¡œ ì‚¬ìš©í•  ì†ì„±ì„ ì„¤ì •í•©ë‹ˆë‹¤.
-    /// ì†ì„±ì˜ ì´ë¦„ì€ ì—¬ëŸ¬ê°œë¥¼ ì„¤ì •í•  ìˆ˜ ìˆìœ¼ë©° í•´ë‹¹ í´ë˜ìŠ¤ë‚´ì— CommandProperty íŠ¹ì„±ì„ ê°–ê³  ìˆëŠ” public ì†ì„±ì´ì—¬ì•¼ë§Œ í•©ë‹ˆë‹¤.
+    /// CommandMethod·Î »ç¿ëÇÒ ¸Ş¼Òµå¿¡ Ãß°¡ÀûÀ¸·Î »ç¿ëÇÒ ¼Ó¼ºÀ» ¼³Á¤ÇÕ´Ï´Ù.
+    /// ¼Ó¼ºÀÇ ÀÌ¸§Àº ¿©·¯°³¸¦ ¼³Á¤ÇÒ ¼ö ÀÖÀ¸¸ç ÇØ´ç Å¬·¡½º³»¿¡ CommandProperty Æ¯¼ºÀ» °®°í ÀÖ´Â public ¼Ó¼ºÀÌ¿©¾ß¸¸ ÇÕ´Ï´Ù.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     public sealed class CommandMethodPropertyAttribute : Attribute

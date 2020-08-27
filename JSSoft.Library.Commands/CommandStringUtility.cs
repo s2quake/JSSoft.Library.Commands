@@ -1,4 +1,4 @@
-ï»¿//Released under the MIT License.
+//Released under the MIT License.
 //
 //Copyright (c) 2018 Ntreev Soft co., Ltd.
 //
@@ -15,12 +15,12 @@
 //COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR 
 //OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using Ntreev.Library.Commands.Properties;
+using JSSoft.Library.Commands.Properties;
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
-namespace Ntreev.Library.Commands
+namespace JSSoft.Library.Commands
 {
     public static class CommandStringUtility
     {
@@ -69,7 +69,7 @@ namespace Ntreev.Library.Commands
         }
 
         /// <summary>
-        /// a=1, a="123", a='123' ê³¼ ê°™ì€ ë¬¸ìì—´ì„ í‚¤ì™€ ê°’ìœ¼ë¡œ ë¶„ë¦¬í•˜ëŠ” ë©”ì†Œë“œ
+        /// a=1, a="123", a='123' °ú °°Àº ¹®ÀÚ¿­À» Å°¿Í °ªÀ¸·Î ºĞ¸®ÇÏ´Â ¸Ş¼Òµå
         /// </summary>
         public static bool TryGetKeyValue(string text, out string key, out string value)
         {
