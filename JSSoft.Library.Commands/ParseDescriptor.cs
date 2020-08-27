@@ -1,4 +1,4 @@
-// Released under the MIT License.
+ï»¿// Released under the MIT License.
 // 
 // Copyright (c) 2018 Ntreev Soft co., Ltd.
 // Copyright (c) 2020 Jeesu Choi
@@ -187,7 +187,7 @@ namespace JSSoft.Library.Commands
                 if (items.Any() == true)
                 {
                     var sb = new StringBuilder();
-                    sb.AppendLine("Ã³¸®µÇÁö ¾ÊÀº ÀÎÀÚ°¡ Æ÷ÇÔµÇ¾î ÀÖ½À´Ï´Ù.");
+                    sb.AppendLine("ì²˜ë¦¬ë˜ì§€ ì•Šì€ ì¸ìê°€ í¬í•¨ë˜ì–´ ìˆìŠµë‹ˆë‹¤.");
                     foreach (var item in items)
                     {
                         if (item.Value != null)

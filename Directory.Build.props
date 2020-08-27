@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!-- Released under the MIT License.
 
 Copyright (c) 2018 Ntreev Soft co., Ltd.
@@ -28,7 +28,7 @@ Namespaces and files starting with "Ntreev" have been renamed to "JSSoft". -->
     <RepositoryType>git</RepositoryType>
     <PackageProjectUrl>https://github.com/s2quake/CommandLineParser</PackageProjectUrl>
     <LicenseUrl>https://github.com/s2quake/CommandLineParser/blob/master/LICENSE.md</LicenseUrl>
-    <Copyright>Copyright �� JSSoft 2020</Copyright>
+    <Copyright>Copyright 占쏙옙 JSSoft 2020</Copyright>
     <Description>comman line parser</Description>
     <Authors>s2quake</Authors>
     <RepositoryUrl>https://github.com/s2quake/CommandLineParser</RepositoryUrl>

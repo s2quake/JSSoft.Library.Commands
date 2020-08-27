@@ -1,4 +1,4 @@
-// Released under the MIT License.
+ï»¿// Released under the MIT License.
 // 
 // Copyright (c) 2018 Ntreev Soft co., Ltd.
 // Copyright (c) 2020 Jeesu Choi
@@ -25,7 +25,7 @@ using System;
 namespace JSSoft.Library.Commands
 {
     /// <summary>
-    /// CommandMethod·Î »ç¿ëÇÒ Å¬·¡½º¿¡ Ãß°¡·Î »ç¿ëµÉ CommandMethodAttribute°¡ Á¤ÀÇµÇ¾î ÀÖ´Â static class Å¸ÀÔÀ» ¼³Á¤ÇÕ´Ï´Ù.
+    /// CommandMethodë¡œ ì‚¬ìš©í•  í´ë˜ìŠ¤ì— ì¶”ê°€ë¡œ ì‚¬ìš©ë  CommandMethodAttributeê°€ ì •ì˜ë˜ì–´ ìˆëŠ” static class íƒ€ì…ì„ ì„¤ì •í•©ë‹ˆë‹¤.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public class CommandStaticMethodAttribute : Attribute

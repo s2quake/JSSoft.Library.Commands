@@ -1,4 +1,4 @@
-// Released under the MIT License.
+ï»¿// Released under the MIT License.
 // 
 // Copyright (c) 2018 Ntreev Soft co., Ltd.
 // Copyright (c) 2020 Jeesu Choi
@@ -68,7 +68,7 @@ namespace JSSoft.Library.Commands.Repl.Commands
             }
             else
             {
-                throw new DirectoryNotFoundException(string.Format("'{0}'Àº(´Â) Á¸ÀçÇÏÁö ¾Ê´Â °æ·ÎÀÔ´Ï´Ù.", this.DirectoryName));
+                throw new DirectoryNotFoundException(string.Format("'{0}'ì€(ëŠ”) ì¡´ì¬í•˜ì§€ ì•ŠëŠ” ê²½ë¡œì…ë‹ˆë‹¤.", this.DirectoryName));
             }
         }
     }

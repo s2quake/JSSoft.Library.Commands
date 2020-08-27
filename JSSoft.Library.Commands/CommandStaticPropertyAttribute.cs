@@ -1,4 +1,4 @@
-// Released under the MIT License.
+ï»¿// Released under the MIT License.
 // 
 // Copyright (c) 2018 Ntreev Soft co., Ltd.
 // Copyright (c) 2020 Jeesu Choi
@@ -25,8 +25,8 @@ using System;
 namespace JSSoft.Library.Commands
 {
     /// <summary>
-    /// Å¬·¡½º¿¡ Ãß°¡ÀûÀ¸·Î »ç¿ëÇÒ ½ºÀ§Ä¡°¡ Á¤ÀÇµÇ¾î ÀÖ´Â static class Å¸ÀÔÀ» ¼³Á¤ÇÕ´Ï´Ù.
-    /// ¼Ó¼ºÀÇ ÀÌ¸§À» ¼³Á¤ÇÏÁö ¾ÊÀ» °æ¿ì¿¡´Â static class ³»¿¡ CommandPropertyAttribute Æ¯¼ºÀ» °®°í ÀÖ´Â public ¸ğµç ¼Ó¼ºÀÌ Ãß°¡µË´Ï´Ù.
+    /// í´ë˜ìŠ¤ì— ì¶”ê°€ì ìœ¼ë¡œ ì‚¬ìš©í•  ìŠ¤ìœ„ì¹˜ê°€ ì •ì˜ë˜ì–´ ìˆëŠ” static class íƒ€ì…ì„ ì„¤ì •í•©ë‹ˆë‹¤.
+    /// ì†ì„±ì˜ ì´ë¦„ì„ ì„¤ì •í•˜ì§€ ì•Šì„ ê²½ìš°ì—ëŠ” static class ë‚´ì— CommandPropertyAttribute íŠ¹ì„±ì„ ê°–ê³  ìˆëŠ” public ëª¨ë“  ì†ì„±ì´ ì¶”ê°€ë©ë‹ˆë‹¤.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public class CommandStaticPropertyAttribute : Attribute

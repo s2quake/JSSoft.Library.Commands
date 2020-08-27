@@ -1,4 +1,4 @@
-// Released under the MIT License.
+ï»¿// Released under the MIT License.
 // 
 // Copyright (c) 2018 Ntreev Soft co., Ltd.
 // Copyright (c) 2020 Jeesu Choi
@@ -106,7 +106,7 @@ namespace JSSoft.Library.Commands.Extensions
         }
 
         /// <summary>
-        /// linux¿¡ ls ¸í·ÉÃ³·³ ´Ü¼ø ¹®ÀÚ¿­À» À§¿¡¼­ ¾Æ·¡·Î ÁÂ¿¡¼­ ¿ì·Î Á¤·ÄÇØ¼­ Ãâ·ÂÇÏ´Â ±â´É
+        /// linuxì— ls ëª…ë ¹ì²˜ëŸ¼ ë‹¨ìˆœ ë¬¸ìì—´ì„ ìœ„ì—ì„œ ì•„ë˜ë¡œ ì¢Œì—ì„œ ìš°ë¡œ ì •ë ¬í•´ì„œ ì¶œë ¥í•˜ëŠ” ê¸°ëŠ¥
         /// </summary>
         public static void Print<T>(this TextWriter writer, T[] items, Action<T, TextWriter, string> action, Func<T, string> selector)
         {
@@ -193,7 +193,7 @@ namespace JSSoft.Library.Commands.Extensions
         }
 
         /// <summary>
-        /// ¶óº§°ú °ªÀÌ Á¸ÀçÇÏ´Â ¾ÆÀÌÅÛÀ» {0} : {1} ÇüÅÂ·Î Ãâ·ÂÇÏ´Â ±â´É
+        /// ë¼ë²¨ê³¼ ê°’ì´ ì¡´ì¬í•˜ëŠ” ì•„ì´í…œì„ {0} : {1} í˜•íƒœë¡œ ì¶œë ¥í•˜ëŠ” ê¸°ëŠ¥
         /// </summary>
         public static void Print<T>(this TextWriter writer, IDictionary<string, T> items, Action<T, Action> action, Func<T, string> selector)
         {
