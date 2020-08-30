@@ -19,13 +19,15 @@
 // Forked from https://github.com/NtreevSoft/CommandLineParser
 // Namespaces and files starting with "Ntreev" have been renamed to "JSSoft".
 
+using System.Threading.Tasks;
+
 namespace JSSoft.Library.Commands.Repl
 {
     public interface IShell
     {
         void Cancel();
 
-        void Start();
+        Task StartAsync();
 
         string Prompt { get; set; }
     }

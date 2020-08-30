@@ -21,15 +21,13 @@
 
 using System;
 using System.Reflection;
-using System.Threading;
+using System.Threading.Tasks;
 
 namespace JSSoft.Library.Commands
 {
     public class CommandContextTerminal : Terminal
     {
         private readonly CommandContextBase commandContext;
-        private readonly ManualResetEvent resetEvent = new ManualResetEvent(false);
-        private Exception exception;
         private string prompt;
         private string prefix;
         private string postfix;
@@ -37,8 +35,6 @@ namespace JSSoft.Library.Commands
         public CommandContextTerminal(CommandContextBase commandContext)
         {
             this.commandContext = commandContext;
-            this.commandContext.Executing += CommandContext_Executing;
-            this.commandContext.Executed += commandContext_Executed;
         }
 
         public new string Prompt
@@ -93,12 +89,36 @@ namespace JSSoft.Library.Commands
             {
                 try
                 {
-                    this.exception = null;
-                    this.resetEvent.Reset();
                     this.commandContext.Execute(this.commandContext.Name + " " + line);
-                    this.resetEvent.WaitOne();
-                    if (this.exception != null)
-                        throw this.exception;
+                }
+                catch (TargetInvocationException e)
+                {
+                    this.WriteException(e.InnerException ?? e);
+                }
+                catch (AggregateException e)
+                {
+                    foreach (var item in e.InnerExceptions)
+                    {
+                        this.WriteException(item);
+                    }
+                }
+                catch (Exception e)
+                {
+                    this.WriteException(e);
+                }
+                if (this.IsCancellationRequested == true)
+                    break;
+            }
+        }
+
+        public async Task StartAsync()
+        {
+            string line;
+            while ((line = this.ReadStringInternal(this.Prefix + this.Prompt + this.Postfix)) != null)
+            {
+                try
+                {
+                    await this.commandContext.ExecuteAsync(this.commandContext.Name + " " + line);
                 }
                 catch (TargetInvocationException e)
                 {
@@ -139,20 +159,6 @@ namespace JSSoft.Library.Commands
             {
                 this.commandContext.Error.WriteLine(e.Message);
             }
-        }
-
-        private void CommandContext_Executing(object sender, ExecuteEventArgs e)
-        {
-            if (e.Task is null)
-            {
-                this.resetEvent.Set();
-            }
-        }
-
-        private void commandContext_Executed(object sender, ExecutedEventArgs e)
-        {
-            this.exception = e.Exception;
-            this.resetEvent.Set();
         }
     }
 }

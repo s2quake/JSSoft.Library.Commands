@@ -27,6 +27,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace JSSoft.Library.Commands
 {
@@ -99,6 +100,19 @@ namespace JSSoft.Library.Commands
             this.ExecuteInternal(arguments);
         }
 
+        public Task ExecuteAsync(string commandLine)
+        {
+            var (name, arguments) = CommandStringUtility.Split(commandLine);
+            return this.ExecuteAsync(name, arguments);
+        }
+
+        public Task ExecuteAsync(string name, string arguments)
+        {
+            if (this.VerifyName(name) == false)
+                throw new ArgumentException(string.Format(Resources.Exception_InvalidCommandName_Format, name));
+            return this.ExecuteInternalAsync(arguments);
+        }
+
         public TextWriter Out { get; set; } = Console.Out;
 
         public TextWriter Error { get; set; } = Console.Error;
@@ -111,9 +125,7 @@ namespace JSSoft.Library.Commands
 
         public string BaseDirectory { get; set; } = Directory.GetCurrentDirectory();
 
-        public event ExecuteEventHandler Executing;
-
-        public event ExecutedEventHandler Executed;
+        public event EventHandler Executed;
 
         protected virtual IEnumerable<ICommand> ValidateCommands(IEnumerable<ICommand> commands)
         {
@@ -141,12 +153,7 @@ namespace JSSoft.Library.Commands
             return new VersionCommand();
         }
 
-        protected virtual void OnExecuting(ExecuteEventArgs e)
-        {
-            this.Executing?.Invoke(this, e);
-        }
-
-        protected virtual void OnExecuted(ExecutedEventArgs e)
+        protected virtual void OnExecuted(EventArgs e)
         {
             this.Executed?.Invoke(this, e);
         }
@@ -278,9 +285,34 @@ namespace JSSoft.Library.Commands
                 {
                     var parser = new CommandLineParser(command.Name, command);
                     var arg = string.Join(" ", argumentList);
-                    parser.Invoking += (s, e) => this.OnExecuting(new ExecuteEventArgs(arg, e.Task));
-                    parser.Invoked += (s, e) => this.OnExecuted(new ExecutedEventArgs(e.Exception));
                     parser.Invoke(command.Name, arg);
+                }
+                else
+                {
+                    throw new ArgumentException(string.Format(Resources.Exception_CommandDoesNotExists_Format, commandLine));
+                }
+            }
+        }
+
+        private async Task ExecuteInternalAsync(string commandLine)
+        {
+            if (commandLine == string.Empty)
+            {
+                var sb = new StringBuilder();
+                sb.AppendLine(string.Format(Resources.Message_Help_Format, this.helpCommand.Name));
+                sb.AppendLine(string.Format(Resources.Message_Version_Format, this.versionCommand.Name));
+                this.Out.Write(sb.ToString());
+            }
+            else
+            {
+                var arguments = CommandStringUtility.SplitAll(commandLine);
+                var argumentList = new List<string>(arguments);
+                var command = this.GetCommand(this.commandNode, argumentList);
+                if (command != null)
+                {
+                    var parser = new CommandLineParser(command.Name, command);
+                    var arg = string.Join(" ", argumentList);
+                    await parser.InvokeAsync(command.Name, arg);
                 }
                 else
                 {

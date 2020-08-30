@@ -150,7 +150,7 @@ namespace JSSoft.Library.Commands
             return this.TryInvoke(this.Name, arguments);
         }
 
-        public async void Invoke(string name, string arguments)
+        public void Invoke(string name, string arguments)
         {
             if (this.VerifyName(name) == false)
                 throw new ArgumentException(string.Format(Resources.Exception_InvalidCommandName_Format, name));
@@ -166,7 +166,10 @@ namespace JSSoft.Library.Commands
                 if (command is IExecutable executable1)
                     this.Invoke(executable1);
                 else if (command is IExecutableAsync executable2)
-                    await this.InvokeAsync(executable2);
+                {
+                    Trace.TraceWarning("Asynchronous use in Invoke can pose a risk. Use InvokeAsync instead.");
+                    this.InvokeAsync(executable2).Wait();
+                }
             }
             else if (instance is IExecutable executable1)
             {
@@ -176,14 +179,20 @@ namespace JSSoft.Library.Commands
             else if (instance is IExecutableAsync executable2)
             {
                 this.Parse(name, arguments);
-                await this.InvokeAsync(executable2);
+                Trace.TraceWarning("Asynchronous use in Invoke can pose a risk. Use InvokeAsync instead.");
+                this.InvokeAsync(executable2).Wait();
             }
             else if (CommandDescriptor.GetMethodDescriptor(instance, first) is CommandMethodDescriptor descriptor)
             {
                 if (descriptor.IsAsync == true)
-                    await this.InvokeAsync(descriptor, instance, rest);
+                {
+                    Trace.TraceWarning("Asynchronous use in Invoke can pose a risk. Use InvokeAsync instead.");
+                    this.InvokeAsync(descriptor, instance, rest).Wait();
+                }
                 else
+                {
                     this.Invoke(descriptor, instance, rest);
+                }
             }
         }
 
@@ -354,20 +363,6 @@ namespace JSSoft.Library.Commands
 
         public string Version { get; set; } = $"{new Version(1, 0)}";
 
-        public event InvokeEventHandler Invoking;
-
-        public event InvokedEventHandler Invoked;
-
-        protected virtual void OnInvoking(InvokeEventArgs e)
-        {
-            this.Invoking?.Invoke(this, e);
-        }
-
-        protected virtual void OnExecuted(InvokedEventArgs e)
-        {
-            this.Invoked?.Invoke(this, e);
-        }
-
         protected virtual void OnPrintSummary()
         {
             if (this.Out != null)
@@ -470,59 +465,28 @@ namespace JSSoft.Library.Commands
 
         private void Invoke(IExecutable executable)
         {
-            this.OnInvoking(new InvokeEventArgs());
-            try
-            {
-                executable.Execute();
-                this.OnExecuted(new InvokedEventArgs());
-            }
-            catch (Exception e)
-            {
-                this.OnExecuted(new InvokedEventArgs(e));
-            }
+            executable.Execute();
         }
 
         private async Task InvokeAsync(IExecutableAsync executable)
         {
-            var task = executable.ExecuteAsync();
-            try
-            {
-                this.OnInvoking(new InvokeEventArgs());
-                await task;
-                this.OnExecuted(new InvokedEventArgs());
-            }
-            catch (Exception e)
-            {
-                this.OnExecuted(new InvokedEventArgs(e));
-            }
+            await executable.ExecuteAsync();
         }
 
         private void Invoke(CommandMethodDescriptor descriptor, object instance, string arguments)
         {
-            try
-            {
-                this.OnInvoking(new InvokeEventArgs());
-                descriptor.Invoke(instance, arguments, descriptor.Members);
-                this.OnExecuted(new InvokedEventArgs());
-            }
-            catch (Exception e)
-            {
-                this.OnExecuted(new InvokedEventArgs(e));
-            }
+            descriptor.Invoke(instance, arguments, descriptor.Members);
         }
 
         private async Task InvokeAsync(CommandMethodDescriptor descriptor, object instance, string arguments)
         {
-            var task = descriptor.Invoke(instance, arguments, descriptor.Members) as Task;
-            try
+            if (descriptor.Invoke(instance, arguments, descriptor.Members) is Task task)
             {
-                this.OnInvoking(new InvokeEventArgs(task));
                 await task;
-                this.OnExecuted(new InvokedEventArgs());
             }
-            catch (Exception e)
+            else
             {
-                this.OnExecuted(new InvokedEventArgs(e));
+                throw new NotImplementedException();
             }
         }
     }

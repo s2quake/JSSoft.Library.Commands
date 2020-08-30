@@ -20,16 +20,17 @@
 // Namespaces and files starting with "Ntreev" have been renamed to "JSSoft".
 
 using System.IO;
+using System.Threading.Tasks;
 
 namespace JSSoft.Library.Commands.Repl
 {
     class Program
     {
-        static void Main(string[] _)
+        static async Task Main(string[] _)
         {
             var shell = Container.GetService<IShell>();
             shell.Prompt = Directory.GetCurrentDirectory();
-            shell.Start();
+            await shell.StartAsync();
         }
     }
 }
