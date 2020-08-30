@@ -56,23 +56,15 @@ namespace JSSoft.Library.Commands
 
         public override bool IsAsync { get; }
 
-        protected override void OnInvoke(object instance, object[] parameters)
+        protected override object OnInvoke(object instance, object[] parameters)
         {
             if (this.MethodInfo.DeclaringType.IsAbstract && this.MethodInfo.DeclaringType.IsSealed == true)
             {
-                var result = this.MethodInfo.Invoke(null, parameters);
-                if (result is Task task)
-                {
-                    task.Wait();
-                }
+                return this.MethodInfo.Invoke(null, parameters);
             }
             else
             {
-                var result = this.MethodInfo.Invoke(instance, parameters);
-                if (result is Task task)
-                {
-                    task.Wait();
-                }
+                return this.MethodInfo.Invoke(instance, parameters);
             }
         }
     }

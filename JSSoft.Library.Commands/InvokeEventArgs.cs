@@ -19,46 +19,29 @@
 // Forked from https://github.com/NtreevSoft/CommandLineParser
 // Namespaces and files starting with "Ntreev" have been renamed to "JSSoft".
 
+using JSSoft.Library.Commands.Properties;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace JSSoft.Library.Commands
 {
-    class SubCommandAsyncBase : ICommand, ICommandCompletor, IExecutableAsync, ICommandDescriptor
+    public class InvokeEventArgs : EventArgs
     {
-        private readonly CommandMethodBase command;
-        private readonly CommandMethodDescriptor descriptor;
-
-        public SubCommandAsyncBase(CommandMethodBase command, CommandMethodDescriptor descriptor)
+        public InvokeEventArgs()
         {
-            this.command = command;
-            this.descriptor = descriptor;
-            this.Members = descriptor.Members.Select(item => new SubCommandPropertyDescriptor(command, item)).ToArray();
+        }
+        
+        public InvokeEventArgs(Task task)
+        {
+            this.Task = task;
         }
 
-        public string Name => this.descriptor.Name;
-
-        public virtual bool IsEnabled => this.descriptor.CanExecute(this.command);
-
-        public IEnumerable<CommandMemberDescriptor> Members { get; }
-
-        public async Task ExecuteAsync()
-        {
-            if (this.descriptor.Invoke(this.command, this.descriptor.Members) is Task task)
-            {
-                await task;
-            }
-            else
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public string[] GetCompletions(CommandCompletionContext completionContext)
-        {
-            return this.command.GetCompletions(this.descriptor, completionContext.MemberDescriptor, completionContext.Find);
-        }
+        public Task Task { get; }
     }
 }

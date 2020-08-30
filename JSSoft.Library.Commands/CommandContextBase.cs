@@ -96,7 +96,6 @@ namespace JSSoft.Library.Commands
         {
             if (this.VerifyName(name) == false)
                 throw new ArgumentException(string.Format(Resources.Exception_InvalidCommandName_Format, name));
-
             this.ExecuteInternal(arguments);
         }
 
@@ -112,7 +111,9 @@ namespace JSSoft.Library.Commands
 
         public string BaseDirectory { get; set; } = Directory.GetCurrentDirectory();
 
-        public event EventHandler Executed;
+        public event ExecuteEventHandler Executing;
+
+        public event ExecutedEventHandler Executed;
 
         protected virtual IEnumerable<ICommand> ValidateCommands(IEnumerable<ICommand> commands)
         {
@@ -140,7 +141,12 @@ namespace JSSoft.Library.Commands
             return new VersionCommand();
         }
 
-        protected virtual void OnExecuted(EventArgs e)
+        protected virtual void OnExecuting(ExecuteEventArgs e)
+        {
+            this.Executing?.Invoke(this, e);
+        }
+
+        protected virtual void OnExecuted(ExecutedEventArgs e)
         {
             this.Executed?.Invoke(this, e);
         }
@@ -272,6 +278,8 @@ namespace JSSoft.Library.Commands
                 {
                     var parser = new CommandLineParser(command.Name, command);
                     var arg = string.Join(" ", argumentList);
+                    parser.Invoking += (s, e) => this.OnExecuting(new ExecuteEventArgs(arg, e.Task));
+                    parser.Invoked += (s, e) => this.OnExecuted(new ExecutedEventArgs(e.Exception));
                     parser.Invoke(command.Name, arg);
                 }
                 else

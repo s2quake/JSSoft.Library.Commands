@@ -46,6 +46,7 @@ namespace JSSoft.Library.Commands.Repl.Commands
         [CommandMethod]
         public async Task StopAsync()
         {
+            throw new Exception("123");
             this.cancellation.Cancel();
             await this.task;
             this.cancellation = null;

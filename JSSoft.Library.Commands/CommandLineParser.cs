@@ -25,6 +25,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace JSSoft.Library.Commands
 {
@@ -134,29 +135,7 @@ namespace JSSoft.Library.Commands
             }
             catch (Exception e)
             {
-                if (this.VerifyName(name) == true && this.Out != null)
-                {
-                    var (first, rest) = CommandStringUtility.Split(arguments);
-                    if (first == this.HelpName)
-                    {
-                        var (arg1, arg2) = CommandStringUtility.Split(rest);
-                        this.OnPrintMethodUsage(arg1, arg2);
-                    }
-                    else if (first == this.VersionName)
-                    {
-                        this.OnPrintVersion();
-                    }
-                    else
-                    {
-                        this.OnPrintSummary();
-                    }
-
-                }
-                else if (this.VerifyName(name) == false && this.Error != null)
-                {
-                    this.Error.WriteLine(e.Message);
-                }
-                return false;
+                return this.PostTryInvoke(name, arguments, e);
             }
         }
 
@@ -166,7 +145,12 @@ namespace JSSoft.Library.Commands
             return this.TryInvoke(name, arguments);
         }
 
-        public void Invoke(string name, string arguments)
+        public bool TryInvokeWith(string arguments)
+        {
+            return this.TryInvoke(this.Name, arguments);
+        }
+
+        public async void Invoke(string name, string arguments)
         {
             if (this.VerifyName(name) == false)
                 throw new ArgumentException(string.Format(Resources.Exception_InvalidCommandName_Format, name));
@@ -180,23 +164,26 @@ namespace JSSoft.Library.Commands
                 var args = string.Join(" ", arguments);
                 parser.Parse(args);
                 if (command is IExecutable executable1)
-                    executable1.Execute();
+                    this.Invoke(executable1);
                 else if (command is IExecutableAsync executable2)
-                    executable2.ExecuteAsync().Wait();
+                    await this.InvokeAsync(executable2);
             }
             else if (instance is IExecutable executable1)
             {
                 this.Parse(name, arguments);
-                executable1.Execute();
+                this.Invoke(executable1);
             }
             else if (instance is IExecutableAsync executable2)
             {
                 this.Parse(name, arguments);
-                executable2.ExecuteAsync().Wait();
+                await this.InvokeAsync(executable2);
             }
             else if (CommandDescriptor.GetMethodDescriptor(instance, first) is CommandMethodDescriptor descriptor)
             {
-                descriptor.Invoke(instance, rest, descriptor.Members);
+                if (descriptor.IsAsync == true)
+                    await this.InvokeAsync(descriptor, instance, rest);
+                else
+                    this.Invoke(descriptor, instance, rest);
             }
         }
 
@@ -209,6 +196,78 @@ namespace JSSoft.Library.Commands
         public void InvokeWith(string arguments)
         {
             this.Invoke(this.Name, arguments);
+        }
+
+        public async Task<bool> TryInvokeAsync(string name, string arguments)
+        {
+            try
+            {
+                await this.InvokeAsync(name, arguments);
+                return true;
+            }
+            catch (Exception e)
+            {
+                return this.PostTryInvoke(name, arguments, e);
+            }
+        }
+
+        public Task<bool> TryInvokeAsync(string commandLine)
+        {
+            var (name, arguments) = CommandStringUtility.Split(commandLine);
+            return this.TryInvokeAsync(name, arguments);
+        }
+
+        public Task<bool> TryInvokeWithAsync(string arguments)
+        {
+            return this.TryInvokeAsync(this.Name, arguments);
+        }
+
+        public async Task InvokeAsync(string name, string arguments)
+        {
+            if (this.VerifyName(name) == false)
+                throw new ArgumentException(string.Format(Resources.Exception_InvalidCommandName_Format, name));
+
+            var (first, rest) = CommandStringUtility.Split(arguments);
+            var instance = this.Instance;
+            if (instance is ICommandHierarchy hierarchy && hierarchy.Commands.ContainsKey(first) == true)
+            {
+                var command = hierarchy.Commands[first];
+                var parser = new CommandLineParser(first, arguments);
+                var args = string.Join(" ", arguments);
+                parser.Parse(args);
+                if (command is IExecutable executable1)
+                    this.Invoke(executable1);
+                else if (command is IExecutableAsync executable2)
+                    await this.InvokeAsync(executable2);
+            }
+            else if (instance is IExecutable executable1)
+            {
+                this.Parse(name, arguments);
+                this.Invoke(executable1);
+            }
+            else if (instance is IExecutableAsync executable2)
+            {
+                this.Parse(name, arguments);
+                await this.InvokeAsync(executable2);
+            }
+            else if (CommandDescriptor.GetMethodDescriptor(instance, first) is CommandMethodDescriptor descriptor)
+            {
+                if (descriptor.IsAsync == true)
+                    await this.InvokeAsync(descriptor, instance, rest);
+                else
+                    this.Invoke(descriptor, instance, rest);
+            }
+        }
+
+        public Task InvokeAsync(string commandLine)
+        {
+            var (name, arguments) = CommandStringUtility.Split(commandLine);
+            return this.InvokeAsync(name, arguments);
+        }
+
+        public Task InvokeWithAsync(string arguments)
+        {
+            return this.InvokeAsync(this.Name, arguments);
         }
 
         public void PrintSummary()
@@ -295,6 +354,20 @@ namespace JSSoft.Library.Commands
 
         public string Version { get; set; } = $"{new Version(1, 0)}";
 
+        public event InvokeEventHandler Invoking;
+
+        public event InvokedEventHandler Invoked;
+
+        protected virtual void OnInvoking(InvokeEventArgs e)
+        {
+            this.Invoking?.Invoke(this, e);
+        }
+
+        protected virtual void OnExecuted(InvokedEventArgs e)
+        {
+            this.Invoked?.Invoke(this, e);
+        }
+
         protected virtual void OnPrintSummary()
         {
             if (this.Out != null)
@@ -357,6 +430,33 @@ namespace JSSoft.Library.Commands
             }
         }
 
+        private bool PostTryInvoke(string name, string arguments, Exception e)
+        {
+            if (this.VerifyName(name) == true && this.Out != null)
+            {
+                var (first, rest) = CommandStringUtility.Split(arguments);
+                if (first == this.HelpName)
+                {
+                    var (arg1, arg2) = CommandStringUtility.Split(rest);
+                    this.OnPrintMethodUsage(arg1, arg2);
+                }
+                else if (first == this.VersionName)
+                {
+                    this.OnPrintVersion();
+                }
+                else
+                {
+                    this.OnPrintSummary();
+                }
+
+            }
+            else if (this.VerifyName(name) == false && this.Error != null)
+            {
+                this.Error.WriteLine(e.Message);
+            }
+            return false;
+        }
+
         private bool VerifyName(string name)
         {
             if (this.Name == name)
@@ -366,6 +466,64 @@ namespace JSSoft.Library.Commands
             if (this.filename == name)
                 return true;
             return false;
+        }
+
+        private void Invoke(IExecutable executable)
+        {
+            this.OnInvoking(new InvokeEventArgs());
+            try
+            {
+                executable.Execute();
+                this.OnExecuted(new InvokedEventArgs());
+            }
+            catch (Exception e)
+            {
+                this.OnExecuted(new InvokedEventArgs(e));
+            }
+        }
+
+        private async Task InvokeAsync(IExecutableAsync executable)
+        {
+            var task = executable.ExecuteAsync();
+            try
+            {
+                this.OnInvoking(new InvokeEventArgs());
+                await task;
+                this.OnExecuted(new InvokedEventArgs());
+            }
+            catch (Exception e)
+            {
+                this.OnExecuted(new InvokedEventArgs(e));
+            }
+        }
+
+        private void Invoke(CommandMethodDescriptor descriptor, object instance, string arguments)
+        {
+            try
+            {
+                this.OnInvoking(new InvokeEventArgs());
+                descriptor.Invoke(instance, arguments, descriptor.Members);
+                this.OnExecuted(new InvokedEventArgs());
+            }
+            catch (Exception e)
+            {
+                this.OnExecuted(new InvokedEventArgs(e));
+            }
+        }
+
+        private async Task InvokeAsync(CommandMethodDescriptor descriptor, object instance, string arguments)
+        {
+            var task = descriptor.Invoke(instance, arguments, descriptor.Members) as Task;
+            try
+            {
+                this.OnInvoking(new InvokeEventArgs(task));
+                await task;
+                this.OnExecuted(new InvokedEventArgs());
+            }
+            catch (Exception e)
+            {
+                this.OnExecuted(new InvokedEventArgs(e));
+            }
         }
     }
 }

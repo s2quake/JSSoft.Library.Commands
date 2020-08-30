@@ -49,7 +49,7 @@ namespace JSSoft.Library.Commands
 
         public MethodInfo MethodInfo { get; }
 
-        protected abstract void OnInvoke(object instance, object[] parameters);
+        protected abstract object OnInvoke(object instance, object[] parameters);
 
         protected virtual bool OnCanExecute(object instance)
         {
@@ -61,7 +61,7 @@ namespace JSSoft.Library.Commands
             return this.OnCanExecute(instance);
         }
 
-        internal void Invoke(object instance, string arguments, IEnumerable<CommandMemberDescriptor> descriptors)
+        internal object Invoke(object instance, string arguments, IEnumerable<CommandMemberDescriptor> descriptors)
         {
             var parser = new ParseDescriptor(descriptors, arguments);
             var values = new ArrayList();
@@ -74,10 +74,10 @@ namespace JSSoft.Library.Commands
                 var value = descriptor.GetValueInternal(instance);
                 values.Add(value);
             }
-            this.OnInvoke(instance, values.ToArray());
+            return this.OnInvoke(instance, values.ToArray());
         }
 
-        internal void Invoke(object instance, IEnumerable<CommandMemberDescriptor> descriptors)
+        internal object Invoke(object instance, IEnumerable<CommandMemberDescriptor> descriptors)
         {
             var values = new ArrayList();
             var nameToDescriptors = descriptors.ToDictionary(item => item.DescriptorName);
@@ -88,7 +88,7 @@ namespace JSSoft.Library.Commands
                 var value = descriptor.GetValueInternal(instance);
                 values.Add(value);
             }
-            this.OnInvoke(instance, values.ToArray());
+            return this.OnInvoke(instance, values.ToArray());
         }
     }
 }
