@@ -20,6 +20,7 @@
 // Namespaces and files starting with "Ntreev" have been renamed to "JSSoft".
 
 using System.ComponentModel;
+using System.Globalization;
 using System.Reflection;
 
 namespace JSSoft.Library.Commands
@@ -70,18 +71,42 @@ namespace JSSoft.Library.Commands
 
         public static string ToSummary(ICustomAttributeProvider customAttributeProvider)
         {
-            var attribute = customAttributeProvider.GetCustomAttribute<SummaryAttribute>();
-            if (attribute == null)
-                return string.Empty;
-            return attribute.Summary;
+            var cultureInfo = CultureInfo.CurrentCulture;
+            var cultureName = cultureInfo.Name;
+            var attributes = customAttributeProvider.GetCustomAttributes<CommandSummaryAttribute>();
+            var summary = string.Empty;
+            foreach (var item in attributes)
+            {
+                if (item.Locale == string.Empty && summary == string.Empty)
+                {
+                    summary = item.Summary;
+                }
+                else if (item.Locale == cultureName)
+                {
+                    summary = item.Summary;
+                }
+            }
+            return summary;
         }
 
         public static string ToDescription(ICustomAttributeProvider customAttributeProvider)
         {
-            var attribute = customAttributeProvider.GetCustomAttribute<DescriptionAttribute>();
-            if (attribute == null)
-                return string.Empty;
-            return attribute.Description;
+            var cultureInfo = CultureInfo.CurrentCulture;
+            var cultureName = cultureInfo.Name;
+            var attributes = customAttributeProvider.GetCustomAttributes<CommandDescriptionAttribute>();
+            var description = string.Empty;
+            foreach (var item in attributes)
+            {
+                if (item.Locale == string.Empty && description == string.Empty)
+                {
+                    description = item.Description;
+                }
+                else if (item.Locale == cultureName)
+                {
+                    description = item.Description;
+                }
+            }
+            return description;
         }
     }
 }

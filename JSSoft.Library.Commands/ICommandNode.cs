@@ -34,6 +34,8 @@ namespace JSSoft.Library.Commands
 
         ICommand Command { get; }
 
+        ICommandDescriptor Descriptor { get; }
+
         bool IsEnabled { get; }
 
         IEnumerable<ICommand> Commands { get; }

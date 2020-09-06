@@ -20,12 +20,13 @@
 // Namespaces and files starting with "Ntreev" have been renamed to "JSSoft".
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
 namespace JSSoft.Library.Commands
 {
-    public abstract class CommandBase : ICommand, IExecutable, ICommandHost, ICommandCompletor
+    public abstract class CommandBase : ICommand, IExecutable, ICommandHost, ICommandCompletor, ICommandDescriptor
     {
         protected CommandBase()
         {
@@ -56,7 +57,7 @@ namespace JSSoft.Library.Commands
 
         protected CommandMemberDescriptor GetDescriptor(string propertyName)
         {
-            return CommandDescriptor.GetMemberDescriptors(this)[propertyName];
+            return CommandDescriptor.GetMemberDescriptors(this.GetType())[propertyName];
         }
 
         protected CommandMemberDescriptor GetStaticDescriptor(Type type, string propertyName)
@@ -82,9 +83,21 @@ namespace JSSoft.Library.Commands
         }
 
         #endregion
+
+        #region ICommandDescriptor
+
+        string ICommandDescriptor.Name => this.Name;
+
+        string ICommandDescriptor.Summary => CommandDescriptor.GetUsageDescriptionProvider(this.GetType()).GetSummary(this);
+
+        string ICommandDescriptor.Description => CommandDescriptor.GetUsageDescriptionProvider(this.GetType()).GetDescription(this);
+
+        IEnumerable<CommandMemberDescriptor> ICommandDescriptor.Members => CommandDescriptor.GetMemberDescriptors(this.GetType());
+
+        #endregion
     }
 
-    public abstract class CommandAsyncBase : ICommand, IExecutableAsync, ICommandHost
+    public abstract class CommandAsyncBase : ICommand, IExecutableAsync, ICommandHost, ICommandDescriptor
     {
         protected CommandAsyncBase()
         {
@@ -115,7 +128,7 @@ namespace JSSoft.Library.Commands
 
         protected CommandMemberDescriptor GetDescriptor(string propertyName)
         {
-            return CommandDescriptor.GetMemberDescriptors(this)[propertyName];
+            return CommandDescriptor.GetMemberDescriptors(this.GetType())[propertyName];
         }
 
         protected CommandMemberDescriptor GetStaticDescriptor(Type type, string propertyName)
@@ -139,6 +152,18 @@ namespace JSSoft.Library.Commands
             get => this.CommandContext;
             set => this.CommandContext = value;
         }
+
+        #endregion
+
+        #region ICommandDescriptor
+
+        string ICommandDescriptor.Name => this.Name;
+
+        string ICommandDescriptor.Summary => CommandDescriptor.GetUsageDescriptionProvider(this.GetType()).GetSummary(this);
+
+        string ICommandDescriptor.Description => CommandDescriptor.GetUsageDescriptionProvider(this.GetType()).GetDescription(this);
+
+        IEnumerable<CommandMemberDescriptor> ICommandDescriptor.Members => CommandDescriptor.GetMemberDescriptors(this.GetType());
 
         #endregion
     }

@@ -72,13 +72,13 @@ namespace JSSoft.Library.Commands
                     var commandName = string.Join(" ", this.CommandNames);
                     if (command is ICommandHierarchy)
                     {
-                        var methodDescriptors = CommandDescriptor.GetMethodDescriptors(command);
+                        var methodDescriptors = CommandDescriptor.GetMethodDescriptors(command.GetType());
                         var printer = new CommandMethodUsagePrinter(commandName, command) { IsDetailed = this.IsDetail };
                         printer.Print(this.Out, methodDescriptors.ToArray());
                     }
                     else
                     {
-                        var memberDescriptors = CommandDescriptor.GetMemberDescriptors(command);
+                        var memberDescriptors = CommandDescriptor.GetMemberDescriptors(command.GetType());
                         var printer = new CommandMemberUsagePrinter(commandName, command) { IsDetailed = this.IsDetail };
                         printer.Print(this.Out, memberDescriptors.ToArray());
                     }
@@ -100,7 +100,8 @@ namespace JSSoft.Library.Commands
             {
                 if (item.IsEnabled == false)
                     continue;
-                var summary = CommandDescriptor.GetUsageDescriptionProvider(item.GetType()).GetSummary(item);
+                var descriptor = item.Descriptor;
+                var summary = descriptor != null ? descriptor.Summary : string.Empty;
                 writer.WriteLine(item.Name);
                 writer.Indent++;
                 writer.WriteMultiline(summary);

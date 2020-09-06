@@ -116,7 +116,7 @@ namespace JSSoft.Library.Commands
                 throw new ArgumentException(string.Format(Resources.Exception_InvalidCommandName_Format, name));
             if (arguments == this.HelpName || arguments == this.VersionName)
                 throw new ArgumentException();
-            var descriptors = CommandDescriptor.GetMemberDescriptors(this.Instance).ToArray();
+            var descriptors = CommandDescriptor.GetMemberDescriptors(this.Instance.GetType()).ToArray();
             var parser = new ParseDescriptor(descriptors, arguments);
             parser.SetValue(this.Instance);
         }
@@ -182,7 +182,7 @@ namespace JSSoft.Library.Commands
                 Trace.TraceWarning("Asynchronous use in Invoke can pose a risk. Use InvokeAsync instead.");
                 this.InvokeAsync(executable2).Wait();
             }
-            else if (CommandDescriptor.GetMethodDescriptor(instance, first) is CommandMethodDescriptor descriptor)
+            else if (CommandDescriptor.GetMethodDescriptor(instance.GetType(), first) is CommandMethodDescriptor descriptor)
             {
                 if (descriptor.IsAsync == true)
                 {
@@ -259,7 +259,7 @@ namespace JSSoft.Library.Commands
                 this.Parse(name, arguments);
                 await this.InvokeAsync(executable2);
             }
-            else if (CommandDescriptor.GetMethodDescriptor(instance, first) is CommandMethodDescriptor descriptor)
+            else if (CommandDescriptor.GetMethodDescriptor(instance.GetType(), first) is CommandMethodDescriptor descriptor)
             {
                 if (descriptor.IsAsync == true)
                     await this.InvokeAsync(descriptor, instance, rest);
@@ -302,7 +302,7 @@ namespace JSSoft.Library.Commands
             var instance = this.Instance;
             var printer = this.MemberUsagePrinter;
             var writer = this.Out;
-            var memberDescriptors = CommandDescriptor.GetMemberDescriptors(instance);
+            var memberDescriptors = CommandDescriptor.GetMemberDescriptors(instance.GetType());
             if (memberName == string.Empty)
             {
                 printer.Print(writer, memberDescriptors.ToArray());
@@ -325,7 +325,7 @@ namespace JSSoft.Library.Commands
             var instance = this.Instance;
             var printer = this.MethodUsagePrinter;
             var writer = this.Out;
-            var methodDescriptors = CommandDescriptor.GetMethodDescriptors(instance);
+            var methodDescriptors = CommandDescriptor.GetMethodDescriptors(instance.GetType());
             if (methodName == string.Empty)
             {
                 printer.Print(writer, methodDescriptors.ToArray());

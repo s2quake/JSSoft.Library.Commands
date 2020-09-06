@@ -23,14 +23,29 @@ using System;
 
 namespace JSSoft.Library.Commands
 {
-    [AttributeUsage(AttributeTargets.All)]
-    public class SummaryAttribute : Attribute
+    [AttributeUsage(AttributeTargets.All, AllowMultiple = true)]
+    public class CommandSummaryAttribute : Attribute
     {
-        public SummaryAttribute(string summary)
+        private string locale = string.Empty;
+        private string path = string.Empty;
+
+        public CommandSummaryAttribute(string summary)
         {
             this.Summary = summary ?? throw new ArgumentNullException(nameof(summary));
         }
 
-        public string Summary { get; }
+        public virtual string Summary { get; }
+
+        public string Locale
+        {
+            get => this.locale;
+            set => this.locale = value ?? throw new ArgumentNullException(nameof(value));
+        }
+
+        public string Path
+        {
+            get => this.path;
+            set => this.path = value ?? throw new ArgumentNullException(nameof(value));
+        }
     }
 }

@@ -48,14 +48,13 @@ namespace JSSoft.Library.Commands
             return typeToUsageDescriptionProvider[type];
         }
 
-        public static CommandMethodDescriptor GetMethodDescriptor(object instance, string methodName)
+        public static CommandMethodDescriptor GetMethodDescriptor(Type type, string methodName)
         {
-            return GetMethodDescriptors(instance)[methodName];
+            return GetMethodDescriptors(type)[methodName];
         }
 
-        public static CommandMethodDescriptorCollection GetMethodDescriptors(object instance)
+        public static CommandMethodDescriptorCollection GetMethodDescriptors(Type type)
         {
-            var type = instance is Type type1 ? type1 : instance.GetType();
             if (typeToMethodDescriptors.ContainsKey(type) == false)
             {
                 typeToMethodDescriptors.Add(type, CreateMethodDescriptors(type));
@@ -83,25 +82,13 @@ namespace JSSoft.Library.Commands
             return providerToMemberDescriptors[provider];
         }
 
-        public static CommandMemberDescriptorCollection GetMemberDescriptors(object instance)
+        public static CommandMemberDescriptorCollection GetMemberDescriptors(Type type)
         {
-            if (instance is ICommandDescriptor descriptor)
+            if (membersByInstance.ContainsKey(type) == false)
             {
-                if (membersByInstance.ContainsKey(descriptor) == false)
-                {
-                    membersByInstance.Add(descriptor, new CommandMemberDescriptorCollection(descriptor));
-                }
-                return membersByInstance[descriptor];
+                membersByInstance.Add(type, CreateMemberDescriptors(type));
             }
-            else
-            {
-                var type = instance is Type type1 ? type1 : instance.GetType();
-                if (membersByInstance.ContainsKey(type) == false)
-                {
-                    membersByInstance.Add(type, CreateMemberDescriptors(type));
-                }
-                return membersByInstance[type];
-            }
+            return membersByInstance[type];
         }
 
         public static CommandMemberDescriptorCollection CreateStaticMemberDescriptors(ICustomAttributeProvider provider)

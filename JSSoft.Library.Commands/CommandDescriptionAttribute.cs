@@ -19,41 +19,33 @@
 // Forked from https://github.com/NtreevSoft/CommandLineParser
 // Namespaces and files starting with "Ntreev" have been renamed to "JSSoft".
 
-using JSSoft.Library.ObjectModel;
-using System.Collections.Generic;
-using System.Linq;
+using System;
 
 namespace JSSoft.Library.Commands
 {
-    class CommandNode : ICommandNode
+    [AttributeUsage(AttributeTargets.All, AllowMultiple = true)]
+    public class CommandDescriptionAttribute : Attribute
     {
-        public override string ToString()
+        private string locale = string.Empty;
+        private string path = string.Empty;
+
+        public CommandDescriptionAttribute(string description)
         {
-            return this.Name;
+            this.Description = description ?? throw new ArgumentNullException(nameof(description));
         }
 
-        public CommandNode Parent { get; set; }
+        public virtual string Description { get; }
 
-        public CommandNodeCollection Childs { get; } = new CommandNodeCollection();
+        public string Locale
+        {
+            get => this.locale;
+            set => this.locale = value ?? throw new ArgumentNullException(nameof(value));
+        }
 
-        public ICommand Command { get; set; }
-
-        public ICommandDescriptor Descriptor => this.Command as ICommandDescriptor;
-
-        public List<ICommand> CommandList { get; } = new List<ICommand>();
-
-        public string Name { get; set; } = string.Empty;
-
-        public bool IsEnabled => this.CommandList.Any(item => item.IsEnabled);
-
-        #region ICommandNode
-
-        IEnumerable<ICommand> ICommandNode.Commands => this.CommandList;
-
-        ICommandNode ICommandNode.Parent => this.Parent;
-
-        IContainer<ICommandNode> ICommandNode.Childs => this.Childs;
-
-        #endregion
+        public string Path
+        {
+            get => this.path;
+            set => this.path = value ?? throw new ArgumentNullException(nameof(value));
+        }
     }
 }

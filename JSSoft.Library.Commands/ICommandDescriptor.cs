@@ -25,6 +25,12 @@ namespace JSSoft.Library.Commands
 {
     public interface ICommandDescriptor
     {
+        string Name { get; }
+
+        string Summary { get; }
+
+        string Description { get; }
+
         IEnumerable<CommandMemberDescriptor> Members { get; }
     }
 }

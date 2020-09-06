@@ -63,7 +63,7 @@ namespace JSSoft.Library.Commands
                 relativePath += "/";
             var name = this.ResourceName == string.Empty ? type.Name : this.ResourceName;
             var relativeUri = new Uri(relativePath + name, UriKind.Relative);
-            var uri = new Uri($"http://www.JSSoft.com/{type.FullName.Replace('.', '/')}");
+            var uri = new Uri($"http://www.jssoft.com/{type.FullName.Replace('.', '/')}");
             var path = new Uri(uri, relativeUri);
             var resourceName = path.LocalPath.Replace('/', '.').TrimStart('.');
             return new ResourceUsageDescriptionProvider(resourceName) { IsShared = this.IsShared, Prefix = this.Prefix };

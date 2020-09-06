@@ -27,6 +27,8 @@ using System.Threading.Tasks;
 namespace JSSoft.Library.Commands.Repl.Commands
 {
     [Export(typeof(ICommand))]
+    [CommandSummary("Test Command")]
+    [CommandSummary("테스트 명령어", Locale = "ko-KR")]
     class TestCommand : CommandMethodBase
     {
         private Task task;
@@ -37,6 +39,8 @@ namespace JSSoft.Library.Commands.Repl.Commands
         }
 
         [CommandMethod]
+        [CommandSummary("Start async task")]
+        [CommandSummary("비동기 작업을 시작합니다.", Locale = "ko-KR")]
         public void Start()
         {
             this.task = Task.Run(this.Test);
@@ -44,6 +48,8 @@ namespace JSSoft.Library.Commands.Repl.Commands
         }
 
         [CommandMethod]
+        [CommandSummary("Stop async task")]
+        [CommandSummary("비동기 작업을 멈춥니다..", Locale = "ko-KR")]
         public async Task StopAsync()
         {
             this.cancellation.Cancel();

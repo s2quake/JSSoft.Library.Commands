@@ -26,7 +26,7 @@ using System.Reflection;
 namespace JSSoft.Library.Commands.Repl
 {
     [AttributeUsage(AttributeTargets.All)]
-    class ShellSummaryAttribute : SummaryAttribute
+    class ShellSummaryAttribute : CommandSummaryAttribute
     {
         public ShellSummaryAttribute(string resourceName)
             : base(GetResourceString(resourceName))

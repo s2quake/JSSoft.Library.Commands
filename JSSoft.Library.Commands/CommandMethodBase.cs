@@ -21,11 +21,12 @@
 
 using JSSoft.Library.ObjectModel;
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace JSSoft.Library.Commands
 {
-    public abstract class CommandMethodBase : ICommand, ICommandHost, ICommandHierarchy, ICommandCompletor
+    public abstract class CommandMethodBase : ICommand, ICommandHost, ICommandHierarchy, ICommandCompletor, ICommandDescriptor
     {
         private readonly CommandCollection commands = new CommandCollection();
 
@@ -33,7 +34,7 @@ namespace JSSoft.Library.Commands
         {
             this.Name = CommandStringUtility.ToSpinalCase(this.GetType());
 
-            foreach (var item in CommandDescriptor.GetMethodDescriptors(this))
+            foreach (var item in CommandDescriptor.GetMethodDescriptors(this.GetType()))
             {
                 if (item.IsAsync == true)
                 {
@@ -50,7 +51,7 @@ namespace JSSoft.Library.Commands
         {
             this.Name = name ?? throw new ArgumentNullException(nameof(name));
 
-            foreach (var item in CommandDescriptor.GetMethodDescriptors(this))
+            foreach (var item in CommandDescriptor.GetMethodDescriptors(this.GetType()))
             {
                 if (item.IsAsync == true)
                 {
@@ -104,5 +105,16 @@ namespace JSSoft.Library.Commands
         public IContainer<ICommand> Commands => this.commands;
 
         #endregion
+
+        #region ICommandDescriptor
+
+        string ICommandDescriptor.Summary => CommandDescriptor.GetUsageDescriptionProvider(this.GetType()).GetSummary(this);
+
+        string ICommandDescriptor.Description => CommandDescriptor.GetUsageDescriptionProvider(this.GetType()).GetDescription(this);
+
+        IEnumerable<CommandMemberDescriptor> ICommandDescriptor.Members => CommandDescriptor.GetMemberDescriptors(this.GetType());
+
+        #endregion
+
     }
 }

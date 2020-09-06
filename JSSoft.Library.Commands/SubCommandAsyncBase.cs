@@ -40,6 +40,10 @@ namespace JSSoft.Library.Commands
 
         public string Name => this.descriptor.Name;
 
+        public string Summary => this.descriptor.Summary;
+
+        public string Description => this.descriptor.Description;
+
         public virtual bool IsEnabled => this.descriptor.CanExecute(this.command);
 
         public IEnumerable<CommandMemberDescriptor> Members { get; }
