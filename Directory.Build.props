@@ -26,13 +26,13 @@ Namespaces and files starting with "Ntreev" have been renamed to "JSSoft". -->
     <AssemblyVersion>5.0</AssemblyVersion>
     <FileVersion>5.0.0.0</FileVersion>
     <RepositoryType>git</RepositoryType>
-	<RepositoryUrl>https://github.com/s2quake/JSSoft.Library.Commands</RepositoryUrl>
-	<LicenseUrl>https://github.com/s2quake/JSSoft.Library.Commands/blob/master/LICENSE.md</LicenseUrl>
-	<Copyright>Copyright (c) 2018 Ntreev Soft co., Ltd.&#xA;Copyright (c) 2020 Jeesu Choi</Copyright>
-	<Description>Parse command line or Supports console environment like REPL.&#xA;Forked from https://github.com/NtreevSoft/CommandLineParser</Description>
-	<Authors>s2quake</Authors>
-	<PackageProjectUrl>https://github.com/s2quake/JSSoft.Library.Commands</PackageProjectUrl>
-	<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+	  <RepositoryUrl>https://github.com/s2quake/JSSoft.Library.Commands</RepositoryUrl>
+	  <LicenseUrl>https://github.com/s2quake/JSSoft.Library.Commands/blob/master/LICENSE.md</LicenseUrl>
+	  <Copyright>Copyright (c) 2018 Ntreev Soft co., Ltd.&#xA;Copyright (c) 2020 Jeesu Choi</Copyright>
+	  <Description>Parse command line or Supports console environment like REPL.&#xA;Forked from https://github.com/NtreevSoft/CommandLineParser</Description>
+	  <Authors>s2quake</Authors>
+	  <PackageProjectUrl>https://github.com/s2quake/JSSoft.Library.Commands</PackageProjectUrl>
+	  <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
     <LangVersion>latest</LangVersion>
     <RootPath Condition="'$(SolutionDir)' != ''">$(SolutionDir)</RootPath>
     <RootPath Condition="'$(SolutionDir)' == ''">$(MSBuildThisFileDirectory)..\</RootPath>
@@ -41,9 +41,9 @@ Namespaces and files starting with "Ntreev" have been renamed to "JSSoft". -->
     <BaseIntermediateOutputPath>$(RootPath)obj\$(MSBuildProjectName)</BaseIntermediateOutputPath>
     <OutputPath>$(RootPath)bin\$(Configuration)\$(TargetFramework)\$(MSBuildProjectName)</OutputPath>
     <IntermediateOutputPath>$(RootPath)obj\$(Configuration)\$(TargetFramework)\$(MSBuildProjectName)</IntermediateOutputPath>
-	<DelaySign>true</DelaySign>
-	<AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)JSSoft.Library.Commands.snk</AssemblyOriginatorKeyFile>
-	<SignAssembly>true</SignAssembly>
-	<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+	  <DelaySign>true</DelaySign>
+	  <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)JSSoft.Library.Commands.snk</AssemblyOriginatorKeyFile>
+	  <SignAssembly>true</SignAssembly>
+	  <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
 </Project>
