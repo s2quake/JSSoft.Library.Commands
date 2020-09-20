@@ -41,6 +41,7 @@ namespace JSSoft.Library.Commands.Repl.Commands
         [CommandMethod]
         [CommandSummary("Start async task")]
         [CommandSummary("비동기 작업을 시작합니다.", Locale = "ko-KR")]
+        [CommandMethodStaticProperty(typeof(FilterProperties))]
         public void Start()
         {
             this.task = Task.Run(this.Test);

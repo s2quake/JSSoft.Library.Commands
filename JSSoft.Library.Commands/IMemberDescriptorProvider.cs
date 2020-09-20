@@ -20,40 +20,11 @@
 // Namespaces and files starting with "Ntreev" have been renamed to "JSSoft".
 
 using System.Collections.Generic;
-using System.Linq;
 
 namespace JSSoft.Library.Commands
 {
-    class SubCommandBase : ICommand, ICommandCompletor, IExecutable, ICommandDescriptor, IMemberDescriptorProvider
+    public interface IMemberDescriptorProvider
     {
-        private readonly CommandMethodBase command;
-        private readonly CommandMethodDescriptor descriptor;
-
-        public SubCommandBase(CommandMethodBase command, CommandMethodDescriptor descriptor)
-        {
-            this.command = command;
-            this.descriptor = descriptor;
-            this.Members = descriptor.Members.Select(item => new SubCommandPropertyDescriptor(command, item)).ToArray();
-        }
-
-        public string Name => this.descriptor.Name;
-
-        public string Summary => this.descriptor.Summary;
-
-        public string Description => this.descriptor.Description;
-
-        public virtual bool IsEnabled => this.descriptor.CanExecute(this.command);
-
-        public IEnumerable<CommandMemberDescriptor> Members { get; }
-
-        public void Execute()
-        {
-            this.descriptor.Invoke(this.command, this.descriptor.Members);
-        }
-
-        public string[] GetCompletions(CommandCompletionContext completionContext)
-        {
-            return this.command.GetCompletions(this.descriptor, completionContext.MemberDescriptor, completionContext.Find);
-        }
+        IEnumerable<CommandMemberDescriptor> Members { get; }
     }
 }

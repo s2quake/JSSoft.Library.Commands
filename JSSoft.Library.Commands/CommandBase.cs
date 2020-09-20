@@ -57,7 +57,7 @@ namespace JSSoft.Library.Commands
 
         protected CommandMemberDescriptor GetDescriptor(string propertyName)
         {
-            return CommandDescriptor.GetMemberDescriptors(this.GetType())[propertyName];
+            return CommandDescriptor.GetMemberDescriptors(this)[propertyName];
         }
 
         protected CommandMemberDescriptor GetStaticDescriptor(Type type, string propertyName)
@@ -92,7 +92,7 @@ namespace JSSoft.Library.Commands
 
         string ICommandDescriptor.Description => CommandDescriptor.GetUsageDescriptionProvider(this.GetType()).GetDescription(this);
 
-        IEnumerable<CommandMemberDescriptor> ICommandDescriptor.Members => CommandDescriptor.GetMemberDescriptors(this.GetType());
+        IEnumerable<CommandMemberDescriptor> ICommandDescriptor.Members => CommandDescriptor.GetMemberDescriptors(this);
 
         #endregion
     }
@@ -128,7 +128,7 @@ namespace JSSoft.Library.Commands
 
         protected CommandMemberDescriptor GetDescriptor(string propertyName)
         {
-            return CommandDescriptor.GetMemberDescriptors(this.GetType())[propertyName];
+            return CommandDescriptor.GetMemberDescriptors(this)[propertyName];
         }
 
         protected CommandMemberDescriptor GetStaticDescriptor(Type type, string propertyName)
@@ -163,7 +163,7 @@ namespace JSSoft.Library.Commands
 
         string ICommandDescriptor.Description => CommandDescriptor.GetUsageDescriptionProvider(this.GetType()).GetDescription(this);
 
-        IEnumerable<CommandMemberDescriptor> ICommandDescriptor.Members => CommandDescriptor.GetMemberDescriptors(this.GetType());
+        IEnumerable<CommandMemberDescriptor> ICommandDescriptor.Members => CommandDescriptor.GetMemberDescriptors(this);
 
         #endregion
     }

@@ -31,6 +31,7 @@ namespace JSSoft.Library.Commands
     public static class CommandDescriptor
     {
         private static readonly Dictionary<Type, CommandMethodDescriptorCollection> typeToMethodDescriptors = new Dictionary<Type, CommandMethodDescriptorCollection>();
+        private static readonly Dictionary<Type, CommandMemberDescriptorCollection> membersByType = new Dictionary<Type, CommandMemberDescriptorCollection>();
         private static readonly Dictionary<object, CommandMemberDescriptorCollection> membersByInstance = new Dictionary<object, CommandMemberDescriptorCollection>();
         private static readonly Dictionary<ICustomAttributeProvider, CommandMemberDescriptorCollection> providerToMemberDescriptors = new Dictionary<ICustomAttributeProvider, CommandMemberDescriptorCollection>();
         private static readonly Dictionary<ICustomAttributeProvider, CommandMethodDescriptorCollection> providerToMethodDescriptors = new Dictionary<ICustomAttributeProvider, CommandMethodDescriptorCollection>();
@@ -82,13 +83,25 @@ namespace JSSoft.Library.Commands
             return providerToMemberDescriptors[provider];
         }
 
-        public static CommandMemberDescriptorCollection GetMemberDescriptors(Type type)
+        public static CommandMemberDescriptorCollection GetMemberDescriptors(object instance)
         {
-            if (membersByInstance.ContainsKey(type) == false)
+            if (instance is IMemberDescriptorProvider provider)
             {
-                membersByInstance.Add(type, CreateMemberDescriptors(type));
+                if (membersByInstance.ContainsKey(provider) == false)
+                {
+                    membersByInstance.Add(provider, new CommandMemberDescriptorCollection(provider.Members));
+                }
+                return membersByInstance[provider];
             }
-            return membersByInstance[type];
+            else
+            {
+                var type = instance is Type t ? t : instance.GetType();
+                if (membersByType.ContainsKey(type) == false)
+                {
+                    membersByType.Add(type, CreateMemberDescriptors(type));
+                }
+                return membersByType[type];
+            }
         }
 
         public static CommandMemberDescriptorCollection CreateStaticMemberDescriptors(ICustomAttributeProvider provider)

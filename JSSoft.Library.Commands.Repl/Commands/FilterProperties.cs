@@ -19,41 +19,38 @@
 // Forked from https://github.com/NtreevSoft/CommandLineParser
 // Namespaces and files starting with "Ntreev" have been renamed to "JSSoft".
 
-using System.Collections.Generic;
-using System.Linq;
+using System.ComponentModel.Composition;
+using System.IO;
 
-namespace JSSoft.Library.Commands
+namespace JSSoft.Library.Commands.Repl.Commands
 {
-    class SubCommandBase : ICommand, ICommandCompletor, IExecutable, ICommandDescriptor, IMemberDescriptorProvider
+    public static class FilterProperties
     {
-        private readonly CommandMethodBase command;
-        private readonly CommandMethodDescriptor descriptor;
-
-        public SubCommandBase(CommandMethodBase command, CommandMethodDescriptor descriptor)
+        [CommandProperty("filter", DefaultValue = "")]
+        [CommandPropertyTrigger(nameof(FilterFile), "")]
+        public static string Filter
         {
-            this.command = command;
-            this.descriptor = descriptor;
-            this.Members = descriptor.Members.Select(item => new SubCommandPropertyDescriptor(command, item)).ToArray();
+            get; set;
         }
 
-        public string Name => this.descriptor.Name;
-
-        public string Summary => this.descriptor.Summary;
-
-        public string Description => this.descriptor.Description;
-
-        public virtual bool IsEnabled => this.descriptor.CanExecute(this.command);
-
-        public IEnumerable<CommandMemberDescriptor> Members { get; }
-
-        public void Execute()
+        [CommandProperty(DefaultValue = "")]
+        [CommandPropertyTrigger(nameof(Filter), "")]
+        public static string FilterFile
         {
-            this.descriptor.Invoke(this.command, this.descriptor.Members);
+            get; set;
         }
 
-        public string[] GetCompletions(CommandCompletionContext completionContext)
+        public static string FilterExpression
         {
-            return this.command.GetCompletions(this.descriptor, completionContext.MemberDescriptor, completionContext.Find);
+            get
+            {
+                if (FilterFile != string.Empty)
+                {
+                    var lines = File.ReadAllLines(FilterFile);
+                    return string.Join(";", lines);
+                }
+                return Filter;
+            }
         }
     }
 }

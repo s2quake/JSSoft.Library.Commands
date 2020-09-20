@@ -26,7 +26,7 @@ using System.Threading.Tasks;
 
 namespace JSSoft.Library.Commands
 {
-    class SubCommandAsyncBase : ICommand, ICommandCompletor, IExecutableAsync, ICommandDescriptor
+    class SubCommandAsyncBase : ICommand, ICommandCompletor, IExecutableAsync, ICommandDescriptor, IMemberDescriptorProvider
     {
         private readonly CommandMethodBase command;
         private readonly CommandMethodDescriptor descriptor;

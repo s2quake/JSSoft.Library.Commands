@@ -253,7 +253,7 @@ namespace JSSoft.Library.Commands
         {
             if (item is ICommandCompletor completor)
             {
-                var members = CommandDescriptor.GetMemberDescriptors(item.GetType());
+                var members = CommandDescriptor.GetMemberDescriptors(item);
                 var context = CommandCompletionContext.Create(item, members, arguments, find);
                 if (context is CommandCompletionContext completionContext)
                 {

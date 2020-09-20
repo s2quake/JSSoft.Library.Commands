@@ -116,7 +116,7 @@ namespace JSSoft.Library.Commands
                 throw new ArgumentException(string.Format(Resources.Exception_InvalidCommandName_Format, name));
             if (arguments == this.HelpName || arguments == this.VersionName)
                 throw new ArgumentException();
-            var descriptors = CommandDescriptor.GetMemberDescriptors(this.Instance.GetType()).ToArray();
+            var descriptors = CommandDescriptor.GetMemberDescriptors(this.Instance).ToArray();
             var parser = new ParseDescriptor(descriptors, arguments);
             parser.SetValue(this.Instance);
         }
@@ -302,7 +302,7 @@ namespace JSSoft.Library.Commands
             var instance = this.Instance;
             var printer = this.MemberUsagePrinter;
             var writer = this.Out;
-            var memberDescriptors = CommandDescriptor.GetMemberDescriptors(instance.GetType());
+            var memberDescriptors = CommandDescriptor.GetMemberDescriptors(instance);
             if (memberName == string.Empty)
             {
                 printer.Print(writer, memberDescriptors.ToArray());

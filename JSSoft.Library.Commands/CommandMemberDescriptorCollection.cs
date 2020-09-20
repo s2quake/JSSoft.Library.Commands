@@ -35,9 +35,9 @@ namespace JSSoft.Library.Commands
 
         }
 
-        internal CommandMemberDescriptorCollection(ICommandDescriptor descriptor)
+        internal CommandMemberDescriptorCollection(IEnumerable<CommandMemberDescriptor> members)
         {
-            foreach (var item in descriptor.Members)
+            foreach (var item in members)
             {
                 this.descriptors.Add(item);
             }
