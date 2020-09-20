@@ -19,6 +19,7 @@
 // Forked from https://github.com/NtreevSoft/CommandLineParser
 // Namespaces and files starting with "Ntreev" have been renamed to "JSSoft".
 
+using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.IO;
 
@@ -26,15 +27,17 @@ namespace JSSoft.Library.Commands.Repl.Commands
 {
     public static class FilterProperties
     {
-        [CommandProperty("filter", DefaultValue = "")]
+        [CommandProperty("filter")]
         [CommandPropertyTrigger(nameof(FilterFile), "")]
+        [DefaultValue(null)]
         public static string Filter
         {
             get; set;
         }
 
-        [CommandProperty(DefaultValue = "")]
-        [CommandPropertyTrigger(nameof(Filter), "")]
+        [CommandProperty]
+        [CommandPropertyTrigger(nameof(Filter), null)]
+        [DefaultValue("")]
         public static string FilterFile
         {
             get; set;

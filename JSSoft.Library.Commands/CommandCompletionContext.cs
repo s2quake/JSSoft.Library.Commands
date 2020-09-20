@@ -33,7 +33,7 @@ namespace JSSoft.Library.Commands
             var memberDescriptor = (CommandMemberDescriptor)null;
             var itemByDescriptor = parser.Items.ToDictionary(item => item.Descriptor);
 
-            foreach (var item in itemByDescriptor)
+            foreach (var item in itemByDescriptor.ToArray())
             {
                 var descriptor = item.Key;
                 var parseInfo = item.Value;
