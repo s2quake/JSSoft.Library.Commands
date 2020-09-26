@@ -111,6 +111,8 @@ namespace JSSoft.Library.Commands
                 {
                     var requiredDescriptor = this.itemByDescriptor.Where(item => item.Key.IsRequired == true && item.Key.IsExplicit == false && item.Value.IsParsed == false)
                                                           .Select(item => item.Key).FirstOrDefault();
+                    if (CommandStringUtility.IsWrappedOfQuote(arg) == true)
+                        arg = CommandStringUtility.TrimQuot(arg);
                     if (requiredDescriptor != null)
                     {
                         var parseInfo = this.itemByDescriptor[requiredDescriptor];
