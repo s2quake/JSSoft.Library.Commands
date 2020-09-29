@@ -63,10 +63,12 @@ namespace JSSoft.Library.Commands
                 foreach (var item in itemByDescriptor)
                 {
                     var descriptor = item.Key;
-                    if (descriptor.NamePattern != string.Empty)
+                    if (descriptor.IsExplicit == false)
+                        continue;
+                    if (descriptor.NamePattern != string.Empty && descriptor.NamePattern.StartsWith(find) == true)
                         argList.Add(descriptor.NamePattern);
                 }
-                return argList.ToArray();
+                return argList.OrderBy(item => item).ToArray();
             }
             else if (find.StartsWith(CommandSettings.ShortDelimiter) == true)
             {
@@ -74,12 +76,14 @@ namespace JSSoft.Library.Commands
                 foreach (var item in itemByDescriptor)
                 {
                     var descriptor = item.Key;
-                    if (descriptor.ShortNamePattern != string.Empty)
+                    if (descriptor.IsExplicit == false)
+                        continue;
+                    if (descriptor.ShortNamePattern != string.Empty && descriptor.ShortNamePattern.StartsWith(find) == true)
                         argList.Add(descriptor.ShortNamePattern);
-                    if (descriptor.NamePattern != string.Empty)
+                    if (descriptor.NamePattern != string.Empty && descriptor.NamePattern.StartsWith(find) == true)
                         argList.Add(descriptor.NamePattern);
                 }
-                return argList.ToArray();
+                return argList.OrderBy(item => item).ToArray();
             }
             else
             {

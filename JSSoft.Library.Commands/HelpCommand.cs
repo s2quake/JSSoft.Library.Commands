@@ -93,10 +93,15 @@ namespace JSSoft.Library.Commands
             {
                 Out = writer
             };
+            var query = from item in this.CommandContext.Node.Childs
+                        orderby item.Name
+                        select item;
+
             parser.PrintUsage(string.Empty);
             writer.WriteLine(Resources.Text_AvaliableCommands);
             writer.Indent++;
-            foreach (var item in this.CommandContext.Node.Childs)
+            
+            foreach (var item in query)
             {
                 if (item.IsEnabled == false)
                     continue;

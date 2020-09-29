@@ -224,6 +224,7 @@ namespace JSSoft.Library.Commands
                             let name = item.Name
                             where item.IsEnabled
                             where name.StartsWith(find)
+                            orderby name
                             select name;
                 return query.ToArray();
             }

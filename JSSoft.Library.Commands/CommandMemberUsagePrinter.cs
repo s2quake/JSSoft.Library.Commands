@@ -142,7 +142,7 @@ namespace JSSoft.Library.Commands
 
         private void PrintOptions(CommandTextWriter writer, CommandMemberDescriptor[] descriptors)
         {
-            var items = descriptors.Where(item => item.IsRequired == false);
+            var items = descriptors.Where(item => item.Usage == CommandPropertyUsage.General);
             if (items.Any() == true)
             {
                 this.BeginGroup(writer, Resources.Text_Options);
