@@ -232,6 +232,8 @@ namespace JSSoft.Library.Commands
             {
                 var commandName = itemList.First();
                 var commandNode = parentNode.Childs[commandName];
+                if (commandNode == null)
+                    return null;
                 if (commandNode.Childs.Any() == true)
                 {
                     itemList.RemoveAt(0);
