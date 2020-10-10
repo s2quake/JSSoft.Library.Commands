@@ -19,12 +19,18 @@
 // Forked from https://github.com/NtreevSoft/CommandLineParser
 // Namespaces and files starting with "Ntreev" have been renamed to "JSSoft".
 
+using System;
 using JSSoft.Library.ObjectModel;
 
 namespace JSSoft.Library.Commands
 {
     class CommandNodeCollection : ContainerBase<CommandNode>
     {
+        public CommandNodeCollection()
+            : base(StringComparer.CurrentCulture)
+        {
+        }
+
         public void Add(CommandNode node)
         {
             base.AddBase(node.Name, node);
