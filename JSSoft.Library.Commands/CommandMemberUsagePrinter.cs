@@ -75,7 +75,7 @@ namespace JSSoft.Library.Commands
             if (summary != string.Empty)
             {
                 writer.BeginGroup(Resources.Text_Summary);
-                writer.WriteLine(summary);
+                writer.WriteMultiline(summary);
                 writer.EndGroup();
             }
         }

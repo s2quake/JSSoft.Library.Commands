@@ -96,7 +96,7 @@ namespace JSSoft.Library.Commands
             if (summary != string.Empty)
             {
                 writer.BeginGroup(Resources.Text_Summary);
-                writer.WriteLine(summary);
+                writer.WriteMultiline(summary);
                 writer.EndGroup();
             }
         }
@@ -106,7 +106,7 @@ namespace JSSoft.Library.Commands
             if (descriptor.Summary != string.Empty)
             {
                 writer.BeginGroup(Resources.Text_Summary);
-                writer.WriteLine(descriptor.Summary);
+                writer.WriteMultiline(descriptor.Summary);
                 writer.EndGroup();
             }
         }
@@ -114,7 +114,7 @@ namespace JSSoft.Library.Commands
         private void PrintSummary(CommandTextWriter writer, CommandMethodDescriptor _, CommandMemberDescriptor memberDescriptor)
         {
             writer.BeginGroup(Resources.Text_Summary);
-            writer.WriteLine(memberDescriptor.Summary);
+            writer.WriteMultiline(memberDescriptor.Summary);
             writer.EndGroup();
         }
 
