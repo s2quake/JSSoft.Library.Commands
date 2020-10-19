@@ -76,6 +76,12 @@ namespace JSSoft.Library.Commands
                         var printer = new CommandMethodUsagePrinter(commandName, command) { IsDetailed = this.IsDetail };
                         printer.Print(this.Out, methodDescriptors.ToArray());
                     }
+                    else if (command is ICommandDescriptor commandDescriptor)
+                    {
+                        var members = commandDescriptor.Members.ToArray();
+                        var printer = new CommandMemberUsagePrinter(commandName, command) { IsDetailed = this.IsDetail };
+                        printer.Print(this.Out, members);
+                    }
                     else
                     {
                         var memberDescriptors = CommandDescriptor.GetMemberDescriptors(command.GetType());

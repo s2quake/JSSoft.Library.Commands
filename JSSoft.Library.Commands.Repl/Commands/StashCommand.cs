@@ -89,7 +89,7 @@ namespace JSSoft.Library.Commands.Repl.Commands
         }
 
         [CommandProperty]
-        public int Path
+        public string Path
         {
             get; set;
         }
