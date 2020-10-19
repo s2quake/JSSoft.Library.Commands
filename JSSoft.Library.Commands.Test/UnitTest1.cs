@@ -79,6 +79,33 @@ namespace JSSoft.Library.Commands.Test
             parser.InvokeWith("push-many a b");
         }
 
+        [TestMethod]
+        public void TestMethod6()
+        {
+            var commands = new Commands();
+            var parser = new CommandLineParser(commands);
+            parser.InvokeWith("items");
+            Assert.AreEqual(false, commands.IsReverseResult);
+        }
+
+        [TestMethod]
+        public void TestMethod7()
+        {
+            var commands = new Commands();
+            var parser = new CommandLineParser(commands);
+            parser.InvokeWith("items -r");
+            Assert.AreEqual(true, commands.IsReverseResult);
+        }
+
+        [TestMethod]
+        public void TestMethod8()
+        {
+            var commands = new Commands();
+            var parser = new CommandLineParser(commands);
+            parser.InvokeWith("items --reverse");
+            Assert.AreEqual(true, commands.IsReverseResult);
+        }
+
         class Settings
         {
             [CommandProperty(DefaultValue = "")]
@@ -108,6 +135,21 @@ namespace JSSoft.Library.Commands.Test
             {
                 Assert.AreEqual("a", items[0]);
                 Assert.AreEqual("b", items[1]);
+            }
+
+            [CommandMethod("items")]
+            [CommandMethodProperty(nameof(IsReverse))]
+            public void ShowItems()
+            {
+                this.IsReverseResult = this.IsReverse;
+            }
+
+            public bool IsReverseResult { get; set; }
+
+            [CommandProperty("reverse", 'r')]
+            public bool IsReverse
+            {
+                get; set;
             }
 
             [CommandPropertyRequired('m', IsExplicit = true)]
