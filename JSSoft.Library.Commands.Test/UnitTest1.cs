@@ -71,6 +71,14 @@ namespace JSSoft.Library.Commands.Test
             parser.InvokeWith("test a -m wow");
         }
 
+        [TestMethod]
+        public void TestMethod5()
+        {
+            var commands = new Commands();
+            var parser = new CommandLineParser(commands);
+            parser.InvokeWith("push-many a b");
+        }
+
         class Settings
         {
             [CommandProperty(DefaultValue = "")]
@@ -93,6 +101,13 @@ namespace JSSoft.Library.Commands.Test
                 Assert.AreEqual("a", target1);
                 Assert.AreEqual(null, target2);
                 Assert.AreEqual("wow", this.Message);
+            }
+
+            [CommandMethod]
+            public void PushMany(params string[] items)
+            {
+                Assert.AreEqual("a", items[0]);
+                Assert.AreEqual("b", items[1]);
             }
 
             [CommandPropertyRequired('m', IsExplicit = true)]

@@ -53,6 +53,8 @@ namespace JSSoft.Library.Commands
 
         public override string ShortNamePattern => this.descriptor.ShortNamePattern;
 
+        public override CommandPropertyUsage Usage => this.descriptor.Usage;
+
         protected override void SetValue(object instance, object value)
         {
             this.descriptor.SetValueInternal(this.instance, value);

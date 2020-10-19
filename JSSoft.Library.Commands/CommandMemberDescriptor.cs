@@ -87,7 +87,7 @@ namespace JSSoft.Library.Commands
 
         public string DescriptorName { get; }
 
-        public CommandPropertyUsage Usage { get; }
+        public virtual CommandPropertyUsage Usage { get; }
 
         protected abstract void SetValue(object instance, object value);
 

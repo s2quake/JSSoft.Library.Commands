@@ -32,11 +32,11 @@ namespace JSSoft.Library.Commands
         public CommandParameterArrayDescriptor(ParameterInfo parameterInfo)
             : base(new CommandPropertyArrayAttribute(), parameterInfo.Name)
         {
+            this.value = parameterInfo.DefaultValue;
             this.Summary = parameterInfo.GetSummary();
             this.Description = parameterInfo.GetDescription();
-            this.InitValue = parameterInfo.DefaultValue;
+            this.InitValue = Array.CreateInstance(parameterInfo.ParameterType.GetElementType(), 0);
             this.MemberType = parameterInfo.ParameterType;
-            this.value = parameterInfo.DefaultValue;
         }
 
         public override string Summary { get; }

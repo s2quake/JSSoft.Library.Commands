@@ -59,6 +59,15 @@ namespace JSSoft.Library.Commands.Repl.Commands
             this.task = null;
         }
 
+        [CommandMethod]
+        public void PushMany(params string[] items)
+        {
+            foreach (var item in items)
+            {
+                Console.WriteLine(item);
+            }
+        }
+
         private void Test()
         {
             while (!this.cancellation.IsCancellationRequested)
