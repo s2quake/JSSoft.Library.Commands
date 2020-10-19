@@ -45,6 +45,8 @@ namespace JSSoft.Library.Commands
 
         public override object InitValue => this.descriptor.InitValue;
 
+        public override object DefaultValue => this.descriptor.DefaultValue;
+
         public override bool IsRequired => this.descriptor.IsRequired;
 
         public override bool IsExplicit => this.descriptor.IsExplicit;

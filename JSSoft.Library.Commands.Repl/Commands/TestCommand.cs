@@ -21,6 +21,7 @@
 
 using System;
 using System.ComponentModel.Composition;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -66,6 +67,35 @@ namespace JSSoft.Library.Commands.Repl.Commands
             {
                 Console.WriteLine(item);
             }
+        }
+
+        [CommandMethod("items")]
+        [CommandMethodProperty(nameof(IsReverse))]
+        public void ShowItem()
+        {
+            var items = new string[] { "a", "b", "c" };
+            if (this.IsReverse == false)
+            {
+                var i = 0;
+                foreach (var item in items)
+                {
+                    Console.WriteLine($"{i++,2}: {item}");
+                }
+            }
+            else
+            {
+                var i = items.Length - 1;
+                foreach (var item in items.Reverse())
+                {
+                    Console.WriteLine($"{i--,2}: {item}");
+                }
+            }
+        }
+
+        [CommandProperty("reverse", 'r')]
+        public bool IsReverse
+        {
+            get; set;
         }
 
         private void Test()
