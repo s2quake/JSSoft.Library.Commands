@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace JSSoft.Library.Commands
@@ -124,7 +125,7 @@ namespace JSSoft.Library.Commands
 
         public CommandContextBase CommandContext { get; private set; }
 
-        protected abstract Task OnExecuteAsync();
+        protected abstract Task OnExecuteAsync(CancellationToken cancellationToken);
 
         protected CommandMemberDescriptor GetDescriptor(string propertyName)
         {
@@ -138,9 +139,9 @@ namespace JSSoft.Library.Commands
 
         #region ICommand
 
-        Task IExecutableAsync.ExecuteAsync()
+        Task IExecutableAsync.ExecuteAsync(CancellationToken cancellationToken)
         {
-            return this.OnExecuteAsync();
+            return this.OnExecuteAsync(cancellationToken);
         }
 
         #endregion

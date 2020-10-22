@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace JSSoft.Library.Commands
@@ -48,16 +49,9 @@ namespace JSSoft.Library.Commands
 
         public IEnumerable<CommandMemberDescriptor> Members { get; }
 
-        public async Task ExecuteAsync()
+        public Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            if (this.descriptor.Invoke(this.command, this.descriptor.Members) is Task task)
-            {
-                await task;
-            }
-            else
-            {
-                throw new NotImplementedException();
-            }
+            return this.descriptor.InvokeAsync(this.command, this.descriptor.Members, cancellationToken);
         }
 
         public string[] GetCompletions(CommandCompletionContext completionContext)

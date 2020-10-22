@@ -27,6 +27,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace JSSoft.Library.Commands
@@ -102,15 +103,27 @@ namespace JSSoft.Library.Commands
 
         public Task ExecuteAsync(string commandLine)
         {
+            var cancellation = new CancellationTokenSource();
+            return this.ExecuteAsync(commandLine, cancellation.Token);
+        }
+
+        public Task ExecuteAsync(string commandLine, CancellationToken cancellationToken)
+        {
             var (name, arguments) = CommandStringUtility.Split(commandLine);
-            return this.ExecuteAsync(name, arguments);
+            return this.ExecuteAsync(name, arguments, cancellationToken);
         }
 
         public Task ExecuteAsync(string name, string arguments)
         {
+            var cancellation = new CancellationTokenSource();
+            return this.ExecuteAsync(name, arguments, cancellation.Token);
+        }
+
+        public Task ExecuteAsync(string name, string arguments, CancellationToken cancellationToken)
+        {
             if (this.VerifyName(name) == false)
                 throw new ArgumentException(string.Format(Resources.Exception_InvalidCommandName_Format, name));
-            return this.ExecuteInternalAsync(arguments);
+            return this.ExecuteInternalAsync(arguments, cancellationToken);
         }
 
         public TextWriter Out { get; set; } = Console.Out;
@@ -297,7 +310,7 @@ namespace JSSoft.Library.Commands
             }
         }
 
-        private async Task ExecuteInternalAsync(string commandLine)
+        private async Task ExecuteInternalAsync(string commandLine, CancellationToken cancellationToken)
         {
             if (commandLine == string.Empty)
             {
@@ -315,7 +328,7 @@ namespace JSSoft.Library.Commands
                 {
                     var parser = new CommandLineParser(command.Name, command);
                     var arg = string.Join(" ", argumentList);
-                    await parser.InvokeAsync(command.Name, arg);
+                    await parser.InvokeAsync(command.Name, arg, cancellationToken);
                 }
                 else
                 {

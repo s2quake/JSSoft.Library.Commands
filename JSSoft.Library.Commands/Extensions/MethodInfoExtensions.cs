@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace JSSoft.Library.Commands.Extensions
@@ -61,6 +62,8 @@ namespace JSSoft.Library.Commands.Extensions
 
             foreach (var item in methodInfo.GetParameters())
             {
+                if (item.ParameterType == typeof(CancellationToken))
+                    continue;
                 if (item.GetCustomAttribute<ParamArrayAttribute>() != null)
                 {
                     memberList.Add(new CommandParameterArrayDescriptor(item));

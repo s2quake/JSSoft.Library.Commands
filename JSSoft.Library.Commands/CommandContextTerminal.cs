@@ -21,6 +21,7 @@
 
 using System;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace JSSoft.Library.Commands
@@ -114,11 +115,16 @@ namespace JSSoft.Library.Commands
         public async Task StartAsync()
         {
             string line;
+            CancellationTokenSource cancellation = null;
             while ((line = this.ReadStringInternal(this.Prefix + this.Prompt + this.Postfix)) != null)
             {
+                var oldTreatControlCAsInput = Console.TreatControlCAsInput;
                 try
                 {
-                    await this.commandContext.ExecuteAsync(this.commandContext.Name + " " + line);
+                    Console.TreatControlCAsInput = false;
+                    cancellation = new CancellationTokenSource();
+                    Console.CancelKeyPress += ConsoleCancelEventHandler;
+                    await this.commandContext.ExecuteAsync(this.commandContext.Name + " " + line, cancellation.Token);
                 }
                 catch (TargetInvocationException e)
                 {
@@ -135,8 +141,20 @@ namespace JSSoft.Library.Commands
                 {
                     this.WriteException(e);
                 }
+                finally
+                {
+                    Console.TreatControlCAsInput = oldTreatControlCAsInput;
+                    Console.CancelKeyPress -= ConsoleCancelEventHandler;
+                    cancellation = null;
+                }
                 if (this.IsCancellationRequested == true)
                     break;
+            }
+
+            void ConsoleCancelEventHandler(object sender, ConsoleCancelEventArgs e)
+            {
+                e.Cancel = true;
+                cancellation.Cancel();
             }
         }
 

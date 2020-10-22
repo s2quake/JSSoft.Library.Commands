@@ -23,6 +23,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace JSSoft.Library.Commands
 {
@@ -89,6 +91,27 @@ namespace JSSoft.Library.Commands
                 values.Add(value);
             }
             return this.OnInvoke(instance, values.ToArray());
+        }
+
+        internal Task InvokeAsync(object instance, IEnumerable<CommandMemberDescriptor> descriptors, CancellationToken cancellationToken)
+        {
+            var values = new ArrayList();
+            var nameToDescriptors = descriptors.ToDictionary(item => item.DescriptorName);
+            var parameters = this.MethodInfo.GetParameters();
+            foreach (var item in parameters)
+            {
+                if (item.ParameterType == typeof(CancellationToken))
+                {
+                    values.Add(cancellationToken);
+                }
+                else
+                {
+                    var descriptor = nameToDescriptors[item.Name];
+                    var value = descriptor.GetValueInternal(instance);
+                    values.Add(value);
+                }
+            }
+            return this.OnInvoke(instance, values.ToArray()) as Task;
         }
     }
 }

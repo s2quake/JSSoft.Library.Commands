@@ -19,12 +19,13 @@
 // Forked from https://github.com/NtreevSoft/CommandLineParser
 // Namespaces and files starting with "Ntreev" have been renamed to "JSSoft".
 
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace JSSoft.Library.Commands
 {
     public interface IExecutableAsync
     {
-        Task ExecuteAsync();
+        Task ExecuteAsync(CancellationToken cancellationToken);
     }
 }

@@ -25,6 +25,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace JSSoft.Library.Commands
@@ -166,10 +167,7 @@ namespace JSSoft.Library.Commands
                 if (command is IExecutable executable1)
                     this.Invoke(executable1);
                 else if (command is IExecutableAsync executable2)
-                {
-                    Trace.TraceWarning("Asynchronous use in Invoke can pose a risk. Use InvokeAsync instead.");
-                    this.InvokeAsync(executable2).Wait();
-                }
+                    throw new InvalidOperationException("Asynchronous use in Invoke can pose a risk. Use InvokeAsync instead.");
             }
             else if (instance is IExecutable executable1)
             {
@@ -179,15 +177,13 @@ namespace JSSoft.Library.Commands
             else if (instance is IExecutableAsync executable2)
             {
                 this.Parse(name, arguments);
-                Trace.TraceWarning("Asynchronous use in Invoke can pose a risk. Use InvokeAsync instead.");
-                this.InvokeAsync(executable2).Wait();
+                throw new InvalidOperationException("Asynchronous use in Invoke can pose a risk. Use InvokeAsync instead.");
             }
             else if (CommandDescriptor.GetMethodDescriptor(instance.GetType(), first) is CommandMethodDescriptor descriptor)
             {
                 if (descriptor.IsAsync == true)
                 {
-                    Trace.TraceWarning("Asynchronous use in Invoke can pose a risk. Use InvokeAsync instead.");
-                    this.InvokeAsync(descriptor, instance, rest).Wait();
+                    throw new InvalidOperationException("Asynchronous use in Invoke can pose a risk. Use InvokeAsync instead.");
                 }
                 else
                 {
@@ -207,11 +203,16 @@ namespace JSSoft.Library.Commands
             this.Invoke(this.Name, arguments);
         }
 
-        public async Task<bool> TryInvokeAsync(string name, string arguments)
+        public Task<bool> TryInvokeAsync(string name, string arguments)
+        {
+            return this.TryInvokeAsync(name, arguments, new CancellationTokenRegistration().Token);
+        }
+
+        public async Task<bool> TryInvokeAsync(string name, string arguments, CancellationToken cancellationToken)
         {
             try
             {
-                await this.InvokeAsync(name, arguments);
+                await this.InvokeAsync(name, arguments, cancellationToken);
                 return true;
             }
             catch (Exception e)
@@ -222,16 +223,31 @@ namespace JSSoft.Library.Commands
 
         public Task<bool> TryInvokeAsync(string commandLine)
         {
+            return this.TryInvokeAsync(commandLine, new CancellationTokenSource().Token);
+        }
+
+        public Task<bool> TryInvokeAsync(string commandLine, CancellationToken cancellationToken)
+        {
             var (name, arguments) = CommandStringUtility.Split(commandLine);
             return this.TryInvokeAsync(name, arguments);
         }
 
         public Task<bool> TryInvokeWithAsync(string arguments)
         {
-            return this.TryInvokeAsync(this.Name, arguments);
+            return this.TryInvokeWithAsync(arguments, new CancellationTokenSource().Token);
         }
 
-        public async Task InvokeAsync(string name, string arguments)
+        public Task<bool> TryInvokeWithAsync(string arguments, CancellationToken cancellationToken)
+        {
+            return this.TryInvokeAsync(this.Name, arguments, cancellationToken);
+        }
+
+        public Task InvokeAsync(string name, string arguments)
+        {
+            return this.InvokeAsync(name, arguments, new CancellationTokenSource().Token);
+        }
+
+        public async Task InvokeAsync(string name, string arguments, CancellationToken cancellationToken)
         {
             if (this.VerifyName(name) == false)
                 throw new ArgumentException(string.Format(Resources.Exception_InvalidCommandName_Format, name));
@@ -247,7 +263,7 @@ namespace JSSoft.Library.Commands
                 if (command is IExecutable executable1)
                     this.Invoke(executable1);
                 else if (command is IExecutableAsync executable2)
-                    await this.InvokeAsync(executable2);
+                    await this.InvokeAsync(executable2, cancellationToken);
             }
             else if (instance is IExecutable executable1)
             {
@@ -257,7 +273,7 @@ namespace JSSoft.Library.Commands
             else if (instance is IExecutableAsync executable2)
             {
                 this.Parse(name, arguments);
-                await this.InvokeAsync(executable2);
+                await this.InvokeAsync(executable2, cancellationToken);
             }
             else if (CommandDescriptor.GetMethodDescriptor(instance.GetType(), first) is CommandMethodDescriptor descriptor)
             {
@@ -270,13 +286,23 @@ namespace JSSoft.Library.Commands
 
         public Task InvokeAsync(string commandLine)
         {
+            return this.InvokeAsync(commandLine, new CancellationTokenSource().Token);
+        }
+
+        public Task InvokeAsync(string commandLine, CancellationToken cancellationToken)
+        {
             var (name, arguments) = CommandStringUtility.Split(commandLine);
-            return this.InvokeAsync(name, arguments);
+            return this.InvokeAsync(name, arguments, cancellationToken);
         }
 
         public Task InvokeWithAsync(string arguments)
         {
-            return this.InvokeAsync(this.Name, arguments);
+            return this.InvokeWithAsync(arguments, new CancellationTokenSource().Token);
+        }
+
+        public Task InvokeWithAsync(string arguments, CancellationToken cancellationToken)
+        {
+            return this.InvokeAsync(this.Name, arguments, cancellationToken);
         }
 
         public void PrintSummary()
@@ -468,9 +494,9 @@ namespace JSSoft.Library.Commands
             executable.Execute();
         }
 
-        private async Task InvokeAsync(IExecutableAsync executable)
+        private async Task InvokeAsync(IExecutableAsync executable, CancellationToken cancellationToken)
         {
-            await executable.ExecuteAsync();
+            await executable.ExecuteAsync(cancellationToken);
         }
 
         private void Invoke(CommandMethodDescriptor descriptor, object instance, string arguments)

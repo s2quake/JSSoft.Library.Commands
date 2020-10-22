@@ -50,9 +50,19 @@ namespace JSSoft.Library.Commands.Repl.Commands
         }
 
         [CommandMethod]
+        public async Task AsyncAsync(CancellationToken cancellationToken)
+        {
+            this.Out.WriteLine("type control+c to cancel");
+            while (cancellationToken.IsCancellationRequested == false)
+            {
+                await Task.Delay(100);
+            }
+        }
+
+        [CommandMethod]
         [CommandSummary("Stop async task")]
         [CommandSummary("비동기 작업을 멈춥니다..", Locale = "ko-KR")]
-        public async Task StopAsync()
+        public async Task StopAsync(CancellationToken cancellationToken)
         {
             this.cancellation.Cancel();
             await this.task;
