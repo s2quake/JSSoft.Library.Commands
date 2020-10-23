@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace JSSoft.Library.Commands
 {
@@ -43,23 +44,9 @@ namespace JSSoft.Library.Commands
 
         public ParseDescriptor(IEnumerable<CommandMemberDescriptor> members, string[] args)
         {
-            foreach (var item in members)
-            {
-                this.itemByDescriptor.Add(item, new ParseDescriptorItem(item));
-            }
-            this.Items = this.itemByDescriptor.Values.ToArray();
-
-            var descriptors = new Dictionary<string, CommandMemberDescriptor>();
-            foreach (var item in members)
-            {
-                if (item.IsExplicit == false)
-                    continue;
-                if (item.NamePattern != string.Empty)
-                    descriptors.Add(item.NamePattern, item);
-                if (item.ShortNamePattern != string.Empty)
-                    descriptors.Add(item.ShortNamePattern, item);
-            }
-
+            var itemByDescriptor = members.ToDictionary(item => item, item => new ParseDescriptorItem(item));
+            var unparsedArguments = new Dictionary<string, string>();
+            var descriptors = ToDictionary(members);
             var variableList = new List<string>();
             var variablesDescriptor = members.Where(item => item.Usage == CommandPropertyUsage.Variables).FirstOrDefault();
             var arguments = new Queue<string>(args);
@@ -77,9 +64,9 @@ namespace JSSoft.Library.Commands
                         var textValue = arguments.Dequeue();
                         if (CommandStringUtility.IsWrappedOfQuote(textValue) == true)
                             textValue = CommandStringUtility.TrimQuot(textValue);
-                        this.itemByDescriptor[descriptor].Value = Parser.Parse(descriptor, textValue);
+                        itemByDescriptor[descriptor].Value = Parser.Parse(descriptor, textValue);
                     }
-                    this.itemByDescriptor[descriptor].HasSwtich = true;
+                    itemByDescriptor[descriptor].HasSwtich = true;
                 }
                 else if (arg == "--")
                 {
@@ -94,28 +81,42 @@ namespace JSSoft.Library.Commands
                     {
                         foreach (var item in arguments)
                         {
-                            this.unparsedArguments.Add(item, null);
+                            unparsedArguments.Add(item, null);
                         }
                     }
                     arguments.Clear();
                 }
+                else if (Regex.IsMatch(arg, @"-\w+") == true)
+                {
+                    for (var i = 1; i < arg.Length; i++)
+                    {
+                        var s = arg[i];
+                        var item = $"-{s}";
+                        if (descriptors.ContainsKey(item) == false)
+                            throw new InvalidOperationException($"unknown switch: '{s}'");
+                        var descriptor = descriptors[item];
+                        if (descriptor.MemberType != typeof(bool))
+                            throw new InvalidOperationException($"unknown switch: '{s}'");
+                        itemByDescriptor[descriptor].HasSwtich = true;
+                    }
+                }
                 else if (CommandStringUtility.IsSwitch(arg) == true)
                 {
-                    this.unparsedArguments.Add(arg, null);
+                    unparsedArguments.Add(arg, null);
                 }
                 else if (arg.StartsWith("--") || arg.StartsWith("-"))
                 {
-                    this.unparsedArguments.Add(arg, null);
+                    unparsedArguments.Add(arg, null);
                 }
                 else if (CommandStringUtility.IsSwitch(arg) == false)
                 {
-                    var requiredDescriptor = this.itemByDescriptor.Where(item => item.Key.IsRequired == true && item.Key.IsExplicit == false && item.Value.IsParsed == false)
+                    var requiredDescriptor = itemByDescriptor.Where(item => item.Key.IsRequired == true && item.Key.IsExplicit == false && item.Value.IsParsed == false)
                                                           .Select(item => item.Key).FirstOrDefault();
                     if (CommandStringUtility.IsWrappedOfQuote(arg) == true)
                         arg = CommandStringUtility.TrimQuot(arg);
                     if (requiredDescriptor != null)
                     {
-                        var parseInfo = this.itemByDescriptor[requiredDescriptor];
+                        var parseInfo = itemByDescriptor[requiredDescriptor];
                         var value = Parser.Parse(requiredDescriptor, arg);
                         parseInfo.Value = value;
                     }
@@ -127,21 +128,41 @@ namespace JSSoft.Library.Commands
                     {
                         var nextArg = arguments.FirstOrDefault();
                         if (nextArg != null && CommandStringUtility.IsSwitch(nextArg) == false)
-                            this.unparsedArguments.Add(arg, arguments.Dequeue());
+                            unparsedArguments.Add(arg, arguments.Dequeue());
                         else
-                            this.unparsedArguments.Add(arg, null);
+                            unparsedArguments.Add(arg, null);
                     }
                 }
                 else
                 {
-                    this.unparsedArguments.Add(arg, null);
+                    unparsedArguments.Add(arg, null);
                 }
             }
 
             if (variableList.Any() == true)
             {
-                this.itemByDescriptor[variablesDescriptor].Value = Parser.ParseArray(variablesDescriptor, variableList);
+                itemByDescriptor[variablesDescriptor].Value = Parser.ParseArray(variablesDescriptor, variableList);
             }
+
+            this.Items = itemByDescriptor.Values.ToArray();
+            this.itemByDescriptor = itemByDescriptor;
+            this.unparsedArguments = unparsedArguments;
+        }
+
+        private static IDictionary<string, CommandMemberDescriptor> ToDictionary(IEnumerable<CommandMemberDescriptor> members)
+        {
+            var descriptors = new Dictionary<string, CommandMemberDescriptor>();
+            foreach (var item in members)
+            {
+                if (item.IsExplicit == false)
+                    continue;
+                if (item.NamePattern != string.Empty)
+                    descriptors.Add(item.NamePattern, item);
+                if (item.ShortNamePattern != string.Empty)
+                    descriptors.Add(item.ShortNamePattern, item);
+            }
+
+            return descriptors;
         }
 
         public void SetValue(object instance)
@@ -157,21 +178,13 @@ namespace JSSoft.Library.Commands
                     continue;
                 descriptor.ValidateTrigger(items);
             }
-
-            if (initObj != null)
-            {
-                initObj.BeginInit();
-            }
+            initObj?.BeginInit();
             foreach (var item in items)
             {
                 var descriptor = item.Descriptor;
                 descriptor.SetValueInternal(instance, item.InitValue);
             }
-            if (initObj != null)
-            {
-                initObj.EndInit();
-            }
-
+            initObj?.EndInit();
             foreach (var item in items)
             {
                 var descriptor = item.Descriptor;
