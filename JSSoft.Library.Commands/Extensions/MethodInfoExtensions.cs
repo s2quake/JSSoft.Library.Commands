@@ -48,12 +48,39 @@ namespace JSSoft.Library.Commands.Extensions
 
         public static string GetName(this MethodInfo methodInfo)
         {
+            var methodName = GetPureName(methodInfo);
+            var attribute = methodInfo.GetCommandMethodAttribute();
+            return attribute.Name != string.Empty ? attribute.Name : CommandSettings.NameGenerator(methodName);
+        }
+
+        public static string GetPureName(this MethodInfo methodInfo)
+        {
             var isAsync = methodInfo.IsAsync();
             var methodName = methodInfo.Name;
             if (isAsync == true && methodName.EndsWith("Async") == true)
                 methodName = methodName.Substring(0, methodName.Length - "Async".Length);
-            var attribute = methodInfo.GetCommandMethodAttribute();
-            return attribute.Name != string.Empty ? attribute.Name : CommandSettings.NameGenerator(methodName);
+            return methodName;
+        }
+
+        public static PropertyInfo GetCanExecutableProperty(this MethodInfo methodInfo)
+        {
+            var name = GetPureName(methodInfo);
+            var instanceType = methodInfo.DeclaringType;
+            return instanceType.GetProperty($"Can{name}");
+        }
+
+        public static MethodInfo GetCompletionMethod(this MethodInfo methodInfo)
+        {
+            var instanceType = methodInfo.DeclaringType;
+            var name = $"Complete{GetPureName(methodInfo)}";
+            var method = instanceType.GetMethod(name);
+            if (method != null && method.ReturnType == typeof(string[]))
+            {
+                var parameters = method.GetParameters();
+                if (parameters.Length == 2 && parameters[0].ParameterType == typeof(CommandMemberDescriptor) && parameters[1].ParameterType == typeof(string))
+                    return method;
+            }
+            return null;
         }
 
         public static CommandMemberDescriptor[] GetMemberDescriptors(this MethodInfo methodInfo)

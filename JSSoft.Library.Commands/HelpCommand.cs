@@ -72,9 +72,11 @@ namespace JSSoft.Library.Commands
                     var commandName = string.Join(" ", this.CommandNames);
                     if (command is ICommandHierarchy)
                     {
-                        var methodDescriptors = CommandDescriptor.GetMethodDescriptors(command.GetType());
+                        var query = from item in CommandDescriptor.GetMethodDescriptors(command.GetType())
+                                    where item.CanExecute(command)
+                                    select item;
                         var printer = new CommandMethodUsagePrinter(commandName, command) { IsDetailed = this.IsDetail };
-                        printer.Print(this.Out, methodDescriptors.ToArray());
+                        printer.Print(this.Out, query.ToArray());
                     }
                     else if (command is ICommandDescriptor commandDescriptor)
                     {

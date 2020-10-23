@@ -58,6 +58,11 @@ namespace JSSoft.Library.Commands
             return true;
         }
 
+        protected virtual string[] GetCompletion(object instance, object[] parameters)
+        {
+            return null;
+        }
+
         internal bool CanExecute(object instance)
         {
             return this.OnCanExecute(instance);
@@ -112,6 +117,11 @@ namespace JSSoft.Library.Commands
                 }
             }
             return this.OnInvoke(instance, values.ToArray()) as Task;
+        }
+
+        internal string[] GetCompletionInternal(object instance, CommandMemberDescriptor memberDescriptor, string find)
+        {
+            return this.GetCompletion(instance, new object[] { memberDescriptor, find });
         }
     }
 }

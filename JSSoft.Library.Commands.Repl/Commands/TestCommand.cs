@@ -49,6 +49,8 @@ namespace JSSoft.Library.Commands.Repl.Commands
             this.cancellation = new CancellationTokenSource();
         }
 
+        public bool CanStart => true;
+
         [CommandMethod]
         public async Task AsyncAsync(CancellationToken cancellationToken)
         {
@@ -100,6 +102,11 @@ namespace JSSoft.Library.Commands.Repl.Commands
                     Console.WriteLine($"{i--,2}: {item}");
                 }
             }
+        }
+
+        public string[] CompleteShowItem(CommandMemberDescriptor descriptor, string find)
+        {
+            return null;
         }
 
         [CommandProperty("reverse", 'r')]

@@ -29,6 +29,8 @@ namespace JSSoft.Library.Commands
     class StandardCommandMethodDescriptor : CommandMethodDescriptor
     {
         private readonly CommandMemberDescriptor[] members;
+        private readonly PropertyInfo canExecutableProperty;
+        private readonly MethodInfo getCompletionMethod;
 
         public StandardCommandMethodDescriptor(MethodInfo methodInfo)
             : base(methodInfo)
@@ -40,6 +42,8 @@ namespace JSSoft.Library.Commands
             this.Summary = methodInfo.GetSummary();
             this.Description = methodInfo.GetDescription();
             this.members = methodInfo.GetMemberDescriptors();
+            this.canExecutableProperty = methodInfo.GetCanExecutableProperty();
+            this.getCompletionMethod = methodInfo.GetCompletionMethod();
         }
 
         public override string DescriptorName { get; }
@@ -66,6 +70,24 @@ namespace JSSoft.Library.Commands
             {
                 return this.MethodInfo.Invoke(instance, parameters);
             }
+        }
+
+        protected override bool OnCanExecute(object instance)
+        {
+            if (this.canExecutableProperty != null)
+            {
+                return (bool)this.canExecutableProperty.GetValue(instance);
+            }
+            return base.OnCanExecute(instance);
+        }
+
+        protected override string[] GetCompletion(object instance, object[] parameters)
+        {
+            if (this.getCompletionMethod != null)
+            {
+                return (string[])this.getCompletionMethod.Invoke(instance, parameters);
+            }
+            return base.GetCompletion(instance, parameters);
         }
     }
 }

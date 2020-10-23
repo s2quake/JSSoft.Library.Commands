@@ -81,7 +81,7 @@ namespace JSSoft.Library.Commands
 
         public virtual string[] GetCompletions(CommandMethodDescriptor methodDescriptor, CommandMemberDescriptor memberDescriptor, string find)
         {
-            return null;
+            return methodDescriptor.GetCompletionInternal(this, memberDescriptor, find);
         }
 
         internal bool InvokeIsMethodEnabled(CommandMethodDescriptor descriptor)
