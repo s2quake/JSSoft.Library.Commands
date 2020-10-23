@@ -275,7 +275,7 @@ namespace JSSoft.Library.Commands
                 this.Parse(name, arguments);
                 await this.InvokeAsync(executable2, cancellationToken);
             }
-            else if (CommandDescriptor.GetMethodDescriptor(instance.GetType(), first) is CommandMethodDescriptor descriptor)
+            else if (first != string.Empty && CommandDescriptor.GetMethodDescriptor(instance.GetType(), first) is CommandMethodDescriptor descriptor)
             {
                 if (descriptor.IsAsync == true)
                     await this.InvokeAsync(descriptor, instance, rest);
