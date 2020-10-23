@@ -205,7 +205,7 @@ namespace JSSoft.Library.Commands
 
         public Task<bool> TryInvokeAsync(string name, string arguments)
         {
-            return this.TryInvokeAsync(name, arguments, new CancellationTokenRegistration().Token);
+            return this.TryInvokeAsync(name, arguments, new CancellationTokenSource().Token);
         }
 
         public async Task<bool> TryInvokeAsync(string name, string arguments, CancellationToken cancellationToken)
