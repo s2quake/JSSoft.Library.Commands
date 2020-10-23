@@ -20,7 +20,6 @@
 // Namespaces and files starting with "Ntreev" have been renamed to "JSSoft".
 
 using System.ComponentModel;
-using System.ComponentModel.Composition;
 using System.IO;
 
 namespace JSSoft.Library.Commands.Repl.Commands

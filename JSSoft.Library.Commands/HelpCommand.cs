@@ -108,7 +108,7 @@ namespace JSSoft.Library.Commands
             parser.PrintUsage(string.Empty);
             writer.WriteLine(Resources.Text_AvaliableCommands);
             writer.Indent++;
-            
+
             foreach (var item in query)
             {
                 if (item.IsEnabled == false)

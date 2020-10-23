@@ -33,8 +33,6 @@ namespace JSSoft.Library.Commands
     {
         private readonly Dictionary<string, string> unparsedArguments = new Dictionary<string, string>();
 
-        private readonly Dictionary<CommandMemberDescriptor, ParseDescriptorItem> itemByDescriptor = new Dictionary<CommandMemberDescriptor, ParseDescriptorItem>();
-
         /// <param name="members"></param>
         /// <param name="commandLine"></param>
         public ParseDescriptor(IEnumerable<CommandMemberDescriptor> members, string commandLine)
@@ -145,7 +143,6 @@ namespace JSSoft.Library.Commands
             }
 
             this.Items = itemByDescriptor.Values.ToArray();
-            this.itemByDescriptor = itemByDescriptor;
             this.unparsedArguments = unparsedArguments;
         }
 
