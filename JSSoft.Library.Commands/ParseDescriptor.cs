@@ -84,7 +84,7 @@ namespace JSSoft.Library.Commands
                     }
                     arguments.Clear();
                 }
-                else if (Regex.IsMatch(arg, @"-\w+") == true)
+                else if (Regex.IsMatch(arg, @"^-\w+") == true)
                 {
                     for (var i = 1; i < arg.Length; i++)
                     {
