@@ -305,7 +305,14 @@ namespace JSSoft.Library.Commands
 
         private void PrintOption(CommandTextWriter writer, CommandMemberDescriptor descriptor, bool isLast)
         {
-            writer.WriteLine(descriptor.DisplayName);
+            if (descriptor.IsSwitch == true)
+                writer.WriteLine(descriptor.DisplayName);
+            else if (descriptor.DefaultValue == null)
+                writer.WriteLine($"{descriptor.DisplayName} 'value' [default: null]");
+            else if (descriptor.DefaultValue != DBNull.Value)
+                writer.WriteLine($"{descriptor.DisplayName} 'value' [default: '{descriptor.DefaultValue}']");
+            else
+                writer.WriteLine($"{descriptor.DisplayName} 'value'");
             if (descriptor.Summary != string.Empty)
             {
                 writer.Indent++;
