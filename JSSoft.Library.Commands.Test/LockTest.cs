@@ -90,7 +90,7 @@ namespace JSSoft.Library.Commands.Test
             get; set;
         }
 
-        [CommandProperty('i')]
+        [CommandPropertySwitch('i')]
         [CommandPropertyTrigger(nameof(Comment), null)]
         public bool Information
         {

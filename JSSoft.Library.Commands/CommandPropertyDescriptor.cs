@@ -68,20 +68,6 @@ namespace JSSoft.Library.Commands
 
         public override string Description { get; }
 
-        public override object InitValue { get; }
-
-        // public override object DefaultValue
-        // {
-        //     get
-        //     {
-        //         if (this.IsExplicit == true && this.MemberType == typeof(bool) && base.DefaultValue == DBNull.Value)
-        //         {
-        //             return true;
-        //         }
-        //         return base.DefaultValue;
-        //     }
-        // }
-
         protected override void SetValue(object instance, object value)
         {
             this.propertyInfo.SetValue(instance, value, null);

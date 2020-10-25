@@ -77,7 +77,7 @@ namespace JSSoft.Library.Commands
 
         public virtual string Description { get; } = string.Empty;
 
-        public virtual object InitValue { get; } = DBNull.Value;
+        public virtual object InitValue { get; }
 
         public virtual object DefaultValue { get; }
 

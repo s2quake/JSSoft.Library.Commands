@@ -64,8 +64,6 @@ namespace JSSoft.Library.Commands
 
         public bool AllowName { get; set; } = true;
 
-        // public object DefaultValue { get; set; } = DBNull.Value;
-
         protected CommandPropertyUsage Usage { get; set; } = CommandPropertyUsage.General;
 
         internal string GetName(string descriptorName)

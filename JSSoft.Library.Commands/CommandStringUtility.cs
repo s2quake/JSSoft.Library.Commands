@@ -158,6 +158,11 @@ namespace JSSoft.Library.Commands
             return text;
         }
 
+        public static bool IsMultipleSwitch(string argument)
+        {
+            return Regex.IsMatch(argument, @$"^{CommandSettings.ShortDelimiter}\w{{2,}}");
+        }
+
         public static bool IsOption(string argument)
         {
             if (argument == null)

@@ -47,5 +47,9 @@ namespace JSSoft.Library.Commands
         public object DefaultValue { get; set; } = DBNull.Value;
 
         public object InitValue { get; set; } = DBNull.Value;
+
+        internal override object DefaultValueProperty => this.DefaultValue;
+
+        internal override object InitValueProperty => this.InitValue;
     }
 }

@@ -112,7 +112,7 @@ namespace JSSoft.Library.Commands.Test
             get; set;
         }
 
-        [CommandProperty(DefaultValue = "")]
+        [CommandProperty(InitValue = "")]
         [CommandPropertyTrigger(nameof(Script), "")]
         [CommandPropertyTrigger(nameof(List), false)]
         public string Filename

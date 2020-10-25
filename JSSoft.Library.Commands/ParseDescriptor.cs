@@ -92,7 +92,7 @@ namespace JSSoft.Library.Commands
                     }
                     arguments.Clear();
                 }
-                else if (Regex.IsMatch(arg, @"^-\w+") == true)
+                else if (CommandStringUtility.IsMultipleSwitch(arg))
                 {
                     for (var i = 1; i < arg.Length; i++)
                     {
