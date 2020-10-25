@@ -27,6 +27,8 @@ namespace JSSoft.Library.Commands
 
         Required,
 
+        Switch,
+
         ExplicitRequired,
 
         Variables,

@@ -31,7 +31,7 @@ namespace JSSoft.Library.Commands
         {
         }
 
-        [CommandProperty('q')]
+        [CommandPropertySwitch('q')]
         public bool IsQuiet { get; set; }
 
         protected override void OnExecute()

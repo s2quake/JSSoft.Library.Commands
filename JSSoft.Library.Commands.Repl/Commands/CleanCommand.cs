@@ -31,16 +31,16 @@ namespace JSSoft.Library.Commands.Repl.Commands
         {
         }
 
-        [CommandProperty('d')]
+        [CommandPropertySwitch('d')]
         public bool IsDirectory { get; set; }
 
-        [CommandProperty('f')]
+        [CommandPropertySwitch('f')]
         public bool IsUntrackedFiles { get; set; }
 
-        [CommandProperty('n')]
+        [CommandPropertySwitch('n')]
         public bool IsDryRun { get; set; }
 
-        [CommandProperty('x', DefaultValue = false)]
+        [CommandPropertySwitch('x')]
         public bool IsIgnoreFiles { get; set; }
 
         [CommandProperty('e')]

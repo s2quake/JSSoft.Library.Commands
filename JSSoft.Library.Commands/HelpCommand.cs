@@ -51,7 +51,7 @@ namespace JSSoft.Library.Commands
         [CommandPropertyArray]
         public string[] CommandNames { get; set; } = new string[] { };
 
-        [CommandProperty("detail")]
+        [CommandPropertySwitch("detail")]
         public bool IsDetail { get; set; }
 
         [CommandProperty("option")]

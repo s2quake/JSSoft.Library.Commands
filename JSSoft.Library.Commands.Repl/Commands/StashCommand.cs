@@ -64,25 +64,25 @@ namespace JSSoft.Library.Commands.Repl.Commands
             get; set;
         }
 
-        [CommandProperty('k', AllowName = true)]
+        [CommandPropertySwitch('k', AllowName = true)]
         public bool KeepIndex
         {
             get; set;
         }
 
-        [CommandProperty('u', AllowName = true)]
+        [CommandPropertySwitch('u', AllowName = true)]
         public bool IncludeUntracked
         {
             get; set;
         }
 
-        [CommandProperty('a', AllowName = true)]
+        [CommandPropertySwitch('a', AllowName = true)]
         public bool All
         {
             get; set;
         }
 
-        [CommandProperty('q', AllowName = true)]
+        [CommandPropertySwitch('q', AllowName = true)]
         public bool Quit
         {
             get; set;

@@ -88,6 +88,8 @@ namespace JSSoft.Library.Commands
 
         internal bool IsRequiredProperty => this.Usage == CommandPropertyUsage.Required || this.Usage == CommandPropertyUsage.ExplicitRequired;
 
-        internal bool IsExplicitProperty => this.Usage == CommandPropertyUsage.General || this.Usage == CommandPropertyUsage.ExplicitRequired;
+        internal bool IsExplicitProperty => this.Usage == CommandPropertyUsage.General || this.Usage == CommandPropertyUsage.ExplicitRequired || this.Usage == CommandPropertyUsage.Switch;
+
+        internal bool IsSwitchProperty => this.Usage == CommandPropertyUsage.Switch;
     }
 }

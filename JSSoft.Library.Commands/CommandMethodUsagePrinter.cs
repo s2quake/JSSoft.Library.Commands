@@ -207,7 +207,7 @@ namespace JSSoft.Library.Commands
         private void PrintUsage(CommandTextWriter writer, CommandMethodDescriptor _, CommandMemberDescriptor memberDescriptor)
         {
             this.BeginGroup(writer, Resources.Text_Usage);
-            this.PrintOption(writer, memberDescriptor);
+            this.PrintOption(writer, memberDescriptor, false);
             this.EndGroup(writer);
         }
 
@@ -264,21 +264,16 @@ namespace JSSoft.Library.Commands
 
         private void PrintOptions(CommandTextWriter writer, CommandMethodDescriptor _, CommandMemberDescriptor[] memberDescriptors)
         {
-            var items = memberDescriptors.Where(item => item.Usage != CommandPropertyUsage.Variables)
-                                .Where(item => item.IsRequired == false)
-                                .ToArray();
-            if (items.Any() == false)
-                return;
-
-            writer.BeginGroup(Resources.Text_Options);
-            for (var i = 0; i < items.Length; i++)
+            var items = memberDescriptors.Where(item => item.Usage == CommandPropertyUsage.General || item.Usage == CommandPropertyUsage.General);
+            if (items.Any() == true)
             {
-                var item = items[i];
-                this.PrintOption(writer, item);
-                if (i + 1 < items.Length)
-                    writer.WriteLine();
+                this.BeginGroup(writer, Resources.Text_Options);
+                foreach (var item in items)
+                {
+                    this.PrintOption(writer, item, items.Last() == item);
+                }
+                this.EndGroup(writer);
             }
-            writer.EndGroup();
         }
 
         private void PrintRequirement(CommandTextWriter writer, CommandMemberDescriptor descriptor)
@@ -308,35 +303,51 @@ namespace JSSoft.Library.Commands
             writer.EndGroup();
         }
 
-        private void PrintOption(CommandTextWriter writer, CommandMemberDescriptor descriptor)
+        private void PrintOption(CommandTextWriter writer, CommandMemberDescriptor descriptor, bool isLast)
         {
-            if (descriptor.ShortNamePattern != string.Empty)
-                writer.WriteLine(descriptor.ShortNamePattern);
-            if (descriptor.NamePattern != string.Empty)
-                writer.WriteLine(descriptor.NamePattern);
-
-            var description = descriptor.Summary != string.Empty ? descriptor.Summary : descriptor.Description;
-            if (description != string.Empty)
+            writer.WriteLine(descriptor.DisplayName);
+            if (descriptor.Summary != string.Empty)
             {
                 writer.Indent++;
-                writer.WriteMultiline(description);
+                writer.WriteMultiline(descriptor.Summary);
                 writer.Indent--;
             }
+            if (isLast == false)
+                writer.WriteLine();
         }
 
         private string GetString(CommandMemberDescriptor descriptor)
         {
+            var patternText = descriptor.DisplayName;
             if (descriptor.IsRequired == true)
             {
-                var name = descriptor.DisplayName;
-                var value = $"{descriptor.InitValue ?? "null"}";
+                var descriptorName = descriptor.DisplayName;
+                if (descriptorName == string.Empty)
+                    descriptorName = CommandSettings.NameGenerator(descriptor.DescriptorName);
+
                 if (descriptor.InitValue == DBNull.Value)
-                    return $"<{name}>";
-                return $"<{name}={value}>";
+                {
+                    if (descriptor.IsExplicit == true)
+                        return $"<{patternText} {descriptorName}>";
+                    else
+                        return $"<{descriptorName}>";
+                }
+                else
+                {
+                    var value = descriptor.InitValue ?? "null";
+                    if (descriptor.IsExplicit == true)
+                        return $"<{patternText} {descriptorName}, default='{value}'>";
+                    else
+                        return $"<{descriptorName}, default='{value}'>";
+                }
+            }
+            else if (descriptor.IsSwitch == false)
+            {
+                return $"[{patternText} 'value']";
             }
             else
             {
-                return $"[{descriptor.DisplayName}]";
+                return $"[{patternText}]";
             }
         }
 

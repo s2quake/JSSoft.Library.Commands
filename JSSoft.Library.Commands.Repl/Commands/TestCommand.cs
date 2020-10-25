@@ -110,7 +110,7 @@ namespace JSSoft.Library.Commands.Repl.Commands
             return null;
         }
 
-        [CommandProperty("reverse", 'r')]
+        [CommandPropertySwitch("reverse", 'r')]
         public bool IsReverse
         {
             get; set;

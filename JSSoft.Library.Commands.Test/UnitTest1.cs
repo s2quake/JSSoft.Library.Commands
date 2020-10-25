@@ -111,7 +111,7 @@ namespace JSSoft.Library.Commands.Test
             [CommandProperty(DefaultValue = "")]
             public string List { get; set; }
 
-            [CommandProperty('c')]
+            [CommandPropertySwitch('c')]
             public bool IsCancel { get; set; }
 
             [CommandProperty]
@@ -146,7 +146,7 @@ namespace JSSoft.Library.Commands.Test
 
             public bool IsReverseResult { get; set; }
 
-            [CommandProperty("reverse", 'r')]
+            [CommandPropertySwitch("reverse", 'r')]
             public bool IsReverse
             {
                 get; set;

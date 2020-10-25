@@ -45,31 +45,31 @@ namespace JSSoft.Library.Commands.Repl.Commands
             get; set;
         }
 
-        [CommandProperty('n', AllowName = true)]
+        [CommandPropertySwitch('n', AllowName = true)]
         public bool DryRun
         {
             get; set;
         }
 
-        [CommandProperty('v', AllowName = true)]
+        [CommandPropertySwitch('v', AllowName = true)]
         public bool Verbose
         {
             get; set;
         }
 
-        [CommandProperty('f', AllowName = true)]
+        [CommandPropertySwitch('f', AllowName = true)]
         public bool Force
         {
             get; set;
         }
 
-        [CommandProperty('i', AllowName = true)]
+        [CommandPropertySwitch('i', AllowName = true)]
         public bool Interactive
         {
             get; set;
         }
 
-        [CommandProperty('P', AllowName = true)]
+        [CommandPropertySwitch('P', AllowName = true)]
         public bool Patch
         {
             get; set;

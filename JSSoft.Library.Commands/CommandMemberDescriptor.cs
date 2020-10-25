@@ -36,6 +36,7 @@ namespace JSSoft.Library.Commands
             this.ShortName = attribute.InternalShortName;
             this.IsRequired = attribute.IsRequiredProperty;
             this.IsExplicit = attribute.IsExplicitProperty;
+            this.IsSwitch = attribute.IsSwitchProperty;
             this.DefaultValue = attribute.DefaultValue;
             this.Usage = attribute.GetUsage();
         }
@@ -82,6 +83,8 @@ namespace JSSoft.Library.Commands
         public virtual bool IsRequired { get; }
 
         public virtual bool IsExplicit { get; }
+
+        public virtual bool IsSwitch { get; }
 
         public abstract Type MemberType { get; }
 

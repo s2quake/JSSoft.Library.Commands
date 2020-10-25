@@ -158,11 +158,11 @@ namespace JSSoft.Library.Commands
             return text;
         }
 
-        public static bool IsSwitch(string argument)
+        public static bool IsOption(string argument)
         {
             if (argument == null)
                 return false;
-            return Regex.IsMatch(argument, $"^{CommandSettings.Delimiter}{CommandSettings.SwitchPattern}$|^{CommandSettings.ShortDelimiter}{CommandSettings.ShortSwitchPattern}$");
+            return Regex.IsMatch(argument, $"^{CommandSettings.Delimiter}{CommandSettings.OptionPattern}$|^{CommandSettings.ShortDelimiter}{CommandSettings.ShortOptionPattern}$");
         }
 
         public static string ToSpinalCase(string text)

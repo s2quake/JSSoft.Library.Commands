@@ -55,16 +55,24 @@ namespace JSSoft.Library.Commands
                 if (descriptors.ContainsKey(arg) == true)
                 {
                     var descriptor = descriptors[arg];
-                    var nextArg = arguments.FirstOrDefault() ?? string.Empty;
-                    var isValue = nextArg != string.Empty && CommandStringUtility.IsSwitch(nextArg) == false && nextArg != "--";
-                    if (isValue == true)
+                    if (descriptor.IsSwitch == true)
                     {
-                        var textValue = arguments.Dequeue();
-                        if (CommandStringUtility.IsWrappedOfQuote(textValue) == true)
-                            textValue = CommandStringUtility.TrimQuot(textValue);
-                        itemByDescriptor[descriptor].Value = Parser.Parse(descriptor, textValue);
+                        itemByDescriptor[descriptor].Value = true;
+                        itemByDescriptor[descriptor].HasSwtich = true;
                     }
-                    itemByDescriptor[descriptor].HasSwtich = true;
+                    else
+                    {
+                        var nextArg = arguments.FirstOrDefault() ?? string.Empty;
+                        var isValue = nextArg != string.Empty && CommandStringUtility.IsOption(nextArg) == false && nextArg != "--";
+                        if (isValue == true)
+                        {
+                            var textValue = arguments.Dequeue();
+                            if (CommandStringUtility.IsWrappedOfQuote(textValue) == true)
+                                textValue = CommandStringUtility.TrimQuot(textValue);
+                            itemByDescriptor[descriptor].Value = Parser.Parse(descriptor, textValue);
+                        }
+                        itemByDescriptor[descriptor].HasSwtich = true;
+                    }
                 }
                 else if (arg == "--")
                 {
@@ -98,7 +106,7 @@ namespace JSSoft.Library.Commands
                         itemByDescriptor[descriptor].HasSwtich = true;
                     }
                 }
-                else if (CommandStringUtility.IsSwitch(arg) == true)
+                else if (CommandStringUtility.IsOption(arg) == true)
                 {
                     unparsedArguments.Add(arg, null);
                 }
@@ -106,7 +114,7 @@ namespace JSSoft.Library.Commands
                 {
                     unparsedArguments.Add(arg, null);
                 }
-                else if (CommandStringUtility.IsSwitch(arg) == false)
+                else if (CommandStringUtility.IsOption(arg) == false)
                 {
                     var requiredDescriptor = itemByDescriptor.Where(item => item.Key.IsRequired == true && item.Key.IsExplicit == false && item.Value.IsParsed == false)
                                                           .Select(item => item.Key).FirstOrDefault();
@@ -125,7 +133,7 @@ namespace JSSoft.Library.Commands
                     else
                     {
                         var nextArg = arguments.FirstOrDefault();
-                        if (nextArg != null && CommandStringUtility.IsSwitch(nextArg) == false)
+                        if (nextArg != null && CommandStringUtility.IsOption(nextArg) == false)
                             unparsedArguments.Add(arg, arguments.Dequeue());
                         else
                             unparsedArguments.Add(arg, null);

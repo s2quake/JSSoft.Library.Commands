@@ -157,7 +157,7 @@ namespace JSSoft.Library.Commands
 
         private void PrintOptions(CommandTextWriter writer, CommandMemberDescriptor[] descriptors)
         {
-            var items = descriptors.Where(item => item.Usage == CommandPropertyUsage.General);
+            var items = descriptors.Where(item => item.Usage == CommandPropertyUsage.General || item.Usage == CommandPropertyUsage.Switch);
             if (items.Any() == true)
             {
                 this.BeginGroup(writer, Resources.Text_Options);
@@ -254,10 +254,14 @@ namespace JSSoft.Library.Commands
                 {
                     var value = descriptor.InitValue ?? "null";
                     if (descriptor.IsExplicit == true)
-                        return $"<{patternText} {descriptorName}='{value}'>";
+                        return $"<{patternText} {descriptorName}, default='{value}'>";
                     else
-                        return $"<{descriptorName}='{value}'>";
+                        return $"<{descriptorName}, default='{value}'>";
                 }
+            }
+            else if (descriptor.IsSwitch == false)
+            {
+                return $"[{patternText} 'value']";
             }
             else
             {

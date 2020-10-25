@@ -28,8 +28,8 @@ namespace JSSoft.Library.Commands
 {
     public static class CommandSettings
     {
-        public const string SwitchPattern = "[a-zA-Z][-_a-zA-Z0-9]+";
-        public const string ShortSwitchPattern = "[a-zA-Z][a-zA-Z0-9]*";
+        public const string OptionPattern = "[a-zA-Z][-_a-zA-Z0-9]+";
+        public const string ShortOptionPattern = "[a-zA-Z][a-zA-Z0-9]*";
         private static string delimiter = "--";
         private static string shortDelimiter = "-";
         private static char itemSeparator = ';';
@@ -89,7 +89,7 @@ namespace JSSoft.Library.Commands
 
         internal static void ValidateIdentifier(string name)
         {
-            if (Regex.IsMatch(name, $"^{SwitchPattern}") == false)
+            if (Regex.IsMatch(name, $"^{OptionPattern}") == false)
                 throw new ArgumentException(string.Format(Resources.Exception_InvalidValue_Format, name));
         }
 

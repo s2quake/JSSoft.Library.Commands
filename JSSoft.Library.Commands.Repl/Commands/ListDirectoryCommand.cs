@@ -36,7 +36,7 @@ namespace JSSoft.Library.Commands.Repl.Commands
 
         }
 
-        [CommandProperty('s', AllowName = true)]
+        [CommandPropertySwitch('s', AllowName = true)]
         public bool IsRecursive
         {
             get; set;

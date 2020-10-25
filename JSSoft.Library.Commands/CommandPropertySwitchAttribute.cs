@@ -19,42 +19,31 @@
 // Forked from https://github.com/NtreevSoft/CommandLineParser
 // Namespaces and files starting with "Ntreev" have been renamed to "JSSoft".
 
-using System.ComponentModel.Composition;
-using System.IO;
-
-namespace JSSoft.Library.Commands.Repl.Commands
+namespace JSSoft.Library.Commands
 {
-    [Export(typeof(ICommand))]
-    [UsageDescriptionProvider(typeof(ResourceUsageDescriptionProvider))]
-    class CopyCommand : CommandBase
+    public class CommandPropertySwitchAttribute : CommandPropertyBaseAttribute
     {
-        public CopyCommand()
-            : base("copy")
+        public CommandPropertySwitchAttribute()
         {
-
+            this.Usage = CommandPropertyUsage.Switch;
         }
 
-        [CommandPropertyRequired]
-        public string SourcePath
+        public CommandPropertySwitchAttribute(string name)
+            : base(name)
         {
-            get; set;
+            this.Usage = CommandPropertyUsage.Switch;
         }
 
-        [CommandPropertyRequired]
-        public string TargetPath
+        public CommandPropertySwitchAttribute(string name, char shortName)
+            : base(name, shortName)
         {
-            get; set;
+            this.Usage = CommandPropertyUsage.Switch;
         }
 
-        [CommandPropertySwitch('o', AllowName = true)]
-        public bool OverWrite
+        public CommandPropertySwitchAttribute(char shortName)
+            : base(shortName)
         {
-            get; set;
-        }
-
-        protected override void OnExecute()
-        {
-            File.Copy(this.SourcePath, this.TargetPath, this.OverWrite);
+            this.Usage = CommandPropertyUsage.Switch;
         }
     }
 }
