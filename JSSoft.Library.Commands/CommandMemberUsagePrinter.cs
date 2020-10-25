@@ -138,7 +138,7 @@ namespace JSSoft.Library.Commands
                 this.BeginGroup(writer, Resources.Text_Requirements);
                 foreach (var item in items)
                 {
-                    this.PrintRequirement(writer, item);
+                    this.PrintRequirement(writer, item, items.Last() == item);
                 }
                 this.EndGroup(writer);
             }
@@ -163,7 +163,7 @@ namespace JSSoft.Library.Commands
                 this.BeginGroup(writer, Resources.Text_Options);
                 foreach (var item in items)
                 {
-                    this.PrintOption(writer, item);
+                    this.PrintOption(writer, item, items.Last() == item);
                 }
                 this.EndGroup(writer);
             }
@@ -197,7 +197,7 @@ namespace JSSoft.Library.Commands
             writer.EndGroup();
         }
 
-        private void PrintRequirement(CommandTextWriter writer, CommandMemberDescriptor descriptor)
+        private void PrintRequirement(CommandTextWriter writer, CommandMemberDescriptor descriptor, bool isLast)
         {
             writer.WriteLine(descriptor.DisplayName);
             if (descriptor.Summary != string.Empty)
@@ -206,7 +206,8 @@ namespace JSSoft.Library.Commands
                 writer.WriteMultiline(descriptor.Summary);
                 writer.Indent--;
             }
-            writer.WriteLine();
+            if (isLast == false)
+                writer.WriteLine();
         }
 
         private void PrintVariables(CommandTextWriter writer, CommandMemberDescriptor descriptor)
@@ -218,10 +219,9 @@ namespace JSSoft.Library.Commands
                 writer.WriteMultiline(descriptor.Summary);
                 writer.Indent--;
             }
-            writer.WriteLine();
         }
 
-        private void PrintOption(CommandTextWriter writer, CommandMemberDescriptor descriptor)
+        private void PrintOption(CommandTextWriter writer, CommandMemberDescriptor descriptor, bool isLast)
         {
             writer.WriteLine(descriptor.DisplayName);
             if (descriptor.Summary != string.Empty)
@@ -230,7 +230,8 @@ namespace JSSoft.Library.Commands
                 writer.WriteMultiline(descriptor.Summary);
                 writer.Indent--;
             }
-            writer.WriteLine();
+            if (isLast == false)
+                writer.WriteLine();
         }
 
         private string GetString(CommandMemberDescriptor descriptor)

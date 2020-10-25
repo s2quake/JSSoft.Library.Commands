@@ -184,7 +184,8 @@ namespace JSSoft.Library.Commands
                     writer.WriteMultiline(item.Summary);
                     writer.Indent--;
                 }
-                writer.WriteLine();
+                if (descriptors.Last() != item)
+                    writer.WriteLine();
             }
             writer.EndGroup();
         }
