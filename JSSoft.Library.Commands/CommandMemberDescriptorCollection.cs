@@ -70,6 +70,7 @@ namespace JSSoft.Library.Commands
                         orderby item.Usage == CommandPropertyUsage.Variables
                         orderby item.Usage == CommandPropertyUsage.ExplicitRequired
                         orderby item.Usage == CommandPropertyUsage.General
+                        orderby item.Usage == CommandPropertyUsage.Switch
                         select item;
             var items = query.ToArray();
             this.descriptors.Clear();
