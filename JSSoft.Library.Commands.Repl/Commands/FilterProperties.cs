@@ -28,15 +28,13 @@ namespace JSSoft.Library.Commands.Repl.Commands
     {
         [CommandProperty("filter")]
         [CommandPropertyTrigger(nameof(FilterFile), "")]
-        [DefaultValue(null)]
         public static string Filter
         {
             get; set;
         }
 
-        [CommandProperty]
+        [CommandProperty(DefaultValue = "")]
         [CommandPropertyTrigger(nameof(Filter), null)]
-        [DefaultValue("")]
         public static string FilterFile
         {
             get; set;

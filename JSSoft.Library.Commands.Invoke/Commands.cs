@@ -74,7 +74,7 @@ namespace JSSoft.Library.Commands.Invoke
                 Console.WriteLine("{0} committed. : {1}", path, this.Message);
         }
 
-        [CommandProperty('m', AllowName = true, Usage = CommandPropertyUsage.ExplicitRequired)]
+        [CommandPropertyRequired('m', AllowName = true, IsExplicit = true)]
         [ConsoleModeOnly]
         public string Message
         {

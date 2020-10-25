@@ -114,8 +114,7 @@ namespace JSSoft.Library.Commands.Test
             [CommandPropertySwitch('c')]
             public bool IsCancel { get; set; }
 
-            [CommandProperty]
-            [DefaultValue(5005)]
+            [CommandProperty(InitValue = 5005)]
             public int Port { get; set; }
         }
 

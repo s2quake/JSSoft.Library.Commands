@@ -77,8 +77,7 @@ namespace JSSoft.Library.Commands.Test
             this.parser.Parse("lock current_path -m 123 -i");
         }
 
-        [CommandPropertyRequired]
-        [DefaultValue("")]
+        [CommandPropertyRequired(DefaultValue = "")]
         public string Path
         {
             get; set;
@@ -98,9 +97,8 @@ namespace JSSoft.Library.Commands.Test
             get; set;
         }
 
-        [CommandProperty("format")]
+        [CommandProperty("format", DefaultValue = "xml")]
         [CommandPropertyTrigger(nameof(Information), true)]
-        [DefaultValue("xml")]
         public string FormatType
         {
             get; set;

@@ -64,7 +64,7 @@ namespace JSSoft.Library.Commands
 
         public bool AllowName { get; set; } = true;
 
-        public object DefaultValue { get; set; } = DBNull.Value;
+        // public object DefaultValue { get; set; } = DBNull.Value;
 
         protected CommandPropertyUsage Usage { get; set; } = CommandPropertyUsage.General;
 
@@ -91,5 +91,9 @@ namespace JSSoft.Library.Commands
         internal bool IsExplicitProperty => this.Usage == CommandPropertyUsage.General || this.Usage == CommandPropertyUsage.ExplicitRequired || this.Usage == CommandPropertyUsage.Switch;
 
         internal bool IsSwitchProperty => this.Usage == CommandPropertyUsage.Switch;
+
+        internal virtual object DefaultValueProperty => DBNull.Value;
+
+        internal virtual object InitValueProperty => DBNull.Value;
     }
 }

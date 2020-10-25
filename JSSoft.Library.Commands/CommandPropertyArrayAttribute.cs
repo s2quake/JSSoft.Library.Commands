@@ -26,7 +26,10 @@ namespace JSSoft.Library.Commands
         public CommandPropertyArrayAttribute()
         {
             this.Usage = CommandPropertyUsage.Variables;
-            this.DefaultValue = new string[] { };
         }
+
+        internal override object DefaultValueProperty => new string[] { };
+
+        internal override object InitValueProperty => new string[] { };
     }
 }

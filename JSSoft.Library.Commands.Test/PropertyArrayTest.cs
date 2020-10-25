@@ -62,7 +62,6 @@ namespace JSSoft.Library.Commands.Test
         class Instance2
         {
             [CommandPropertyArray]
-            [DefaultValue(new string[] { })]
             public string[] Arguments
             {
                 get; set;
@@ -106,7 +105,7 @@ namespace JSSoft.Library.Commands.Test
 
         class Instance4
         {
-            [CommandPropertyArray(DefaultValue = new string[] { })]
+            [CommandPropertyArray]
             public string[] Arguments
             {
                 get; set;

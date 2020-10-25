@@ -104,28 +104,25 @@ namespace JSSoft.Library.Commands.Test
             }
         }
 
-        [CommandPropertyRequired]
+        [CommandPropertyRequired(DefaultValue = "")]
         [CommandPropertyTrigger(nameof(Filename), "")]
         [CommandPropertyTrigger(nameof(List), false)]
-        [DefaultValue("")]
         public string Script
         {
             get; set;
         }
 
-        [CommandProperty()]
+        [CommandProperty(DefaultValue = "")]
         [CommandPropertyTrigger(nameof(Script), "")]
         [CommandPropertyTrigger(nameof(List), false)]
-        [DefaultValue("")]
         public string Filename
         {
             get; set;
         }
 
-        [CommandProperty("list", 'l')]
+        [CommandPropertySwitch("list", 'l')]
         [CommandPropertyTrigger(nameof(Script), "")]
         [CommandPropertyTrigger(nameof(Filename), "")]
-        [DefaultValue(false)]
         public bool List
         {
             get; set;

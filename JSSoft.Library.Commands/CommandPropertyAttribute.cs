@@ -19,6 +19,8 @@
 // Forked from https://github.com/NtreevSoft/CommandLineParser
 // Namespaces and files starting with "Ntreev" have been renamed to "JSSoft".
 
+using System;
+
 namespace JSSoft.Library.Commands
 {
     public class CommandPropertyAttribute : CommandPropertyBaseAttribute
@@ -42,10 +44,8 @@ namespace JSSoft.Library.Commands
         {
         }
 
-        public new CommandPropertyUsage Usage
-        {
-            get => base.Usage;
-            set => base.Usage = value;
-        }
+        public object DefaultValue { get; set; } = DBNull.Value;
+
+        public object InitValue { get; set; } = DBNull.Value;
     }
 }

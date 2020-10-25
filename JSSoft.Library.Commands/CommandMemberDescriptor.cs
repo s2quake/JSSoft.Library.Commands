@@ -37,7 +37,8 @@ namespace JSSoft.Library.Commands
             this.IsRequired = attribute.IsRequiredProperty;
             this.IsExplicit = attribute.IsExplicitProperty;
             this.IsSwitch = attribute.IsSwitchProperty;
-            this.DefaultValue = attribute.DefaultValue;
+            this.DefaultValue = attribute.DefaultValueProperty;
+            this.InitValue = attribute.InitValueProperty;
             this.Usage = attribute.GetUsage();
         }
 

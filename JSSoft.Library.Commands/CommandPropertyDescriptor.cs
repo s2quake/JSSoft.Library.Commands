@@ -43,7 +43,6 @@ namespace JSSoft.Library.Commands
             this.MemberType = propertyInfo.PropertyType;
             this.Summary = propertyInfo.GetSummary();
             this.Description = propertyInfo.GetDescription();
-            this.InitValue = GetDefaultValue(propertyInfo);
             if (this.Usage == CommandPropertyUsage.Variables && this.MemberType.IsArray == false)
                 throw new InvalidOperationException(string.Format(Resources.Exception_VariablesPropertyMustBeAnArrayType_Format, nameof(CommandPropertyUsage.Variables)));
             if (this.Usage == CommandPropertyUsage.Switch && this.MemberType != typeof(bool))

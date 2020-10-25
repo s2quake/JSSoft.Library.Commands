@@ -40,8 +40,7 @@ namespace JSSoft.Library.Commands.Repl.Commands
             this.DirectoryName = string.Empty;
         }
 
-        [CommandPropertyRequired("dir")]
-        [DefaultValue("")]
+        [CommandPropertyRequired("dir", DefaultValue = "")]
         public string DirectoryName
         {
             get; set;

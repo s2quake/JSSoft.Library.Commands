@@ -51,8 +51,7 @@ namespace JSSoft.Library.Commands.Parse
             get; set;
         }
 
-        [CommandPropertyRequired]
-        [DefaultValue("10001")]
+        [CommandPropertyRequired(DefaultValue = "10001")]
         [Description("port")]
         [Browsable(true)]
         public int Port
