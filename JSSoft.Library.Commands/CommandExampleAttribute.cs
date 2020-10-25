@@ -19,30 +19,26 @@
 // Forked from https://github.com/NtreevSoft/CommandLineParser
 // Namespaces and files starting with "Ntreev" have been renamed to "JSSoft".
 
-using System.Reflection;
+using System;
 
 namespace JSSoft.Library.Commands
 {
-    public interface IUsageDescriptionProvider
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
+    public class CommandExampleAttribute : Attribute
     {
-        string GetDescription(object instance);
+        private string locale = string.Empty;
 
-        string GetSummary(object instance);
+        public CommandExampleAttribute(string example)
+        {
+            this.Example = example ?? throw new ArgumentNullException(nameof(example));
+        }
 
-        string GetExample(object instance);
+        public virtual string Example { get; }
 
-        string GetDescription(PropertyInfo propertyInfo);
-
-        string GetSummary(PropertyInfo propertyInfo);
-
-        string GetDescription(ParameterInfo parameterInfo);
-
-        string GetSummary(ParameterInfo parameterInfo);
-
-        string GetDescription(MethodInfo methodInfo);
-
-        string GetSummary(MethodInfo methodInfo);
-
-        string GetExample(MethodInfo methodInfo);
+        public string Locale
+        {
+            get => this.locale;
+            set => this.locale = value ?? throw new ArgumentNullException(nameof(value));
+        }
     }
 }

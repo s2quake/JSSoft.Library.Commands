@@ -126,6 +126,9 @@
   <data name="Text_Description" xml:space="preserve">
     <value>설명</value>
   </data>
+  <data name="Text_Example" xml:space="preserve">
+    <value>예제</value>
+  </data>
   <data name="Text_Requirements" xml:space="preserve">
     <value>필수 인자</value>
   </data>

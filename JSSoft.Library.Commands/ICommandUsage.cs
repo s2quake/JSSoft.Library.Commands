@@ -19,30 +19,12 @@
 // Forked from https://github.com/NtreevSoft/CommandLineParser
 // Namespaces and files starting with "Ntreev" have been renamed to "JSSoft".
 
-using System.Reflection;
+using System.Collections.Generic;
 
 namespace JSSoft.Library.Commands
 {
-    public interface IUsageDescriptionProvider
+    public interface ICommandUsage
     {
-        string GetDescription(object instance);
-
-        string GetSummary(object instance);
-
-        string GetExample(object instance);
-
-        string GetDescription(PropertyInfo propertyInfo);
-
-        string GetSummary(PropertyInfo propertyInfo);
-
-        string GetDescription(ParameterInfo parameterInfo);
-
-        string GetSummary(ParameterInfo parameterInfo);
-
-        string GetDescription(MethodInfo methodInfo);
-
-        string GetSummary(MethodInfo methodInfo);
-
-        string GetExample(MethodInfo methodInfo);
+        void Print(bool isDetail);
     }
 }

@@ -35,6 +35,7 @@ namespace JSSoft.Library.Commands
             this.Instance = instance;
             this.Summary = provider.GetSummary(instance);
             this.Description = provider.GetDescription(instance);
+            this.Example = provider.GetExample(instance);
         }
 
         public virtual void Print(TextWriter writer, CommandMethodDescriptor[] descriptors)
@@ -63,13 +64,16 @@ namespace JSSoft.Library.Commands
 
         public string Description { get; }
 
+        public string Example { get; }
+
         public bool IsDetailed { get; set; }
 
         private void Print(CommandTextWriter writer, CommandMethodDescriptor[] descriptors)
         {
-            this.PrintSummary(writer, descriptors);
+            this.PrintSummary(writer);
             this.PrintDescription(writer, descriptors);
             this.PrintUsage(writer, descriptors);
+            this.PrintExample(writer);
             this.PrintSubcommands(writer, descriptors);
         }
 
@@ -78,6 +82,7 @@ namespace JSSoft.Library.Commands
             this.PrintSummary(writer, descriptor, memberDescriptors);
             this.PrintDescription(writer, descriptor, memberDescriptors);
             this.PrintUsage(writer, descriptor, memberDescriptors);
+            this.PrintExample(writer, descriptor, memberDescriptors);
             this.PrintRequirements(writer, descriptor, memberDescriptors);
             this.PrintVariables(writer, descriptor, memberDescriptors);
             this.PrintOptions(writer, descriptor, memberDescriptors);
@@ -90,7 +95,7 @@ namespace JSSoft.Library.Commands
             this.PrintUsage(writer, descriptor, memberDescriptor);
         }
 
-        private void PrintSummary(CommandTextWriter writer, CommandMethodDescriptor[] _)
+        private void PrintSummary(CommandTextWriter writer)
         {
             var summary = this.Summary;
             if (summary != string.Empty)
@@ -144,6 +149,27 @@ namespace JSSoft.Library.Commands
             writer.BeginGroup(Resources.Text_Description);
             writer.WriteMultiline(memberDescriptor.Description);
             writer.EndGroup();
+        }
+
+        private void PrintExample(CommandTextWriter writer)
+        {
+            var example = this.Example;
+            if (example != string.Empty)
+            {
+                writer.BeginGroup(Resources.Text_Example);
+                writer.WriteMultiline(example);
+                writer.EndGroup();
+            }
+        }
+
+        private void PrintExample(CommandTextWriter writer, CommandMethodDescriptor descriptor, CommandMemberDescriptor[] _)
+        {
+            if (descriptor.Example != string.Empty)
+            {
+                writer.BeginGroup(Resources.Text_Example);
+                writer.WriteMultiline(descriptor.Example);
+                writer.EndGroup();
+            }
         }
 
         private void PrintSubcommands(CommandTextWriter writer, CommandMethodDescriptor[] descriptors)

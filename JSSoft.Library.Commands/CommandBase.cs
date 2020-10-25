@@ -22,12 +22,13 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace JSSoft.Library.Commands
 {
-    public abstract class CommandBase : ICommand, IExecutable, ICommandHost, ICommandCompletor, ICommandDescriptor
+    public abstract class CommandBase : ICommand, IExecutable, ICommandHost, ICommandCompletor, ICommandDescriptor, ICommandUsage
     {
         protected CommandBase()
         {
@@ -66,6 +67,13 @@ namespace JSSoft.Library.Commands
             return CommandDescriptor.GetStaticMemberDescriptors(type)[propertyName];
         }
 
+        protected virtual void PrintUsage(bool isDetail)
+        {
+            var descriptors = CommandDescriptor.GetMemberDescriptors(this);
+            var printer = new CommandMemberUsagePrinter(this.Name, this) { IsDetailed = isDetail };
+            printer.Print(this.Out, descriptors.ToArray());
+        }
+
         #region ICommand
 
         void IExecutable.Execute()
@@ -96,9 +104,18 @@ namespace JSSoft.Library.Commands
         IEnumerable<CommandMemberDescriptor> ICommandDescriptor.Members => CommandDescriptor.GetMemberDescriptors(this);
 
         #endregion
+
+        #region ICommandUsage
+
+        void ICommandUsage.Print(bool isDetail)
+        {
+            this.PrintUsage(isDetail);
+        }
+
+        #endregion
     }
 
-    public abstract class CommandAsyncBase : ICommand, IExecutableAsync, ICommandHost, ICommandDescriptor
+    public abstract class CommandAsyncBase : ICommand, IExecutableAsync, ICommandHost, ICommandDescriptor, ICommandUsage
     {
         protected CommandAsyncBase()
         {
@@ -137,6 +154,13 @@ namespace JSSoft.Library.Commands
             return CommandDescriptor.GetStaticMemberDescriptors(type)[propertyName];
         }
 
+        protected virtual void PrintUsage(bool isDetail)
+        {
+            var descriptors = CommandDescriptor.GetMemberDescriptors(this);
+            var printer = new CommandMemberUsagePrinter(this.Name, this) { IsDetailed = isDetail };
+            printer.Print(this.Out, descriptors.ToArray());
+        }
+
         #region ICommand
 
         Task IExecutableAsync.ExecuteAsync(CancellationToken cancellationToken)
@@ -165,6 +189,15 @@ namespace JSSoft.Library.Commands
         string ICommandDescriptor.Description => CommandDescriptor.GetUsageDescriptionProvider(this.GetType()).GetDescription(this);
 
         IEnumerable<CommandMemberDescriptor> ICommandDescriptor.Members => CommandDescriptor.GetMemberDescriptors(this);
+
+        #endregion
+
+        #region ICommandUsage
+
+        void ICommandUsage.Print(bool isDetail)
+        {
+            this.PrintUsage(isDetail);
+        }
 
         #endregion
     }

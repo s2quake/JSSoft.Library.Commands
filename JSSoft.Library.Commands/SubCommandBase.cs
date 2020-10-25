@@ -24,7 +24,7 @@ using System.Linq;
 
 namespace JSSoft.Library.Commands
 {
-    class SubCommandBase : ICommand, ICommandCompletor, IExecutable, ICommandDescriptor, IMemberDescriptorProvider
+    class SubCommandBase : ICommand, ICommandCompletor, IExecutable, ICommandDescriptor, IMemberDescriptorProvider, ICommandUsage
     {
         private readonly CommandMethodBase command;
         private readonly CommandMethodDescriptor descriptor;
@@ -42,6 +42,8 @@ namespace JSSoft.Library.Commands
 
         public string Description => this.descriptor.Description;
 
+        public string Example => this.descriptor.Example;
+
         public virtual bool IsEnabled => this.descriptor.CanExecute(this.command);
 
         public IEnumerable<CommandMemberDescriptor> Members { get; }
@@ -55,5 +57,21 @@ namespace JSSoft.Library.Commands
         {
             return this.command.GetCompletions(this.descriptor, completionContext.MemberDescriptor, completionContext.Find);
         }
+
+        protected virtual void PrintUsage(bool isDetail)
+        {
+            var descriptors = this.Members.ToArray();
+            var printer = new CommandMethodUsagePrinter(this.command.Name, this.command) { IsDetailed = isDetail };
+            printer.Print(this.command.Out, this.descriptor, descriptors);
+        }
+
+        #region ICommandUsage
+
+        void ICommandUsage.Print(bool isDetail)
+        {
+            this.PrintUsage(isDetail);
+        }
+
+        #endregion
     }
 }

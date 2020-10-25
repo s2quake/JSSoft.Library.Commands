@@ -126,6 +126,9 @@
   <data name="Text_Description" xml:space="preserve">
     <value>Description</value>
   </data>
+  <data name="Text_Example" xml:space="preserve">
+    <value>Example</value>
+  </data>
   <data name="Text_Requirements" xml:space="preserve">
     <value>Requirements</value>
   </data>

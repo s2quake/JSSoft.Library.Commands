@@ -41,6 +41,11 @@ namespace JSSoft.Library.Commands.Extensions
             return CommandDescriptor.GetUsageDescriptionProvider(methodInfo.DeclaringType).GetDescription(methodInfo);
         }
 
+        public static string GetExample(this MethodInfo methodInfo)
+        {
+            return CommandDescriptor.GetUsageDescriptionProvider(methodInfo.DeclaringType).GetExample(methodInfo);
+        }
+
         public static bool IsAsync(this MethodInfo methodInfo)
         {
             return methodInfo.ReturnType.IsAssignableFrom(typeof(Task));

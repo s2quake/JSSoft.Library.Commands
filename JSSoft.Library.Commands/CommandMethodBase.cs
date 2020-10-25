@@ -23,10 +23,11 @@ using JSSoft.Library.ObjectModel;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace JSSoft.Library.Commands
 {
-    public abstract class CommandMethodBase : ICommand, ICommandHost, ICommandHierarchy, ICommandCompletor, ICommandDescriptor
+    public abstract class CommandMethodBase : ICommand, ICommandHost, ICommandHierarchy, ICommandCompletor, ICommandDescriptor, ICommandUsage
     {
         private readonly CommandCollection commands = new CommandCollection();
 
@@ -89,9 +90,13 @@ namespace JSSoft.Library.Commands
             return this.IsMethodEnabled(descriptor);
         }
 
-        public string[] GetCompletions(CommandCompletionContext completionContext)
+        protected virtual void PrintUsage(bool isDetail)
         {
-            return null;
+            var query = from item in CommandDescriptor.GetMethodDescriptors(this.GetType())
+                        where item.CanExecute(this)
+                        select item;
+            var printer = new CommandMethodUsagePrinter(this.Name, this) { IsDetailed = isDetail };
+            printer.Print(this.Out, query.ToArray());
         }
 
         #region ICommandHost
@@ -116,5 +121,22 @@ namespace JSSoft.Library.Commands
 
         #endregion
 
+        #region ICommandCompletor
+
+        string[] ICommandCompletor.GetCompletions(CommandCompletionContext completionContext)
+        {
+            return null;
+        }
+
+        #endregion
+
+        #region ICommandUsage
+
+        void ICommandUsage.Print(bool isDetail)
+        {
+            this.PrintUsage(isDetail);
+        }
+
+        #endregion
     }
 }

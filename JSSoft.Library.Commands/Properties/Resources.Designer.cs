@@ -329,6 +329,15 @@ namespace JSSoft.Library.Commands.Properties {
                 return ResourceManager.GetString("Text_Description", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Example(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string Text_Example {
+            get {
+                return ResourceManager.GetString("Text_Example", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Options과(와) 유사한 지역화된 문자열을 찾습니다.

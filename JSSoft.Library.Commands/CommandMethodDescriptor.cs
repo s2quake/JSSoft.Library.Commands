@@ -47,6 +47,8 @@ namespace JSSoft.Library.Commands
 
         public abstract string Description { get; }
 
+        public abstract string Example { get; }
+
         public abstract bool IsAsync { get; }
 
         public MethodInfo MethodInfo { get; }

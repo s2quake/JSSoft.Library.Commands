@@ -66,6 +66,16 @@ namespace JSSoft.Library.Commands
             return ToSummary(methodInfo);
         }
 
+        public string GetExample(object instance)
+        {
+            return ToExample(instance.GetType());
+        }
+
+        public string GetExample(MethodInfo methodInfo)
+        {
+            return ToExample(methodInfo);
+        }
+
         public static readonly UsageDescriptionProvider Default = new UsageDescriptionProvider();
 
         public static string ToSummary(ICustomAttributeProvider customAttributeProvider)
@@ -103,6 +113,26 @@ namespace JSSoft.Library.Commands
                 else if (item.Locale == cultureName)
                 {
                     description = item.Description;
+                }
+            }
+            return description;
+        }
+
+        public static string ToExample(ICustomAttributeProvider customAttributeProvider)
+        {
+            var cultureInfo = CultureInfo.CurrentCulture;
+            var cultureName = cultureInfo.Name;
+            var attributes = customAttributeProvider.GetCustomAttributes<CommandExampleAttribute>();
+            var description = string.Empty;
+            foreach (var item in attributes)
+            {
+                if (item.Locale == string.Empty && description == string.Empty)
+                {
+                    description = item.Example;
+                }
+                else if (item.Locale == cultureName)
+                {
+                    description = item.Example;
                 }
             }
             return description;

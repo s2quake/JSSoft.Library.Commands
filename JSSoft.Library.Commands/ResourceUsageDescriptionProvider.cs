@@ -130,6 +130,25 @@ namespace JSSoft.Library.Commands
             return UsageDescriptionProvider.Default.GetSummary(methodInfo);
         }
 
+        public string GetExample(object instance)
+        {
+            var example = this.GetResourceExample(instance.GetType(), instance.GetType().Name);
+            if (example != null)
+                return example;
+            example = this.GetResourceExample(instance.GetType(), "ctor");
+            if (example != null)
+                return example;
+            return UsageDescriptionProvider.Default.GetExample(instance);
+        }
+
+        public string GetExample(MethodInfo methodInfo)
+        {
+            var example = this.GetResourceExample(methodInfo.DeclaringType, methodInfo.Name);
+            if (example != null)
+                return example;
+            return UsageDescriptionProvider.Default.GetExample(methodInfo);
+        }
+
         public bool IsShared { get; set; }
 
         public string Prefix
@@ -164,6 +183,20 @@ namespace JSSoft.Library.Commands
                 resName = $"{this.Prefix}.{resName}";
 
             return GetString(resourceManager, "@" + resName);
+        }
+
+        private string GetResourceExample(Type type, string name)
+        {
+            var resourceManager = GetResourceSet(this.resourceName, type);
+            if (resourceManager == null)
+                return null;
+            var resName = name;
+            if (this.IsShared == true && type.Name != name)
+                resName = $"{type.Name}.{name}";
+            if (this.Prefix != string.Empty)
+                resName = $"{this.Prefix}.{resName}";
+
+            return GetString(resourceManager, "example@" + resName);
         }
 
         private static ResourceManager GetResourceSet(string resourceName, Type type)

@@ -27,7 +27,6 @@ namespace JSSoft.Library.Commands
     public class CommandSummaryAttribute : Attribute
     {
         private string locale = string.Empty;
-        private string path = string.Empty;
 
         public CommandSummaryAttribute(string summary)
         {
@@ -40,12 +39,6 @@ namespace JSSoft.Library.Commands
         {
             get => this.locale;
             set => this.locale = value ?? throw new ArgumentNullException(nameof(value));
-        }
-
-        public string Path
-        {
-            get => this.path;
-            set => this.path = value ?? throw new ArgumentNullException(nameof(value));
         }
     }
 }

@@ -40,6 +40,7 @@ namespace JSSoft.Library.Commands
             this.DisplayName = methodInfo.GetDisplayName();
             this.Summary = methodInfo.GetSummary();
             this.Description = methodInfo.GetDescription();
+            this.Example = methodInfo.GetExample();
             this.members = methodInfo.GetMemberDescriptors();
             this.canExecutableProperty = methodInfo.GetCanExecutableProperty();
             this.getCompletionMethod = methodInfo.GetCompletionMethod();
@@ -56,6 +57,8 @@ namespace JSSoft.Library.Commands
         public override string Summary { get; }
 
         public override string Description { get; }
+
+        public override string Example { get; }
 
         public override bool IsAsync { get; }
 

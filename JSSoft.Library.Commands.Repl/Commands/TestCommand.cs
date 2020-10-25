@@ -64,6 +64,7 @@ namespace JSSoft.Library.Commands.Repl.Commands
         [CommandMethod]
         [CommandSummary("Stop async task")]
         [CommandSummary("비동기 작업을 멈춥니다..", Locale = "ko-KR")]
+        [CommandExample("werwer")]
         public async Task StopAsync(CancellationToken cancellationToken)
         {
             this.cancellation.Cancel();

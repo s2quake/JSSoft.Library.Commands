@@ -67,29 +67,9 @@ namespace JSSoft.Library.Commands
             {
                 var argumentList = new List<string>(this.CommandNames);
                 var command = this.GetCommand(this.CommandContext.Node, argumentList);
-                if (command != null)
+                if (command is ICommandUsage usage)
                 {
-                    var commandName = string.Join(" ", this.CommandNames);
-                    if (command is ICommandHierarchy)
-                    {
-                        var query = from item in CommandDescriptor.GetMethodDescriptors(command.GetType())
-                                    where item.CanExecute(command)
-                                    select item;
-                        var printer = new CommandMethodUsagePrinter(commandName, command) { IsDetailed = this.IsDetail };
-                        printer.Print(this.Out, query.ToArray());
-                    }
-                    else if (command is ICommandDescriptor commandDescriptor)
-                    {
-                        var members = commandDescriptor.Members.ToArray();
-                        var printer = new CommandMemberUsagePrinter(commandName, command) { IsDetailed = this.IsDetail };
-                        printer.Print(this.Out, members);
-                    }
-                    else
-                    {
-                        var memberDescriptors = CommandDescriptor.GetMemberDescriptors(command.GetType());
-                        var printer = new CommandMemberUsagePrinter(commandName, command) { IsDetailed = this.IsDetail };
-                        printer.Print(this.Out, memberDescriptors.ToArray());
-                    }
+                    usage.Print(this.IsDetail);
                 }
             }
         }

@@ -35,6 +35,7 @@ namespace JSSoft.Library.Commands
             this.Instance = instance;
             this.Summary = provider.GetSummary(instance);
             this.Description = provider.GetDescription(instance);
+            this.Example = provider.GetExample(instance);
         }
 
         public virtual void Print(TextWriter writer, CommandMemberDescriptor[] descriptors)
@@ -57,6 +58,8 @@ namespace JSSoft.Library.Commands
 
         public string Description { get; }
 
+        public string Example { get; }
+
         public bool IsDetailed { get; set; }
 
         private void Print(CommandTextWriter writer, CommandMemberDescriptor[] descriptors)
@@ -64,6 +67,7 @@ namespace JSSoft.Library.Commands
             this.PrintSummary(writer);
             this.PrintDescription(writer, descriptors);
             this.PrintUsage(writer, descriptors);
+            this.PrintExample(writer);
             this.PrintRequirements(writer, descriptors);
             this.PrintVariables(writer, descriptors);
             this.PrintOptions(writer, descriptors);
@@ -111,6 +115,17 @@ namespace JSSoft.Library.Commands
             {
                 writer.BeginGroup(Resources.Text_Description);
                 writer.WriteMultiline(description);
+                writer.EndGroup();
+            }
+        }
+
+        private void PrintExample(CommandTextWriter writer)
+        {
+            var example = this.Example;
+            if (example != string.Empty)
+            {
+                writer.BeginGroup(Resources.Text_Example);
+                writer.WriteMultiline(example);
                 writer.EndGroup();
             }
         }
