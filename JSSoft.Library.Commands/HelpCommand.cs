@@ -136,10 +136,11 @@ namespace JSSoft.Library.Commands
             {
                 var query = from item in node.Childs
                             where item.IsEnabled
-                            where item.Name.StartsWith(find)
-                            where item.Name != this.Name
-                            orderby item.Name
-                            select item.Name;
+                            from name in new string[] { item.Name }.Concat(item.Aliases)
+                            where name.StartsWith(find)
+                            where name != this.Name
+                            orderby name
+                            select name;
                 return query.ToArray();
             }
             else if (node.Childs.ContainsKey(commandName) == true)
