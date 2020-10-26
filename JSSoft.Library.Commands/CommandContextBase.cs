@@ -288,8 +288,8 @@ namespace JSSoft.Library.Commands
             if (itemList.Count == 0)
             {
                 var query = from item in parentNode.Childs
-                            let name = item.Name
                             where item.IsEnabled
+                            from name in new string[] { item.Name }.Concat(item.Aliases)
                             where name.StartsWith(find)
                             orderby name
                             select name;
