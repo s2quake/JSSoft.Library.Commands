@@ -51,6 +51,8 @@ namespace JSSoft.Library.Commands
 
         public override bool IsExplicit => this.descriptor.IsExplicit;
 
+        public override bool IsSwitch => this.descriptor.IsSwitch;
+
         public override string NamePattern => this.descriptor.NamePattern;
 
         public override string ShortNamePattern => this.descriptor.ShortNamePattern;
