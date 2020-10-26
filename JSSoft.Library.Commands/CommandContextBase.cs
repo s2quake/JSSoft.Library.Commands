@@ -85,7 +85,7 @@ namespace JSSoft.Library.Commands
                 return null;
             var args = CommandStringUtility.SplitAll(arguments);
             var argList = new List<string>(args);
-            return this.GetCommand(this.commandNode, argList);
+            return GetCommand(this.commandNode, argList);
         }
 
         public void Execute(string commandLine)
@@ -181,6 +181,39 @@ namespace JSSoft.Library.Commands
             return this.GetCompletion(items, find);
         }
 
+        internal static ICommand GetCommand(ICommandNode parentNode, List<string> argumentList)
+        {
+            var commandName = argumentList.FirstOrDefault() ?? string.Empty;
+            if (commandName != string.Empty)
+            {
+                if (parentNode.Childs.ContainsKey(commandName) == true)
+                {
+                    var commandNode = parentNode.Childs[commandName];
+                    if (commandNode.IsEnabled == false)
+                        return null;
+                    argumentList.RemoveAt(0);
+                    if (argumentList.Count > 0 && commandNode.Childs.Any())
+                    {
+                        return GetCommand(commandNode, argumentList);
+                    }
+                    return commandNode.Command;
+                }
+                else if (parentNode.ChildsByAlias.ContainsKey(commandName) == true)
+                {
+                    var commandNode = parentNode.ChildsByAlias[commandName];
+                    if (commandNode.IsEnabled == false)
+                        return null;
+                    argumentList.RemoveAt(0);
+                    if (argumentList.Count > 0 && commandNode.Childs.Any())
+                    {
+                        return GetCommand(commandNode, argumentList);
+                    }
+                    return commandNode.Command;
+                }
+            }
+            return null;
+        }
+
         private void Initialize(CommandNode commandNode, IEnumerable<ICommand> commands)
         {
             this.CollectCommands(commandNode, this.ValidateCommands(commands));
@@ -191,23 +224,44 @@ namespace JSSoft.Library.Commands
         {
             foreach (var item in commands)
             {
-                var commandName = item.Name;
-                if (parentNode.Childs.ContainsKey(commandName) == true && item.GetType().GetCustomAttribute<PartialCommandAttribute>() == null)
-                    throw new InvalidOperationException(string.Format(Resources.Exception_CommandAlreadyExists_Format, commandName));
-                if (parentNode.Childs.ContainsKey(commandName) == false && item.GetType().GetCustomAttribute<PartialCommandAttribute>() != null)
-                    throw new InvalidOperationException(string.Format(Resources.Exception_CommandDoesNotExists_Format, commandName));
-                if (parentNode.Childs.ContainsKey(commandName) == false)
+                CollectCommands(parentNode, item);
+            }
+        }
+
+        private void CollectCommands(CommandNode parentNode, ICommand command)
+        {
+            var commandName = command.Name;
+            var partialAttr = command.GetType().GetCustomAttribute<PartialCommandAttribute>();
+            if (parentNode.Childs.ContainsKey(commandName) == true && partialAttr == null)
+                throw new InvalidOperationException(string.Format(Resources.Exception_CommandAlreadyExists_Format, commandName));
+            if (parentNode.Childs.ContainsKey(commandName) == false && partialAttr != null)
+                throw new InvalidOperationException(string.Format(Resources.Exception_CommandDoesNotExists_Format, commandName));
+            if (partialAttr != null && command.Aliases.Any() == true)
+                throw new InvalidOperationException($"Partial command cannot have alias.: '{commandName}'");
+            if (parentNode.Childs.ContainsKey(commandName) == false)
+            {
+                var commandNode = new CommandNode()
                 {
-                    parentNode.Childs.Add(new CommandNode()
+                    Parent = parentNode,
+                    Name = commandName,
+                    Command = command
+                };
+                parentNode.Childs.Add(commandNode);
+                foreach (var item in command.Aliases)
+                {
+                    parentNode.ChildsByAlias.Add(new CommandNode()
                     {
                         Parent = parentNode,
-                        Name = commandName,
-                        Command = item
+                        Name = item,
+                        Command = command,
+                        CommandList = commandNode.CommandList
                     });
                 }
+            }
+            {
                 var commandNode = parentNode.Childs[commandName];
-                commandNode.CommandList.Add(item);
-                if (item is ICommandHierarchy hierarchy)
+                commandNode.CommandList.Add(command);
+                if (command is ICommandHierarchy hierarchy)
                 {
                     this.CollectCommands(commandNode, hierarchy.Commands);
                 }
@@ -296,7 +350,7 @@ namespace JSSoft.Library.Commands
             {
                 var arguments = CommandStringUtility.SplitAll(commandLine);
                 var argumentList = new List<string>(arguments);
-                var command = this.GetCommand(this.commandNode, argumentList);
+                var command = GetCommand(this.commandNode, argumentList);
                 if (command != null)
                 {
                     var parser = new CommandLineParser(command.Name, command);
@@ -323,7 +377,7 @@ namespace JSSoft.Library.Commands
             {
                 var arguments = CommandStringUtility.SplitAll(commandLine);
                 var argumentList = new List<string>(arguments);
-                var command = this.GetCommand(this.commandNode, argumentList);
+                var command = GetCommand(this.commandNode, argumentList);
                 if (command != null)
                 {
                     var parser = new CommandLineParser(command.Name, command);
@@ -335,27 +389,6 @@ namespace JSSoft.Library.Commands
                     throw new ArgumentException(string.Format(Resources.Exception_CommandDoesNotExists_Format, commandLine));
                 }
             }
-        }
-
-        private ICommand GetCommand(CommandNode parentNode, List<string> argumentList)
-        {
-            var commandName = argumentList.FirstOrDefault() ?? string.Empty;
-            if (commandName != string.Empty)
-            {
-                if (parentNode.Childs.ContainsKey(commandName) == true)
-                {
-                    var commandNode = parentNode.Childs[commandName];
-                    if (commandNode.IsEnabled == false)
-                        return null;
-                    argumentList.RemoveAt(0);
-                    if (argumentList.Count > 0 && commandNode.Childs.Any())
-                    {
-                        return this.GetCommand(commandNode, argumentList);
-                    }
-                    return commandNode.Command;
-                }
-            }
-            return null;
         }
 
         private bool VerifyName(string name)

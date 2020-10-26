@@ -26,6 +26,8 @@ namespace JSSoft.Library.Commands
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
     public sealed class CommandMethodAttribute : Attribute
     {
+        private string[] aliases = new string[] { };
+
         public CommandMethodAttribute()
             : this(string.Empty)
         {
@@ -37,5 +39,11 @@ namespace JSSoft.Library.Commands
         }
 
         public string Name { get; }
+
+        public string[] Aliases
+        {
+            get => this.aliases;
+            set => this.aliases = value ?? throw new ArgumentNullException(nameof(value));
+        }
     }
 }

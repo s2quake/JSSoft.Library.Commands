@@ -36,13 +36,17 @@ namespace JSSoft.Library.Commands
 
         public CommandNodeCollection Childs { get; } = new CommandNodeCollection();
 
+        public CommandNodeCollection ChildsByAlias { get; } = new CommandNodeCollection();
+
         public ICommand Command { get; set; }
 
         public ICommandDescriptor Descriptor => this.Command as ICommandDescriptor;
 
-        public List<ICommand> CommandList { get; } = new List<ICommand>();
+        public List<ICommand> CommandList { get; set; } = new List<ICommand>();
 
         public string Name { get; set; } = string.Empty;
+
+        public string[] Aliases => this.Command != null ? this.Command.Aliases : new string[] { };
 
         public bool IsEnabled => this.CommandList.Any(item => item.IsEnabled);
 
@@ -53,6 +57,8 @@ namespace JSSoft.Library.Commands
         ICommandNode ICommandNode.Parent => this.Parent;
 
         IContainer<ICommandNode> ICommandNode.Childs => this.Childs;
+
+        IContainer<ICommandNode> ICommandNode.ChildsByAlias => this.ChildsByAlias;
 
         #endregion
     }

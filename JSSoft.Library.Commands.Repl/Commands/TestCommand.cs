@@ -82,7 +82,7 @@ namespace JSSoft.Library.Commands.Repl.Commands
             }
         }
 
-        [CommandMethod("items")]
+        [CommandMethod("items", Aliases = new string[] { "ls" })]
         [CommandMethodProperty(nameof(IsReverse))]
         public void ShowItem()
         {

@@ -25,6 +25,8 @@ namespace JSSoft.Library.Commands
     {
         string Name { get; }
 
+        string[] Aliases { get; }
+
         bool IsEnabled { get; }
     }
 }

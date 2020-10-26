@@ -29,7 +29,7 @@ namespace JSSoft.Library.Commands.Repl.Commands
     class CopyCommand : CommandBase
     {
         public CopyCommand()
-            : base("copy")
+            : base("copy", new string[] { "cp" })
         {
 
         }

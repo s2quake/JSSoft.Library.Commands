@@ -37,6 +37,7 @@ namespace JSSoft.Library.Commands
             this.DescriptorName = methodInfo.Name;
             this.IsAsync = methodInfo.IsAsync();
             this.Name = methodInfo.GetName();
+            this.Aliases = methodInfo.GetAliases();
             this.DisplayName = methodInfo.GetDisplayName();
             this.Summary = methodInfo.GetSummary();
             this.Description = methodInfo.GetDescription();
@@ -49,6 +50,8 @@ namespace JSSoft.Library.Commands
         public override string DescriptorName { get; }
 
         public override string Name { get; }
+
+        public override string[] Aliases { get; }
 
         public override string DisplayName { get; }
 

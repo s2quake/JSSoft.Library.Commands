@@ -22,6 +22,7 @@
 using JSSoft.Library.Commands.Properties;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace JSSoft.Library.Commands
 {
@@ -66,7 +67,7 @@ namespace JSSoft.Library.Commands
             else
             {
                 var argumentList = new List<string>(this.CommandNames);
-                var command = this.GetCommand(this.CommandContext.Node, argumentList);
+                var command = CommandContextBase.GetCommand(this.CommandContext.Node, argumentList);
                 if (command is ICommandUsage usage)
                 {
                     usage.Print(this.IsDetail);
@@ -95,7 +96,8 @@ namespace JSSoft.Library.Commands
                     continue;
                 var descriptor = item.Descriptor;
                 var summary = descriptor != null ? descriptor.Summary : string.Empty;
-                writer.WriteLine(item.Name);
+                var name = GetCommandNames(item);
+                writer.WriteLine(name);
                 writer.Indent++;
                 writer.WriteMultiline(summary);
                 if (summary != string.Empty)
@@ -106,26 +108,26 @@ namespace JSSoft.Library.Commands
             this.Out.Write(writer.ToString());
         }
 
-        private ICommand GetCommand(ICommandNode parent, List<string> argumentList)
-        {
-            var commandName = argumentList.FirstOrDefault() ?? string.Empty;
-            if (commandName != string.Empty)
-            {
-                if (parent.Childs.ContainsKey(commandName) == true)
-                {
-                    var commandNode = parent.Childs[commandName];
-                    if (commandNode.IsEnabled == false)
-                        return null;
-                    argumentList.RemoveAt(0);
-                    if (argumentList.Count > 0 && commandNode.Childs.Any())
-                    {
-                        return this.GetCommand(commandNode, argumentList);
-                    }
-                    return commandNode.Command;
-                }
-            }
-            return null;
-        }
+        // private ICommand GetCommand(ICommandNode parent, List<string> argumentList)
+        // {
+        //     var commandName = argumentList.FirstOrDefault() ?? string.Empty;
+        //     if (commandName != string.Empty)
+        //     {
+        //         if (parent.Childs.ContainsKey(commandName) == true)
+        //         {
+        //             var commandNode = parent.Childs[commandName];
+        //             if (commandNode.IsEnabled == false)
+        //                 return null;
+        //             argumentList.RemoveAt(0);
+        //             if (argumentList.Count > 0 && commandNode.Childs.Any())
+        //             {
+        //                 return this.GetCommand(commandNode, argumentList);
+        //             }
+        //             return commandNode.Command;
+        //         }
+        //     }
+        //     return null;
+        // }
 
         private string[] GetCommandNames(ICommandNode node, string[] commandNames, string find)
         {
@@ -145,6 +147,17 @@ namespace JSSoft.Library.Commands
                 return this.GetCommandNames(node.Childs[commandName], commandNames.Skip(1).ToArray(), find);
             }
             return null;
+        }
+
+        private static string GetCommandNames(ICommandNode node)
+        {
+            var sb = new StringBuilder();
+            sb.Append(node.Name);
+            foreach (var item in node.Aliases)
+            {
+                sb.Append($", {item}");
+            }
+            return sb.ToString();
         }
     }
 }

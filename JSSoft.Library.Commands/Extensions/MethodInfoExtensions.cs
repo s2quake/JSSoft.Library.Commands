@@ -58,6 +58,12 @@ namespace JSSoft.Library.Commands.Extensions
             return attribute.Name != string.Empty ? attribute.Name : CommandSettings.NameGenerator(methodName);
         }
 
+        public static string[] GetAliases(this MethodInfo methodInfo)
+        {
+            var attribute = methodInfo.GetCommandMethodAttribute();
+            return attribute.Aliases;
+        }
+
         public static string GetPureName(this MethodInfo methodInfo)
         {
             var isAsync = methodInfo.IsAsync();

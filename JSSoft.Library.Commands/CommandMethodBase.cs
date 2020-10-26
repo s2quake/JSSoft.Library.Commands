@@ -32,8 +32,14 @@ namespace JSSoft.Library.Commands
         private readonly CommandCollection commands = new CommandCollection();
 
         protected CommandMethodBase()
+            : this(new string[] { })
+        {
+        }
+
+        protected CommandMethodBase(string[] aliases)
         {
             this.Name = CommandStringUtility.ToSpinalCase(this.GetType());
+            this.Aliases = aliases ?? throw new ArgumentNullException(nameof(aliases));
 
             foreach (var item in CommandDescriptor.GetMethodDescriptors(this.GetType()))
             {
@@ -49,8 +55,15 @@ namespace JSSoft.Library.Commands
         }
 
         protected CommandMethodBase(string name)
+            : this(name, new string[] { })
+        {
+
+        }
+
+        protected CommandMethodBase(string name, string[] aliases)
         {
             this.Name = name ?? throw new ArgumentNullException(nameof(name));
+            this.Aliases = aliases ?? throw new ArgumentNullException(nameof(aliases));
 
             foreach (var item in CommandDescriptor.GetMethodDescriptors(this.GetType()))
             {
@@ -66,6 +79,8 @@ namespace JSSoft.Library.Commands
         }
 
         public string Name { get; }
+
+        public string[] Aliases { get; }
 
         public virtual bool IsEnabled => true;
 

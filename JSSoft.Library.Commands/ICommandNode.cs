@@ -30,7 +30,11 @@ namespace JSSoft.Library.Commands
 
         IContainer<ICommandNode> Childs { get; }
 
+        IContainer<ICommandNode> ChildsByAlias { get; }
+
         string Name { get; }
+
+        string[] Aliases { get; }
 
         ICommand Command { get; }
 

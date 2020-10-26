@@ -23,6 +23,7 @@ using JSSoft.Library.Commands.Properties;
 using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace JSSoft.Library.Commands
 {
@@ -177,7 +178,8 @@ namespace JSSoft.Library.Commands
             writer.BeginGroup(Resources.Text_Subcommands);
             foreach (var item in descriptors)
             {
-                writer.WriteLine(item.Name);
+                var name = GetNames(item);
+                writer.WriteLine(name);
                 if (item.Summary != string.Empty)
                 {
                     writer.Indent++;
@@ -366,6 +368,17 @@ namespace JSSoft.Library.Commands
         private void EndGroup(CommandTextWriter writer)
         {
             writer.EndGroup();
+        }
+
+        private static string GetNames(CommandMethodDescriptor descriptor)
+        {
+            var sb = new StringBuilder();
+            sb.Append(descriptor.Name);
+            foreach (var item in descriptor.Aliases)
+            {
+                sb.Append($", {item}");
+            }
+            return sb.ToString();
         }
     }
 }

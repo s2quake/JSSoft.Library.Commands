@@ -31,13 +31,25 @@ namespace JSSoft.Library.Commands
     public abstract class CommandBase : ICommand, IExecutable, ICommandHost, ICommandCompletor, ICommandDescriptor, ICommandUsage
     {
         protected CommandBase()
+            : this(new string[] { })
+        {
+        }
+
+        protected CommandBase(string[] aliases)
         {
             this.Name = CommandStringUtility.ToSpinalCase(this.GetType());
+            this.Aliases = aliases ?? throw new ArgumentNullException(nameof(aliases));
         }
 
         protected CommandBase(string name)
+            : this(name, new string[] { })
+        {
+        }
+
+        protected CommandBase(string name, string[] aliases)
         {
             this.Name = name;
+            this.Aliases = aliases ?? throw new ArgumentNullException(nameof(aliases));
         }
 
         public virtual string[] GetCompletions(CommandCompletionContext completionContext)
@@ -46,6 +58,8 @@ namespace JSSoft.Library.Commands
         }
 
         public string Name { get; }
+
+        public string[] Aliases { get; }
 
         public virtual bool IsEnabled => true;
 
@@ -118,13 +132,25 @@ namespace JSSoft.Library.Commands
     public abstract class CommandAsyncBase : ICommand, IExecutableAsync, ICommandHost, ICommandDescriptor, ICommandUsage
     {
         protected CommandAsyncBase()
+            : this(new string[] { })
+        {
+        }
+
+        protected CommandAsyncBase(string[] aliases)
         {
             this.Name = CommandStringUtility.ToSpinalCase(this.GetType());
+            this.Aliases = aliases ?? throw new ArgumentNullException(nameof(aliases));
         }
 
         protected CommandAsyncBase(string name)
+            : this(name, new string[] { })
+        {
+        }
+
+        protected CommandAsyncBase(string name, string[] aliases)
         {
             this.Name = name;
+            this.Aliases = aliases ?? throw new ArgumentNullException(nameof(aliases));
         }
 
         public virtual string[] GetCompletions(CommandCompletionContext completionContext)
@@ -133,6 +159,8 @@ namespace JSSoft.Library.Commands
         }
 
         public string Name { get; }
+
+        public string[] Aliases { get; }
 
         public virtual bool IsEnabled => true;
 

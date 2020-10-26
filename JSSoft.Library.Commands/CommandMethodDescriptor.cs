@@ -39,6 +39,8 @@ namespace JSSoft.Library.Commands
 
         public abstract string Name { get; }
 
+        public abstract string[] Aliases { get; }
+
         public abstract string DisplayName { get; }
 
         public abstract CommandMemberDescriptor[] Members { get; }
