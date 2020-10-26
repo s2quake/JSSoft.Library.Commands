@@ -249,13 +249,7 @@ namespace JSSoft.Library.Commands
                 parentNode.Childs.Add(commandNode);
                 foreach (var item in command.Aliases)
                 {
-                    parentNode.ChildsByAlias.Add(new CommandNode()
-                    {
-                        Parent = parentNode,
-                        Name = item,
-                        Command = command,
-                        CommandList = commandNode.CommandList
-                    });
+                    parentNode.ChildsByAlias.Add(new CommandAliasNode(commandNode, item));
                 }
             }
             {
@@ -283,7 +277,7 @@ namespace JSSoft.Library.Commands
             }
         }
 
-        private string[] GetCompletion(CommandNode parentNode, IList<string> itemList, string find)
+        private string[] GetCompletion(ICommandNode parentNode, IList<string> itemList, string find)
         {
             if (itemList.Count == 0)
             {
@@ -303,7 +297,7 @@ namespace JSSoft.Library.Commands
                 {
                     commandNode = parentNode.ChildsByAlias[commandName];
                     if (commandNode == null)
-                    return null;
+                        return null;
                 }
                 if (commandNode.Childs.Any() == true)
                 {
@@ -313,7 +307,7 @@ namespace JSSoft.Library.Commands
                 else
                 {
                     var args = itemList.Skip(1).ToArray();
-                    foreach (var item in commandNode.CommandList)
+                    foreach (var item in commandNode.Commands)
                     {
                         if (this.GetCompletion(item, args, find) is string[] completions)
                             return completions;

@@ -20,46 +20,21 @@
 // Namespaces and files starting with "Ntreev" have been renamed to "JSSoft".
 
 using JSSoft.Library.ObjectModel;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace JSSoft.Library.Commands
 {
-    class CommandNode : ICommandNode
+    class CommandAliasNodeCollection : ContainerBase<CommandAliasNode>
     {
-        public override string ToString()
+        public CommandAliasNodeCollection()
+            : base(StringComparer.CurrentCulture)
         {
-            return this.Name;
         }
 
-        public CommandNode Parent { get; set; }
-
-        public CommandNodeCollection Childs { get; } = new CommandNodeCollection();
-
-        public CommandAliasNodeCollection ChildsByAlias { get; } = new CommandAliasNodeCollection();
-
-        public ICommand Command { get; set; }
-
-        public ICommandDescriptor Descriptor => this.Command as ICommandDescriptor;
-
-        public List<ICommand> CommandList { get; } = new List<ICommand>();
-
-        public string Name { get; set; } = string.Empty;
-
-        public string[] Aliases => this.Command != null ? this.Command.Aliases : new string[] { };
-
-        public bool IsEnabled => this.CommandList.Any(item => item.IsEnabled);
-
-        #region ICommandNode
-
-        IEnumerable<ICommand> ICommandNode.Commands => this.CommandList;
-
-        ICommandNode ICommandNode.Parent => this.Parent;
-
-        IContainer<ICommandNode> ICommandNode.Childs => this.Childs;
-
-        IContainer<ICommandNode> ICommandNode.ChildsByAlias => this.ChildsByAlias;
-
-        #endregion
+        public void Add(CommandAliasNode node)
+        {
+            base.AddBase(node.Name, node);
+        }
     }
 }

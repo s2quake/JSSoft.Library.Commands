@@ -34,7 +34,9 @@ namespace JSSoft.Library.Commands.Repl.Commands
     {
         private Task task;
         private CancellationTokenSource cancellation;
+
         public TestCommand()
+            : base(new string[] { "t" })
         {
 
         }

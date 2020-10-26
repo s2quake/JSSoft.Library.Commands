@@ -25,41 +25,32 @@ using System.Linq;
 
 namespace JSSoft.Library.Commands
 {
-    class CommandNode : ICommandNode
+    class CommandAliasNode : ICommandNode
     {
-        public override string ToString()
+        private readonly ICommandNode commandNode;
+
+        public CommandAliasNode(ICommandNode commandNode, string alias)
         {
-            return this.Name;
+            this.commandNode = commandNode;
+            this.Name = alias;
         }
 
-        public CommandNode Parent { get; set; }
+        public ICommandNode Parent => this.commandNode.Parent;
 
-        public CommandNodeCollection Childs { get; } = new CommandNodeCollection();
+        public IContainer<ICommandNode> Childs => this.commandNode.Childs;
 
-        public CommandAliasNodeCollection ChildsByAlias { get; } = new CommandAliasNodeCollection();
+        public IContainer<ICommandNode> ChildsByAlias => this.commandNode.ChildsByAlias;
 
-        public ICommand Command { get; set; }
+        public string Name { get; }
 
-        public ICommandDescriptor Descriptor => this.Command as ICommandDescriptor;
+        public string[] Aliases => this.commandNode.Aliases;
 
-        public List<ICommand> CommandList { get; } = new List<ICommand>();
+        public ICommand Command => this.commandNode.Command;
 
-        public string Name { get; set; } = string.Empty;
+        public ICommandDescriptor Descriptor => this.commandNode.Descriptor;
 
-        public string[] Aliases => this.Command != null ? this.Command.Aliases : new string[] { };
+        public bool IsEnabled => this.commandNode.IsEnabled;
 
-        public bool IsEnabled => this.CommandList.Any(item => item.IsEnabled);
-
-        #region ICommandNode
-
-        IEnumerable<ICommand> ICommandNode.Commands => this.CommandList;
-
-        ICommandNode ICommandNode.Parent => this.Parent;
-
-        IContainer<ICommandNode> ICommandNode.Childs => this.Childs;
-
-        IContainer<ICommandNode> ICommandNode.ChildsByAlias => this.ChildsByAlias;
-
-        #endregion
+        public IEnumerable<ICommand> Commands => this.commandNode.Commands;
     }
 }
