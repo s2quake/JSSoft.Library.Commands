@@ -97,7 +97,6 @@ namespace JSSoft.Library.Commands.Extensions
         public static CommandMemberDescriptor[] GetMemberDescriptors(this MethodInfo methodInfo)
         {
             var memberList = new List<CommandMemberDescriptor>();
-
             foreach (var item in methodInfo.GetParameters())
             {
                 if (item.ParameterType == typeof(CancellationToken))
@@ -133,12 +132,10 @@ namespace JSSoft.Library.Commands.Extensions
                     memberList.AddRange(memberDescriptors);
                 }
             }
-           
+
             var query = from item in memberList
-                        orderby item.IsRequired == false
-                        orderby item is CommandParameterDescriptor == false
                         orderby item.DefaultValue != DBNull.Value
-                        orderby item.Usage == CommandPropertyUsage.Variables
+                        orderby item.Usage
                         select item;
 
             return query.ToArray();

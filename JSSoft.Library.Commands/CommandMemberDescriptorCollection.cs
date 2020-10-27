@@ -65,12 +65,8 @@ namespace JSSoft.Library.Commands
         internal void Sort()
         {
             var query = from item in this.descriptors
-                        orderby item.InitValue == DBNull.Value descending
-                        orderby item.Usage == CommandPropertyUsage.Required
-                        orderby item.Usage == CommandPropertyUsage.Variables
-                        orderby item.Usage == CommandPropertyUsage.ExplicitRequired
-                        orderby item.Usage == CommandPropertyUsage.General
-                        orderby item.Usage == CommandPropertyUsage.Switch
+                        orderby item.DefaultValue != DBNull.Value
+                        orderby item.Usage
                         select item;
             var items = query.ToArray();
             this.descriptors.Clear();

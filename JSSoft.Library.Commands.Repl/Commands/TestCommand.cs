@@ -108,6 +108,31 @@ namespace JSSoft.Library.Commands.Repl.Commands
             }
         }
 
+        [CommandMethod]
+        [CommandMethodProperty(nameof(P4), nameof(P3), nameof(P5))]
+        public void Order(string p1, string p2 = "123")
+        {
+
+        }
+
+        [CommandProperty]
+        public string P3
+        {
+            get; set;
+        }
+
+        [CommandPropertyRequired(IsExplicit = true)]
+        public string P4
+        {
+            get; set;
+        }
+
+        [CommandPropertyRequired]
+        public string P5
+        {
+            get; set;
+        }
+
         public string[] CompleteShowItem(CommandMemberDescriptor descriptor, string find)
         {
             return null;

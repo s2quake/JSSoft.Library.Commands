@@ -23,14 +23,14 @@ namespace JSSoft.Library.Commands
 {
     public enum CommandPropertyUsage
     {
-        General,
-
         Required,
-
-        Switch,
 
         ExplicitRequired,
 
         Variables,
+
+        General,
+
+        Switch,
     }
 }
