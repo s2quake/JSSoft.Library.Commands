@@ -110,7 +110,7 @@ namespace JSSoft.Library.Commands
             var query = from item in CommandDescriptor.GetMethodDescriptors(this.GetType())
                         where item.CanExecute(this)
                         select item;
-            var printer = new CommandMethodUsagePrinter(this.Name, this) { IsDetailed = isDetail };
+            var printer = new CommandMethodUsagePrinter(this.Name, this, this.Aliases) { IsDetailed = isDetail };
             printer.Print(this.Out, query.ToArray());
         }
 

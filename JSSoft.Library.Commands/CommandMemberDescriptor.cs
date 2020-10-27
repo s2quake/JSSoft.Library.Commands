@@ -40,10 +40,6 @@ namespace JSSoft.Library.Commands
             this.DefaultValue = attribute.DefaultValueProperty;
             this.InitValue = attribute.InitValueProperty;
             this.Usage = attribute.GetUsage();
-            if (this.DescriptorName == "IsReverse")
-            {
-                int qewr=0;
-            }
         }
 
         public override string ToString()

@@ -84,7 +84,7 @@ namespace JSSoft.Library.Commands
         protected virtual void PrintUsage(bool isDetail)
         {
             var descriptors = CommandDescriptor.GetMemberDescriptors(this);
-            var printer = new CommandMemberUsagePrinter(this.Name, this) { IsDetailed = isDetail };
+            var printer = new CommandMemberUsagePrinter(this.Name, this, this.Aliases) { IsDetailed = isDetail };
             printer.Print(this.Out, descriptors.ToArray());
         }
 
@@ -185,7 +185,7 @@ namespace JSSoft.Library.Commands
         protected virtual void PrintUsage(bool isDetail)
         {
             var descriptors = CommandDescriptor.GetMemberDescriptors(this);
-            var printer = new CommandMemberUsagePrinter(this.Name, this) { IsDetailed = isDetail };
+            var printer = new CommandMemberUsagePrinter(this.Name, this, this.Aliases) { IsDetailed = isDetail };
             printer.Print(this.Out, descriptors.ToArray());
         }
 

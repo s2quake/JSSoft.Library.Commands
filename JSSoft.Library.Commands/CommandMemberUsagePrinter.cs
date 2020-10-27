@@ -29,10 +29,16 @@ namespace JSSoft.Library.Commands
     public class CommandMemberUsagePrinter
     {
         public CommandMemberUsagePrinter(string name, object instance)
+            : this(name, instance, new string[] { })
+        {
+        }
+
+        public CommandMemberUsagePrinter(string name, object instance, string[] aliases)
         {
             var provider = CommandDescriptor.GetUsageDescriptionProvider(instance.GetType());
-            this.Name = name;
-            this.Instance = instance;
+            this.Name = name ?? throw new ArgumentNullException(nameof(name));
+            this.Instance = instance ?? throw new ArgumentNullException(nameof(instance));
+            this.Aliases = aliases ?? throw new ArgumentNullException(nameof(aliases));
             this.Summary = provider.GetSummary(instance);
             this.Description = provider.GetDescription(instance);
             this.Example = provider.GetExample(instance);
@@ -53,6 +59,8 @@ namespace JSSoft.Library.Commands
         public string Name { get; }
 
         public object Instance { get; }
+
+        public string[] Aliases { get; }
 
         public string Summary { get; }
 
@@ -93,6 +101,8 @@ namespace JSSoft.Library.Commands
             var line = this.Name;
 
             writer.BeginGroup(Resources.Text_Usage);
+            if (this.Aliases.Any() == true)
+                line += $"({string.Join(",", this.Aliases)})";
             foreach (var item in query)
             {
                 if (line != string.Empty)
