@@ -133,10 +133,11 @@ namespace JSSoft.Library.Commands.Extensions
                     memberList.AddRange(memberDescriptors);
                 }
             }
-
+           
             var query = from item in memberList
                         orderby item.IsRequired == false
-                        orderby item.InitValue != DBNull.Value
+                        orderby item is CommandParameterDescriptor == false
+                        orderby item.DefaultValue != DBNull.Value
                         orderby item.Usage == CommandPropertyUsage.Variables
                         select item;
 

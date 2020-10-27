@@ -35,7 +35,7 @@ namespace JSSoft.Library.Commands
             this.value = parameterInfo.DefaultValue;
             this.Summary = parameterInfo.GetSummary();
             this.Description = parameterInfo.GetDescription();
-            this.InitValue = parameterInfo.DefaultValue;
+            this.DefaultValue = parameterInfo.DefaultValue;
             this.MemberType = parameterInfo.ParameterType;
         }
 
@@ -43,7 +43,7 @@ namespace JSSoft.Library.Commands
 
         public override string Description { get; }
 
-        public override object InitValue { get; }
+        public override object DefaultValue { get; }
 
         public override Type MemberType { get; }
 

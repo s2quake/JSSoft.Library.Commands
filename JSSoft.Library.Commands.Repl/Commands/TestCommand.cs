@@ -86,8 +86,9 @@ namespace JSSoft.Library.Commands.Repl.Commands
 
         [CommandMethod("items", Aliases = new string[] { "ls" })]
         [CommandMethodProperty(nameof(IsReverse))]
-        public void ShowItem()
+        public void ShowItem(string path = "123")
         {
+            Console.WriteLine(path);
             var items = new string[] { "a", "b", "c" };
             if (this.IsReverse == false)
             {
