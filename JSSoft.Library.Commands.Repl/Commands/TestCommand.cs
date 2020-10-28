@@ -110,6 +110,7 @@ namespace JSSoft.Library.Commands.Repl.Commands
 
         [CommandMethod]
         [CommandMethodProperty(nameof(P4), nameof(P3), nameof(P5))]
+        [CommandSummary("Order method")]
         public void Order(string p1, string p2 = "123")
         {
 

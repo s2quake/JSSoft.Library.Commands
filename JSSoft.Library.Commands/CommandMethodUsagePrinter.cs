@@ -203,7 +203,10 @@ namespace JSSoft.Library.Commands
         private void PrintUsage(CommandTextWriter writer, CommandMethodDescriptor[] _)
         {
             writer.BeginGroup(Resources.Text_Usage);
-            writer.WriteLine("{0} <sub-command> [options...]", this.Name);
+            var name = this.Name;
+            if (this.Aliases.Any() == true)
+                name += $"({string.Join(",", this.Aliases)})";
+            writer.WriteLine("{0} <sub-command> [options...]", name);
             writer.EndGroup();
         }
 

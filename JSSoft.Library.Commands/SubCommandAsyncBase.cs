@@ -65,8 +65,20 @@ namespace JSSoft.Library.Commands
         protected virtual void PrintUsage(bool isDetail)
         {
             var descriptors = this.Members.ToArray();
-            var printer = new CommandMethodUsagePrinter(this.command.Name, this.command, this.Aliases) { IsDetailed = isDetail };
+            var printer = new CommandMethodUsagePrinter(this.UsageName, this.command, this.Aliases) { IsDetailed = isDetail };
             printer.Print(this.command.Out, this.descriptor, descriptors);
+        }
+
+        private string UsageName
+        {
+            get
+            {
+                var name = this.command.Name;
+                var aliases = this.command.Aliases;
+                if (aliases.Any())
+                    name += $"({string.Join(",", aliases)})";
+                return name;
+            }
         }
 
         #region ICommandUsage
