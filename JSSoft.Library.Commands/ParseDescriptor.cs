@@ -179,7 +179,7 @@ namespace JSSoft.Library.Commands
             foreach (var item in items)
             {
                 var descriptor = item.Descriptor;
-                if (item.IsParsed == false)
+                if (item.IsParsed == false && item.HasSwtich == false)
                     continue;
                 descriptor.ValidateTrigger(items);
             }
