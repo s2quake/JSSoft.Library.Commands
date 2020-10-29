@@ -27,6 +27,7 @@ using System.Text;
 namespace JSSoft.Library.Commands
 {
     [UsageDescriptionProvider(typeof(ResourceUsageDescriptionProvider))]
+    [HelpCommand]
     class HelpCommand : CommandBase
     {
         public HelpCommand()

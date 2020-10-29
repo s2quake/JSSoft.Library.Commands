@@ -56,8 +56,8 @@ namespace JSSoft.Library.Commands
             this.fullName = assembly.Location;
             this.versionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
             this.Version = this.versionInfo.ProductVersion;
-            this.helpCommand = this.CreateHelpCommand();
-            this.versionCommand = this.CreateVersionCommand();
+            this.helpCommand = commands.SingleOrDefault(item => item.GetType().GetCustomAttribute<HelpCommandAttribute>() != null) ?? new HelpCommand();
+            this.versionCommand = commands.SingleOrDefault(item => item.GetType().GetCustomAttribute<VersionCommandAttribute>() != null) ?? new VersionCommand();
             this.Initialize(this.commandNode, commands);
         }
 
@@ -68,8 +68,8 @@ namespace JSSoft.Library.Commands
             this.Name = name ?? throw new ArgumentNullException(nameof(name));
             this.fullName = name;
             this.filename = name;
-            this.helpCommand = this.CreateHelpCommand();
-            this.versionCommand = this.CreateVersionCommand();
+            this.helpCommand = commands.SingleOrDefault(item => item.GetType().GetCustomAttribute<HelpCommandAttribute>() != null) ?? new HelpCommand();
+            this.versionCommand = commands.SingleOrDefault(item => item.GetType().GetCustomAttribute<VersionCommandAttribute>() != null) ?? new VersionCommand();
             this.Initialize(this.commandNode, commands);
         }
 
@@ -148,22 +148,14 @@ namespace JSSoft.Library.Commands
                         orderby item.GetType().GetCustomAttribute<PartialCommandAttribute>()
                         select item;
 
-            yield return this.helpCommand;
-            yield return this.versionCommand;
+            if (commands.Any(item => item.GetType().GetCustomAttribute<HelpCommandAttribute>() != null) == false)
+                yield return this.helpCommand;
+            if (commands.Any(item => item.GetType().GetCustomAttribute<VersionCommandAttribute>() != null) == false)
+                yield return this.versionCommand;
             foreach (var item in query)
             {
                 yield return item;
             }
-        }
-
-        protected virtual ICommand CreateHelpCommand()
-        {
-            return new HelpCommand();
-        }
-
-        protected virtual ICommand CreateVersionCommand()
-        {
-            return new VersionCommand();
         }
 
         protected virtual void OnExecuted(EventArgs e)

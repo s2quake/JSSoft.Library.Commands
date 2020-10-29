@@ -19,41 +19,15 @@
 // Forked from https://github.com/NtreevSoft/CommandLineParser
 // Namespaces and files starting with "Ntreev" have been renamed to "JSSoft".
 
+using System;
 using System.Diagnostics;
 using System.Reflection;
 using JSSoft.Library.Commands.Properties;
 
 namespace JSSoft.Library.Commands
 {
-    [UsageDescriptionProvider(typeof(ResourceUsageDescriptionProvider))]
-    [VersionCommand]
-    class VersionCommand : CommandBase
+    [AttributeUsage(AttributeTargets.Class)]
+    public class HelpCommandAttribute : Attribute
     {
-        public VersionCommand()
-        {
-        }
-
-        [CommandPropertySwitch('q')]
-        public bool IsQuiet { get; set; }
-
-        protected override void OnExecute()
-        {
-            using var writer = new CommandTextWriter(this.Out);
-            var name = this.CommandContext.Name;
-            var version = this.CommandContext.Version;
-            var assembly = Assembly.GetEntryAssembly();
-            if (assembly == null)
-                throw new System.InvalidOperationException(Resources.Exception_UnknownVersion);
-            var info = FileVersionInfo.GetVersionInfo(assembly.Location);
-            if (this.IsQuiet == false)
-            {
-                writer.WriteLine($"{name} {version}");
-                writer.WriteLine(info.LegalCopyright);
-            }
-            else
-            {
-                writer.WriteLine(version);
-            }
-        }
     }
 }
