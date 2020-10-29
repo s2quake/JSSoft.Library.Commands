@@ -21,6 +21,7 @@
 
 using System.Diagnostics;
 using System.Reflection;
+using JSSoft.Library.Commands.Properties;
 
 namespace JSSoft.Library.Commands
 {
@@ -41,7 +42,7 @@ namespace JSSoft.Library.Commands
             var version = this.CommandContext.Version;
             var assembly = Assembly.GetEntryAssembly();
             if (assembly == null)
-                throw new System.InvalidOperationException("Unknown version.");
+                throw new System.InvalidOperationException(Resources.Exception_UnknownVersion);
             var info = FileVersionInfo.GetVersionInfo(assembly.Location);
             if (this.IsQuiet == false)
             {
