@@ -228,4 +228,7 @@
   <data name="Exception_ValudIsNotSet_Format" xml:space="preserve">
     <value>The value of '{0}' is not set.</value>
   </data>
+  <data name="Exception_UnknownVersion" xml:space="preserve">
+    <value>Could not identify version.</value>
+  </data>
 </root>

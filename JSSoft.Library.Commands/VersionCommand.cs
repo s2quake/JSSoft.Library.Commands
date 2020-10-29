@@ -39,7 +39,10 @@ namespace JSSoft.Library.Commands
             using var writer = new CommandTextWriter(this.Out);
             var name = this.CommandContext.Name;
             var version = this.CommandContext.Version;
-            var info = FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location);
+            var assembly = Assembly.GetEntryAssembly();
+            if (assembly == null)
+                throw new System.InvalidOperationException("Unknown version.");
+            var info = FileVersionInfo.GetVersionInfo(assembly.Location);
             if (this.IsQuiet == false)
             {
                 writer.WriteLine($"{name} {version}");

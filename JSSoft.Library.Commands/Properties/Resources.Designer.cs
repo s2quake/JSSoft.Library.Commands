@@ -293,6 +293,15 @@ namespace JSSoft.Library.Commands.Properties {
                 return ResourceManager.GetString("Exception_VariablesPropertyMustBeAnArrayType_Format", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Could not identify version.과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string Exception_UnknownVersion {
+            get {
+                return ResourceManager.GetString("Exception_UnknownVersion", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   type &apos;{0}&apos; for usage.과(와) 유사한 지역화된 문자열을 찾습니다.
