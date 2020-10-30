@@ -121,11 +121,7 @@ namespace JSSoft.Library.Commands
         private static object GetDefaultValue(Type propertyType, object value)
         {
             if (value == null)
-            {
-                if (propertyType.IsClass == false)
-                    return DBNull.Value;
                 return null;
-            }
             if (value.GetType() == propertyType)
                 return value;
             if (propertyType.IsArray == true)
@@ -143,15 +139,6 @@ namespace JSSoft.Library.Commands
                 }
             }
             return TypeDescriptor.GetConverter(propertyType).ConvertFrom(value);
-        }
-
-        private static object GetDefaultValue(PropertyInfo propertyInfo)
-        {
-            var attr = propertyInfo.GetCustomAttribute<DefaultValueAttribute>();
-            var propertyType = propertyInfo.PropertyType;
-            if (attr == null)
-                return DBNull.Value;
-            return GetDefaultValue(propertyType, attr.Value);
         }
     }
 }
