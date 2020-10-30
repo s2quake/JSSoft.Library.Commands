@@ -97,7 +97,7 @@ namespace JSSoft.Library.Commands
                     if (descriptorByName.ContainsKey(item.PropertyName) == false)
                         throw new InvalidOperationException(string.Format(Resources.Exception_PropertyDoesNotExists_Format, item.PropertyName));
                     var triggerDescriptor = descriptorByName[item.PropertyName];
-                    if (triggerDescriptor is CommandPropertyDescriptor == false)
+                    if (triggerDescriptor is CommandMemberDescriptor == false)
                         throw new InvalidOperationException(string.Format(Resources.Exception_NotProperty_Format, item.PropertyName));
 
                     var parseInfo = infoByDescriptor[triggerDescriptor];
