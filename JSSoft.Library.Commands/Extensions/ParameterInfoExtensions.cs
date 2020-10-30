@@ -33,12 +33,12 @@ namespace JSSoft.Library.Commands.Extensions
 
         public static string GetSummary(this ParameterInfo parameterInfo)
         {
-            return CommandDescriptor.GetUsageDescriptionProvider(parameterInfo.ParameterType).GetSummary(parameterInfo);
+            return CommandDescriptor.GetUsageDescriptionProvider(parameterInfo.Member.DeclaringType).GetSummary(parameterInfo);
         }
 
         public static string GetDescription(this ParameterInfo parameterInfo)
         {
-            return CommandDescriptor.GetUsageDescriptionProvider(parameterInfo.ParameterType).GetDescription(parameterInfo);
+            return CommandDescriptor.GetUsageDescriptionProvider(parameterInfo.Member.DeclaringType).GetDescription(parameterInfo);
         }
     }
 }
