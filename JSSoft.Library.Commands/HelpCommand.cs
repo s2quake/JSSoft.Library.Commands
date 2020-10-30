@@ -148,6 +148,10 @@ namespace JSSoft.Library.Commands
             {
                 return this.GetCommandNames(node.Childs[commandName], commandNames.Skip(1).ToArray(), find);
             }
+            else if (node.ChildsByAlias.ContainsKey(commandName) == true)
+            {
+                return this.GetCommandNames(node.ChildsByAlias[commandName], commandNames.Skip(1).ToArray(), find);
+            }
             return null;
         }
 
