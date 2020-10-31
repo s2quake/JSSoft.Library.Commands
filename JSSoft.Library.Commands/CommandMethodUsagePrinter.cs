@@ -279,7 +279,7 @@ namespace JSSoft.Library.Commands
 
         private void PrintOptions(CommandTextWriter writer, CommandMethodDescriptor _, CommandMemberDescriptor[] memberDescriptors)
         {
-            var items = memberDescriptors.Where(item => item.Usage == CommandPropertyUsage.General || item.Usage == CommandPropertyUsage.General);
+            var items = memberDescriptors.Where(item => item.Usage == CommandPropertyUsage.General || item.Usage == CommandPropertyUsage.Switch);
             if (items.Any() == true)
             {
                 this.BeginGroup(writer, Resources.Text_Options);
