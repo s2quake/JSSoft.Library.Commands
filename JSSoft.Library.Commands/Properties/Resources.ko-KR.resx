@@ -150,6 +150,9 @@
   <data name="Message_Version_Format" xml:space="preserve">
     <value>버전을 확인하시려면 '{0}'을(를) 입력하세요. </value>
   </data>
+  <data name="Message_UnprocessedArguments" xml:space="preserve">
+    <value>처리되지 않은 인자가 존재합니다.</value>
+  </data>
   <data name="Exception_InvalidCommandName_Format" xml:space="preserve">
     <value>'{0}' 은(는) 잘못된 명령어 입니다.</value>
   </data>

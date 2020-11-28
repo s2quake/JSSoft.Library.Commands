@@ -150,6 +150,9 @@
   <data name="Message_Version_Format" xml:space="preserve">
     <value>type '{0}' for version.</value>
   </data>
+  <data name="Message_UnprocessedArguments" xml:space="preserve">
+    <value>There are unprocessed arguments.</value>
+  </data>
   <data name="Exception_InvalidCommandName_Format" xml:space="preserve">
     <value>'{0}' is invalid command name.</value>
   </data>

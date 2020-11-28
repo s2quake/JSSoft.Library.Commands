@@ -320,6 +320,14 @@ namespace JSSoft.Library.Commands.Properties {
                 return ResourceManager.GetString("Message_Version_Format", resourceCulture);
             }
         }
+        /// <summary>
+        ///   There are unprocessed arguments.과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string Message_UnprocessedArguments {
+            get {
+                return ResourceManager.GetString("Message_UnprocessedArguments", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Available commands과(와) 유사한 지역화된 문자열을 찾습니다.

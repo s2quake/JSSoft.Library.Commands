@@ -207,7 +207,7 @@ namespace JSSoft.Library.Commands
                 if (items.Any() == true)
                 {
                     var sb = new StringBuilder();
-                    sb.AppendLine("처리되지 않은 인자가 포함되어 있습니다.");
+                    sb.AppendLine(Resources.Message_UnprocessedArguments);
                     foreach (var item in items)
                     {
                         if (item.Value != null)
