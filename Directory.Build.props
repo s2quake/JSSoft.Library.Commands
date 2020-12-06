@@ -46,4 +46,7 @@ Namespaces and files starting with "Ntreev" have been renamed to "JSSoft". -->
 	  <SignAssembly>true</SignAssembly>
 	  <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
+  <ItemGroup>
+    <None Include="../LICENSE.md" Pack="true" PackagePath="" />
+  </ItemGroup>
 </Project>
