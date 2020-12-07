@@ -29,8 +29,7 @@ namespace JSSoft.Library.Commands
     {
         protected CommandMemberDescriptor(CommandPropertyBaseAttribute attribute, string descriptorName)
         {
-            if (attribute == null)
-                throw new ArgumentNullException(nameof(attribute));
+            this.Attribute = attribute ?? throw new ArgumentNullException(nameof(attribute));
             this.DescriptorName = descriptorName ?? throw new ArgumentNullException(nameof(descriptorName));
             this.Name = attribute.GetName(descriptorName);
             this.ShortName = attribute.InternalShortName;
@@ -101,6 +100,8 @@ namespace JSSoft.Library.Commands
         {
 
         }
+
+        protected CommandPropertyBaseAttribute Attribute { get; }
 
         internal void Parse(object instance, List<string> arguments)
         {

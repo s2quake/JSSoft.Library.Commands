@@ -47,6 +47,14 @@ namespace JSSoft.Library.Commands
                 throw new InvalidOperationException(string.Format(Resources.Exception_VariablesPropertyMustBeAnArrayType_Format, nameof(CommandPropertyUsage.Variables)));
             if (this.Usage == CommandPropertyUsage.Switch && this.MemberType != typeof(bool))
                 throw new InvalidOperationException("Only the bool type can be used as a switch.");
+            if (this.Attribute.InitValueProperty != DBNull.Value)
+                this.InitValue = GetDefaultValue(propertyInfo.PropertyType, this.Attribute.InitValueProperty);
+            else
+                this.InitValue = this.Attribute.InitValueProperty;
+            if (this.Attribute.DefaultValueProperty != DBNull.Value)
+                this.DefaultValue = GetDefaultValue(propertyInfo.PropertyType, this.Attribute.DefaultValueProperty);
+            else
+                this.DefaultValue = this.Attribute.DefaultValueProperty;
         }
 
         public override string DisplayName
@@ -67,6 +75,10 @@ namespace JSSoft.Library.Commands
         public override string Summary { get; }
 
         public override string Description { get; }
+
+        public override object InitValue { get; }
+
+        public override object DefaultValue { get; }
 
         protected override void SetValue(object instance, object value)
         {
