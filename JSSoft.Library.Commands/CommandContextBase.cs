@@ -44,7 +44,6 @@ namespace JSSoft.Library.Commands
         protected CommandContextBase(IEnumerable<ICommand> commands)
             : this(Assembly.GetEntryAssembly(), commands)
         {
-
         }
 
         protected CommandContextBase(Assembly assembly, IEnumerable<ICommand> commands)

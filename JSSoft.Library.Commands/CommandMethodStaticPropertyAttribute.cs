@@ -34,7 +34,6 @@ namespace JSSoft.Library.Commands
         public CommandMethodStaticPropertyAttribute(string typeName, params string[] propertyNames)
             : this(Type.GetType(typeName), propertyNames)
         {
-
         }
 
         public CommandMethodStaticPropertyAttribute(Type type, params string[] propertyNames)

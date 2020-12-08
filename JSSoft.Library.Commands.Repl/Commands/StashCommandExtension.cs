@@ -31,7 +31,6 @@ namespace JSSoft.Library.Commands.Repl.Commands
         public StashCommandExtension()
             : base("stash")
         {
-
         }
 
         [CommandMethod("list")]

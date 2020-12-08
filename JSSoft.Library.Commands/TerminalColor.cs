@@ -33,7 +33,6 @@ namespace JSSoft.Library.Commands
 
         private TerminalColor()
         {
-
         }
 
         public void Dispose()

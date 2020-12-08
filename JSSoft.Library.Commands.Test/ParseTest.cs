@@ -93,12 +93,10 @@ namespace JSSoft.Library.Commands.Test
 
         void ISupportInitialize.BeginInit()
         {
-
         }
 
         void ISupportInitialize.EndInit()
         {
-
         }
 
         #endregion

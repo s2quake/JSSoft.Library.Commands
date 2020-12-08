@@ -32,7 +32,6 @@ namespace JSSoft.Library.Commands
 
         internal CommandMemberDescriptorCollection()
         {
-
         }
 
         internal CommandMemberDescriptorCollection(IEnumerable<CommandMemberDescriptor> members)

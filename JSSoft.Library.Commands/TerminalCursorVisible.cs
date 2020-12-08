@@ -30,7 +30,6 @@ namespace JSSoft.Library.Commands
 
         private TerminalCursorVisible()
         {
-
         }
 
         public void Dispose()

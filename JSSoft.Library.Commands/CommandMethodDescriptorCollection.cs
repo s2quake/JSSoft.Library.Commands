@@ -31,7 +31,6 @@ namespace JSSoft.Library.Commands
 
         internal CommandMethodDescriptorCollection()
         {
-
         }
 
         public bool Contains(string name)

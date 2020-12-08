@@ -41,7 +41,6 @@ namespace JSSoft.Library.Commands
         public CommandLineParser(object instance)
             : this(Assembly.GetEntryAssembly() ?? typeof(CommandLineParser).Assembly, instance)
         {
-
         }
 
         public CommandLineParser(Assembly assembly, object instance)

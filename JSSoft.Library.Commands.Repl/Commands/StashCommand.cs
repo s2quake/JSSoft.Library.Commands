@@ -31,15 +31,7 @@ namespace JSSoft.Library.Commands.Repl.Commands
         public StashCommand()
             : base("stash")
         {
-
         }
-
-        //[CommandMethod("list")]
-        //[CommandStaticProperty(typeof(GlobalSettings))]
-        //public void List(string options)
-        //{
-        //
-        //}
 
         [CommandMethod("show")]
         [CommandMethodProperty("Path", "Port")]

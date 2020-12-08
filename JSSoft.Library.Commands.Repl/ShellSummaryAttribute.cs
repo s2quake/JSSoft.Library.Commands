@@ -31,7 +31,6 @@ namespace JSSoft.Library.Commands.Repl
         public ShellSummaryAttribute(string resourceName)
             : base(GetResourceString(resourceName))
         {
-
         }
 
         private static string GetResourceString(string resourceName)

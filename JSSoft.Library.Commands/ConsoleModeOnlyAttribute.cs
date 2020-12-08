@@ -28,7 +28,6 @@ namespace JSSoft.Library.Commands
     {
         public ConsoleModeOnlyAttribute()
         {
-
         }
     }
 }
