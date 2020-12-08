@@ -117,10 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="@VersionCommand" xml:space="preserve">
+  <data name="VersionCommand" xml:space="preserve">
     <value>Display version and copyright.</value>
   </data>
-  <data name="IsQuiet" xml:space="preserve">
-    <value>display only version.</value>
+  <data name="VersionCommand.IsQuiet" xml:space="preserve">
+    <value>Display only version.</value>
   </data>
 </root>

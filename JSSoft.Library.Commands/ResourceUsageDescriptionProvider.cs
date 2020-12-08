@@ -29,20 +29,21 @@ namespace JSSoft.Library.Commands
 {
     public class ResourceUsageDescriptionProvider : IUsageDescriptionProvider
     {
+        public const string ReferencePrefix = "&";
+        public const string DescriptionPrefix = "d:";
+        public const string ExamplePrefix = "e:";
+
         private const string extension = ".resources";
         private readonly static Dictionary<string, ResourceManager> resourceManagers = new Dictionary<string, ResourceManager>();
         private readonly string resourceName;
-        private string prefix;
 
         static ResourceUsageDescriptionProvider()
         {
-
         }
 
         public ResourceUsageDescriptionProvider()
             : this(string.Empty)
         {
-
         }
 
         public ResourceUsageDescriptionProvider(string resourceName)
@@ -60,7 +61,12 @@ namespace JSSoft.Library.Commands
 
         public string GetDescription(PropertyInfo propertyInfo)
         {
-            var description = this.GetResourceDescription(propertyInfo.DeclaringType, propertyInfo.Name);
+            var type = propertyInfo.DeclaringType;
+            var name = propertyInfo.Name;
+            var id = $"{type.Name}.{name}";
+            if (type.DeclaringType != null)
+                id = $"{type.DeclaringType.Name}.{id}";
+            var description = this.GetResourceDescription(propertyInfo.DeclaringType, id);
             if (description != null)
                 return description;
             return UsageDescriptionProvider.Default.GetDescription(propertyInfo);
@@ -68,8 +74,11 @@ namespace JSSoft.Library.Commands
 
         public string GetDescription(ParameterInfo parameterInfo)
         {
-            var items = new string[] { parameterInfo.Member.Name, parameterInfo.Name };
-            var description = this.GetResourceDescription(parameterInfo.Member.DeclaringType, string.Join(".", items));
+            var method = parameterInfo.Member;
+            var type = method.DeclaringType;
+            var name = parameterInfo.Name;
+            var id = $"{type.Name}.{method.Name}.{name}";
+            var description = this.GetResourceDescription(parameterInfo.Member.DeclaringType, id);
             if (description != null)
                 return description;
             return UsageDescriptionProvider.Default.GetDescription(parameterInfo);
@@ -77,10 +86,8 @@ namespace JSSoft.Library.Commands
 
         public string GetDescription(object instance)
         {
-            var description = this.GetResourceDescription(instance.GetType(), instance.GetType().Name);
-            if (description != null)
-                return description;
-            description = this.GetResourceDescription(instance.GetType(), "ctor");
+            var id = instance.GetType().Name;
+            var description = this.GetResourceDescription(instance.GetType(), id);
             if (description != null)
                 return description;
             return UsageDescriptionProvider.Default.GetDescription(instance);
@@ -88,7 +95,12 @@ namespace JSSoft.Library.Commands
 
         public string GetDescription(MethodInfo methodInfo)
         {
-            var description = this.GetResourceDescription(methodInfo.DeclaringType, methodInfo.Name);
+            var type = methodInfo.DeclaringType;
+            var name = methodInfo.Name;
+            var id = $"{type.Name}.{name}";
+            if (type.DeclaringType != null)
+                id = $"{type.DeclaringType.Name}.{id}";
+            var description = this.GetResourceDescription(methodInfo.DeclaringType, id);
             if (description != null)
                 return description;
             return UsageDescriptionProvider.Default.GetDescription(methodInfo);
@@ -96,7 +108,12 @@ namespace JSSoft.Library.Commands
 
         public string GetSummary(PropertyInfo propertyInfo)
         {
-            var summary = this.GetResourceSummary(propertyInfo.DeclaringType, propertyInfo.Name);
+            var type = propertyInfo.DeclaringType;
+            var name = propertyInfo.Name;
+            var id = $"{type.Name}.{name}";
+            if (type.DeclaringType != null)
+                id = $"{type.DeclaringType.Name}.{id}";
+            var summary = this.GetResourceSummary(propertyInfo.DeclaringType, id);
             if (summary != null)
                 return summary;
             return UsageDescriptionProvider.Default.GetSummary(propertyInfo);
@@ -104,8 +121,11 @@ namespace JSSoft.Library.Commands
 
         public string GetSummary(ParameterInfo parameterInfo)
         {
-            var items = new string[] { parameterInfo.Member.Name, parameterInfo.Name };
-            var summary = this.GetResourceSummary(parameterInfo.Member.DeclaringType, string.Join(".", items));
+            var method = parameterInfo.Member;
+            var type = method.DeclaringType;
+            var name = parameterInfo.Name;
+            var id = $"{type.Name}.{method.Name}.{name}";
+            var summary = this.GetResourceSummary(parameterInfo.Member.DeclaringType, id);
             if (summary != null)
                 return summary;
             return UsageDescriptionProvider.Default.GetSummary(parameterInfo);
@@ -113,10 +133,8 @@ namespace JSSoft.Library.Commands
 
         public string GetSummary(object instance)
         {
-            var summary = this.GetResourceSummary(instance.GetType(), instance.GetType().Name);
-            if (summary != null)
-                return summary;
-            summary = this.GetResourceSummary(instance.GetType(), "ctor");
+            var id = instance.GetType().Name;
+            var summary = this.GetResourceSummary(instance.GetType(), id);
             if (summary != null)
                 return summary;
             return UsageDescriptionProvider.Default.GetSummary(instance);
@@ -124,7 +142,12 @@ namespace JSSoft.Library.Commands
 
         public string GetSummary(MethodInfo methodInfo)
         {
-            var summary = this.GetResourceSummary(methodInfo.DeclaringType, methodInfo.Name);
+            var type = methodInfo.DeclaringType;
+            var name = methodInfo.Name;
+            var id = $"{type.Name}.{name}";
+            if (type.DeclaringType != null)
+                id = $"{type.DeclaringType.Name}.{id}";
+            var summary = this.GetResourceSummary(methodInfo.DeclaringType, id);
             if (summary != null)
                 return summary;
             return UsageDescriptionProvider.Default.GetSummary(methodInfo);
@@ -132,10 +155,8 @@ namespace JSSoft.Library.Commands
 
         public string GetExample(object instance)
         {
-            var example = this.GetResourceExample(instance.GetType(), instance.GetType().Name);
-            if (example != null)
-                return example;
-            example = this.GetResourceExample(instance.GetType(), "ctor");
+            var id = instance.GetType().Name;
+            var example = this.GetResourceExample(instance.GetType(), id);
             if (example != null)
                 return example;
             return UsageDescriptionProvider.Default.GetExample(instance);
@@ -143,18 +164,15 @@ namespace JSSoft.Library.Commands
 
         public string GetExample(MethodInfo methodInfo)
         {
-            var example = this.GetResourceExample(methodInfo.DeclaringType, methodInfo.Name);
+            var type = methodInfo.DeclaringType;
+            var name = methodInfo.Name;
+            var id = $"{type.Name}.{name}";
+            if (type.DeclaringType != null)
+                id = $"{type.DeclaringType.Name}.{id}";
+            var example = this.GetResourceExample(methodInfo.DeclaringType, id);
             if (example != null)
                 return example;
             return UsageDescriptionProvider.Default.GetExample(methodInfo);
-        }
-
-        public bool IsShared { get; set; }
-
-        public string Prefix
-        {
-            get => this.prefix ?? string.Empty;
-            set => this.prefix = value;
         }
 
         private string GetResourceDescription(Type type, string name)
@@ -162,13 +180,7 @@ namespace JSSoft.Library.Commands
             var resourceManager = GetResourceSet(this.resourceName, type);
             if (resourceManager == null)
                 return null;
-            var resName = name;
-            if (this.IsShared == true && type.Name != name)
-                resName = $"{type.Name}.{name}";
-            if (this.Prefix != string.Empty)
-                resName = $"{this.Prefix}.{resName}";
-
-            return GetString(resourceManager, resName);
+            return GetString(resourceManager, $"{DescriptionPrefix}{name}");
         }
 
         private string GetResourceSummary(Type type, string name)
@@ -176,13 +188,7 @@ namespace JSSoft.Library.Commands
             var resourceManager = GetResourceSet(this.resourceName, type);
             if (resourceManager == null)
                 return null;
-            var resName = name;
-            if (this.IsShared == true && type.Name != name)
-                resName = $"{type.Name}.{name}";
-            if (this.Prefix != string.Empty)
-                resName = $"{this.Prefix}.{resName}";
-
-            return GetString(resourceManager, "@" + resName);
+            return GetString(resourceManager, name);
         }
 
         private string GetResourceExample(Type type, string name)
@@ -190,13 +196,7 @@ namespace JSSoft.Library.Commands
             var resourceManager = GetResourceSet(this.resourceName, type);
             if (resourceManager == null)
                 return null;
-            var resName = name;
-            if (this.IsShared == true && type.Name != name)
-                resName = $"{type.Name}.{name}";
-            if (this.Prefix != string.Empty)
-                resName = $"{this.Prefix}.{resName}";
-
-            return GetString(resourceManager, "example@" + resName);
+            return GetString(resourceManager, $"{ExamplePrefix}{name}");
         }
 
         private static ResourceManager GetResourceSet(string resourceName, Type type)
@@ -227,14 +227,12 @@ namespace JSSoft.Library.Commands
             return resourceManagers[baseName];
         }
 
-        private static string GetString(ResourceManager resourceManager, string resName)
+        private static string GetString(ResourceManager resourceManager, string id)
         {
-            var text = resourceManager.GetString(resName);
-            if (text != null && text.StartsWith("#"))
+            var text = resourceManager.GetString(id);
+            if (text != null && text.StartsWith(ReferencePrefix))
             {
-                var text2 = resourceManager.GetString(text);
-                if (text2 != null)
-                    return text2;
+                return resourceManager.GetString(text.Substring(ReferencePrefix.Length));
             }
             return text;
         }

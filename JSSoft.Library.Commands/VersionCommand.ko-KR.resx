@@ -117,16 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="HelpCommand" xml:space="preserve">
-    <value>사용가능한 명령어의 목록과 도움말을 표시합니다.</value>
+  <data name="VersionCommand" xml:space="preserve">
+    <value>버전과 저작권을 표시합니다.</value>
   </data>
-  <data name="HelpCommand.CommandNames" xml:space="preserve">
-    <value>사용법을 표시할 명령어의 이름을 나타냅니다.</value>
-  </data>
-  <data name="HelpCommand.IsDetail" xml:space="preserve">
-    <value>자세한 사용법이 존재할 경우 해당 내용을 표시합니다.</value>
-  </data>
-  <data name="HelpCommand.OptionName" xml:space="preserve">
-    <value>지정된 명령어의 특정 옵션에 대한 사용법을 표시합니다.</value>
+  <data name="VersionCommand.IsQuiet" xml:space="preserve">
+    <value>버전만 표시합니다.</value>
   </data>
 </root>

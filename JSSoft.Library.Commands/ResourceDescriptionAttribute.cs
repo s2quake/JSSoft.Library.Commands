@@ -66,7 +66,7 @@ namespace JSSoft.Library.Commands
             var uri = new Uri($"http://www.jssoft.com/{type.FullName.Replace('.', '/')}");
             var path = new Uri(uri, relativeUri);
             var resourceName = path.LocalPath.Replace('/', '.').TrimStart('.');
-            return new ResourceUsageDescriptionProvider(resourceName) { IsShared = this.IsShared, Prefix = this.Prefix };
+            return new ResourceUsageDescriptionProvider(resourceName);
         }
     }
 }

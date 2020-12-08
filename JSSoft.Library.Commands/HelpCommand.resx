@@ -117,19 +117,16 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="@HelpCommand" xml:space="preserve">
-    <value>Diplay available commands and usage.</value>
-  </data>
-  <data name="CommandName" xml:space="preserve">
-    <value>'command-name' is argument for usage display, available commands are displayed in 'AvaliableCommands'</value>
-  </data>
   <data name="HelpCommand" xml:space="preserve">
-    <value>to display a specific command usage, type the command name after 'help'.
-help &lt;command&gt;
-sub command refer to the usage below
-help &lt;command&gt; &lt;sub-command=null&gt;</value>
+    <value>Displays a list of available commands and help.</value>
   </data>
-  <data name="MethodName" xml:space="preserve">
-    <value>'sub-command' is argument for sub-command usage display</value>
+  <data name="HelpCommand.CommandNames" xml:space="preserve">
+    <value>Indicates the name of the command to display usage.</value>
+  </data>
+  <data name="HelpCommand.IsDetail" xml:space="preserve">
+    <value>Displays detailed usage if it exists.</value>
+  </data>
+  <data name="HelpCommand.OptionName" xml:space="preserve">
+    <value>Displays usage for specific options in the specified command.</value>
   </data>
 </root>
