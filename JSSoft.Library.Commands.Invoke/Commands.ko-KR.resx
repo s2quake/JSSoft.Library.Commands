@@ -150,4 +150,7 @@
   <data name="Commands.Delete.paths" xml:space="preserve">
     <value>삭제하기 위한 데이터의 경로를 나타냅니다.</value>
   </data>
+  <data name="Commands.Commit.path" xml:space="preserve">
+    <value>커밋하기 위한 데이터의 경로를 나타냅니다.</value>
+  </data>
 </root>

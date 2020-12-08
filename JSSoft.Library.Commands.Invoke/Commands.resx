@@ -150,4 +150,7 @@
   <data name="Commands.Delete.paths" xml:space="preserve">
     <value>Indicates the path to the data for deletion.</value>
   </data>
+  <data name="Commands.Commit.path" xml:space="preserve">
+    <value>Indicates the path to the data to commit.</value>
+  </data>
 </root>
