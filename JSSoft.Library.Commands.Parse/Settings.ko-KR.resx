@@ -117,10 +117,28 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="GlobalSettings.ID" xml:space="preserve">
-    <value>Indicates the ID.</value>
+  <data name="Settings" xml:space="preserve">
+    <value>응용 프로그램의 설정을 나타냅니다.</value>
   </data>
-  <data name="GlobalSettings.Password" xml:space="preserve">
-    <value>Indicates the password.</value>
+  <data name="Settings.CacheSize" xml:space="preserve">
+    <value>응용 프로그램 캐시 용량을 나타냅니다.</value>
+  </data>
+  <data name="Settings.Libraries" xml:space="preserve">
+    <value>응용 프로그램에서 사용될 라이브러리들을 나타냅니다.</value>
+  </data>
+  <data name="Settings.Path" xml:space="preserve">
+    <value>응용 프로그램이 실행되기 위한 경로를 나타냅니다.</value>
+  </data>
+  <data name="Settings.Port" xml:space="preserve">
+    <value>응용 프로그램이 실행 되는 포트를 나타냅니다. 기본값은 10001 입니다.</value>
+  </data>
+  <data name="Settings.ServiceName" xml:space="preserve">
+    <value>응용 프로그램이 실행되기 위환 서비스 이름을  나타냅니다.</value>
+  </data>
+  <data name="Settings.UseCache" xml:space="preserve">
+    <value>응용 프로그램의 캐시 사용 여부를 나타냅니다.</value>
+  </data>
+  <data name="Settings.WorkingPath" xml:space="preserve">
+    <value>응용 프로그램의 작업 경로를 나타냅니다.</value>
   </data>
 </root>

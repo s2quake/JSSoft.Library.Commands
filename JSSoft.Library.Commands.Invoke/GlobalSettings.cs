@@ -21,6 +21,7 @@
 
 namespace JSSoft.Library.Commands.Invoke
 {
+    [ResourceDescription]
     static class GlobalSettings
     {
         [CommandProperty]

@@ -20,6 +20,7 @@
 // Namespaces and files starting with "Ntreev" have been renamed to "JSSoft".
 
 using System;
+using System.Text;
 
 namespace JSSoft.Library.Commands.Parse
 {
@@ -31,7 +32,24 @@ namespace JSSoft.Library.Commands.Parse
             var parser = new CommandLineParser(settings);
             try
             {
-                parser.Parse(Environment.CommandLine);
+                if (parser.TryParse(Environment.CommandLine) == true)
+                {
+                    var sb = new StringBuilder();
+                    sb.AppendLine($"{nameof(settings.Path)}: {settings.Path}");
+                    sb.AppendLine($"{nameof(settings.ServiceName)}: {settings.ServiceName}");
+                    sb.AppendLine($"{nameof(settings.WorkingPath)}: {settings.WorkingPath}");
+                    sb.AppendLine($"{nameof(settings.Port)}: {settings.Port}");
+                    sb.AppendLine($"{nameof(settings.UseCache)}: {settings.UseCache}");
+                    sb.AppendLine($"{nameof(settings.CacheSize)}: {settings.CacheSize}");
+                    sb.AppendLine($"{nameof(GlobalSettings.ID)}: {GlobalSettings.ID}");
+                    sb.AppendLine($"{nameof(GlobalSettings.Password)}: {GlobalSettings.Password}");
+                    sb.AppendLine($"{nameof(settings.Libraries)}:");
+                    foreach (var item in settings.Libraries)
+                    {
+                        sb.AppendLine($"    {item}");
+                    }
+                    Console.WriteLine(sb.ToString());
+                }
             }
             catch (Exception e)
             {

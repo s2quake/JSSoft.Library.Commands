@@ -23,6 +23,7 @@ using System;
 
 namespace JSSoft.Library.Commands.Invoke
 {
+    [ResourceDescription]
     [CommandStaticMethod(typeof(StaticCommand))]
     class Commands
     {

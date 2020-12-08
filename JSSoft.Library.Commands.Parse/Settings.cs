@@ -23,12 +23,12 @@ using System.ComponentModel;
 
 namespace JSSoft.Library.Commands.Parse
 {
+    [ResourceDescription]
     [CommandStaticProperty(typeof(GlobalSettings))]
     class Settings
     {
         public Settings()
         {
-            // this.Libraries = new string[] { };
         }
 
         [CommandPropertyRequired]
@@ -44,37 +44,34 @@ namespace JSSoft.Library.Commands.Parse
             get; set;
         }
 
-        [CommandPropertyRequired("path", IsExplicit = true)]
+        [CommandPropertyRequired(IsExplicit = true)]
         [Description("path to work")]
         public string WorkingPath
         {
             get; set;
         }
 
-        [CommandPropertyRequired(DefaultValue = "10001")]
+        [CommandProperty(InitValue = "10001")]
         [Description("port")]
-        [Browsable(true)]
         public int Port
         {
             get; set;
         }
 
         [CommandProperty('c')]
-        [Description("use cache")]
         public bool UseCache
         {
             get; set;
         }
 
         [CommandProperty("cache-size", DefaultValue = 1024)]
-        [Description("cache size. default is 1024")]
         public int CacheSize
         {
             get; set;
         }
 
         [CommandPropertyArray]
-        [Description("library paths.")]
+        [CommandSummary("library paths.")]
         public string[] Libraries
         {
             get; set;

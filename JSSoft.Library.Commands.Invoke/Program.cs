@@ -31,11 +31,13 @@ namespace JSSoft.Library.Commands.Invoke
             var parser = new CommandLineParser(commands);
             try
             {
-                parser.Invoke(Environment.CommandLine);
+                if (parser.TryInvoke(Environment.CommandLine) == true)
+                {
+                }
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Console.Error.WriteLine(e.Message);
                 Environment.Exit(1);
             }
         }

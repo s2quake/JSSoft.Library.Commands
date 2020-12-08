@@ -117,10 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="GlobalSettings.ID" xml:space="preserve">
-    <value>Indicates the ID.</value>
+  <data name="StaticCommand.List" xml:space="preserve">
+    <value>데이터의 목록을 표시합니다.</value>
   </data>
-  <data name="GlobalSettings.Password" xml:space="preserve">
-    <value>Indicates the password.</value>
+  <data name="StaticCommand.Filter" xml:space="preserve">
+    <value>데이터 목록의 필터를 나타냅니다.</value>
   </data>
 </root>

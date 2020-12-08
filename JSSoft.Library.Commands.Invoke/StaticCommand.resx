@@ -117,10 +117,13 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="GlobalSettings.ID" xml:space="preserve">
-    <value>Indicates the ID.</value>
+  <data name="StaticCommand" xml:space="preserve">
+    <value></value>
   </data>
-  <data name="GlobalSettings.Password" xml:space="preserve">
-    <value>Indicates the password.</value>
+  <data name="StaticCommand.List" xml:space="preserve">
+    <value>Displays a list of data.</value>
+  </data>
+  <data name="StaticCommand.Filter" xml:space="preserve">
+    <value>Indicates the filter in the data list.</value>
   </data>
 </root>

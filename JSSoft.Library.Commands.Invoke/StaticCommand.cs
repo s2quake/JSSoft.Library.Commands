@@ -24,17 +24,18 @@ using System;
 namespace JSSoft.Library.Commands.Invoke
 {
     [ConsoleModeOnly]
+    [ResourceDescription]
     static class StaticCommand
     {
         [CommandMethod]
-        [CommandMethodProperty(nameof(Value))]
+        [CommandMethodProperty(nameof(Filter))]
         public static void List()
         {
             Console.WriteLine("list invoked.");
         }
 
         [CommandProperty]
-        public static int Value
+        public static string Filter
         {
             get; set;
         }

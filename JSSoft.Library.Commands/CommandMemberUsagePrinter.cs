@@ -263,7 +263,7 @@ namespace JSSoft.Library.Commands
                 if (descriptor.InitValue == DBNull.Value)
                 {
                     if (descriptor.IsExplicit == true)
-                        return $"<{patternText} {descriptorName}>";
+                        return $"<{patternText} 'value'>";
                     else
                         return $"<{descriptorName}>";
                 }

@@ -21,7 +21,7 @@
 
 namespace JSSoft.Library.Commands.Parse
 {
-    [UsageDescriptionProvider(typeof(ResourceUsageDescriptionProvider))]
+    [ResourceDescription]
     static class GlobalSettings
     {
         [CommandProperty]
