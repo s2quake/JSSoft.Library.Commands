@@ -46,7 +46,7 @@ namespace JSSoft.Library.Commands
             if (this.Usage == CommandPropertyUsage.Variables && this.MemberType.IsArray == false)
                 throw new InvalidOperationException(string.Format(Resources.Exception_VariablesPropertyMustBeAnArrayType_Format, nameof(CommandPropertyUsage.Variables)));
             if (this.Usage == CommandPropertyUsage.Switch && this.MemberType != typeof(bool))
-                throw new InvalidOperationException("Only the bool type can be used as a switch.");
+                throw new InvalidOperationException(Resources.Exception_OnlyBoolTypeSwitch);
             if (this.Attribute.InitValueProperty != DBNull.Value)
                 this.InitValue = GetDefaultValue(propertyInfo.PropertyType, this.Attribute.InitValueProperty);
             else

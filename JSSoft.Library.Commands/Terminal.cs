@@ -19,6 +19,7 @@
 // Forked from https://github.com/NtreevSoft/CommandLineParser
 // Namespaces and files starting with "Ntreev" have been renamed to "JSSoft".
 
+using JSSoft.Library.Commands.Properties;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -437,7 +438,7 @@ namespace JSSoft.Library.Commands
             set
             {
                 if (Terminal.IsOutputRedirected == false)
-                    throw new InvalidOperationException("console output is redirected.");
+                    throw new InvalidOperationException(Resources.Exception_BufferWidthCannotSet);
                 if (value <= 0)
                     throw new ArgumentOutOfRangeException();
                 bufferWidth = value;
@@ -511,7 +512,7 @@ namespace JSSoft.Library.Commands
         public void SetPrompt(string prompt)
         {
             if (this.writer == null)
-                throw new Exception("prompt can set only on read mode.");
+                throw new InvalidOperationException(Resources.Exception_PromptCannotSet);
 
             lock (LockedObject)
             {
@@ -754,7 +755,7 @@ namespace JSSoft.Library.Commands
                         if (args.Cancel == false)
                         {
                             this.OnCancelled(EventArgs.Empty);
-                            throw new OperationCanceledException($"ReadLine is cancelled.");
+                            throw new OperationCanceledException(Resources.Exception_ReadOnlyCanceled);
                         }
                     }
                     else if (this.actionMaps.ContainsKey(key) == true)

@@ -145,10 +145,10 @@
     <value>Subcommands</value>
   </data>
   <data name="Message_Help_Format" xml:space="preserve">
-    <value>type '{0}' for usage.</value>
+    <value>Type '{0}' for usage.</value>
   </data>
   <data name="Message_Version_Format" xml:space="preserve">
-    <value>type '{0}' for version.</value>
+    <value>Type '{0}' for version.</value>
   </data>
   <data name="Message_UnprocessedArguments" xml:space="preserve">
     <value>There are unprocessed arguments.</value>
@@ -233,5 +233,23 @@
   </data>
   <data name="Exception_UnknownVersion" xml:space="preserve">
     <value>Could not identify version.</value>
+  </data>
+  <data name="Exception_InvokeAsyncInstead" xml:space="preserve">
+    <value>Asynchronous use in Invoke can pose a risk. Use InvokeAsync instead.</value>
+  </data>
+  <data name="Exception_OnlyBoolTypeSwitch" xml:space="preserve">
+    <value>Only the bool type can be used as a switch.</value>
+  </data>
+  <data name="Exception_ReadOnlyCanceled" xml:space="preserve">
+    <value>ReadLine operation canceled.</value>
+  </data>
+  <data name="Message_HelpUsage_Format" xml:space="preserve">
+    <value>Type '{0} {1}' for usage.</value>
+  </data>
+  <data name="Exception_BufferWidthCannotSet" xml:space="preserve">
+    <value>'BufferWidth' can only be set when the 'Console.IsOutputRedirect' value is true.</value>
+  </data>
+  <data name="Exception_PromptCannotSet" xml:space="preserve">
+    <value>Prompt cannot be set while reading a string.</value>
   </data>
 </root>

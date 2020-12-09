@@ -166,7 +166,7 @@ namespace JSSoft.Library.Commands
                 if (command is IExecutable executable1)
                     this.Invoke(executable1);
                 else if (command is IExecutableAsync executable2)
-                    throw new InvalidOperationException("Asynchronous use in Invoke can pose a risk. Use InvokeAsync instead.");
+                    throw new InvalidOperationException(Resources.Exception_InvokeAsyncInstead);
             }
             else if (instance is IExecutable executable1)
             {
@@ -176,13 +176,13 @@ namespace JSSoft.Library.Commands
             else if (instance is IExecutableAsync executable2)
             {
                 this.Parse(name, arguments);
-                throw new InvalidOperationException("Asynchronous use in Invoke can pose a risk. Use InvokeAsync instead.");
+                throw new InvalidOperationException(Resources.Exception_InvokeAsyncInstead);
             }
             else if (CommandDescriptor.GetMethodDescriptor(instance.GetType(), first) is CommandMethodDescriptor descriptor)
             {
                 if (descriptor.IsAsync == true)
                 {
-                    throw new InvalidOperationException("Asynchronous use in Invoke can pose a risk. Use InvokeAsync instead.");
+                    throw new InvalidOperationException(Resources.Exception_InvokeAsyncInstead);
                 }
                 else
                 {
@@ -306,7 +306,7 @@ namespace JSSoft.Library.Commands
 
         public void PrintSummary()
         {
-            this.Out.WriteLine("Type '{0} {1}' for usage.", this.Name, this.HelpName);
+            this.Out.WriteLine(Resources.Message_HelpUsage_Format, this.Name, this.HelpName);
         }
 
         public void PrintVersion()
