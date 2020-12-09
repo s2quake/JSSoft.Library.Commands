@@ -33,7 +33,6 @@ namespace JSSoft.Library.Commands.Repl.Commands
         public ListDirectoryCommandPartial()
             : base("ls")
         {
-
         }
 
         [CommandPropertySwitch('s', AllowName = true)]

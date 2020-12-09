@@ -30,12 +30,10 @@ namespace JSSoft.Library.Commands
         public CommandTextWriter()
             : this(new StringWriter(), Terminal.IsOutputRedirected == true ? int.MaxValue : Console.BufferWidth)
         {
-
         }
         public CommandTextWriter(TextWriter writer)
             : this(writer, Terminal.IsOutputRedirected == true ? int.MaxValue : Console.BufferWidth)
         {
-
         }
 
         public CommandTextWriter(TextWriter writer, int width)

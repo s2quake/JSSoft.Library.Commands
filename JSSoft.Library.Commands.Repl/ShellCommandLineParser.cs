@@ -26,7 +26,6 @@ namespace JSSoft.Library.Commands.Repl
         public ShellCommandLineParser(string name, object instance)
             : base(name, instance)
         {
-
         }
     }
 }

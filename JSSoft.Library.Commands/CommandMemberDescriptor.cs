@@ -98,7 +98,6 @@ namespace JSSoft.Library.Commands
 
         protected virtual void OnValidateTrigger(ParseDescriptorItem[] parseItems)
         {
-
         }
 
         protected CommandPropertyBaseAttribute Attribute { get; }

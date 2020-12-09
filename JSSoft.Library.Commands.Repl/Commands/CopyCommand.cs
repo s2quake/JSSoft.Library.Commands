@@ -31,7 +31,6 @@ namespace JSSoft.Library.Commands.Repl.Commands
         public CopyCommand()
             : base("copy", new string[] { "cp" })
         {
-
         }
 
         [CommandPropertyRequired]

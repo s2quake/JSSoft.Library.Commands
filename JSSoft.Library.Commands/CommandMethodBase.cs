@@ -58,7 +58,6 @@ namespace JSSoft.Library.Commands
         protected CommandMethodBase(string name)
             : this(name, new string[] { })
         {
-
         }
 
         protected CommandMethodBase(string name, string[] aliases)

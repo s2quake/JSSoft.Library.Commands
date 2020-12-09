@@ -38,7 +38,6 @@ namespace JSSoft.Library.Commands.Repl.Commands
         public TestCommand()
             : base(new string[] { "t" })
         {
-
         }
 
         [CommandMethod]
@@ -113,7 +112,6 @@ namespace JSSoft.Library.Commands.Repl.Commands
         [CommandSummary("Order method")]
         public void Order(string p1, string p2 = "123")
         {
-
         }
 
         [CommandProperty]

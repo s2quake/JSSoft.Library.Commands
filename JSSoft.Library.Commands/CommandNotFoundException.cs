@@ -29,7 +29,6 @@ namespace JSSoft.Library.Commands
         public CommandNotFoundException(string methodName)
             : base(string.Format(Resources.Exception_MethodDoesNotExist_Format, methodName))
         {
-
         }
     }
 }

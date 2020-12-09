@@ -33,7 +33,6 @@ namespace JSSoft.Library.Commands
         public CommandStaticMethodAttribute(string typeName, params string[] methodNames)
             : this(Type.GetType(typeName), methodNames)
         {
-
         }
 
         public CommandStaticMethodAttribute(Type type, params string[] methodNames)

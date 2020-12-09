@@ -31,7 +31,6 @@ namespace JSSoft.Library.Commands.Repl.Commands
         public StashCommand()
             : base("stash")
         {
-
         }
 
         [CommandMethod("show")]
