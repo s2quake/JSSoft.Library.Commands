@@ -31,12 +31,4 @@ Namespaces and files starting with "Ntreev" have been renamed to "JSSoft". -->
   <ItemGroup>
     <ProjectReference Include="..\JSSoft.Library.Commands\JSSoft.Library.Commands.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Update="Commands\CleanCommand.resx">
-      <Generator></Generator>
-    </EmbeddedResource>
-    <EmbeddedResource Update="Commands\CopyCommand.resx">
-      <Generator></Generator>
-    </EmbeddedResource>
-  </ItemGroup>
 </Project>

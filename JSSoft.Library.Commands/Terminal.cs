@@ -638,7 +638,7 @@ namespace JSSoft.Library.Commands
                 else
                 {
                     if (Environment.OSVersion.Platform == PlatformID.Win32NT)
-                        this.writer.Write("\b\0");
+                        this.writer.Write("\b \b");
                     else
                         this.writer.Write("\b \b");
                 }
