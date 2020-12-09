@@ -118,22 +118,22 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ChangeDirectoryCommand" xml:space="preserve">
-    <value>Change the shell working directory.</value>
+    <value>셸 작업 디렉터리를 변경하십시오.</value>
   </data>
   <data name="ChangeDirectoryCommand.DirectoryName" xml:space="preserve">
-    <value>Indicates the name of the directory.</value>
+    <value>디렉터리 이름을 나타냅니다.</value>
   </data>
   <data name="d:ChangeDirectoryCommand" xml:space="preserve">
-    <value>Change the current directory to DIR.  The default DIR is the value of the
-HOME shell variable.
+    <value>현재 디렉터리를 DIR로 변경하십시오.  기본 DIR은 의 값이다.
+HOME 셸 변수.
     
-The variable CDPATH defines the search path for the directory containing
-DIR.  Alternative directory names in CDPATH are separated by a colon (:).
-A null directory name is the same as the current directory.  If DIR begins
-with a slash (/), then CDPATH is not used.
+변수 CDPATH는 다음을 포함하는 디렉터리에 대한 검색 경로를 정의함
+DIR. CDPATH의 대체 디렉토리 이름은 콜론(:)으로 구분된다.
+null 디렉토리 이름은 현재 디렉토리와 동일하다.  DIR이 시작되는 경우
+슬래시(/)를 사용한 다음 CDPATH를 사용하지 않는다.
     
-If the directory is not found, and the shell option `cdable_vars' is set,
-the word is assumed to be  a variable name.  If that variable has a value,
-its value is used for DIR.</value>
+디렉터리를 찾을 수 없고 셸 옵션 'cdable_vars'가 설정된 경우,
+그 단어는 변수 이름으로 가정된다.  그 변수에 값이 있으면
+그것의 가치는 DIR에 사용된다.</value>
   </data>
 </root>

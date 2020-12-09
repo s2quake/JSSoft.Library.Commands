@@ -23,6 +23,6 @@ namespace JSSoft.Library.Commands
 {
     public interface ICommandHost
     {
-        CommandContextBase CommandContext { get; set; }
+        ICommandNode Node { get; set; }
     }
 }

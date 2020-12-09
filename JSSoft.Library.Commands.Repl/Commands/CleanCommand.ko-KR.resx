@@ -117,23 +117,29 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ChangeDirectoryCommand" xml:space="preserve">
-    <value>Change the shell working directory.</value>
+  <data name="CleanCommand" xml:space="preserve">
+    <value>git-clean - 작업 트리에서 추적되지 않은 파일 제거</value>
   </data>
-  <data name="ChangeDirectoryCommand.DirectoryName" xml:space="preserve">
-    <value>Indicates the name of the directory.</value>
+  <data name="CleanCommand.IsIgnoreFiles" xml:space="preserve">
+    <value>표준 무시 규칙(gitignore[5] 참조)을 사용하지 말고 명령줄에서 -e 옵션과 함께 제공된 무시 규칙을 사용하십시오. 이를 통해 빌드 제품을 포함하여 추적되지 않은 모든 파일을 제거할 수 있다. 이것은 (아마 git 복원 또는 git 재설정과 함께) 깨끗한 빌드를 테스트하기 위해 원래의 작업 디렉토리를 만드는 데 사용될 수 있다.</value>
   </data>
-  <data name="d:ChangeDirectoryCommand" xml:space="preserve">
-    <value>Change the current directory to DIR.  The default DIR is the value of the
-HOME shell variable.
-    
-The variable CDPATH defines the search path for the directory containing
-DIR.  Alternative directory names in CDPATH are separated by a colon (:).
-A null directory name is the same as the current directory.  If DIR begins
-with a slash (/), then CDPATH is not used.
-    
-If the directory is not found, and the shell option `cdable_vars' is set,
-the word is assumed to be  a variable name.  If that variable has a value,
-its value is used for DIR.</value>
+  <data name="CleanCommand.Pattern" xml:space="preserve">
+    <value>표준 무시 규칙과 함께 지정된 제외 패턴 사용</value>
+  </data>
+  <data name="CleanCommand.IsDryRun" xml:space="preserve">
+    <value>실제로 아무것도 제거하지 말고, 어떻게 해야 하는지 보여줘.</value>
+  </data>
+  <data name="CleanCommand.IsUntrackedFiles" xml:space="preserve">
+    <value>Git clean.requireForce가 false로 설정되지 않은 경우 git clean은 -f 또는 -i가 지정되지 않는 한 파일이나 디렉토리 삭제를 거부한다. Git는 두 번째 -f가 주어지지 않는 한 추적되지 않은 중첩된 git 저장소(.git 하위 디렉터리가 있는 디렉터리)의 수정을 거부한다.</value>
+  </data>
+  <data name="CleanCommand.IsDirectory" xml:space="preserve">
+    <value>일반적으로 &lt;경로&gt;가 지정되지 않은 경우, git clean은 너무 많이 제거되는 것을 피하기 위해 추적되지 않은 디렉토리로 반복되지 않는다. -d를 지정하여 해당 디렉토리에 다시 포함시키십시오. 경로가 지정되면 -d는 관련이 없으며 지정된 경로와 일치하는 모든 추적되지 않은 파일( --force에서 언급된 중첩 git 디렉토리에 대한 예외 포함)이 제거된다.</value>
+  </data>
+  <data name="d:CleanCommand" xml:space="preserve">
+    <value>현재 디렉터리에서 시작하여 버전 제어에 속하지 않는 파일을 반복적으로 제거하여 작업 트리를 정리하십시오.
+
+일반적으로 Git에 알려지지 않은 파일만 제거되지만 -x 옵션을 지정하면 무시된 파일도 제거된다. 예를 들어, 이것은 모든 빌드 제품을 제거하는 데 유용할 수 있다.
+
+선택적 &lt;경로&gt;... 인수가 주어지면, 그 경로만이 영향을 받는다.</value>
   </data>
 </root>

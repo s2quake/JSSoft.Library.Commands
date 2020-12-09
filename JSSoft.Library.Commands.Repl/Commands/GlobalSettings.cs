@@ -21,6 +21,7 @@
 
 namespace JSSoft.Library.Commands.Repl.Commands
 {
+    [ResourceDescription]
     static class GlobalSettings
     {
         [CommandProperty]

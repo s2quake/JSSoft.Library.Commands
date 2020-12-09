@@ -49,6 +49,8 @@ namespace JSSoft.Library.Commands
 
         public ICommandDescriptor Descriptor => this.commandNode.Descriptor;
 
+        public CommandContextBase CommandContext => this.commandNode.CommandContext;
+
         public bool IsEnabled => this.commandNode.IsEnabled;
 
         public IEnumerable<ICommand> Commands => this.commandNode.Commands;

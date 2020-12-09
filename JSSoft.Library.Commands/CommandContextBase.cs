@@ -34,7 +34,7 @@ namespace JSSoft.Library.Commands
 {
     public abstract class CommandContextBase
     {
-        private readonly CommandNode commandNode = new CommandNode();
+        private readonly CommandNode commandNode;
         private readonly ICommand helpCommand;
         private readonly ICommand versionCommand;
         private readonly FileVersionInfo versionInfo;
@@ -58,6 +58,7 @@ namespace JSSoft.Library.Commands
             this.Version = this.versionInfo.ProductVersion;
             this.helpCommand = commands.SingleOrDefault(item => item.GetType().GetCustomAttribute<HelpCommandAttribute>() != null) ?? new HelpCommand();
             this.versionCommand = commands.SingleOrDefault(item => item.GetType().GetCustomAttribute<VersionCommandAttribute>() != null) ?? new VersionCommand();
+            this.commandNode = new CommandNode(this);
             this.Initialize(this.commandNode, commands);
         }
 
@@ -232,7 +233,7 @@ namespace JSSoft.Library.Commands
                 throw new InvalidOperationException($"Partial command cannot have alias.: '{commandName}'");
             if (parentNode.Childs.ContainsKey(commandName) == false)
             {
-                var commandNode = new CommandNode()
+                var commandNode = new CommandNode(this)
                 {
                     Parent = parentNode,
                     Name = commandName,
@@ -247,6 +248,8 @@ namespace JSSoft.Library.Commands
             {
                 var commandNode = parentNode.Childs[commandName];
                 commandNode.CommandList.Add(command);
+                if (command is ICommandHost commandHost)
+                    commandHost.Node = commandNode;
                 if (command is ICommandHierarchy hierarchy)
                 {
                     this.CollectCommands(commandNode, hierarchy.Commands);
@@ -259,10 +262,6 @@ namespace JSSoft.Library.Commands
             var query = from item in commandNode.CommandList
                         where item is ICommandHost commandHost
                         select item as ICommandHost;
-            foreach (var item in query)
-            {
-                item.CommandContext = this;
-            }
             foreach (var item in commandNode.Childs)
             {
                 this.InitializeCommand(item);

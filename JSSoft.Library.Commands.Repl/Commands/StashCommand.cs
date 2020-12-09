@@ -25,7 +25,7 @@ using System.ComponentModel.Composition;
 namespace JSSoft.Library.Commands.Repl.Commands
 {
     [Export(typeof(ICommand))]
-    [UsageDescriptionProvider(typeof(ResourceUsageDescriptionProvider))]
+    [ResourceDescription]
     class StashCommand : CommandMethodBase
     {
         public StashCommand()
@@ -33,13 +33,6 @@ namespace JSSoft.Library.Commands.Repl.Commands
         {
 
         }
-
-        //[CommandMethod("list")]
-        //[CommandStaticProperty(typeof(GlobalSettings))]
-        //public void List(string options)
-        //{
-        //
-        //}
 
         [CommandMethod("show")]
         [CommandMethodProperty("Path", "Port")]
@@ -51,14 +44,12 @@ namespace JSSoft.Library.Commands.Repl.Commands
 
         [CommandMethod("save")]
         [CommandMethodProperty("Patch", "KeepIndex", "IncludeUntracked", "All", "Quit")]
-        [ShellDescription("SaveDescription_StashCommand")]
         public void Save(string message)
         {
             Console.WriteLine(message);
         }
 
         [CommandProperty('p')]
-        [ShellDescription("PatchDescription_StashCommand")]
         public bool Patch
         {
             get; set;

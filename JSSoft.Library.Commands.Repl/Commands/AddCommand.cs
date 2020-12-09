@@ -26,9 +26,7 @@ using System.ComponentModel.Composition;
 namespace JSSoft.Library.Commands.Repl.Commands
 {
     [Export(typeof(ICommand))]
-    [ShellSummary("AddSummary")]
-    [ShellDescription("AddDescription")]
-    [UsageDescriptionProvider(typeof(ResourceUsageDescriptionProvider))]
+    [ResourceDescription]
     [CommandStaticProperty(typeof(GlobalSettings))]
     class AddCommand : CommandBase
     {
@@ -39,7 +37,6 @@ namespace JSSoft.Library.Commands.Repl.Commands
         }
 
         [CommandPropertyRequired]
-        [DisplayName("<pathspec>...")]
         public string Path
         {
             get; set;

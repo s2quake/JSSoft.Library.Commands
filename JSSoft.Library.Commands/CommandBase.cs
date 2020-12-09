@@ -30,6 +30,8 @@ namespace JSSoft.Library.Commands
 {
     public abstract class CommandBase : ICommand, IExecutable, ICommandHost, ICommandCompletor, ICommandDescriptor, ICommandUsage
     {
+        private ICommandNode node;
+
         protected CommandBase()
             : this(new string[] { })
         {
@@ -67,7 +69,7 @@ namespace JSSoft.Library.Commands
 
         public TextWriter Error => this.CommandContext.Error;
 
-        public CommandContextBase CommandContext { get; private set; }
+        public CommandContextBase CommandContext => this.node.CommandContext;
 
         protected abstract void OnExecute();
 
@@ -99,10 +101,10 @@ namespace JSSoft.Library.Commands
 
         #region ICommandHost
 
-        CommandContextBase ICommandHost.CommandContext
+        ICommandNode ICommandHost.Node
         {
-            get => this.CommandContext;
-            set => this.CommandContext = value;
+            get => this.node;
+            set => this.node = value;
         }
 
         #endregion
@@ -131,6 +133,8 @@ namespace JSSoft.Library.Commands
 
     public abstract class CommandAsyncBase : ICommand, IExecutableAsync, ICommandHost, ICommandDescriptor, ICommandUsage
     {
+        private ICommandNode node;
+
         protected CommandAsyncBase()
             : this(new string[] { })
         {
@@ -168,7 +172,7 @@ namespace JSSoft.Library.Commands
 
         public TextWriter Error => this.CommandContext.Error;
 
-        public CommandContextBase CommandContext { get; private set; }
+        public CommandContextBase CommandContext => this.node.CommandContext;
 
         protected abstract Task OnExecuteAsync(CancellationToken cancellationToken);
 
@@ -200,10 +204,10 @@ namespace JSSoft.Library.Commands
 
         #region ICommandHost
 
-        CommandContextBase ICommandHost.CommandContext
+        ICommandNode ICommandHost.Node
         {
-            get => this.CommandContext;
-            set => this.CommandContext = value;
+            get => this.node;
+            set => this.node = value;
         }
 
         #endregion

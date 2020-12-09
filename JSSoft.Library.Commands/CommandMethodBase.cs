@@ -30,6 +30,7 @@ namespace JSSoft.Library.Commands
     public abstract class CommandMethodBase : ICommand, ICommandHost, ICommandHierarchy, ICommandCompletor, ICommandDescriptor, ICommandUsage
     {
         private readonly CommandCollection commands = new CommandCollection();
+        private ICommandNode node;
 
         protected CommandMethodBase()
             : this(new string[] { })
@@ -88,7 +89,7 @@ namespace JSSoft.Library.Commands
 
         public TextWriter Error => this.CommandContext.Error;
 
-        public CommandContextBase CommandContext { get; private set; }
+        public CommandContextBase CommandContext => this.node.CommandContext;
 
         protected virtual bool IsMethodEnabled(CommandMethodDescriptor descriptor)
         {
@@ -107,7 +108,9 @@ namespace JSSoft.Library.Commands
 
         protected virtual void PrintUsage(bool isDetail)
         {
-            var query = from item in CommandDescriptor.GetMethodDescriptors(this.GetType())
+            
+            var query = from command in this.node.Commands
+                        from item in CommandDescriptor.GetMethodDescriptors(command.GetType())
                         where item.CanExecute(this)
                         select item;
             var printer = new CommandMethodUsagePrinter(this.Name, this, this.Aliases) { IsDetailed = isDetail };
@@ -116,10 +119,10 @@ namespace JSSoft.Library.Commands
 
         #region ICommandHost
 
-        CommandContextBase ICommandHost.CommandContext
+        ICommandNode ICommandHost.Node
         {
-            get => this.CommandContext;
-            set => this.CommandContext = value;
+            get => this.node;
+            set => this.node = value;
         }
 
         public IContainer<ICommand> Commands => this.commands;

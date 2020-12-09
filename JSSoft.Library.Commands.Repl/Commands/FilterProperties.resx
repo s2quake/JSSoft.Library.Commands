@@ -117,7 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="@AddCommand" xml:space="preserve">
-    <value>abc</value>
+  <data name="FilterProperties.Filter" xml:space="preserve">
+    <value>Indicates the filter.</value>
+  </data>
+  <data name="FilterProperties.FilterFile" xml:space="preserve">
+    <value>Indicates the path to the file containing the contents of the filter.</value>
   </data>
 </root>

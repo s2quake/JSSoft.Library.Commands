@@ -117,23 +117,16 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ChangeDirectoryCommand" xml:space="preserve">
-    <value>Change the shell working directory.</value>
+  <data name="ListDirectoryCommand" xml:space="preserve">
+    <value>디렉토리 내용을 나열하다.</value>
   </data>
-  <data name="ChangeDirectoryCommand.DirectoryName" xml:space="preserve">
-    <value>Indicates the name of the directory.</value>
+  <data name="d:ListDirectoryCommand" xml:space="preserve">
+    <value>FILEs에 대한 정보를 나열합니다(기본적으로 현재 디렉터리).
+       '-cftuSUX'나 '-sort'가 없는 경우 항목을 알파벳 순으로 정렬합니다.
+
+짧은 옵션에 대해 긴 옵션에 대한 필수 인수는 필수입니다.</value>
   </data>
-  <data name="d:ChangeDirectoryCommand" xml:space="preserve">
-    <value>Change the current directory to DIR.  The default DIR is the value of the
-HOME shell variable.
-    
-The variable CDPATH defines the search path for the directory containing
-DIR.  Alternative directory names in CDPATH are separated by a colon (:).
-A null directory name is the same as the current directory.  If DIR begins
-with a slash (/), then CDPATH is not used.
-    
-If the directory is not found, and the shell option `cdable_vars' is set,
-the word is assumed to be  a variable name.  If that variable has a value,
-its value is used for DIR.</value>
+  <data name="ListDirectoryCommand.IsRecursive" xml:space="preserve">
+    <value>하위 디렉터리의 내용까지 나열합니다.</value>
   </data>
 </root>

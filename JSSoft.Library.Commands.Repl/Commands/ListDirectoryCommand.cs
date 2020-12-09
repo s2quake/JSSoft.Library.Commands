@@ -27,7 +27,7 @@ using System.IO;
 namespace JSSoft.Library.Commands.Repl.Commands
 {
     [Export(typeof(ICommand))]
-    [UsageDescriptionProvider(typeof(ResourceUsageDescriptionProvider))]
+    [ResourceDescription]
     class ListDirectoryCommandPartial : CommandBase
     {
         public ListDirectoryCommandPartial()

@@ -117,23 +117,16 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ChangeDirectoryCommand" xml:space="preserve">
-    <value>Change the shell working directory.</value>
+  <data name="CopyCommand" xml:space="preserve">
+    <value>한 위치에서 다른 위치로 항목 복사</value>
   </data>
-  <data name="ChangeDirectoryCommand.DirectoryName" xml:space="preserve">
-    <value>Indicates the name of the directory.</value>
+  <data name="CopyCommand.SourcePath" xml:space="preserve">
+    <value>복사할 항목의 경로를 나타냅니다.</value>
   </data>
-  <data name="d:ChangeDirectoryCommand" xml:space="preserve">
-    <value>Change the current directory to DIR.  The default DIR is the value of the
-HOME shell variable.
-    
-The variable CDPATH defines the search path for the directory containing
-DIR.  Alternative directory names in CDPATH are separated by a colon (:).
-A null directory name is the same as the current directory.  If DIR begins
-with a slash (/), then CDPATH is not used.
-    
-If the directory is not found, and the shell option `cdable_vars' is set,
-the word is assumed to be  a variable name.  If that variable has a value,
-its value is used for DIR.</value>
+  <data name="CopyCommand.TargetPath" xml:space="preserve">
+    <value>항목이 복사될 대상 경로를 나타냅니다.</value>
+  </data>
+  <data name="CopyCommand.OverWrite" xml:space="preserve">
+    <value>대상 위치에 이미 항목이 존재할 경우 덮어쓰기를 할 것인지에 대한 여부를 나타냅니다.</value>
   </data>
 </root>

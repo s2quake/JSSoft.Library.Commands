@@ -24,6 +24,7 @@ using System.IO;
 
 namespace JSSoft.Library.Commands.Repl.Commands
 {
+    [ResourceDescription]
     public static class FilterProperties
     {
         [CommandProperty("filter")]

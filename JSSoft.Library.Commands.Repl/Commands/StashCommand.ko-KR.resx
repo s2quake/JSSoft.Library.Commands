@@ -117,23 +117,54 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ChangeDirectoryCommand" xml:space="preserve">
-    <value>Change the shell working directory.</value>
+  <data name="StashCommand.List.options" xml:space="preserve">
+    <value>Indicates an option.</value>
   </data>
-  <data name="ChangeDirectoryCommand.DirectoryName" xml:space="preserve">
-    <value>Indicates the name of the directory.</value>
+  <data name="StashCommand.Path" xml:space="preserve">
+    <value>경로를 나타냅니다.</value>
   </data>
-  <data name="d:ChangeDirectoryCommand" xml:space="preserve">
-    <value>Change the current directory to DIR.  The default DIR is the value of the
-HOME shell variable.
-    
-The variable CDPATH defines the search path for the directory containing
-DIR.  Alternative directory names in CDPATH are separated by a colon (:).
-A null directory name is the same as the current directory.  If DIR begins
-with a slash (/), then CDPATH is not used.
-    
-If the directory is not found, and the shell option `cdable_vars' is set,
-the word is assumed to be  a variable name.  If that variable has a value,
-its value is used for DIR.</value>
+  <data name="StashCommand.Port" xml:space="preserve">
+    <value>포트를 나타냅니다.</value>
+  </data>
+  <data name="d:StashCommand" xml:space="preserve">
+    <value>작업 디렉터리와 인덱스의 현재 상태를 기록하지만 깨끗한 작업 디렉터리로 돌아가려면 git stash를 사용하십시오. 명령은 로컬 수정사항을 저장하고 작업 디렉토리를 HEAD 커밋과 일치하도록 되돌린다.
+
+이 명령으로 보관된 수정사항은 git stash 목록으로 나열하고 git stash show로 검사하며 git stash 적용으로 복원(잠재적으로 다른 커밋 위에)할 수 있다. 논쟁 없이 git stash를 호출하는 것은 git stash save와 같다. 저장소는 기본적으로 "브랜치네임에서 WIP"로 나열되지만, 저장소를 작성할 때 명령행에 더 자세한 설명을 제공할 수 있다.
+
+생성한 최신 스래시는 refs/stash에 저장되며, 오래된 스래시는 이 참조의 reflog에 있으며, 일반적인 reflog 구문을 사용하여 명명할 수 있다(예: stash@{0}는 가장 최근에 생성된 스래시, stash@{1}는 이전 스래시@{2.hours.ago}도 가능하다).</value>
+  </data>
+  <data name="StashCommand" xml:space="preserve">
+    <value>git-stash - 더러운 작업 디렉토리에 변경 내용 저장</value>
+  </data>
+  <data name="StashCommand.All" xml:space="preserve">
+    <value>이 옵션은 푸시 및 저장 명령에만 유효하다.
+
+무시되고 추적되지 않은 파일도 모두 저장한 다음 git clean으로 정리한다.</value>
+  </data>
+  <data name="StashCommand.IncludeUntracked" xml:space="preserve">
+    <value>이 옵션은 푸시 및 저장 명령에만 유효하다.
+
+또한 모든 미분양 파일들은 저장되었다가 git clean으로 정리된다.</value>
+  </data>
+  <data name="StashCommand.KeepIndex" xml:space="preserve">
+    <value>이 옵션은 푸시 및 저장 명령에만 유효하다.
+
+색인에 이미 추가된 모든 변경사항은 그대로 유지된다.</value>
+  </data>
+  <data name="StashCommand.Patch" xml:space="preserve">
+    <value>이 옵션은 푸시 및 저장 명령에만 유효하다.
+
+HEAD와 보관할 작업 트리 사이의 차이에 있는 HUNK를 대화형으로 선택한다. 색인 상태가 리포지토리의 색인 상태와 같도록 보관함 항목이 생성되고, 작업 트리에 대화식으로 선택한 변경 사항만 들어 있다. 그런 다음 선택한 변경사항이 작업 트리에서 롤백된다. --patch 모드를 작동하는 방법은 git-add[1]의 "Interactive Mode" 섹션을 참조하십시오.</value>
+  </data>
+  <data name="StashCommand.Quit" xml:space="preserve">
+    <value>이 옵션은 적용, 삭제, 팝업, 푸시, 저장, 저장 명령에만 유효하다.
+
+조용히, 피드백 메시지 억제.</value>
+  </data>
+  <data name="StashCommand.Save" xml:space="preserve">
+    <value>이 옵션은 git stash push를 위해 더 이상 사용되지 않는다.</value>
+  </data>
+  <data name="StashCommand.Show" xml:space="preserve">
+    <value>보관 항목이 처음 작성되었을 때 보관된 내용과 커밋백 사이의 차이점으로 보관 항목에 기록된 변경사항을 표시하십시오.</value>
   </data>
 </root>

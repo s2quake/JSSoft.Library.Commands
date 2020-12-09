@@ -24,6 +24,7 @@ using System.ComponentModel.Composition;
 namespace JSSoft.Library.Commands.Repl.Commands
 {
     [Export(typeof(ICommand))]
+    [ResourceDescription]
     class CleanCommand : CommandBase
     {
         [ImportingConstructor]

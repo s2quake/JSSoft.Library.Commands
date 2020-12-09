@@ -27,6 +27,11 @@ namespace JSSoft.Library.Commands
 {
     class CommandNode : ICommandNode
     {
+        public CommandNode(CommandContextBase commandContext)
+        {
+            this.CommandContext = commandContext;
+        }
+
         public override string ToString()
         {
             return this.Name;
@@ -41,6 +46,8 @@ namespace JSSoft.Library.Commands
         public ICommand Command { get; set; }
 
         public ICommandDescriptor Descriptor => this.Command as ICommandDescriptor;
+
+        public CommandContextBase CommandContext { get; }
 
         public List<ICommand> CommandList { get; } = new List<ICommand>();
 
