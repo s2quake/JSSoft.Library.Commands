@@ -6,7 +6,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/bin/Debug/netcoreapp3.1/JSSoft.Library.Commands.Invoke/invoke.dll",
+            "program": "${workspaceFolder}/bin/Debug/netcoreapp3.1/JSSoft.Library.Commands.Repl/repl.dll",
             "args": "help",
             "console": "integratedTerminal",
             "stopAtEntry": false
