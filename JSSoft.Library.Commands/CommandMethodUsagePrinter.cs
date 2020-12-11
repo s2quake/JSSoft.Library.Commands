@@ -228,22 +228,23 @@ namespace JSSoft.Library.Commands
         {
             var indent = writer.Indent;
             var query = from item in memberDescriptors
-                        orderby item.IsRequired descending
-                        select this.GetString(item);
+                        where item.IsRequired == true || item.IsVariables == true
+                        select item;
             var maxWidth = writer.Width - (writer.TabString.Length * writer.Indent);
             var line = this.Name + " " + descriptor.Name;
             if (this.Aliases.Any() == true)
                 line += $"({string.Join(",", this.Aliases)})";
             foreach (var item in query)
             {
+                var text = this.GetString(item);
                 if (line != string.Empty)
                     line += " ";
-                if (line.Length + item.Length >= maxWidth)
+                if (line.Length + text.Length >= maxWidth)
                 {
                     writer.WriteLine(line);
                     line = string.Empty.PadLeft(descriptor.Name.Length + 1);
                 }
-                line += item;
+                line += text;
             }
             writer.WriteLine(line);
             writer.Indent = indent;

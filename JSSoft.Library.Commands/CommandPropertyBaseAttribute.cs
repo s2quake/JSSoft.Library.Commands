@@ -90,6 +90,8 @@ namespace JSSoft.Library.Commands
 
         internal bool IsSwitchProperty => this.Usage == CommandPropertyUsage.Switch;
 
+        internal bool IsVariablesProperty => this.Usage == CommandPropertyUsage.Variables;
+
         internal virtual object DefaultValueProperty => DBNull.Value;
 
         internal virtual object InitValueProperty => DBNull.Value;

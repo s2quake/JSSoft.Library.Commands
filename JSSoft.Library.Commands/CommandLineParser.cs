@@ -308,21 +308,13 @@ namespace JSSoft.Library.Commands
         public void PrintSummary()
         {
             var helpName = this.HelpName;
-            var name = this.Name;
-#if NETCOREAPP
-            name = $"dotnet {this.filename}";
-#elif NETFRAMEWORK
-            if (Environment.OSVersion.Platform == PlatformID.Unix)
-            {
-                name = $"mono {this.filename}";
-            }
-#endif
+            var name = this.ExecutionName;
             this.Out.WriteLine(Resources.Message_HelpUsage_Format, name, helpName);
         }
 
         public void PrintVersion()
         {
-            var name = this.Name;
+            var name = this.ExecutionName;
             var version = this.Version;
             var versionInfo = this.versionInfo;
             var writer = this.Out;
@@ -399,6 +391,25 @@ namespace JSSoft.Library.Commands
 
         public string Version { get; set; } = $"{new Version(1, 0)}";
 
+        public string ExecutionName
+        {
+            get
+            {
+#if NETCOREAPP
+                if (this.filename != this.Name)
+                {
+                    return $"dotnet {this.filename}";
+                }
+#elif NETFRAMEWORK
+                if (Environment.OSVersion.Platform == PlatformID.Unix)
+                {
+                    return $"mono {this.filename}";
+                }
+#endif
+                return this.Name;
+            }
+        }
+
         protected virtual void OnPrintSummary()
         {
             if (this.Out != null)
@@ -446,7 +457,7 @@ namespace JSSoft.Library.Commands
             get
             {
                 if (this.commandUsagePrinter == null)
-                    this.commandUsagePrinter = this.CreateMemberUsagePrinter(this.Name, this.Instance);
+                    this.commandUsagePrinter = this.CreateMemberUsagePrinter(this.ExecutionName, this.Instance);
                 return this.commandUsagePrinter;
             }
         }
@@ -456,7 +467,7 @@ namespace JSSoft.Library.Commands
             get
             {
                 if (this.methodUsagePrinter == null)
-                    this.methodUsagePrinter = this.CreateMethodUsagePrinter(this.Name, this.Instance);
+                    this.methodUsagePrinter = this.CreateMethodUsagePrinter(this.ExecutionName, this.Instance);
                 return this.methodUsagePrinter;
             }
         }
