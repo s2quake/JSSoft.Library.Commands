@@ -25,6 +25,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -306,7 +307,17 @@ namespace JSSoft.Library.Commands
 
         public void PrintSummary()
         {
-            this.Out.WriteLine(Resources.Message_HelpUsage_Format, this.Name, this.HelpName);
+            var helpName = this.HelpName;
+            var name = this.Name;
+#if NETCOREAPP
+            name = $"dotnet {this.filename}";
+#elif NETFRAMEWORK
+            if (Environment.OSVersion.Platform == PlatformID.Unix)
+            {
+                name = $"mono {this.filename}";
+            }
+#endif
+            this.Out.WriteLine(Resources.Message_HelpUsage_Format, name, helpName);
         }
 
         public void PrintVersion()
