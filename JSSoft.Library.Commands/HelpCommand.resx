@@ -153,4 +153,10 @@
   <data name="HelpInvokeInstance.SubCommand" xml:space="preserve">
     <value>Indicates the name of the subcommand.</value>
   </data>
+  <data name="HelpInvokeInstance" xml:space="preserve">
+    <value>&amp;HelpCommand</value>
+  </data>
+  <data name="HelpParseInstance" xml:space="preserve">
+    <value>&amp;HelpCommand</value>
+  </data>
 </root>
