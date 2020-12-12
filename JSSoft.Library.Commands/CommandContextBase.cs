@@ -330,10 +330,18 @@ namespace JSSoft.Library.Commands
         {
             if (commandLine == string.Empty)
             {
-                var sb = new StringBuilder();
-                sb.AppendLine(string.Format(Resources.Message_Help_Format, this.helpCommand.Name));
-                sb.AppendLine(string.Format(Resources.Message_Version_Format, this.versionCommand.Name));
-                this.Out.Write(sb.ToString());
+                this.Out.WriteLine(Resources.Message_Help_Format, this.helpCommand.Name);
+                if (this.helpCommand is ICommandUsage helpUsage)
+                {
+                    helpUsage.Print(CommandUsage.None);
+                }
+
+                this.Out.WriteLine();
+                this.Out.WriteLine(Resources.Message_Version_Format, this.versionCommand.Name);
+                if (this.versionCommand is ICommandUsage versionUsage)
+                {
+                    versionUsage.Print(CommandUsage.None);
+                }
             }
             else
             {
@@ -357,10 +365,18 @@ namespace JSSoft.Library.Commands
         {
             if (commandLine == string.Empty)
             {
-                var sb = new StringBuilder();
-                sb.AppendLine(string.Format(Resources.Message_Help_Format, this.helpCommand.Name));
-                sb.AppendLine(string.Format(Resources.Message_Version_Format, this.versionCommand.Name));
-                this.Out.Write(sb.ToString());
+                this.Out.WriteLine(Resources.Message_Help_Format, this.helpCommand.Name);
+                if (this.helpCommand is ICommandUsage helpUsage)
+                {
+                    helpUsage.Print(CommandUsage.None);
+                }
+
+                this.Out.WriteLine();
+                this.Out.WriteLine(Resources.Message_Version_Format, this.versionCommand.Name);
+                if (this.versionCommand is ICommandUsage versionUsage)
+                {
+                    versionUsage.Print(CommandUsage.None);
+                }
             }
             else
             {
