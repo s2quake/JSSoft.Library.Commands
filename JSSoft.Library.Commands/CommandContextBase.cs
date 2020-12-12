@@ -331,6 +331,7 @@ namespace JSSoft.Library.Commands
             if (commandLine == string.Empty)
             {
                 this.Out.WriteLine(Resources.Message_Help_Format, this.helpCommand.Name);
+                this.Out.WriteLine();
                 if (this.helpCommand is ICommandUsage helpUsage)
                 {
                     helpUsage.Print(CommandUsage.None);
@@ -338,6 +339,7 @@ namespace JSSoft.Library.Commands
 
                 this.Out.WriteLine();
                 this.Out.WriteLine(Resources.Message_Version_Format, this.versionCommand.Name);
+                this.Out.WriteLine();
                 if (this.versionCommand is ICommandUsage versionUsage)
                 {
                     versionUsage.Print(CommandUsage.None);
@@ -366,6 +368,7 @@ namespace JSSoft.Library.Commands
             if (commandLine == string.Empty)
             {
                 this.Out.WriteLine(Resources.Message_Help_Format, this.helpCommand.Name);
+                this.Out.WriteLine();
                 if (this.helpCommand is ICommandUsage helpUsage)
                 {
                     helpUsage.Print(CommandUsage.None);
@@ -373,6 +376,7 @@ namespace JSSoft.Library.Commands
 
                 this.Out.WriteLine();
                 this.Out.WriteLine(Resources.Message_Version_Format, this.versionCommand.Name);
+                this.Out.WriteLine();
                 if (this.versionCommand is ICommandUsage versionUsage)
                 {
                     versionUsage.Print(CommandUsage.None);
