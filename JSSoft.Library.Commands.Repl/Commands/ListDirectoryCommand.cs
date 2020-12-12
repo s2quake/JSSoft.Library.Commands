@@ -28,9 +28,9 @@ namespace JSSoft.Library.Commands.Repl.Commands
 {
     [Export(typeof(ICommand))]
     [ResourceDescription]
-    class ListDirectoryCommandPartial : CommandBase
+    class ListDirectoryCommand : CommandBase
     {
-        public ListDirectoryCommandPartial()
+        public ListDirectoryCommand()
             : base("ls")
         {
         }

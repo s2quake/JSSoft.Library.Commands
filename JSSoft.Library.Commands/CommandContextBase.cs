@@ -70,6 +70,7 @@ namespace JSSoft.Library.Commands
             this.filename = name;
             this.helpCommand = commands.SingleOrDefault(item => item.GetType().GetCustomAttribute<HelpCommandAttribute>() != null) ?? new HelpCommand();
             this.versionCommand = commands.SingleOrDefault(item => item.GetType().GetCustomAttribute<VersionCommandAttribute>() != null) ?? new VersionCommand();
+            this.commandNode = new CommandNode(this);
             this.Initialize(this.commandNode, commands);
         }
 
