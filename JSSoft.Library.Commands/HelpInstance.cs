@@ -19,25 +19,24 @@
 // Forked from https://github.com/NtreevSoft/CommandLineParser
 // Namespaces and files starting with "Ntreev" have been renamed to "JSSoft".
 
-using System;
+using JSSoft.Library.Commands.Properties;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
-namespace JSSoft.Library.Commands.Invoke
+namespace JSSoft.Library.Commands
 {
-    class Program
+    class HelpInstance
     {
-        static void Main(string[] _)
-        {
-            var commands = new Commands();
-            var parser = new CommandLineParser(commands);
-            try
-            {
-                parser.Invoke(Environment.CommandLine);
-            }
-            catch (Exception e)
-            {
-                parser.PrintException(e);
-                Environment.Exit(1);
-            }
-        }
+        [CommandPropertySwitch("detail")]
+        [CommandPropertyTrigger(nameof(IsSimple), false)]
+        public bool IsDetail { get; set; }
+
+        [CommandPropertySwitch("simple")]
+        [CommandPropertyTrigger(nameof(IsDetail), false)]
+        public bool IsSimple { get; set; }
+
+        [CommandProperty("option")]
+        public string OptionName { get; set; }
     }
 }
