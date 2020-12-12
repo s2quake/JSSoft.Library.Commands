@@ -101,6 +101,7 @@ namespace JSSoft.Library.Commands
                 Out = writer
             };
             var query = from item in this.CommandContext.Node.Childs
+                        where item.IsEnabled == true
                         orderby item.Name
                         select item;
 
@@ -110,17 +111,18 @@ namespace JSSoft.Library.Commands
 
             foreach (var item in query)
             {
-                if (item.IsEnabled == false)
-                    continue;
                 var descriptor = item.Descriptor;
                 var summary = descriptor != null ? descriptor.Summary : string.Empty;
                 var name = GetCommandNames(item);
                 writer.WriteLine(name);
-                writer.Indent++;
-                writer.WriteMultiline(summary);
-                if (summary != string.Empty)
+                if (summary != string.Empty && this.Usage != CommandUsage.Simple)
+                {
+                    writer.Indent++;
+                    writer.WriteMultiline(summary);
+                    writer.Indent--;
+                }
+                if (query.Last() != item && this.Usage != CommandUsage.Simple)
                     writer.WriteLine();
-                writer.Indent--;
             }
             writer.Indent--;
             this.Out.Write(writer.ToString());
