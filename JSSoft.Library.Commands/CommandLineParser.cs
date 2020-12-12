@@ -379,7 +379,7 @@ namespace JSSoft.Library.Commands
             this.Out.WriteLine(Resources.Message_HelpUsage_Format, name, helpName);
             this.Out.WriteLine();
             {
-                var parser = new CommandLineParser($"{name} {helpName}", isParse == true ? new HelpParseInstance() : new HelpInvokeInstance())
+                var parser = new CommandLineParser($"{name} {helpName}", isParse == true ? new HelpParseInstance() : new HelpInvokeInstance() as object)
                 {
                     Out = this.Out
                 };
