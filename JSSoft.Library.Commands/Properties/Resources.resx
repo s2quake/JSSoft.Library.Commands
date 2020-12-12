@@ -252,4 +252,7 @@
   <data name="Exception_PromptCannotSet" xml:space="preserve">
     <value>Prompt cannot be set while reading a string.</value>
   </data>
+  <data name="Message_VersionUsage_Format" xml:space="preserve">
+    <value>Type '{0} {1}' for version.</value>
+  </data>
 </root>

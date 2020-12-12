@@ -250,6 +250,9 @@
     <value>'BufferWidth' 는 'Console.IsOutputRedirected' 값이 true 일때만 설정할 수 있습니다.</value>
   </data>
   <data name="Exception_PromptCannotSet" xml:space="preserve">
-    <value>문자열을 읽는 도중에는 프롬프트를 설정할 수 없습니다. </value>
+    <value>문자열을 읽는 도중에는 프롬프트를 설정할 수 없습니다.</value>
+  </data>
+  <data name="Message_VersionUsage_Format" xml:space="preserve">
+    <value>버전을 확인하시려면 '{0} {1}'을(를) 입력하세요.</value>
   </data>
 </root>

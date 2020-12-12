@@ -385,6 +385,15 @@ namespace JSSoft.Library.Commands.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Type &apos;{0} {1}&apos; for version..
+        /// </summary>
+        public static string Message_VersionUsage_Format {
+            get {
+                return ResourceManager.GetString("Message_VersionUsage_Format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Available commands.
         /// </summary>
         public static string Text_AvaliableCommands {
