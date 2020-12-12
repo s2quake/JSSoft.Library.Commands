@@ -58,7 +58,7 @@ namespace JSSoft.Library.Commands.Parse
             get; set;
         }
 
-        [CommandProperty('c')]
+        [CommandPropertySwitch('c')]
         public bool UseCache
         {
             get; set;

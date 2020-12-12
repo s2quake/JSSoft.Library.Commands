@@ -20,31 +20,36 @@
 // Namespaces and files starting with "Ntreev" have been renamed to "JSSoft".
 
 using JSSoft.Library.Commands.Properties;
-using System;
-using System.Diagnostics;
-using System.IO;
+using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Text;
 
 namespace JSSoft.Library.Commands
 {
-    public class CommandParseException : Exception
+    [ResourceDescription(nameof(HelpCommand))]
+    class HelpParseInstance
     {
-        public CommandParseException(CommandParseError error, string commandLine, bool isParse, Exception innerException)
-            : base(innerException.Message, innerException)
+        [CommandPropertySwitch("detail")]
+        [CommandPropertyTrigger(nameof(IsSimple), false)]
+        public bool IsDetail { get; set; }
+
+        [CommandPropertySwitch("simple")]
+        [CommandPropertyTrigger(nameof(IsDetail), false)]
+        public bool IsSimple { get; set; }
+
+        [CommandProperty("option", InitValue = "")]
+        public string OptionName { get; set; }
+
+        public CommandUsage Usage
         {
-            this.Error = error;
-            this.CommandLine = commandLine;
-            this.IsParse = isParse;
+            get
+            {
+                if (this.IsDetail == true)
+                    return CommandUsage.Detail;
+                else if (this.IsSimple == true)
+                    return CommandUsage.Simple;
+                return CommandUsage.None;
+            }
         }
-
-        public CommandParseError Error { get; }
-
-        public string CommandLine { get; }
-
-        public bool IsParse { get; }
     }
 }

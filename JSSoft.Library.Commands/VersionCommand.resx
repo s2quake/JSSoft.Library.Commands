@@ -123,4 +123,10 @@
   <data name="VersionCommand.IsQuiet" xml:space="preserve">
     <value>Display only version.</value>
   </data>
+  <data name="VersionInstance" xml:space="preserve">
+    <value>&amp;VersionCommand</value>
+  </data>
+  <data name="VersionInstance.IsQuiet" xml:space="preserve">
+    <value>&amp;VersionCommand.IsQuiet</value>
+  </data>
 </root>

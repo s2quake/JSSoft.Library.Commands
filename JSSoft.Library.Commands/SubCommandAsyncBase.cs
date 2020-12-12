@@ -62,10 +62,10 @@ namespace JSSoft.Library.Commands
             return this.command.GetCompletions(this.descriptor, completionContext.MemberDescriptor, completionContext.Find);
         }
 
-        protected virtual void PrintUsage(bool isDetail)
+        protected virtual void PrintUsage(CommandUsage usage)
         {
             var descriptors = this.Members.ToArray();
-            var printer = new CommandMethodUsagePrinter(this.UsageName, this.command, this.Aliases) { IsDetailed = isDetail };
+            var printer = new CommandMethodUsagePrinter(this.UsageName, this.command, this.Aliases) { Usage = usage };
             printer.Print(this.command.Out, this.descriptor, descriptors);
         }
 
@@ -83,9 +83,9 @@ namespace JSSoft.Library.Commands
 
         #region ICommandUsage
 
-        void ICommandUsage.Print(bool isDetail)
+        void ICommandUsage.Print(CommandUsage usage)
         {
-            this.PrintUsage(isDetail);
+            this.PrintUsage(usage);
         }
 
         #endregion

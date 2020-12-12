@@ -105,14 +105,14 @@ namespace JSSoft.Library.Commands
             return this.IsMethodEnabled(descriptor);
         }
 
-        protected virtual void PrintUsage(bool isDetail)
+        protected virtual void PrintUsage(CommandUsage usage)
         {
             
             var query = from command in this.node.Commands
                         from item in CommandDescriptor.GetMethodDescriptors(command.GetType())
                         where item.CanExecute(this)
                         select item;
-            var printer = new CommandMethodUsagePrinter(this.Name, this, this.Aliases) { IsDetailed = isDetail };
+            var printer = new CommandMethodUsagePrinter(this.Name, this, this.Aliases) { Usage = usage };
             printer.Print(this.Out, query.ToArray());
         }
 
@@ -149,9 +149,9 @@ namespace JSSoft.Library.Commands
 
         #region ICommandUsage
 
-        void ICommandUsage.Print(bool isDetail)
+        void ICommandUsage.Print(CommandUsage usage)
         {
-            this.PrintUsage(isDetail);
+            this.PrintUsage(usage);
         }
 
         #endregion

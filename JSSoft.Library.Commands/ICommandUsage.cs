@@ -25,6 +25,6 @@ namespace JSSoft.Library.Commands
 {
     public interface ICommandUsage
     {
-        void Print(bool isDetail);
+        void Print(CommandUsage usage);
     }
 }

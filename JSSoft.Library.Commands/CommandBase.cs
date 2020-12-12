@@ -83,10 +83,10 @@ namespace JSSoft.Library.Commands
             return CommandDescriptor.GetStaticMemberDescriptors(type)[propertyName];
         }
 
-        protected virtual void PrintUsage(bool isDetail)
+        protected virtual void PrintUsage(CommandUsage usage)
         {
             var descriptors = CommandDescriptor.GetMemberDescriptors(this);
-            var printer = new CommandMemberUsagePrinter(this.Name, this, this.Aliases) { IsDetailed = isDetail };
+            var printer = new CommandMemberUsagePrinter(this.Name, this, this.Aliases) { Usage = usage };
             printer.Print(this.Out, descriptors.ToArray());
         }
 
@@ -123,9 +123,9 @@ namespace JSSoft.Library.Commands
 
         #region ICommandUsage
 
-        void ICommandUsage.Print(bool isDetail)
+        void ICommandUsage.Print(CommandUsage usage)
         {
-            this.PrintUsage(isDetail);
+            this.PrintUsage(usage);
         }
 
         #endregion
@@ -186,10 +186,10 @@ namespace JSSoft.Library.Commands
             return CommandDescriptor.GetStaticMemberDescriptors(type)[propertyName];
         }
 
-        protected virtual void PrintUsage(bool isDetail)
+        protected virtual void PrintUsage(CommandUsage usage)
         {
             var descriptors = CommandDescriptor.GetMemberDescriptors(this);
-            var printer = new CommandMemberUsagePrinter(this.Name, this, this.Aliases) { IsDetailed = isDetail };
+            var printer = new CommandMemberUsagePrinter(this.Name, this, this.Aliases) { Usage = usage };
             printer.Print(this.Out, descriptors.ToArray());
         }
 
@@ -226,9 +226,9 @@ namespace JSSoft.Library.Commands
 
         #region ICommandUsage
 
-        void ICommandUsage.Print(bool isDetail)
+        void ICommandUsage.Print(CommandUsage usage)
         {
-            this.PrintUsage(isDetail);
+            this.PrintUsage(usage);
         }
 
         #endregion

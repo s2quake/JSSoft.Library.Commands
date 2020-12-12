@@ -26,7 +26,7 @@ using System.Text;
 
 namespace JSSoft.Library.Commands
 {
-    [UsageDescriptionProvider(typeof(ResourceUsageDescriptionProvider))]
+    [ResourceDescription]
     [HelpCommand]
     class HelpCommand : CommandBase
     {
@@ -54,7 +54,12 @@ namespace JSSoft.Library.Commands
         public string[] CommandNames { get; set; } = new string[] { };
 
         [CommandPropertySwitch("detail")]
+        [CommandPropertyTrigger(nameof(IsSimple), false)]
         public bool IsDetail { get; set; }
+
+        [CommandPropertySwitch("simple")]
+        [CommandPropertyTrigger(nameof(IsDetail), false)]
+        public bool IsSimple { get; set; }
 
         [CommandProperty("option")]
         public string OptionName { get; set; }
@@ -71,8 +76,20 @@ namespace JSSoft.Library.Commands
                 var command = CommandContextBase.GetCommand(this.CommandContext.Node, argumentList);
                 if (command is ICommandUsage usage)
                 {
-                    usage.Print(this.IsDetail);
+                    usage.Print(this.Usage);
                 }
+            }
+        }
+
+        protected CommandUsage Usage
+        {
+            get
+            {
+                if (this.IsDetail == true)
+                    return CommandUsage.Detail;
+                else if (this.IsSimple == true)
+                    return CommandUsage.Simple;
+                return CommandUsage.None;
             }
         }
 
@@ -87,7 +104,7 @@ namespace JSSoft.Library.Commands
                         orderby item.Name
                         select item;
 
-            parser.PrintUsage(string.Empty);
+            parser.PrintUsage(string.Empty, this.Usage);
             writer.WriteLine(Resources.Text_AvaliableCommands);
             writer.Indent++;
 
@@ -108,27 +125,6 @@ namespace JSSoft.Library.Commands
             writer.Indent--;
             this.Out.Write(writer.ToString());
         }
-
-        // private ICommand GetCommand(ICommandNode parent, List<string> argumentList)
-        // {
-        //     var commandName = argumentList.FirstOrDefault() ?? string.Empty;
-        //     if (commandName != string.Empty)
-        //     {
-        //         if (parent.Childs.ContainsKey(commandName) == true)
-        //         {
-        //             var commandNode = parent.Childs[commandName];
-        //             if (commandNode.IsEnabled == false)
-        //                 return null;
-        //             argumentList.RemoveAt(0);
-        //             if (argumentList.Count > 0 && commandNode.Childs.Any())
-        //             {
-        //                 return this.GetCommand(commandNode, argumentList);
-        //             }
-        //             return commandNode.Command;
-        //         }
-        //     }
-        //     return null;
-        // }
 
         private string[] GetCommandNames(ICommandNode node, string[] commandNames, string find)
         {

@@ -38,7 +38,5 @@ namespace JSSoft.Library.Commands
         Help,
 
         Version,
-
-        Method,
     }
 }

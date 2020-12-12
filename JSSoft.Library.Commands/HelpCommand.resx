@@ -129,4 +129,28 @@
   <data name="HelpCommand.OptionName" xml:space="preserve">
     <value>Displays usage for specific options in the specified command.</value>
   </data>
+  <data name="HelpCommand.IsSimple" xml:space="preserve">
+    <value>Display help in a simple way.</value>
+  </data>
+  <data name="HelpParseInstance.IsDetail" xml:space="preserve">
+    <value>&amp;HelpCommand.IsDetail</value>
+  </data>
+  <data name="HelpParseInstance.IsSimple" xml:space="preserve">
+    <value>&amp;HelpCommand.IsSimple</value>
+  </data>
+  <data name="HelpParseInstance.OptionName" xml:space="preserve">
+    <value>&amp;HelpCommand.OptionName</value>
+  </data>
+  <data name="HelpInvokeInstance.IsDetail" xml:space="preserve">
+    <value>&amp;HelpCommand.IsDetail</value>
+  </data>
+  <data name="HelpInvokeInstance.IsSimple" xml:space="preserve">
+    <value>&amp;HelpCommand.IsSimple</value>
+  </data>
+  <data name="HelpInvokeInstance.OptionName" xml:space="preserve">
+    <value>&amp;HelpCommand.OptionName</value>
+  </data>
+  <data name="HelpInvokeInstance.SubCommand" xml:space="preserve">
+    <value>Indicates the name of the subcommand.</value>
+  </data>
 </root>

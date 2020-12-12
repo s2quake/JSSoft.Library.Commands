@@ -68,7 +68,11 @@ namespace JSSoft.Library.Commands
 
         public string Example { get; }
 
-        public bool IsDetailed { get; set; }
+        public CommandUsage Usage { get; set; }
+
+        public bool IsDetail => this.Usage == CommandUsage.Detail;
+
+        public bool IsSimple => this.Usage == CommandUsage.Simple;
 
         private void Print(CommandTextWriter writer, CommandMemberDescriptor[] descriptors)
         {
@@ -122,7 +126,7 @@ namespace JSSoft.Library.Commands
         private void PrintDescription(CommandTextWriter writer, CommandMemberDescriptor[] _)
         {
             var description = this.Description;
-            if (description != string.Empty && this.IsDetailed == true)
+            if (description != string.Empty && this.IsDetail == true)
             {
                 writer.BeginGroup(Resources.Text_Description);
                 writer.WriteMultiline(description);
@@ -133,7 +137,7 @@ namespace JSSoft.Library.Commands
         private void PrintExample(CommandTextWriter writer)
         {
             var example = this.Example;
-            if (example != string.Empty)
+            if (example != string.Empty && this.Usage == CommandUsage.None)
             {
                 writer.BeginGroup(Resources.Text_Example);
                 writer.WriteMultiline(example);
@@ -144,7 +148,7 @@ namespace JSSoft.Library.Commands
         private void PrintRequirements(CommandTextWriter writer, CommandMemberDescriptor[] descriptors)
         {
             var items = descriptors.Where(item => item.IsRequired == true);
-            if (items.Any() == true)
+            if (items.Any() == true && this.Usage != CommandUsage.Simple)
             {
                 this.BeginGroup(writer, Resources.Text_Requirements);
                 foreach (var item in items)
@@ -158,7 +162,7 @@ namespace JSSoft.Library.Commands
         private void PrintVariables(CommandTextWriter writer, CommandMemberDescriptor[] descriptors)
         {
             var descriptor = descriptors.FirstOrDefault(item => item.Usage == CommandPropertyUsage.Variables);
-            if (descriptor != null)
+            if (descriptor != null && this.Usage != CommandUsage.Simple)
             {
                 this.BeginGroup(writer, Resources.Text_Variables);
                 this.PrintVariables(writer, descriptor);
@@ -169,7 +173,7 @@ namespace JSSoft.Library.Commands
         private void PrintOptions(CommandTextWriter writer, CommandMemberDescriptor[] descriptors)
         {
             var items = descriptors.Where(item => item.Usage == CommandPropertyUsage.General || item.Usage == CommandPropertyUsage.Switch);
-            if (items.Any() == true)
+            if (items.Any() == true && this.Usage != CommandUsage.Simple)
             {
                 this.BeginGroup(writer, Resources.Text_Options);
                 foreach (var item in items)

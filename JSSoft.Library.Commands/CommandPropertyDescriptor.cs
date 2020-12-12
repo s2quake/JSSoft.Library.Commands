@@ -115,16 +115,27 @@ namespace JSSoft.Library.Commands
                     var parseInfo = infoByDescriptor[triggerDescriptor];
                     var value1 = parseInfo.ActualValue;
                     var value2 = GetDefaultValue(triggerDescriptor.MemberType, item.Value);
+                    var value2Text = value2 is bool b ? b.ToString().ToLower() : value2.ToString();
 
                     if (item.IsInequality == false)
                     {
                         if (object.Equals(value1, value2) == false)
-                            throw new InvalidOperationException(string.Format(Resources.Exception_Trigger_CannotUseProperty_Format, this.DisplayName, triggerDescriptor.DisplayName, value2));
+                        {
+                            if (triggerDescriptor.IsSwitch == true)
+                                throw new InvalidOperationException(string.Format(Resources.Exception_Trigger_CannotUsePropertyWithSwitch_Format, this.DisplayName, triggerDescriptor.DisplayName));
+                            else
+                                throw new InvalidOperationException(string.Format(Resources.Exception_Trigger_CannotUseProperty_Format, this.DisplayName, triggerDescriptor.DisplayName, value2Text));
+                        }
                     }
                     else
                     {
                         if (object.Equals(value1, value2) == true)
-                            throw new InvalidOperationException(string.Format(Resources.Exception_Trigger_CannotUsePropertyNot_Format, this.DisplayName, triggerDescriptor.DisplayName, value2));
+                        {
+                            if (triggerDescriptor.IsSwitch == true)
+                                throw new InvalidOperationException(string.Format(Resources.Exception_Trigger_CannotUsePropertyNotWithSwitch_Format, this.DisplayName, triggerDescriptor.DisplayName));
+                            else
+                                throw new InvalidOperationException(string.Format(Resources.Exception_Trigger_CannotUsePropertyNot_Format, this.DisplayName, triggerDescriptor.DisplayName, value2Text));
+                        }
                     }
                 }
             }

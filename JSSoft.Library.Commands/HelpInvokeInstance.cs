@@ -26,8 +26,12 @@ using System.Text;
 
 namespace JSSoft.Library.Commands
 {
-    class HelpInstance
+    [ResourceDescription(nameof(HelpCommand))]
+    class HelpInvokeInstance
     {
+        [CommandPropertyRequired(DefaultValue = "")]
+        public string SubCommand { get; set; }
+
         [CommandPropertySwitch("detail")]
         [CommandPropertyTrigger(nameof(IsSimple), false)]
         public bool IsDetail { get; set; }
@@ -36,7 +40,19 @@ namespace JSSoft.Library.Commands
         [CommandPropertyTrigger(nameof(IsDetail), false)]
         public bool IsSimple { get; set; }
 
-        [CommandProperty("option")]
+        [CommandProperty("option", InitValue = "")]
         public string OptionName { get; set; }
+
+        public CommandUsage Usage
+        {
+            get
+            {
+                if (this.IsDetail == true)
+                    return CommandUsage.Detail;
+                else if (this.IsSimple == true)
+                    return CommandUsage.Simple;
+                return CommandUsage.None;
+            }
+        }
     }
 }

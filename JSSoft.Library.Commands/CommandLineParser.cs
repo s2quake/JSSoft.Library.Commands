@@ -82,29 +82,6 @@ namespace JSSoft.Library.Commands
             }
             catch
             {
-                // if (this.VerifyName(name) == true && this.Out != null)
-                // {
-                //     var (first, rest) = CommandStringUtility.Split(arguments);
-                //     if (first == string.Empty)
-                //     {
-                //         throw new CommandParseException(CommandParseResult.Empty, string.Empty, e);
-                //         // this.OnPrintSummary();
-                //     }
-                //     else if (first == this.HelpName)
-                //     {
-                //         throw new CommandParseException(CommandParseResult.Help, rest, e);
-                //         // this.OnPrintUsage(rest);
-                //     }
-                //     else if (first == this.VersionName)
-                //     {
-                //         throw new CommandParseException(CommandParseResult.Version, rest, e);
-                //         // this.OnPrintVersion();
-                //     }
-                // }
-                // else if (this.VerifyName(name) == false && this.Error != null)
-                // {
-                //     this.Error.WriteLine(e.Message);
-                // }
                 return false;
             }
         }
@@ -134,15 +111,15 @@ namespace JSSoft.Library.Commands
                     var (first, rest) = CommandStringUtility.Split(arguments);
                     if (first == string.Empty)
                     {
-                        throw new CommandParseException(CommandParseError.Empty, string.Empty, e);
+                        throw new CommandParseException(CommandParseError.Empty, arguments, true, e);
                     }
                     else if (first == this.HelpName)
                     {
-                        throw new CommandParseException(CommandParseError.Help, rest, e);
+                        throw new CommandParseException(CommandParseError.Help, arguments, true, e);
                     }
                     else if (first == this.VersionName)
                     {
-                        throw new CommandParseException(CommandParseError.Version, rest, e);
+                        throw new CommandParseException(CommandParseError.Version, arguments, true, e);
                     }
                 }
                 throw e;
@@ -227,15 +204,15 @@ namespace JSSoft.Library.Commands
                     var (first, rest) = CommandStringUtility.Split(arguments);
                     if (first == this.HelpName)
                     {
-                        throw new CommandParseException(CommandParseError.Method, rest, e);
+                        throw new CommandParseException(CommandParseError.Help, arguments, false, e);
                     }
                     else if (first == this.VersionName)
                     {
-                        throw new CommandParseException(CommandParseError.Version, rest, e);
+                        throw new CommandParseException(CommandParseError.Version, arguments, false, e);
                     }
                     else
                     {
-                        throw new CommandParseException(CommandParseError.Empty, string.Empty, e);
+                        throw new CommandParseException(CommandParseError.Empty, arguments, false, e);
                     }
                 }
                 throw;
@@ -361,27 +338,26 @@ namespace JSSoft.Library.Commands
             {
                 if (this.Out == null)
                     throw e;
+                var commandLine = ex.CommandLine;
+                var isParse = ex.IsParse;
                 switch (ex.Error)
                 {
                     case CommandParseError.Empty:
                         {
-                            this.PrintSummary();
+                            this.PrintSummary(isParse);
                         }
                         break;
                     case CommandParseError.Help:
                         {
-                            this.PrintUsage(ex.Command);
+                            if (isParse == true)
+                                this.PrintParseHelp(commandLine);
+                            else
+                                this.PrintInvokeHelp(commandLine);
                         }
                         break;
                     case CommandParseError.Version:
                         {
-                            this.OnPrintVersion();
-                        }
-                        break;
-                    case CommandParseError.Method:
-                        {
-                            var (arg1, arg2) = CommandStringUtility.Split(ex.Command);
-                            this.OnPrintMethodUsage(arg1, arg2);
+                            this.PrintVersion(commandLine);
                         }
                         break;
                 }
@@ -395,33 +371,51 @@ namespace JSSoft.Library.Commands
             }
         }
 
-        public void PrintSummary()
+        public void PrintSummary(bool isParse)
         {
             var helpName = this.HelpName;
             var name = this.ExecutionName;
             var versionName = this.VersionName;
-            var sb = new StringBuilder();
-            sb.AppendLine(string.Format(Resources.Message_HelpUsage_Format, name, helpName));
-            sb.AppendLine(string.Format(Resources.Message_VersionUsage_Format, name, versionName));
-            this.Out.WriteLine(sb.ToString());
+            this.Out.WriteLine(Resources.Message_HelpUsage_Format, name, helpName);
+            this.Out.WriteLine();
+            {
+                var parser = new CommandLineParser($"{name} {helpName}", isParse == true ? new HelpParseInstance() : new HelpInvokeInstance())
+                {
+                    Out = this.Out
+                };
+                parser.PrintUsage(string.Empty, CommandUsage.None);
+            }
 
-            // var parser = new CommandLineParser($"{name} {helpName}", new HelpInstance());
-            // parser.Out = this.Out;
-            // parser.PrintUsage(string.Empty);
+            this.Out.WriteLine();
+            this.Out.WriteLine(Resources.Message_VersionUsage_Format, name, versionName);
+            {
+                var parser = new CommandLineParser($"{name} {versionName}", new VersionInstance())
+                {
+                    Out = this.Out
+                };
+                parser.PrintUsage(string.Empty, CommandUsage.None);
+            }
         }
 
-        public void PrintVersion()
+        public void PrintVersion(bool isQuiet)
         {
             var name = this.ExecutionName;
             var version = this.Version;
             var versionInfo = this.versionInfo;
             var writer = this.Out;
-            writer.WriteLine($"{name} {version}");
-            if (versionInfo != null)
-                writer.WriteLine(versionInfo.LegalCopyright);
+            if (isQuiet == false)
+            {
+                writer.WriteLine($"{name} {version}");
+                if (versionInfo != null)
+                    writer.WriteLine(versionInfo.LegalCopyright);
+            }
+            else
+            {
+                writer.WriteLine($"{version}");
+            }
         }
 
-        public void PrintUsage(string memberName)
+        public void PrintUsage(string memberName, CommandUsage usage)
         {
             if (memberName == null)
                 throw new ArgumentNullException(nameof(memberName));
@@ -429,6 +423,7 @@ namespace JSSoft.Library.Commands
             var printer = this.MemberUsagePrinter;
             var writer = this.Out;
             var memberDescriptors = CommandDescriptor.GetMemberDescriptors(instance);
+            printer.Usage = usage;
             if (memberName == string.Empty)
             {
                 printer.Print(writer, memberDescriptors.ToArray());
@@ -442,7 +437,7 @@ namespace JSSoft.Library.Commands
             }
         }
 
-        public void PrintMethodUsage(string methodName, string memberName)
+        public void PrintMethodUsage(string methodName, string memberName, CommandUsage usage)
         {
             if (methodName == null)
                 throw new ArgumentNullException(nameof(methodName));
@@ -452,6 +447,7 @@ namespace JSSoft.Library.Commands
             var printer = this.MethodUsagePrinter;
             var writer = this.Out;
             var methodDescriptors = CommandDescriptor.GetMethodDescriptors(instance.GetType());
+            printer.Usage = usage;
             if (methodName == string.Empty)
             {
                 printer.Print(writer, methodDescriptors.ToArray());
@@ -508,38 +504,6 @@ namespace JSSoft.Library.Commands
             }
         }
 
-        protected virtual void OnPrintSummary()
-        {
-            if (this.Out != null)
-            {
-                this.PrintSummary();
-            }
-        }
-
-        protected virtual void OnPrintVersion()
-        {
-            if (this.Out != null)
-            {
-                this.PrintVersion();
-            }
-        }
-
-        protected virtual void OnPrintUsage(string memberName)
-        {
-            if (this.Out != null)
-            {
-                this.PrintUsage(memberName);
-            }
-        }
-
-        protected virtual void OnPrintMethodUsage(string methodName, string memberName)
-        {
-            if (this.Out != null)
-            {
-                this.PrintMethodUsage(methodName, memberName);
-            }
-        }
-
         protected virtual CommandMemberUsagePrinter CreateMemberUsagePrinter(string name, object instance)
         {
             return new CommandMemberUsagePrinter(name, instance);
@@ -568,6 +532,40 @@ namespace JSSoft.Library.Commands
                     this.methodUsagePrinter = this.CreateMethodUsagePrinter(this.ExecutionName, this.Instance);
                 return this.methodUsagePrinter;
             }
+        }
+
+        private void PrintVersion(string commandLine)
+        {
+            var instance = new VersionInstance();
+            var parser = new CommandLineParser(this.VersionName, instance)
+            {
+                Out = this.Out
+            };
+            parser.Parse(commandLine);
+            this.PrintVersion(instance.IsQuiet);
+        }
+
+        private void PrintParseHelp(string commandLine)
+        {
+            var instance = new HelpParseInstance();
+            var parser = new CommandLineParser(this.HelpName, instance)
+            {
+                Out = this.Out
+            };
+            parser.Parse(commandLine);
+            this.PrintUsage(instance.OptionName, instance.Usage);
+        }
+
+        private void PrintInvokeHelp(string commandLine)
+        {
+            var (arg1, arg2) = CommandStringUtility.Split(commandLine);
+            var instance = new HelpInvokeInstance();
+            var parser = new CommandLineParser(this.HelpName, instance)
+            {
+                Out = this.Out
+            };
+            parser.Parse(commandLine);
+            this.PrintMethodUsage(instance.SubCommand, instance.OptionName, instance.Usage);
         }
 
         private bool VerifyName(string name)

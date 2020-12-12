@@ -25,7 +25,7 @@ using JSSoft.Library.Commands.Properties;
 
 namespace JSSoft.Library.Commands
 {
-    [UsageDescriptionProvider(typeof(ResourceUsageDescriptionProvider))]
+    [ResourceDescription]
     [VersionCommand]
     class VersionCommand : CommandBase
     {
@@ -33,7 +33,7 @@ namespace JSSoft.Library.Commands
         {
         }
 
-        [CommandPropertySwitch('q')]
+        [CommandPropertySwitch("quiet", 'q')]
         public bool IsQuiet { get; set; }
 
         protected override void OnExecute()

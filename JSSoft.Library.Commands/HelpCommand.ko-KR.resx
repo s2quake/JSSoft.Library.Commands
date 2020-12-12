@@ -129,4 +129,10 @@
   <data name="HelpCommand.OptionName" xml:space="preserve">
     <value>지정된 명령어의 특정 옵션에 대한 사용법을 표시합니다.</value>
   </data>
+  <data name="HelpCommand.IsSimple" xml:space="preserve">
+    <value>사용법을 간단하게 표시합니다.</value>
+  </data>
+  <data name="HelpInvokeInstance.SubCommand" xml:space="preserve">
+    <value>하위 명령어 이름을 나타냅니다.</value>
+  </data>
 </root>

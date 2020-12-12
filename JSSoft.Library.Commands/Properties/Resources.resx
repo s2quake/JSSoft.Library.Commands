@@ -235,7 +235,7 @@
     <value>Could not identify version.</value>
   </data>
   <data name="Exception_InvokeAsyncInstead" xml:space="preserve">
-    <value>Asynchronous use in Invoke can pose a risk. Use InvokeAsync instead.</value>
+    <value>Use InvokeAsync because the use of asynchronous function within Invoke can cause deadlock.</value>
   </data>
   <data name="Exception_OnlyBoolTypeSwitch" xml:space="preserve">
     <value>Only the bool type can be used as a switch.</value>
@@ -254,5 +254,11 @@
   </data>
   <data name="Message_VersionUsage_Format" xml:space="preserve">
     <value>Type '{0} {1}' for version.</value>
+  </data>
+  <data name="Exception_Trigger_CannotUsePropertyWithSwitch_Format" xml:space="preserve">
+    <value>'{0}' cannot be used. Cannot be used with switch '{1}'.</value>
+  </data>
+  <data name="Exception_Trigger_CannotUsePropertyNotWithSwitch_Format" xml:space="preserve">
+    <value>'{0}' cannot be used because switch '{1}' is not specified.</value>
   </data>
 </root>
