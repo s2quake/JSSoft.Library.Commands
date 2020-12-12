@@ -376,8 +376,6 @@ namespace JSSoft.Library.Commands
             var helpName = this.HelpName;
             var name = this.ExecutionName;
             var versionName = this.VersionName;
-            this.Out.WriteLine(Resources.Message_HelpUsage_Format, name, helpName);
-            this.Out.WriteLine();
             {
                 var parser = new CommandLineParser($"{name} {helpName}", isParse == true ? new HelpParseInstance() : new HelpInvokeInstance() as object)
                 {
@@ -385,9 +383,6 @@ namespace JSSoft.Library.Commands
                 };
                 parser.PrintUsage(string.Empty, CommandUsage.None);
             }
-
-            this.Out.WriteLine();
-            this.Out.WriteLine(Resources.Message_VersionUsage_Format, name, versionName);
             {
                 var parser = new CommandLineParser($"{name} {versionName}", new VersionInstance())
                 {
@@ -395,6 +390,9 @@ namespace JSSoft.Library.Commands
                 };
                 parser.PrintUsage(string.Empty, CommandUsage.None);
             }
+            this.Out.WriteLine(Resources.Message_HelpUsage_Format, name, helpName);
+            this.Out.WriteLine(Resources.Message_VersionUsage_Format, name, versionName);
+            this.Out.WriteLine();
         }
 
         public void PrintVersion(bool isQuiet)
