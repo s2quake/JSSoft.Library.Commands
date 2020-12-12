@@ -340,6 +340,7 @@ namespace JSSoft.Library.Commands
                 }
                 this.Out.WriteLine(Resources.Message_Help_Format, this.helpCommand.Name);
                 this.Out.WriteLine(Resources.Message_Version_Format, this.versionCommand.Name);
+                this.Out.WriteLine();
             }
             else
             {
@@ -373,6 +374,7 @@ namespace JSSoft.Library.Commands
                 }
                 this.Out.WriteLine(Resources.Message_Help_Format, this.helpCommand.Name);
                 this.Out.WriteLine(Resources.Message_Version_Format, this.versionCommand.Name);
+                this.Out.WriteLine();
             }
             else
             {
