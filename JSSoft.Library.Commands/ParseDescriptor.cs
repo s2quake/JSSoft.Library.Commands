@@ -47,7 +47,7 @@ namespace JSSoft.Library.Commands
             var descriptors = ToDictionary(members);
             var variableList = new List<string>();
             var variablesDescriptor = members.Where(item => item.Usage == CommandPropertyUsage.Variables).FirstOrDefault();
-            var arguments = new Queue<string>(args);
+            var arguments = CreateQueue(args);
 
             while (arguments.Any())
             {
@@ -67,8 +67,8 @@ namespace JSSoft.Library.Commands
                         if (isValue == true)
                         {
                             var textValue = arguments.Dequeue();
-                            if (CommandStringUtility.IsWrappedOfQuote(textValue) == true)
-                                textValue = CommandStringUtility.TrimQuot(textValue);
+                            // if (CommandStringUtility.IsWrappedOfQuote(textValue) == true)
+                            //     textValue = CommandStringUtility.TrimQuot(textValue);
                             itemByDescriptor[descriptor].Value = Parser.Parse(descriptor, textValue);
                         }
                         itemByDescriptor[descriptor].HasSwtich = true;
@@ -118,8 +118,8 @@ namespace JSSoft.Library.Commands
                 {
                     var requiredDescriptor = itemByDescriptor.Where(item => item.Key.IsRequired == true && item.Key.IsExplicit == false && item.Value.IsParsed == false)
                                                           .Select(item => item.Key).FirstOrDefault();
-                    if (CommandStringUtility.IsWrappedOfQuote(arg) == true)
-                        arg = CommandStringUtility.TrimQuot(arg);
+                    // if (CommandStringUtility.IsWrappedOfQuote(arg) == true)
+                    //     arg = CommandStringUtility.TrimQuot(arg);
                     if (requiredDescriptor != null)
                     {
                         var parseInfo = itemByDescriptor[requiredDescriptor];
@@ -152,6 +152,19 @@ namespace JSSoft.Library.Commands
 
             this.Items = itemByDescriptor.Values.ToArray();
             this.unparsedArguments = unparsedArguments;
+        }
+
+        private static Queue<string> CreateQueue(string[] arguments)
+        {
+            var queue = new Queue<string>(arguments.Length);
+            foreach (var item in arguments)
+            {
+                if (CommandStringUtility.IsWrappedOfQuote(item) == true)
+                    queue.Enqueue(CommandStringUtility.TrimQuot(item));
+                else
+                    queue.Enqueue(item);
+            }
+            return queue;
         }
 
         private static IDictionary<string, CommandMemberDescriptor> ToDictionary(IEnumerable<CommandMemberDescriptor> members)

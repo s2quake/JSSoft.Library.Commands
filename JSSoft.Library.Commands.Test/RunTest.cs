@@ -38,7 +38,14 @@ namespace JSSoft.Library.Commands.Test
         [ExpectedException(typeof(ArgumentException))]
         public void TestMethod1()
         {
-            this.parser.Parse("run");
+            try
+            {
+                this.parser.Parse("run");
+            }
+            catch (CommandParseException e)
+            {
+                throw e.InnerException;
+            }
         }
 
         [TestMethod]

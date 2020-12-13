@@ -72,9 +72,16 @@ namespace JSSoft.Library.Commands.Test
         [ExpectedException(typeof(InvalidOperationException))]
         public void TestMethod3()
         {
-            var instance = new Instance3();
-            var parser = new CommandLineParser("array", instance);
-            parser.Parse("array");
+            try
+            {
+                var instance = new Instance3();
+                var parser = new CommandLineParser("array", instance);
+                parser.Parse("array");
+            }
+            catch (CommandParseException e)
+            {
+                throw e.InnerException;
+            }
         }
 
         class Instance3
