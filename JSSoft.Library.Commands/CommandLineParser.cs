@@ -98,8 +98,6 @@ namespace JSSoft.Library.Commands
             {
                 if (this.VerifyName(name) == false)
                     throw new ArgumentException(string.Format(Resources.Exception_InvalidCommandName_Format, name));
-                if (arguments == this.HelpName || arguments == this.VersionName)
-                    throw new ArgumentException();
                 var descriptors = CommandDescriptor.GetMemberDescriptors(this.Instance).ToArray();
                 var parser = new ParseDescriptor(descriptors, arguments);
                 parser.SetValue(this.Instance);

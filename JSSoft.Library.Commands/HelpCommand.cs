@@ -20,6 +20,7 @@
 // Namespaces and files starting with "Ntreev" have been renamed to "JSSoft".
 
 using JSSoft.Library.Commands.Properties;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -74,9 +75,17 @@ namespace JSSoft.Library.Commands
             {
                 var argumentList = new List<string>(this.CommandNames);
                 var command = CommandContextBase.GetCommand(this.CommandContext.Node, argumentList);
-                if (command is ICommandUsage usage)
+                if (command != null && argumentList.Any() == false)
                 {
-                    usage.Print(this.Usage);
+                    if (command is ICommandUsage usage)
+                        usage.Print(this.Usage);
+                    else
+                        throw new InvalidOperationException(Resources.Exception_NotProvideHelp);
+                }
+                else
+                {
+                    var commandName = string.Join(" ", this.CommandNames);
+                    throw new InvalidOperationException(string.Format(Resources.Exception_CommandDoesNotExists_Format, commandName));
                 }
             }
         }
