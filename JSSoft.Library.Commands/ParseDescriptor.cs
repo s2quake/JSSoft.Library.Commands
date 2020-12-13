@@ -67,8 +67,6 @@ namespace JSSoft.Library.Commands
                         if (isValue == true)
                         {
                             var textValue = arguments.Dequeue();
-                            // if (CommandStringUtility.IsWrappedOfQuote(textValue) == true)
-                            //     textValue = CommandStringUtility.TrimQuot(textValue);
                             itemByDescriptor[descriptor].Value = Parser.Parse(descriptor, textValue);
                         }
                         itemByDescriptor[descriptor].HasSwtich = true;
@@ -118,8 +116,6 @@ namespace JSSoft.Library.Commands
                 {
                     var requiredDescriptor = itemByDescriptor.Where(item => item.Key.IsRequired == true && item.Key.IsExplicit == false && item.Value.IsParsed == false)
                                                           .Select(item => item.Key).FirstOrDefault();
-                    // if (CommandStringUtility.IsWrappedOfQuote(arg) == true)
-                    //     arg = CommandStringUtility.TrimQuot(arg);
                     if (requiredDescriptor != null)
                     {
                         var parseInfo = itemByDescriptor[requiredDescriptor];
