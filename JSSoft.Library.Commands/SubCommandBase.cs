@@ -40,6 +40,16 @@ namespace JSSoft.Library.Commands
 
         public string[] Aliases => this.descriptor.Aliases;
 
+        public string ExecutionName
+        {
+            get
+            {
+                if (this.CommandContext.IsNameVisible == true)
+                    return $"{this.CommandContext.ExecutionName} {this.UsageName}";
+                return this.UsageName;
+            }
+        }
+
         public string Summary => this.descriptor.Summary;
 
         public string Description => this.descriptor.Description;
@@ -47,6 +57,8 @@ namespace JSSoft.Library.Commands
         public string Example => this.descriptor.Example;
 
         public virtual bool IsEnabled => this.descriptor.CanExecute(this.command);
+
+        public CommandContextBase CommandContext => this.command.CommandContext;
 
         public IEnumerable<CommandMemberDescriptor> Members { get; }
 
@@ -63,7 +75,7 @@ namespace JSSoft.Library.Commands
         protected virtual void PrintUsage(CommandUsage usage)
         {
             var descriptors = this.Members.ToArray();
-            var printer = new CommandMethodUsagePrinter(this.UsageName, this.command, this.Aliases) { Usage = usage };
+            var printer = new CommandMethodUsagePrinter(this.ExecutionName, this.command, this.Aliases) { Usage = usage };
             printer.Print(this.command.Out, this.descriptor, descriptors);
         }
 

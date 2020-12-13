@@ -96,7 +96,7 @@ namespace JSSoft.Library.Commands
         private void PrintList()
         {
             using var writer = new CommandTextWriter();
-            var parser = new CommandLineParser(this.Name, this)
+            var parser = new CommandLineParser(this.ExecutionName, this)
             {
                 Out = writer
             };

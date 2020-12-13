@@ -82,6 +82,16 @@ namespace JSSoft.Library.Commands
 
         public string[] Aliases { get; }
 
+        public string ExecutionName
+        {
+            get
+            {
+                if (this.CommandContext.IsNameVisible == true)
+                    return $"{this.CommandContext.ExecutionName} {this.Name}";
+                return this.Name;
+            }
+        }
+
         public virtual bool IsEnabled => true;
 
         public TextWriter Out => this.CommandContext.Out;
@@ -107,12 +117,11 @@ namespace JSSoft.Library.Commands
 
         protected virtual void PrintUsage(CommandUsage usage)
         {
-            
             var query = from command in this.node.Commands
                         from item in CommandDescriptor.GetMethodDescriptors(command.GetType())
                         where item.CanExecute(this)
                         select item;
-            var printer = new CommandMethodUsagePrinter(this.Name, this, this.Aliases) { Usage = usage };
+            var printer = new CommandMethodUsagePrinter(this.ExecutionName, this, this.Aliases) { Usage = usage };
             printer.Print(this.Out, query.ToArray());
         }
 

@@ -90,14 +90,19 @@ namespace JSSoft.Library.Commands
             {
                 try
                 {
+                    if (this.OnPreviewExecute(line) == true)
+                        continue;
                     this.commandContext.Execute(this.commandContext.Name + " " + line);
+                    this.OnExecuted(null);
                 }
                 catch (TargetInvocationException e)
                 {
+                    this.OnExecuted(e);
                     this.WriteException(e.InnerException ?? e);
                 }
                 catch (AggregateException e)
                 {
+                    this.OnExecuted(e);
                     foreach (var item in e.InnerExceptions)
                     {
                         this.WriteException(item);
@@ -105,6 +110,7 @@ namespace JSSoft.Library.Commands
                 }
                 catch (Exception e)
                 {
+                    this.OnExecuted(e);
                     this.WriteException(e);
                 }
                 if (this.IsCancellationRequested == true)
@@ -124,14 +130,19 @@ namespace JSSoft.Library.Commands
                     Console.TreatControlCAsInput = false;
                     cancellation = new CancellationTokenSource();
                     Console.CancelKeyPress += ConsoleCancelEventHandler;
+                    if (this.OnPreviewExecute(line) == true)
+                        continue;
                     await this.commandContext.ExecuteAsync(this.commandContext.Name + " " + line, cancellation.Token);
+                    this.OnExecuted(null);
                 }
                 catch (TargetInvocationException e)
                 {
+                    this.OnExecuted(e);
                     this.WriteException(e.InnerException ?? e);
                 }
                 catch (AggregateException e)
                 {
+                    this.OnExecuted(e);
                     foreach (var item in e.InnerExceptions)
                     {
                         this.WriteException(item);
@@ -139,6 +150,7 @@ namespace JSSoft.Library.Commands
                 }
                 catch (Exception e)
                 {
+                    this.OnExecuted(e);
                     this.WriteException(e);
                 }
                 finally
@@ -165,6 +177,16 @@ namespace JSSoft.Library.Commands
         protected override string[] GetCompletion(string[] items, string find)
         {
             return this.commandContext.GetCompletionInternal(items, find);
+        }
+
+        protected virtual bool OnPreviewExecute(string command)
+        {
+            return false;
+        }
+
+        protected virtual void OnExecuted(Exception e)
+        {
+
         }
 
         private void WriteException(Exception e)

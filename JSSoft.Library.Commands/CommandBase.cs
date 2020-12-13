@@ -63,6 +63,16 @@ namespace JSSoft.Library.Commands
 
         public string[] Aliases { get; }
 
+        public string ExecutionName
+        {
+            get
+            {
+                if (this.CommandContext.IsNameVisible == true)
+                    return $"{this.CommandContext.ExecutionName} {this.Name}";
+                return this.Name;
+            }
+        }
+
         public virtual bool IsEnabled => true;
 
         public TextWriter Out => this.CommandContext.Out;
@@ -86,7 +96,7 @@ namespace JSSoft.Library.Commands
         protected virtual void PrintUsage(CommandUsage usage)
         {
             var descriptors = CommandDescriptor.GetMemberDescriptors(this);
-            var printer = new CommandMemberUsagePrinter(this.Name, this, this.Aliases) { Usage = usage };
+            var printer = new CommandMemberUsagePrinter(this.ExecutionName, this, this.Aliases) { Usage = usage };
             printer.Print(this.Out, descriptors.ToArray());
         }
 
@@ -166,6 +176,16 @@ namespace JSSoft.Library.Commands
 
         public string[] Aliases { get; }
 
+        public string ExecutionName
+        {
+            get
+            {
+                if (this.CommandContext.IsNameVisible == true)
+                    return $"{this.CommandContext.ExecutionName} {this.Name}";
+                return this.Name;
+            }
+        }
+
         public virtual bool IsEnabled => true;
 
         public TextWriter Out => this.CommandContext.Out;
@@ -189,7 +209,7 @@ namespace JSSoft.Library.Commands
         protected virtual void PrintUsage(CommandUsage usage)
         {
             var descriptors = CommandDescriptor.GetMemberDescriptors(this);
-            var printer = new CommandMemberUsagePrinter(this.Name, this, this.Aliases) { Usage = usage };
+            var printer = new CommandMemberUsagePrinter(this.ExecutionName, this, this.Aliases) { Usage = usage };
             printer.Print(this.Out, descriptors.ToArray());
         }
 
