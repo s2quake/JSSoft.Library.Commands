@@ -261,4 +261,7 @@
   <data name="Exception_Trigger_CannotUsePropertyNotWithSwitch_Format" xml:space="preserve">
     <value>스위치 '{1}' 은(는) 지정되지 않았기 때문에 '{0}' 은(는) 사용할 수 없습니다.</value>
   </data>
+  <data name="Exception_NotProvideHelp" xml:space="preserve">
+    <value>해당 명령어는 도움말을 제공하지 않습니다.</value>
+  </data>
 </root>

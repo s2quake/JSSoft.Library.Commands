@@ -261,4 +261,7 @@
   <data name="Exception_Trigger_CannotUsePropertyNotWithSwitch_Format" xml:space="preserve">
     <value>'{0}' cannot be used because switch '{1}' is not specified.</value>
   </data>
+  <data name="Exception_NotProvideHelp" xml:space="preserve">
+    <value>The command does not provide help.</value>
+  </data>
 </root>

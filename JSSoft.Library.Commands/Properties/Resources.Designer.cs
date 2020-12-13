@@ -223,6 +223,15 @@ namespace JSSoft.Library.Commands.Properties {
         }
         
         /// <summary>
+        ///   The command does not provide help.과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string Exception_NotProvideHelp {
+            get {
+                return ResourceManager.GetString("Exception_NotProvideHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Only the bool type can be used as a switch.과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
         public static string Exception_OnlyBoolTypeSwitch {
