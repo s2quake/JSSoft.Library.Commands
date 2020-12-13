@@ -147,6 +147,36 @@ namespace JSSoft.Library.Commands
             this.OnExecuted(EventArgs.Empty);
         }
 
+        public static void PrintDefaultUsage(CommandContextBase commandContext)
+        {
+            var helpCommand = commandContext.HelpCommand;
+            var versionCommand = commandContext.VersionCommand;
+            var helpName = helpCommand.Name;
+            var name = commandContext.ExecutionName;
+            var versionName = versionCommand.Name;
+            var isNameVisible = commandContext.IsNameVisible;
+            var writer = commandContext.Out;
+            if (helpCommand is ICommandUsage helpUsage)
+            {
+                helpUsage.Print(CommandUsage.None);
+            }
+            if (versionCommand is ICommandUsage versionUsage)
+            {
+                versionUsage.Print(CommandUsage.None);
+            }
+            if (isNameVisible == true)
+            {
+                writer.WriteLine(Resources.Message_HelpUsage_Format, name, helpName);
+                writer.WriteLine(Resources.Message_VersionUsage_Format, name, versionName);
+            }
+            else
+            {
+                writer.WriteLine(Resources.Message_Help_Format, helpName);
+                writer.WriteLine(Resources.Message_Version_Format, versionName);
+            }
+            writer.WriteLine();
+        }
+
         public TextWriter Out { get; set; } = Console.Out;
 
         public TextWriter Error { get; set; } = Console.Error;
@@ -179,6 +209,12 @@ namespace JSSoft.Library.Commands
         public ICommandNode Node => this.commandNode;
 
         public string BaseDirectory { get; set; } = Directory.GetCurrentDirectory();
+
+        public Action<CommandContextBase> DefaultUsage { get; set; } = PrintDefaultUsage;
+
+        public ICommand HelpCommand => this.helpCommand;
+
+        public ICommand VersionCommand => this.versionCommand;
 
         public event EventHandler Executed;
 
@@ -419,28 +455,7 @@ namespace JSSoft.Library.Commands
 
             if (commandLine == string.Empty)
             {
-                var helpName = this.helpCommand.Name;
-                var name = this.ExecutionName;
-                var versionName = this.versionCommand.Name;
-                if (this.helpCommand is ICommandUsage helpUsage)
-                {
-                    helpUsage.Print(CommandUsage.None);
-                }
-                if (this.versionCommand is ICommandUsage versionUsage)
-                {
-                    versionUsage.Print(CommandUsage.None);
-                }
-                if (this.IsNameVisible == true)
-                {
-                    this.Out.WriteLine(Resources.Message_HelpUsage_Format, name, helpName);
-                    this.Out.WriteLine(Resources.Message_VersionUsage_Format, name, versionName);
-                }
-                else
-                {
-                    this.Out.WriteLine(Resources.Message_Help_Format, helpName);
-                    this.Out.WriteLine(Resources.Message_Version_Format, versionName);
-                }
-                this.Out.WriteLine();
+                this.DefaultUsage?.Invoke(this);
             }
             else
             {
