@@ -84,6 +84,8 @@ namespace JSSoft.Library.Commands
         {
             if (this.VerifyName(name) == false)
                 return null;
+            if (arguments == null)
+                throw new ArgumentNullException(nameof(arguments));
             var args = CommandStringUtility.SplitAll(arguments);
             var argList = new List<string>(args);
             return GetCommand(this.commandNode, argList);
@@ -99,6 +101,8 @@ namespace JSSoft.Library.Commands
         {
             if (this.VerifyName(name) == false)
                 throw new ArgumentException(string.Format(Resources.Exception_InvalidCommandName_Format, name));
+            if (arguments == null)
+                throw new ArgumentNullException(nameof(arguments));
             this.ExecuteInternal(arguments);
             this.OnExecuted(EventArgs.Empty);
         }
@@ -131,6 +135,8 @@ namespace JSSoft.Library.Commands
         {
             if (this.VerifyName(name) == false)
                 throw new ArgumentException(string.Format(Resources.Exception_InvalidCommandName_Format, name));
+            if (arguments == null)
+                throw new ArgumentNullException(nameof(arguments));
             await this.ExecuteInternalAsync(arguments, cancellationToken);
             this.OnExecuted(EventArgs.Empty);
         }
@@ -407,28 +413,7 @@ namespace JSSoft.Library.Commands
         {
             if (commandLine == string.Empty)
             {
-                var helpName = this.helpCommand.Name;
-                var name = this.ExecutionName;
-                var versionName = this.versionCommand.Name;
-                if (this.helpCommand is ICommandUsage helpUsage)
-                {
-                    helpUsage.Print(CommandUsage.None);
-                }
-                if (this.versionCommand is ICommandUsage versionUsage)
-                {
-                    versionUsage.Print(CommandUsage.None);
-                }
-                if (this.IsNameVisible == true)
-                {
-                    this.Out.WriteLine(Resources.Message_HelpUsage_Format, name, helpName);
-                    this.Out.WriteLine(Resources.Message_VersionUsage_Format, name, versionName);
-                }
-                else
-                {
-                    this.Out.WriteLine(Resources.Message_Help_Format, helpName);
-                    this.Out.WriteLine(Resources.Message_Version_Format, versionName);
-                }
-                this.Out.WriteLine();
+                this.DefaultUsage?.Invoke(this);
             }
             else
             {
@@ -450,9 +435,6 @@ namespace JSSoft.Library.Commands
 
         private async Task ExecuteInternalAsync(string commandLine, CancellationToken cancellationToken)
         {
-            if (commandLine == null)
-                throw new ArgumentNullException(nameof(commandLine));
-
             if (commandLine == string.Empty)
             {
                 this.DefaultUsage?.Invoke(this);
