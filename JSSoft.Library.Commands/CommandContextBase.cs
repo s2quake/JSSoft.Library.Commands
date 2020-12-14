@@ -153,7 +153,7 @@ namespace JSSoft.Library.Commands
             this.OnExecuted(EventArgs.Empty);
         }
 
-        public static void PrintDefaultUsage(CommandContextBase commandContext)
+        public static void PrintBaseUsage(CommandContextBase commandContext)
         {
             var helpCommand = commandContext.HelpCommand;
             var versionCommand = commandContext.VersionCommand;
@@ -216,7 +216,7 @@ namespace JSSoft.Library.Commands
 
         public string BaseDirectory { get; set; } = Directory.GetCurrentDirectory();
 
-        public Action<CommandContextBase> DefaultUsage { get; set; } = PrintDefaultUsage;
+        public Action<CommandContextBase> BaseUsage { get; set; } = PrintBaseUsage;
 
         public ICommand HelpCommand => this.helpCommand;
 
@@ -413,7 +413,7 @@ namespace JSSoft.Library.Commands
         {
             if (commandLine == string.Empty)
             {
-                this.DefaultUsage?.Invoke(this);
+                this.BaseUsage?.Invoke(this);
             }
             else
             {
@@ -437,7 +437,7 @@ namespace JSSoft.Library.Commands
         {
             if (commandLine == string.Empty)
             {
-                this.DefaultUsage?.Invoke(this);
+                this.BaseUsage?.Invoke(this);
             }
             else
             {
