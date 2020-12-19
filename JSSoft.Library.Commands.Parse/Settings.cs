@@ -23,7 +23,7 @@ using System.ComponentModel;
 
 namespace JSSoft.Library.Commands.Parse
 {
-    [ResourceDescription]
+    [ResourceUsageDescription]
     [CommandStaticProperty(typeof(GlobalSettings))]
     class Settings
     {

@@ -26,7 +26,7 @@ using System.Text;
 
 namespace JSSoft.Library.Commands
 {
-    [ResourceDescription(nameof(HelpCommand))]
+    [ResourceUsageDescription(nameof(HelpCommand))]
     class HelpInvokeInstance
     {
         [CommandPropertyRequired(DefaultValue = "")]

@@ -26,7 +26,7 @@ using System.ComponentModel.Composition;
 namespace JSSoft.Library.Commands.Repl.Commands
 {
     [Export(typeof(ICommand))]
-    [ResourceDescription]
+    [ResourceUsageDescription]
     [CommandStaticProperty(typeof(GlobalSettings))]
     class AddCommand : CommandBase
     {

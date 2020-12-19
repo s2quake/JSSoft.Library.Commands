@@ -19,37 +19,33 @@
 // Forked from https://github.com/NtreevSoft/CommandLineParser
 // Namespaces and files starting with "Ntreev" have been renamed to "JSSoft".
 
-using JSSoft.Library.Commands.Properties;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System;
 
 namespace JSSoft.Library.Commands
 {
-    [ResourceUsageDescription(nameof(HelpCommand))]
-    class HelpParseInstance
+    public class ResourceUsageDescriptionAttribute : UsageDescriptionProviderAttribute
     {
-        [CommandPropertySwitch("detail")]
-        [CommandPropertyTrigger(nameof(IsSimple), false)]
-        public bool IsDetail { get; set; }
-
-        [CommandPropertySwitch("simple")]
-        [CommandPropertyTrigger(nameof(IsDetail), false)]
-        public bool IsSimple { get; set; }
-
-        [CommandProperty("option", InitValue = "")]
-        public string OptionName { get; set; }
-
-        public CommandUsage Usage
+        public ResourceUsageDescriptionAttribute()
+            : this(string.Empty)
         {
-            get
-            {
-                if (this.IsDetail == true)
-                    return CommandUsage.Detail;
-                else if (this.IsSimple == true)
-                    return CommandUsage.Simple;
-                return CommandUsage.None;
-            }
+        }
+
+        public ResourceUsageDescriptionAttribute(string resourcePath)
+            : base(typeof(ResourceUsageDescriptionProvider))
+        {
+            this.ResourcePath = resourcePath ?? throw new ArgumentNullException(nameof(resourcePath));
+        }
+
+        public string ResourcePath { get; } = string.Empty;
+
+        protected override IUsageDescriptionProvider CreateInstance(Type type)
+        {
+            var name = this.ResourcePath == string.Empty ? type.Name : this.ResourcePath;
+            var relativeUri = new Uri(name, UriKind.Relative);
+            var uri = new Uri($"http://www.jssoft.com/{type.FullName.Replace('.', '/')}");
+            var path = new Uri(uri, relativeUri);
+            var resourceName = path.LocalPath.Replace('/', '.').TrimStart('.');
+            return new ResourceUsageDescriptionProvider(resourceName);
         }
     }
 }

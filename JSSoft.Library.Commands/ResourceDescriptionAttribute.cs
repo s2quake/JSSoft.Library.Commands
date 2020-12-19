@@ -23,7 +23,8 @@ using System;
 
 namespace JSSoft.Library.Commands
 {
-    public sealed class ResourceDescriptionAttribute : UsageDescriptionProviderAttribute
+    [Obsolete]
+    public sealed class ResourceDescriptionAttribute : ResourceUsageDescriptionAttribute
     {
         public ResourceDescriptionAttribute()
             : this(string.Empty)
@@ -31,21 +32,8 @@ namespace JSSoft.Library.Commands
         }
 
         public ResourceDescriptionAttribute(string resourcePath)
-            : base(typeof(ResourceUsageDescriptionProvider))
+            : base(resourcePath)
         {
-            this.ResourcePath = resourcePath ?? throw new ArgumentNullException(nameof(resourcePath));
-        }
-
-        public string ResourcePath { get; } = string.Empty;
-
-        protected override IUsageDescriptionProvider CreateInstance(Type type)
-        {
-            var name = this.ResourcePath == string.Empty ? type.Name : this.ResourcePath;
-            var relativeUri = new Uri(name, UriKind.Relative);
-            var uri = new Uri($"http://www.jssoft.com/{type.FullName.Replace('.', '/')}");
-            var path = new Uri(uri, relativeUri);
-            var resourceName = path.LocalPath.Replace('/', '.').TrimStart('.');
-            return new ResourceUsageDescriptionProvider(resourceName);
         }
     }
 }

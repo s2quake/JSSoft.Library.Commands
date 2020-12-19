@@ -24,7 +24,7 @@ using System;
 namespace JSSoft.Library.Commands.Invoke
 {
     [ConsoleModeOnly]
-    [ResourceDescription]
+    [ResourceUsageDescription]
     static class StaticCommand
     {
         [CommandMethod]

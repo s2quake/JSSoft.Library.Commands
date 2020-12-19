@@ -26,7 +26,7 @@ using System.Text;
 
 namespace JSSoft.Library.Commands
 {
-    [ResourceDescription(nameof(VersionCommand))]
+    [ResourceUsageDescription(nameof(VersionCommand))]
     class VersionInstance
     {
         [CommandPropertySwitch("quiet", 'q')]

@@ -27,7 +27,7 @@ using System.IO;
 namespace JSSoft.Library.Commands.Repl.Commands
 {
     [Export(typeof(ICommand))]
-    [ResourceDescription]
+    [ResourceUsageDescription]
     class ListDirectoryCommand : CommandBase
     {
         public ListDirectoryCommand()

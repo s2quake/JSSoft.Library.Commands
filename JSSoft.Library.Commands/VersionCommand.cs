@@ -25,7 +25,7 @@ using JSSoft.Library.Commands.Properties;
 
 namespace JSSoft.Library.Commands
 {
-    [ResourceDescription]
+    [ResourceUsageDescription]
     [VersionCommand]
     class VersionCommand : CommandBase
     {

@@ -26,7 +26,7 @@ namespace JSSoft.Library.Commands.Repl.Commands
 {
     [Export(typeof(ICommand))]
     [PartialCommandAttribute]
-    [ResourceDescription]
+    [ResourceUsageDescription]
     class StashCommandExtension : CommandMethodBase
     {
         public StashCommandExtension()
