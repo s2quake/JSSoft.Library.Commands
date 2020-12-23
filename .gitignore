@@ -22,6 +22,7 @@
 .vs/
 .vscode/
 bin/
+publish/
 obj/
 logs/
 .DS_Store
