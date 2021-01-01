@@ -2,7 +2,7 @@
    "version": "0.2.0",
    "configurations": [
         {
-            "name": ".NET Core Launch (parse)",
+            "name": "launch-commands-parse",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
@@ -12,7 +12,7 @@
             "stopAtEntry": false
         },
         {
-            "name": ".NET Core Launch (invoke)",
+            "name": "launch-commands-invoke",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
@@ -22,7 +22,7 @@
             "stopAtEntry": false
         },
         {
-            "name": ".NET Core Launch (repl)",
+            "name": "launch-commands-repl",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
@@ -30,12 +30,6 @@
             "args": "",
             "console": "integratedTerminal",
             "stopAtEntry": false
-        },
-        {
-            "name": ".NET Core Attach",
-            "type": "coreclr",
-            "request": "attach",
-            "processId": "${command:pickProcess}"
         }
     ]
 }
