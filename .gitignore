@@ -19,11 +19,15 @@
 # Forked from https://github.com/NtreevSoft/CommandLineParser
 # Namespaces and files starting with "Ntreev" have been renamed to "JSSoft".
 
-.vs/
-.vscode/
 bin/
 publish/
 obj/
 logs/
+packages/
 .DS_Store
-**/launchSettings.json
+.vs/
+.vscode/
+*.user
+*.suo
+launchSettings.json
+build-temp.ps1
