@@ -29,7 +29,7 @@ namespace JSSoft.Library.Commands
     public class CommandContextTerminal : Terminal
     {
         private readonly CommandContextBase commandContext;
-        private string prompt;
+        private string prompt1;
         private string prefix;
         private string postfix;
 
@@ -40,11 +40,11 @@ namespace JSSoft.Library.Commands
 
         public new string Prompt
         {
-            get => this.prompt ?? string.Empty;
+            get => this.prompt1 ?? string.Empty;
             set
             {
-                this.prompt = value;
-                if (this.IsReading == true)
+                this.prompt1 = value;
+                // if (this.IsReading == true)
                 {
                     this.SetPrompt(this.Prefix + this.Prompt + this.Postfix);
                 }

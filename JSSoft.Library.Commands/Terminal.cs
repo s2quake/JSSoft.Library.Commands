@@ -42,12 +42,16 @@ namespace JSSoft.Library.Commands
 
         private int y = Console.CursorTop;
         private int width = Console.BufferWidth;
-        private int fullIndex;
-        private int start = 0;
+        // private int fullIndex;
+        // private int start = 0;
         private int historyIndex;
-        private string fullText;
+        private string prompt = string.Empty;
+        private string command = string.Empty;
+        private string promptText = string.Empty;
+        // private string fullText;
         private string inputText;
         private string completion = string.Empty;
+        private int cursorPosition;
         private TextWriter writer;
         private TextWriter errorWriter;
         private bool isHidden;
@@ -272,7 +276,7 @@ namespace JSSoft.Library.Commands
         {
             lock (LockedObject)
             {
-                if (this.Index < this.Length)
+                if (this.Index < this.command.Length)
                 {
                     using (TerminalCursorVisible.Set(false))
                     {
@@ -301,7 +305,7 @@ namespace JSSoft.Library.Commands
             {
                 using (TerminalCursorVisible.Set(false))
                 {
-                    this.Index = this.Length;
+                    this.Index = this.command.Length;
                 }
             }
         }
@@ -325,7 +329,7 @@ namespace JSSoft.Library.Commands
         {
             lock (LockedObject)
             {
-                if (this.Index + 1 <= this.Length)
+                if (this.Index + 1 <= this.command.Length)
                 {
                     using (TerminalCursorVisible.Set(false))
                     {
@@ -358,7 +362,7 @@ namespace JSSoft.Library.Commands
                 using (TerminalCursorVisible.Set(false))
                 {
                     var index = this.Index;
-                    this.Index = this.Length;
+                    this.Index = this.command.Length;
                     while (this.Index > index)
                     {
                         this.BackspaceImpl();
@@ -399,15 +403,36 @@ namespace JSSoft.Library.Commands
             }
         }
 
+        [Obsolete]
         public int Index
         {
-            get => this.FullIndex - this.start;
-            set => this.FullIndex = value + this.start;
+            get => this.CursorPosition;
+            set => this.CursorPosition = value;
         }
 
-        public string Text => this.fullText.Substring(this.start);
+        public int CursorPosition
+        {
+            get => this.cursorPosition;
+            set
+            {
+                this.cursorPosition = value;
+                if (this.isHidden == false)
+                {
+                    var x = 0;
+                    var y = this.Top;
+                    var index = this.prompt.Length + value;
+                    var text = this.promptText.Substring(0, index);
+                    NextPosition(text, ref x, ref y);
+                    y = Math.Min(y, Console.BufferHeight - 1);
+                    Console.SetCursorPosition(x, 0);
+                    Console.SetCursorPosition(x, y);
+                }
+            }
+        }
 
-        public string Prompt => this.fullText.Substring(0, this.start);
+        public string Text => this.command;
+
+        public string Prompt => this.prompt;
 
         public bool IsReading => this.writer != null;
 
@@ -417,7 +442,7 @@ namespace JSSoft.Library.Commands
             {
                 if (this.width != Console.BufferWidth)
                 {
-                    this.y = Console.CursorTop - this.fullIndex / Console.BufferWidth;
+                    this.y = Console.CursorTop - (this.prompt.Length + this.cursorPosition) / Console.BufferWidth;
                     this.width = Console.BufferWidth;
                 }
                 return this.y;
@@ -511,21 +536,23 @@ namespace JSSoft.Library.Commands
 
         public void SetPrompt(string prompt)
         {
-            if (this.writer == null)
-                throw new InvalidOperationException(Resources.Exception_PromptCannotSet);
+            // if (this.writer == null)
+            //     throw new InvalidOperationException(Resources.Exception_PromptCannotSet);
 
             lock (LockedObject)
             {
                 using (TerminalCursorVisible.Set(false))
                 {
                     var text = this.Text;
-                    var index = this.Index;
-                    this.start = 0;
-                    this.Clear();
-                    this.InsertText(prompt);
-                    this.start = this.Index;
-                    this.InsertText(text);
-                    this.Index = index;
+                    // var index = this.Index;
+                    this.prompt = prompt;
+                    this.promptText = this.prompt + this.command;
+                    // this.start = 0;
+                    // this.Clear();
+                    // this.InsertText(prompt);
+                    // this.start = this.Index;
+                    // this.InsertText(text);
+                    // this.Index = index;
                     this.Draw();
                 }
             }
@@ -563,7 +590,7 @@ namespace JSSoft.Library.Commands
             writer.Write(text);
         }
 
-        private int Length => this.fullText.Length - this.start;
+        // private int Length => this.fullText.Length - this.start;
 
         private void ClearText()
         {
@@ -572,9 +599,11 @@ namespace JSSoft.Library.Commands
                 var x = 0;
                 var y = this.Top;
                 this.Erase();
-                this.fullText = this.fullText.Substring(0, this.start);
-                this.start = this.fullText.Length;
-                this.fullIndex = this.start;
+                this.command = string.Empty;
+                this.cursorPosition = 0;
+                // this.fullText = this.fullText.Substring(0, this.start);
+                // this.start = this.fullText.Length;
+                // this.fullIndex = this.start;
                 this.inputText = string.Empty;
                 Console.SetCursorPosition(x, y);
                 this.Draw();
@@ -587,24 +616,26 @@ namespace JSSoft.Library.Commands
                 return;
             lock (LockedObject)
             {
-                this.fullText = this.fullText.Insert(this.fullIndex, text);
-                this.fullIndex += text.Length;
+                this.command = this.command.Insert(this.cursorPosition, text);
+                this.promptText = this.prompt + this.command;
+                // this.fullText = this.fullText.Insert(this.fullIndex, text);
+                // this.fullIndex += text.Length;
 
                 if (this.isHidden == true)
                     return;
 
-                var index = this.fullIndex;
-                var text1 = this.fullText.Substring(this.start);
+                // var index = this.fullIndex;
+                // var text1 = this.fullText.Substring(this.start);
 
                 using (TerminalCursorVisible.Set(false))
                 {
-                    this.FullIndex = this.start;
-                    this.OnDrawText(this.writer, text1);
+                    // this.FullIndex = this.start;
+                    this.OnDrawText(this.writer, text);
 
 
                     var x = 0;
                     var y = this.Top;
-                    NextPosition(this.fullText, ref x, ref y);
+                    NextPosition(this.promptText, ref x, ref y);
 
                     if (y >= Console.BufferHeight)
                     {
@@ -614,27 +645,28 @@ namespace JSSoft.Library.Commands
                         }
                         this.y--;
                     }
-                    this.FullIndex = index;
+                    this.cursorPosition += text.Length;
                 }
             }
         }
 
         private void BackspaceImpl()
         {
-            var extraText = this.fullText.Substring(this.fullIndex);
-            var inputIndex = this.Index;
-            this.Index = this.Length;
+            var extraText = this.command.Substring(this.cursorPosition);
+            var inputIndex = this.cursorPosition;
+            // this.Index = this.Length;
+            // this.CursorPosition = this.command.Length;
             if (this.isHidden == false)
             {
                 if (Console.CursorLeft == 0)
                 {
-                    _ = this.Index;
-                    this.Index--;
+                    this.CursorPosition--;
+                    // this.Index--;
                     if (Environment.OSVersion.Platform == PlatformID.Unix)
                         this.writer.Write(" ");
                     else
                         this.writer.Write("\0");
-                    this.Index--;
+                    this.CursorPosition--;
                 }
                 else
                 {
@@ -645,14 +677,16 @@ namespace JSSoft.Library.Commands
                 }
             }
 
-            this.Index = inputIndex;
-            this.Index--;
-            this.fullText = this.fullText.Remove(this.fullIndex, 1);
+            this.CursorPosition--;
+            // this.CursorPosition = inputIndex;
+            // this.fullText = this.fullText.Remove(this.fullIndex, 1);
+            var i = this.cursorPosition;
+            this.command = this.command.Remove(this.cursorPosition, 1);
             if (this.isHidden == false)
             {
                 this.writer.Write(extraText);
             }
-            this.Index = this.Index;
+            this.CursorPosition = i;
         }
 
         private void CompletionImpl(Func<string[], string, string> func)
@@ -765,9 +799,9 @@ namespace JSSoft.Library.Commands
                     else if (key.Key == ConsoleKey.Enter)
                     {
                         var text = this.Text;
-                        this.fullText = string.Empty;
-                        this.start = 0;
-                        this.fullIndex = 0;
+                        this.command = string.Empty;
+                        this.promptText = this.prompt + this.command;
+                        this.cursorPosition = 0;
 
                         if (recordHistory == true)
                         {
@@ -804,22 +838,14 @@ namespace JSSoft.Library.Commands
         {
             while (this.isCancellationRequested == false)
             {
-                var count = 0;
-                while (true)
+                if (Console.KeyAvailable == true)
                 {
-                    if (Console.KeyAvailable == true)
-                    {
-                        yield return Console.ReadKey(true);
-                    }
-                    else if (count > 1)
-                    {
-                        yield break;
-                    }
-                    else
-                    {
-                        Thread.Sleep(1);
-                        count++;
-                    }
+                    yield return Console.ReadKey(true);
+                    yield break;
+                }
+                else
+                {
+                    Thread.Sleep(1);
                 }
             }
         }
@@ -854,13 +880,15 @@ namespace JSSoft.Library.Commands
 
                 this.y = Console.CursorTop;
                 this.width = Console.BufferWidth;
-                this.start = 0;
+                // this.start = 0;
                 this.isHidden = false;
-                this.fullText = prompt;
-                this.fullIndex = prompt.Length;
-                this.OnDrawPrompt(this.writer, this.fullText);
-                this.FullIndex = this.fullIndex;
-                this.start = this.fullIndex;
+                // this.fullText = prompt;
+                // this.fullIndex = prompt.Length;
+                this.command = string.Empty;
+                this.cursorPosition = 0;
+                this.OnDrawPrompt(this.writer, this.prompt);
+                // this.FullIndex = this.fullIndex;
+                // this.start = this.fullIndex;
                 this.isHidden = isHidden;
                 this.InsertText(defaultText);
                 this.inputText = defaultText;
@@ -929,8 +957,8 @@ namespace JSSoft.Library.Commands
             var x1 = Console.CursorLeft;
             var y1 = Console.CursorTop;
 
-            var prompt = this.fullText.Substring(0, this.start);
-            var text = this.isHidden == true ? string.Empty : this.fullText.Substring(this.start);
+            // var prompt = this.fullText.Substring(0, this.start);
+            var text = this.isHidden == true ? string.Empty : this.command;
             var x = 0;
             var y = this.y;
             NextPosition(prompt, ref x, ref y);
@@ -954,12 +982,14 @@ namespace JSSoft.Library.Commands
 
         internal void Draw()
         {
+            if (this.writer == null)
+                return;
             Console.SetCursorPosition(0, this.y);
-            var index = this.FullIndex;
+            // var index = this.FullIndex;
             var y = Console.CursorTop;
             var x = 0;
-            var prompt = this.fullText.Substring(0, this.start);
-            var text = this.isHidden == true ? string.Empty : this.fullText.Substring(this.start);
+            // var prompt = this.fullText.Substring(0, this.start);
+            var text = this.isHidden == true ? string.Empty : this.command;
             this.OnDrawPrompt(this.writer, prompt);
             this.OnDrawText(this.writer, text);
             NextPosition(prompt, ref x, ref y);
@@ -973,29 +1003,32 @@ namespace JSSoft.Library.Commands
                 }
                 this.y--;
             }
-            if (index < this.FullIndex)
-                this.FullIndex = index;
+            // if (index < this.FullIndex)
+            //     this.FullIndex = index;
         }
 
         internal static object LockedObject { get; } = new object();
 
-        internal int FullIndex
-        {
-            get => this.fullIndex;
-            set
-            {
-                if (value < 0 || value > this.fullText.Length)
-                    throw new ArgumentOutOfRangeException(nameof(value));
+        // internal int FullIndex
+        // {
+        //     get => this.fullIndex;
+        //     set
+        //     {
+        //         if (value < 0 || value > this.fullText.Length)
+        //             throw new ArgumentOutOfRangeException(nameof(value));
 
-                this.fullIndex = value;
-                if (this.isHidden == false)
-                {
-                    var x = 0;
-                    var y = this.Top;
-                    NextPosition(this.fullText.Substring(0, value), ref x, ref y);
-                    Console.SetCursorPosition(x, Math.Min(y, Console.BufferHeight - 1));
-                }
-            }
-        }
+        //         this.fullIndex = value;
+        //         if (this.isHidden == false)
+        //         {
+        //             var x = 0;
+        //             var y = this.Top;
+        //             var text = this.fullText.Substring(0, value);
+        //             NextPosition(text, ref x, ref y);
+        //             y = Math.Min(y, Console.BufferHeight - 1);
+        //             Console.SetCursorPosition(x, 0);
+        //             Console.SetCursorPosition(x, y);
+        //         }
+        //     }
+        // }
     }
 }
