@@ -650,43 +650,70 @@ namespace JSSoft.Library.Commands
             }
         }
 
+        private void SetCursorPosition(int cursorPosition)
+        {
+            var position = this.isHidden == true ? 0 : cursorPosition;
+            var x = 0;
+            var y = this.Top;
+            var index = this.prompt.Length + position;
+            var text = this.promptText.Substring(0, index);
+            NextPosition(text, ref x, ref y);
+            y = Math.Min(y, Console.BufferHeight - 1);
+            Console.SetCursorPosition(x, 0);
+            Console.SetCursorPosition(x, y);
+        }
+
         private void BackspaceImpl()
         {
-            var extraText = this.command.Substring(this.cursorPosition);
-            var inputIndex = this.cursorPosition;
+            var extra = this.command.Substring(this.cursorPosition);
+            var cursorPosition = this.cursorPosition;
+            var command = this.command.Remove(this.cursorPosition - 1, 1);
+            var endPosition = this.command.Length;
             // this.Index = this.Length;
             // this.CursorPosition = this.command.Length;
+
             if (this.isHidden == false)
             {
                 if (Console.CursorLeft == 0)
                 {
-                    this.CursorPosition--;
+                    // this.CursorPosition--;
                     // this.Index--;
-                    if (Environment.OSVersion.Platform == PlatformID.Unix)
-                        this.writer.Write(" ");
-                    else
-                        this.writer.Write("\0");
-                    this.CursorPosition--;
-                }
-                else
-                {
+                    this.SetCursorPosition(endPosition);
                     if (Environment.OSVersion.Platform == PlatformID.Win32NT)
                         this.writer.Write("\b \b");
                     else
                         this.writer.Write("\b \b");
+                    this.SetCursorPosition(cursorPosition - 1);
+                    if (Environment.OSVersion.Platform == PlatformID.Unix)
+                        this.writer.Write(" ");
+                    else
+                        this.writer.Write("\0");
+                    this.SetCursorPosition(--cursorPosition);
+                }
+                else
+                {
+                    this.SetCursorPosition(endPosition);
+                    if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+                        this.writer.Write("\b \b");
+                    else
+                        this.writer.Write("\b \b");
+                    this.SetCursorPosition(--cursorPosition);
                 }
             }
 
-            this.CursorPosition--;
+            // this.CursorPosition--;
             // this.CursorPosition = inputIndex;
             // this.fullText = this.fullText.Remove(this.fullIndex, 1);
-            var i = this.cursorPosition;
-            this.command = this.command.Remove(this.cursorPosition, 1);
+            // var i = this.cursorPosition;
+            // this.command = this.command.Remove(this.cursorPosition, 1);
             if (this.isHidden == false)
             {
-                this.writer.Write(extraText);
+                this.writer.Write(extra);
             }
-            this.CursorPosition = i;
+            this.SetCursorPosition(cursorPosition);
+            this.command = command;
+            this.promptText = this.prompt + this.command;
+            this.cursorPosition = cursorPosition;
         }
 
         private void CompletionImpl(Func<string[], string, string> func)
