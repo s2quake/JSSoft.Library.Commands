@@ -27,7 +27,6 @@
             "name": "launch-commands-repl",
             "type": "coreclr",
             "request": "launch",
-            "preLaunchTask": "build",
             "program": "${workspaceFolder}/JSSoft.Library.Commands.Repl/bin/Debug/netcoreapp3.1/repl.dll",
             "args": "",
             "console": "integratedTerminal",

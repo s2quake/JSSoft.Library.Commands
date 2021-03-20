@@ -276,11 +276,11 @@ namespace JSSoft.Library.Commands
         {
             lock (LockedObject)
             {
-                if (this.Index < this.command.Length)
+                if (this.cursorPosition < this.command.Length)
                 {
                     using (TerminalCursorVisible.Set(false))
                     {
-                        this.Index++;
+                        this.CursorPosition++;
                         this.Backspace();
                         this.SetInputText();
                     }
@@ -292,10 +292,7 @@ namespace JSSoft.Library.Commands
         {
             lock (LockedObject)
             {
-                using (TerminalCursorVisible.Set(false))
-                {
-                    this.Index = 0;
-                }
+                this.CursorPosition = 0;
             }
         }
 
@@ -303,10 +300,7 @@ namespace JSSoft.Library.Commands
         {
             lock (LockedObject)
             {
-                using (TerminalCursorVisible.Set(false))
-                {
-                    this.Index = this.command.Length;
-                }
+                this.CursorPosition = this.command.Length;
             }
         }
 
@@ -314,13 +308,10 @@ namespace JSSoft.Library.Commands
         {
             lock (LockedObject)
             {
-                if (this.Index > 0)
+                if (this.CursorPosition > 0)
                 {
-                    using (TerminalCursorVisible.Set(false))
-                    {
-                        this.Index--;
-                        this.SetInputText();
-                    }
+                    this.CursorPosition--;
+                    this.SetInputText();
                 }
             }
         }
@@ -329,13 +320,10 @@ namespace JSSoft.Library.Commands
         {
             lock (LockedObject)
             {
-                if (this.Index + 1 <= this.command.Length)
+                if (this.CursorPosition < this.command.Length)
                 {
-                    using (TerminalCursorVisible.Set(false))
-                    {
-                        this.Index++;
-                        this.SetInputText();
-                    }
+                    this.CursorPosition++;
+                    this.SetInputText();
                 }
             }
         }
@@ -344,13 +332,10 @@ namespace JSSoft.Library.Commands
         {
             lock (LockedObject)
             {
-                if (this.Index > 0)
+                if (this.CursorPosition > 0)
                 {
-                    using (TerminalCursorVisible.Set(false))
-                    {
-                        this.BackspaceImpl();
-                        this.SetInputText();
-                    }
+                    this.BackspaceImpl();
+                    this.SetInputText();
                 }
             }
         }
@@ -359,16 +344,12 @@ namespace JSSoft.Library.Commands
         {
             lock (LockedObject)
             {
-                using (TerminalCursorVisible.Set(false))
-                {
-                    var index = this.Index;
-                    this.Index = this.command.Length;
-                    while (this.Index > index)
-                    {
-                        this.BackspaceImpl();
-                    }
-                    this.SetInputText();
-                }
+                this.command = this.command.Substring(this.cursorPosition);
+                this.inputText = this.command;
+                this.completion = string.Empty;
+                this.promptText = this.prompt + this.command;
+                if (this.writer != null)
+                    this.Draw();
             }
         }
 
@@ -376,14 +357,12 @@ namespace JSSoft.Library.Commands
         {
             lock (LockedObject)
             {
-                using (TerminalCursorVisible.Set(false))
-                {
-                    while (this.Index > 0)
-                    {
-                        this.BackspaceImpl();
-                    }
-                    this.SetInputText();
-                }
+                this.command = this.command.Remove(this.cursorPosition);
+                this.inputText = this.command;
+                this.completion = string.Empty;
+                this.promptText = this.prompt + this.command;
+                if (this.writer != null)
+                    this.Draw();
             }
         }
 
@@ -424,13 +403,34 @@ namespace JSSoft.Library.Commands
                     var text = this.promptText.Substring(0, index);
                     NextPosition(text, ref x, ref y);
                     y = Math.Min(y, Console.BufferHeight - 1);
-                    Console.SetCursorPosition(x, 0);
-                    Console.SetCursorPosition(x, y);
+                    using (TerminalCursorVisible.Set(false))
+                    {
+                        Console.SetCursorPosition(x, 0);
+                        Console.SetCursorPosition(x, y);
+                    }
                 }
             }
         }
 
         public string Text => this.command;
+
+        public string Command
+        {
+            get => this.command;
+            set
+            {
+                if (value == null)
+                    throw new ArgumentNullException(nameof(value));
+                if (this.command != value)
+                {
+                    this.command = value;
+                    this.promptText = this.prompt + this.command;
+                    this.cursorPosition = this.command.Length;
+                    if (this.writer != null)
+                        this.Draw();
+                }
+            }
+        }
 
         public string Prompt => this.prompt;
 
@@ -536,24 +536,14 @@ namespace JSSoft.Library.Commands
 
         public void SetPrompt(string prompt)
         {
-            // if (this.writer == null)
-            //     throw new InvalidOperationException(Resources.Exception_PromptCannotSet);
-
             lock (LockedObject)
             {
-                using (TerminalCursorVisible.Set(false))
+                // using (TerminalCursorVisible.Set(false))
                 {
-                    var text = this.Text;
-                    // var index = this.Index;
                     this.prompt = prompt;
                     this.promptText = this.prompt + this.command;
-                    // this.start = 0;
-                    // this.Clear();
-                    // this.InsertText(prompt);
-                    // this.start = this.Index;
-                    // this.InsertText(text);
-                    // this.Index = index;
-                    this.Draw();
+                    if (this.writer != null)
+                        this.Draw();
                 }
             }
         }
@@ -590,8 +580,6 @@ namespace JSSoft.Library.Commands
             writer.Write(text);
         }
 
-        // private int Length => this.fullText.Length - this.start;
-
         private void ClearText()
         {
             lock (LockedObject)
@@ -600,10 +588,8 @@ namespace JSSoft.Library.Commands
                 var y = this.Top;
                 this.Erase();
                 this.command = string.Empty;
+                this.promptText = this.prompt + this.command;
                 this.cursorPosition = 0;
-                // this.fullText = this.fullText.Substring(0, this.start);
-                // this.start = this.fullText.Length;
-                // this.fullIndex = this.start;
                 this.inputText = string.Empty;
                 Console.SetCursorPosition(x, y);
                 this.Draw();
@@ -614,53 +600,57 @@ namespace JSSoft.Library.Commands
         {
             if (text == string.Empty)
                 return;
+
             lock (LockedObject)
             {
-                this.command = this.command.Insert(this.cursorPosition, text);
-                this.promptText = this.prompt + this.command;
-                // this.fullText = this.fullText.Insert(this.fullIndex, text);
-                // this.fullIndex += text.Length;
+                var writer = this.writer;
+                var cursorPosition = this.cursorPosition;
+                var extra = this.command.Substring(this.cursorPosition);
+                var command = this.command.Insert(this.cursorPosition, text);
+                var promptText = this.prompt + command;
 
                 if (this.isHidden == true)
-                    return;
-
-                // var index = this.fullIndex;
-                // var text1 = this.fullText.Substring(this.start);
-
-                using (TerminalCursorVisible.Set(false))
                 {
-                    // this.FullIndex = this.start;
-                    this.OnDrawText(this.writer, text);
-
-
-                    var x = 0;
-                    var y = this.Top;
-                    NextPosition(this.promptText, ref x, ref y);
-
-                    if (y >= Console.BufferHeight)
-                    {
-                        if (Environment.OSVersion.Platform == PlatformID.Unix && x == 0)
-                        {
-                            this.writer.WriteLine();
-                        }
-                        this.y--;
-                    }
-                    this.cursorPosition += text.Length;
+                    cursorPosition = 0;
                 }
+                else
+                {
+                    cursorPosition += text.Length;
+                    using (TerminalCursorVisible.Set(false))
+                    {
+                        var y = this.y;
+                        var (x1, y1) = this.SetCursorPosition(0);
+                        this.OnDrawText(writer, command);
+                        var (x2, y2) = NextPosition(command, x1, y1);
+
+                        if (y2 >= Console.BufferHeight)
+                        {
+                            if (Environment.OSVersion.Platform == PlatformID.Unix && x2 == 0)
+                            {
+                                writer.WriteLine();
+                            }
+                            this.y -= (y2 - y1);
+                        }
+                    }
+                }
+                this.cursorPosition = cursorPosition;
+                this.command = command;
+                this.promptText = this.prompt + this.command;
+                this.SetCursorPosition(this.cursorPosition);
             }
         }
 
-        private void SetCursorPosition(int cursorPosition)
+        private (int x, int y) SetCursorPosition(int cursorPosition)
         {
             var position = this.isHidden == true ? 0 : cursorPosition;
-            var x = 0;
-            var y = this.Top;
+            var (x1, y1) = (0, this.Top);
             var index = this.prompt.Length + position;
             var text = this.promptText.Substring(0, index);
-            NextPosition(text, ref x, ref y);
-            y = Math.Min(y, Console.BufferHeight - 1);
-            Console.SetCursorPosition(x, 0);
-            Console.SetCursorPosition(x, y);
+            var (x2, y2) = NextPosition(text, x1, y1);
+            y2 = Math.Min(y2, Console.BufferHeight - 1);
+            Console.SetCursorPosition(x2, 0);
+            Console.SetCursorPosition(x2, y2);
+            return (x2, y2);
         }
 
         private void BackspaceImpl()
@@ -669,21 +659,13 @@ namespace JSSoft.Library.Commands
             var cursorPosition = this.cursorPosition;
             var command = this.command.Remove(this.cursorPosition - 1, 1);
             var endPosition = this.command.Length;
-            // this.Index = this.Length;
-            // this.CursorPosition = this.command.Length;
 
             if (this.isHidden == false)
             {
+                this.SetCursorPosition(endPosition);
                 if (Console.CursorLeft == 0)
                 {
-                    // this.CursorPosition--;
-                    // this.Index--;
-                    this.SetCursorPosition(endPosition);
-                    if (Environment.OSVersion.Platform == PlatformID.Win32NT)
-                        this.writer.Write("\b \b");
-                    else
-                        this.writer.Write("\b \b");
-                    this.SetCursorPosition(cursorPosition - 1);
+                    this.SetCursorPosition(--endPosition);
                     if (Environment.OSVersion.Platform == PlatformID.Unix)
                         this.writer.Write(" ");
                     else
@@ -692,7 +674,6 @@ namespace JSSoft.Library.Commands
                 }
                 else
                 {
-                    this.SetCursorPosition(endPosition);
                     if (Environment.OSVersion.Platform == PlatformID.Win32NT)
                         this.writer.Write("\b \b");
                     else
@@ -701,11 +682,6 @@ namespace JSSoft.Library.Commands
                 }
             }
 
-            // this.CursorPosition--;
-            // this.CursorPosition = inputIndex;
-            // this.fullText = this.fullText.Remove(this.fullIndex, 1);
-            // var i = this.cursorPosition;
-            // this.command = this.command.Remove(this.cursorPosition, 1);
             if (this.isHidden == false)
             {
                 this.writer.Write(extra);
@@ -776,7 +752,7 @@ namespace JSSoft.Library.Commands
 
         private void SetInputText()
         {
-            this.inputText = this.Text.Remove(this.Index, this.Text.Length - this.Index);
+            this.inputText = this.command.Substring(0, this.cursorPosition);
             this.completion = string.Empty;
         }
 
@@ -907,18 +883,14 @@ namespace JSSoft.Library.Commands
 
                 this.y = Console.CursorTop;
                 this.width = Console.BufferWidth;
-                // this.start = 0;
                 this.isHidden = false;
-                // this.fullText = prompt;
-                // this.fullIndex = prompt.Length;
-                this.command = string.Empty;
+                this.command = defaultText;
+                this.prompt = prompt;
+                this.promptText = prompt + defaultText;
                 this.cursorPosition = 0;
-                this.OnDrawPrompt(this.writer, this.prompt);
-                // this.FullIndex = this.fullIndex;
-                // this.start = this.fullIndex;
                 this.isHidden = isHidden;
-                this.InsertText(defaultText);
                 this.inputText = defaultText;
+                this.Draw();
             }
         }
 
@@ -933,6 +905,37 @@ namespace JSSoft.Library.Commands
                 this.writer = null;
                 this.isHidden = false;
             }
+        }
+
+        internal static (int x, int y) NextPosition(string text, int x, int y)
+        {
+            for (var i = 0; i < text.Length; i++)
+            {
+                var ch = text[i];
+                if (ch == '\r')
+                {
+                    x = 0;
+                    continue;
+                }
+                else if (ch == '\n')
+                {
+                    x = 0;
+                    y++;
+                    continue;
+                }
+
+                var w = charToWidth[ch];
+                if (x + w >= Console.BufferWidth)
+                {
+                    x = x + w - Console.BufferWidth;
+                    y++;
+                }
+                else
+                {
+                    x += w;
+                }
+            }
+            return (x, y);
         }
 
         internal static void NextPosition(string text, ref int x, ref int y)
@@ -968,7 +971,6 @@ namespace JSSoft.Library.Commands
         internal string ReadStringInternal(string prompt)
         {
             this.Initialize(prompt, string.Empty, false);
-
             try
             {
                 return ReadLineImpl(i => true, true);
@@ -981,81 +983,83 @@ namespace JSSoft.Library.Commands
 
         internal void Erase()
         {
-            var x1 = Console.CursorLeft;
-            var y1 = Console.CursorTop;
-
-            // var prompt = this.fullText.Substring(0, this.start);
+            var (x, y) = (Console.CursorLeft, Console.CursorTop);
+            var (x1, y1) = (0, this.y);
+            var (x2, y2) = NextPosition(this.promptText, x1, y1);
             var text = this.isHidden == true ? string.Empty : this.command;
-            var x = 0;
-            var y = this.y;
-            NextPosition(prompt, ref x, ref y);
-            NextPosition(text, ref x, ref y);
-
-            for (var i = this.y; i <= y; i++)
+            var writer = this.writer;
+            for (var i = y1; i <= y2; i++)
             {
+                Console.SetCursorPosition(1, i);
                 Console.SetCursorPosition(0, i);
                 if (Environment.OSVersion.Platform != PlatformID.Unix)
                 {
                     Console.MoveBufferArea(Console.BufferWidth - 1, i, 1, 1, 0, i);
-                    this.writer?.Write($"\r{new string('\0', Console.BufferWidth - 1)}\r");
+                    writer?.Write($"\r{new string('\0', Console.BufferWidth - 1)}\r");
                 }
                 else
                 {
-                    this.writer?.Write("\r" + new string(' ', Console.BufferWidth) + "\r");
+                    writer?.Write("\r" + new string(' ', Console.BufferWidth) + "\r");
                 }
             }
-            Console.SetCursorPosition(x1, y1);
+            Console.SetCursorPosition(x, y);
         }
 
         internal void Draw()
         {
-            if (this.writer == null)
-                return;
             Console.SetCursorPosition(0, this.y);
-            // var index = this.FullIndex;
-            var y = Console.CursorTop;
-            var x = 0;
-            // var prompt = this.fullText.Substring(0, this.start);
-            var text = this.isHidden == true ? string.Empty : this.command;
+            var command = this.isHidden == true ? string.Empty : this.command;
+            var (x1, y1) = (0, Console.CursorTop);
+            var (x2, y2) = NextPosition(prompt + command, x1, y1);
             this.OnDrawPrompt(this.writer, prompt);
-            this.OnDrawText(this.writer, text);
-            NextPosition(prompt, ref x, ref y);
-            NextPosition(text, ref x, ref y);
+            this.OnDrawText(this.writer, command);
 
-            if (y >= Console.BufferHeight)
+            if (y2 >= Console.BufferHeight)
             {
-                if (Environment.OSVersion.Platform == PlatformID.Unix && x == 0)
+                if (Environment.OSVersion.Platform == PlatformID.Unix && x2 == 0)
                 {
-                    this.writer.WriteLine();
+                    writer.WriteLine();
                 }
-                this.y--;
+                this.y -= (y2 - y1);
             }
-            // if (index < this.FullIndex)
-            //     this.FullIndex = index;
+        }
+
+        internal (int x, int y) Draw(TextWriter writer, string text, int x, int y)
+        {
+            Console.SetCursorPosition(x, y);
+            var promptText = this.promptText;
+            var (x1, y1) = (0, Console.CursorTop);
+            var (x2, y2) = NextPosition(text, x1, y1);
+            var (x3, y3) = x2 == 0 ? (x2, y2) : (0, y2 + 1);
+            var (x4, y4) = NextPosition(promptText, x3, y3);
+
+            // this.x = x;
+            // if (this.x != 0)
+            // {
+            //     this.offsetY = -1;
+            //     this.writer.WriteLine();
+            // }
+
+            var clear = "\r" + new string(' ', Console.BufferWidth) + "\r";
+            var text2 = clear + text;
+            var text3 = text2.Replace("\n", "\n" + clear);
+            writer.Write(text3);
+            if (x2 != 0)
+                writer.WriteLine();
+            this.OnDrawPrompt(writer, prompt);
+            this.OnDrawText(writer, command);
+
+            if (y4 >= Console.BufferHeight)
+            {
+                if (Environment.OSVersion.Platform == PlatformID.Unix && x4 == 0)
+                {
+                    writer.WriteLine();
+                    this.y -= (y4 - y3);
+                }
+            }
+            return (x2, y2);
         }
 
         internal static object LockedObject { get; } = new object();
-
-        // internal int FullIndex
-        // {
-        //     get => this.fullIndex;
-        //     set
-        //     {
-        //         if (value < 0 || value > this.fullText.Length)
-        //             throw new ArgumentOutOfRangeException(nameof(value));
-
-        //         this.fullIndex = value;
-        //         if (this.isHidden == false)
-        //         {
-        //             var x = 0;
-        //             var y = this.Top;
-        //             var text = this.fullText.Substring(0, value);
-        //             NextPosition(text, ref x, ref y);
-        //             y = Math.Min(y, Console.BufferHeight - 1);
-        //             Console.SetCursorPosition(x, 0);
-        //             Console.SetCursorPosition(x, y);
-        //         }
-        //     }
-        // }
     }
 }

@@ -28,6 +28,7 @@ namespace JSSoft.Library.Commands.Repl
     {
         static async Task Main(string[] _)
         {
+            System.Console.WriteLine();
             var shell = Container.GetService<IShell>();
             shell.Prompt = Directory.GetCurrentDirectory();
             await shell.StartAsync();
