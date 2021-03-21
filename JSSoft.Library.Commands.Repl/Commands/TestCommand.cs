@@ -147,7 +147,7 @@ namespace JSSoft.Library.Commands.Repl.Commands
         {
             while (!this.cancellation.IsCancellationRequested)
             {
-                Console.WriteLine(DateTime.Now);
+                Console.WriteLine(DateTime.Now + Environment.NewLine + "wow");
                 Thread.Sleep(1000);
             }
         }
