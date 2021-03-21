@@ -77,33 +77,10 @@ namespace JSSoft.Library.Commands
 
         private void WriteToStream(string text)
         {
-            // this.terminal.Erase();
-            var x1 = this.x;
-            var y1 = this.terminal.Top + this.offsetY;
-            // Console.SetCursorPosition(this.x, this.terminal.Top + this.offsetY);
-
-            // foreach(var item in text)
-            // {
-            //     this.writer.Write(item);
-            // }
-
-            // var y = Console.CursorTop;
-            // var x = this.x;
+            var (x1, y1) = (this.x, this.terminal.Top + this.offsetY);
             var (x2, y2) = this.terminal.Draw(this.writer, text, x1, y1);
             this.x = x2;
-
-
-            // this.writer.Write(text);
-
-            // Terminal.NextPosition(text, ref x, ref y);
-            // this.x = x;
-            if (this.x != 0)
-            {
-                this.offsetY = -1;
-            }
-
-            // this.terminal.Top = Console.CursorTop;
-            // this.terminal.Draw();
+            this.offsetY = x2 != 0 ? -1 : this.offsetY;
         }
     }
 }
