@@ -1052,31 +1052,12 @@ namespace JSSoft.Library.Commands
                 text5 = string.Join(Environment.NewLine, itemList) + lineBreak;
             }
 
+            var y123 = this.y1;
             if (y3 >= bufferHeight)
             {
                 var count = (y3 - this.y3);
-                var l = y3 - bufferHeight + 1;
-
-
-                // if (Environment.OSVersion.Platform == PlatformID.Win32NT)
-                // {
-                //     var _x = Console.CursorLeft;
-                //     var _y = Console.CursorTop;
-                //     for (var i = this.y1; i <= this.y3; i++)
-                //     {
-                //         Console.SetCursorPosition(0, i);
-                //         Console.MoveBufferArea(bufferWidth - 1, i, 1, 1, 0, i);
-                //         writer?.Write($"\r{new string(' ', bufferWidth - 1)}\r");
-                //     }
-                //     Console.SetCursorPosition(_x, _y);
-                // }
-
-
-                for (var i = 0; i < count; i++)
-                {
-                    writer.WriteLine();
-                }
-                var yn = y8 - l;
+                var offset = y3 - bufferHeight + 1;
+                var yn = y8 - offset;
                 this.y1 = yn + y1 - y8;
                 this.y2 = this.y1 + y2 - y1;
                 this.y3 = this.y1 + y3 - y1;
@@ -1088,7 +1069,7 @@ namespace JSSoft.Library.Commands
                 this.y2 = y1 + y2 - y1;
                 this.y3 = y1 + y3 - y1;
             }
-            Console.SetCursorPosition(x8, y8);
+            Console.SetCursorPosition(x8, y123);
             writer.Write(text5);
             this.InvokeDrawPrompt(writer, prompt);
             this.InvokeDrawCommand(writer, command);
