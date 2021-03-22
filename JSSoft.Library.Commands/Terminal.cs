@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 
@@ -1016,7 +1017,7 @@ namespace JSSoft.Library.Commands
 
         internal (int x, int y) Draw(TextWriter writer, string text, int x, int y)
         {
-            var clear = "\r" + new string(' ', Console.BufferWidth) + "\r";
+            var bufferWidth = this.width;
             var bufferHeight = this.height;
             var promptText = this.promptText;
             var prompt = this.prompt;
@@ -1026,15 +1027,51 @@ namespace JSSoft.Library.Commands
             var (x1, y1) = x9 == 0 ? (x9, y9) : (0, y9 + 1);
             var (x2, y2) = this.NextPosition(prompt, x1, y1);
             var (x3, y3) = this.NextPosition(command, x2, y2);
+
+            var clear = "\r" + new string(' ', Console.BufferWidth) + "\r";
             var text2 = x9 == 0 ? text : text + Environment.NewLine;
             // var text3 = text2 + prompt + command;
             var text4 = clear + text2;
             var text5 = text4.Replace("\n", "\n" + clear);
 
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+            {
+                var lineBreak = string.Empty;
+                if (text.EndsWith(Environment.NewLine) == true)
+                    lineBreak = Environment.NewLine;
+                text = text.Substring(0, text.Length - Environment.NewLine.Length);
+                var items = text.Split(Environment.NewLine, StringSplitOptions.None);
+                var half = bufferWidth / 2;
+                Console.MoveBufferArea(half, this.y1, bufferWidth - half, items.Length, 0, this.y1);
+                var itemList = new List<string>(items.Length);
+                foreach (var item in items)
+                {
+                    var line = item.PadRight(half);
+                    itemList.Add(line);
+                }
+                text5 = string.Join(Environment.NewLine, itemList) + lineBreak;
+            }
+
             if (y3 >= bufferHeight)
             {
                 var count = (y3 - this.y3);
                 var l = y3 - bufferHeight + 1;
+
+
+                // if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+                // {
+                //     var _x = Console.CursorLeft;
+                //     var _y = Console.CursorTop;
+                //     for (var i = this.y1; i <= this.y3; i++)
+                //     {
+                //         Console.SetCursorPosition(0, i);
+                //         Console.MoveBufferArea(bufferWidth - 1, i, 1, 1, 0, i);
+                //         writer?.Write($"\r{new string(' ', bufferWidth - 1)}\r");
+                //     }
+                //     Console.SetCursorPosition(_x, _y);
+                // }
+
+
                 for (var i = 0; i < count; i++)
                 {
                     writer.WriteLine();
