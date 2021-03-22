@@ -574,27 +574,48 @@ namespace JSSoft.Library.Commands
                 else
                 {
                     cursorPosition += text.Length;
+                    var bufferHeight = this.height;
                     var (x1, y1) = (0, this.y1);
                     var (x2, y2) = (this.x2, this.y2);
                     var (x3, y3) = this.NextPosition(command, x2, y2);
-                    this.SetCursorPosition(0);
-                    this.InvokeDrawCommand(writer, command);
 
-                    if (y3 >= Console.BufferHeight)
+                    if (y3 >= bufferHeight)
                     {
-                        if (Environment.OSVersion.Platform == PlatformID.Unix && x3 == 0)
+                        var count = (y3 - this.y3);
+                        // var l = count - (bufferHeight - y1);
+                        for (var i = 0; i < count; i++)
                         {
                             writer.WriteLine();
                         }
-                        this.y1--;
-                        this.y2 = this.y1 + (y2 - y1);
-                        this.y3 = this.y1 + (y3 + y1);
+                        this.y1 -= count;
+                        this.y2 = this.y1 + y2 - y1;
+                        this.y3 = this.y1 + y3 - y1;
+                        // y8 = yn;
                     }
                     else
                     {
-                        this.x3 = x3;
-                        this.y3 = y3;
+
                     }
+                    this.SetCursorPosition(0);
+
+
+                    this.InvokeDrawCommand(writer, command);
+
+                    // if (y3 >= Console.BufferHeight)
+                    // {
+                    //     if (Environment.OSVersion.Platform == PlatformID.Unix && x3 == 0)
+                    //     {
+                    //         writer.WriteLine();
+                    //     }
+                    //     this.y1--;
+                    //     this.y2 = this.y1 + (y2 - y1);
+                    //     this.y3 = this.y1 + (y3 + y1);
+                    // }
+                    // else
+                    // {
+                    //     this.x3 = x3;
+                    //     this.y3 = y3;
+                    // }
                 }
                 this.cursorPosition = cursorPosition;
                 this.command = command;
@@ -624,6 +645,7 @@ namespace JSSoft.Library.Commands
             var cursorPosition = this.cursorPosition;
             var command = this.command.Remove(this.cursorPosition - 1, 1);
             var endPosition = this.command.Length;
+            var (x3, y3) = this.NextPosition(command, this.x2, this.y2);
 
             if (this.isHidden == false)
             {
@@ -651,10 +673,12 @@ namespace JSSoft.Library.Commands
             {
                 this.writer.Write(extra);
             }
-            this.SetCursorPosition(cursorPosition);
             this.command = command;
             this.promptText = this.prompt + this.command;
             this.cursorPosition = cursorPosition;
+            this.x3 = x3;
+            this.y3 = y3;
+            this.SetCursorPosition(cursorPosition);
         }
 
         private void CompletionImpl(Func<string[], string, string> func)
@@ -849,7 +873,7 @@ namespace JSSoft.Library.Commands
                 this.isHidden = isHidden;
                 this.inputText = defaultText;
                 (this.x2, this.y2) = this.NextPosition(prompt, 0, this.y1);
-                (this.x3, this.y3) = this.NextPosition(prompt, this.x2, this.y2);
+                (this.x3, this.y3) = this.NextPosition(command, this.x2, this.y2);
                 this.Draw();
             }
         }
@@ -993,32 +1017,32 @@ namespace JSSoft.Library.Commands
         internal (int x, int y) Draw(TextWriter writer, string text, int x, int y)
         {
             var clear = "\r" + new string(' ', Console.BufferWidth) + "\r";
+            var bufferHeight = this.height;
             var promptText = this.promptText;
             var prompt = this.prompt;
             var command = this.command;
             var (x8, y8) = (0, this.y1);
-            var (x9, y9) = NextPosition(text, x8, y8);
+            var (x9, y9) = this.NextPosition(text, x8, y8);
             var (x1, y1) = x9 == 0 ? (x9, y9) : (0, y9 + 1);
-            var (x2, y2) = NextPosition(prompt, x1, y1);
-            var (x3, y3) = NextPosition(command, x2, y2);
+            var (x2, y2) = this.NextPosition(prompt, x1, y1);
+            var (x3, y3) = this.NextPosition(command, x2, y2);
             var text2 = x9 == 0 ? text : text + Environment.NewLine;
             // var text3 = text2 + prompt + command;
             var text4 = clear + text2;
             var text5 = text4.Replace("\n", "\n" + clear);
 
-            if (y3 >= Console.BufferHeight)
+            if (y3 >= bufferHeight)
             {
-                var count = (y3 - y8) - (y3 - Console.BufferHeight);
-                var l = count - (Console.BufferHeight - y1);
+                var count = (y3 - this.y3);
+                var l = y3 - bufferHeight + 1;
                 for (var i = 0; i < count; i++)
                 {
                     writer.WriteLine();
                 }
-                var offset = y3 - y8;
                 var yn = y8 - l;
                 this.y1 = yn + y1 - y8;
-                this.y2 = yn + y2 - y1;
-                this.y3 = yn + y3 - y1;
+                this.y2 = this.y1 + y2 - y1;
+                this.y3 = this.y1 + y3 - y1;
                 y8 = yn;
             }
             else
