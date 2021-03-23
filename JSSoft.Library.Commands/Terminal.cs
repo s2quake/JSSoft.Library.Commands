@@ -41,6 +41,7 @@ namespace JSSoft.Library.Commands
         private readonly List<string> histories = new List<string>();
         private readonly List<string> completions = new List<string>();
 
+        private int x1 = 0;
         private int y1 = Console.CursorTop;
         private int width = Console.BufferWidth;
         private int height = Console.BufferHeight;
@@ -48,7 +49,7 @@ namespace JSSoft.Library.Commands
         private string prompt = string.Empty;
         private string command = string.Empty;
         private string promptText = string.Empty;
-        private string inputText;
+        private string inputText = string.Empty;
         private string completion = string.Empty;
         private int cursorPosition;
         private TextWriter writer;
@@ -169,7 +170,7 @@ namespace JSSoft.Library.Commands
 
         public string ReadString(string prompt)
         {
-            return ReadString(prompt, string.Empty);
+            return this.ReadString(prompt, string.Empty);
         }
 
         public string ReadString(string prompt, bool isHidden)
@@ -355,13 +356,6 @@ namespace JSSoft.Library.Commands
             }
         }
 
-        [Obsolete]
-        public int Index
-        {
-            get => this.CursorPosition;
-            set => this.CursorPosition = value;
-        }
-
         public int CursorPosition
         {
             get => this.cursorPosition;
@@ -400,7 +394,7 @@ namespace JSSoft.Library.Commands
                     this.cursorPosition = this.command.Length;
                     if (this.writer != null)
                     {
-                        this.Erase(this.x2, this.y2, this.x3, this.y3);
+                        this.Erase(this.writer, this.x2, this.y2, this.x3, this.y3);
                         this.Draw();
                     }
                 }
@@ -447,8 +441,7 @@ namespace JSSoft.Library.Commands
 
         public static string NextCompletion(string[] completions, string text)
         {
-            completions = completions.OrderBy(item => item)
-                .ToArray();
+            completions = completions.OrderBy(item => item).ToArray();
             if (completions.Contains(text) == true)
             {
                 for (var i = 0; i < completions.Length; i++)
@@ -479,8 +472,7 @@ namespace JSSoft.Library.Commands
 
         public static string PrevCompletion(string[] completions, string text)
         {
-            completions = completions.OrderBy(item => item)
-                .ToArray();
+            completions = completions.OrderBy(item => item).ToArray();
             if (completions.Contains(text) == true)
             {
                 for (var i = completions.Length - 1; i >= 0; i--)
@@ -517,7 +509,7 @@ namespace JSSoft.Library.Commands
                 this.promptText = this.prompt + this.command;
                 if (this.writer != null)
                 {
-                    this.Erase(0, this.y1, this.x3, this.y3);
+                    this.Erase(this.writer, this.x1, this.y1, this.x3, this.y3);
                     this.Draw();
                 }
             }
@@ -578,7 +570,7 @@ namespace JSSoft.Library.Commands
                     cursorPosition += text.Length;
                     var bufferWidth = this.width;
                     var bufferHeight = this.height;
-                    var (x1, y1) = (0, this.y1);
+                    var (x1, y1) = (this.x1, this.y1);
                     var (x2, y2) = (this.x2, this.y2);
                     var (x3, y3) = NextPosition(command, bufferWidth, x2, y2);
 
@@ -632,7 +624,7 @@ namespace JSSoft.Library.Commands
             var bufferWidth = this.width;
             var bufferHeight = this.height;
             var position = this.isHidden == true ? 0 : cursorPosition;
-            var (x1, y1) = (0, this.y1);
+            var (x1, y1) = (this.x1, this.y1);
             var index = this.prompt.Length + position;
             var text = this.promptText.Substring(0, index);
             var (x2, y2) = NextPosition(text, bufferWidth, x1, y1);
@@ -877,7 +869,7 @@ namespace JSSoft.Library.Commands
                 this.cursorPosition = 0;
                 this.isHidden = isHidden;
                 this.inputText = defaultText;
-                (this.x2, this.y2) = NextPosition(prompt, this.width, 0, this.y1);
+                (this.x2, this.y2) = NextPosition(prompt, this.width, this.x1, this.y1);
                 (this.x3, this.y3) = NextPosition(command, this.width, this.x2, this.y2);
                 this.Draw();
             }
@@ -899,22 +891,12 @@ namespace JSSoft.Library.Commands
         private void InvokeDrawPrompt(TextWriter writer, string prompt)
         {
             this.OnDrawPrompt(writer, prompt);
-            // this.x2 = Console.CursorLeft;
-            // this.y2 = Console.CursorTop;
         }
 
         private void InvokeDrawCommand(TextWriter writer, string command)
         {
             this.OnDrawCommand(writer, command);
-            // this.x3 = Console.CursorLeft;
-            // this.y3 = Console.CursorTop;
         }
-
-        // internal (int x, int y) NextPosition(string text, int x, int y)
-        // {
-        //     var bufferWidth = this.width;
-        //     return NextPosition(text, bufferWidth, x, y);
-        // }
 
         internal static (int x, int y) NextPosition(string text, int bufferWidth, int x, int y)
         {
@@ -953,6 +935,21 @@ namespace JSSoft.Library.Commands
             return x;
         }
 
+        internal static string GetOverwrappedText(string text, int bufferWidth)
+        {
+            var lineBreak = text.EndsWith(Environment.NewLine) == true ? Environment.NewLine : string.Empty;
+            var text2 = text.Substring(0, text.Length - Environment.NewLine.Length);
+            var items = text2.Split(Environment.NewLine, StringSplitOptions.None);
+            var itemList = new List<string>(items.Length);
+            foreach (var item in items)
+            {
+                var len = GetStringLength(item);
+                var line = item.PadRight(bufferWidth - (len - item.Length));
+                itemList.Add(line);
+            }
+            return string.Join(Environment.NewLine, itemList) + lineBreak;
+        }
+
         internal string ReadStringInternal(string prompt)
         {
             using var initializer = new Initializer(this, prompt, string.Empty, false);
@@ -963,7 +960,7 @@ namespace JSSoft.Library.Commands
         {
             var bufferWidth = this.width;
             var (x, y) = (Console.CursorLeft, Console.CursorTop);
-            var (x1, y1) = (0, this.y1);
+            var (x1, y1) = (this.x1, this.y1);
             var (x2, y2) = NextPosition(this.promptText, bufferWidth, x1, y1);
             var text = this.isHidden == true ? string.Empty : this.command;
             var writer = this.writer;
@@ -984,10 +981,9 @@ namespace JSSoft.Library.Commands
             Console.SetCursorPosition(x, y);
         }
 
-        internal void Erase(int x1, int y1, int x2, int y2)
+        internal void Erase(TextWriter writer, int x1, int y1, int x2, int y2)
         {
             var (x, y) = (Console.CursorLeft, Console.CursorTop);
-            var writer = this.writer;
             for (var i = y1; i <= y2; i++)
             {
                 Console.SetCursorPosition(1, i);
@@ -1007,29 +1003,22 @@ namespace JSSoft.Library.Commands
 
         internal void Draw()
         {
-            Console.SetCursorPosition(0, this.y1);
+            Console.SetCursorPosition(this.x1, this.y1);
             var bufferWidth = this.width;
+            var bufferHeight = this.height;
             var command = this.isHidden == true ? string.Empty : this.command;
-            var (x1, y1) = (0, this.y1);
+            var (x1, y1) = (this.x1, this.y1);
             var (x2, y2) = NextPosition(prompt, bufferWidth, x1, y1);
             var (x3, y3) = NextPosition(command, bufferWidth, x2, y2);
-            this.InvokeDrawPrompt(this.writer, prompt);
-            this.InvokeDrawCommand(this.writer, command);
-
             if (y3 >= Console.BufferHeight)
             {
-                if (Environment.OSVersion.Platform == PlatformID.Unix && x3 == 0)
-                {
-                    writer.WriteLine();
-                }
                 this.y1 -= (y2 - y1);
                 this.y2 = this.y1 + (y2 - y1);
                 this.y3 = this.y1 + (y3 - y1);
             }
-            else
-            {
-
-            }
+            this.InvokeDrawPrompt(this.writer, prompt);
+            this.InvokeDrawCommand(this.writer, command);
+            this.OnDrawEnd(this.writer, x3, y3, bufferHeight);
         }
 
         internal (int x, int y) Draw(TextWriter writer, string text, int x, int y)
@@ -1039,38 +1028,15 @@ namespace JSSoft.Library.Commands
             var promptText = this.promptText;
             var prompt = this.prompt;
             var command = this.command;
-            var (x8, y8) = (0, this.y1);
+            var (x8, y8) = (this.x1, this.y1);
             var (x9, y9) = NextPosition(text, bufferWidth, x8, y8);
             var (x1, y1) = x9 == 0 ? (x9, y9) : (0, y9 + 1);
             var (x2, y2) = NextPosition(prompt, bufferWidth, x1, y1);
             var (x3, y3) = NextPosition(command, bufferWidth, x2, y2);
+            var text5 = GetOverwrappedText(text, bufferWidth);
 
-            // var clear = "\r" + new string(' ', Console.BufferWidth) + "\r";
-            // var text2 = x9 == 0 ? text : text + Environment.NewLine;
-            // // var text3 = text2 + prompt + command;
-            // var text4 = clear + text2;
-            // var text5 = text4.Replace("\n", "\n" + clear);
-
-            // if (Environment.OSVersion.Platform == PlatformID.Win32NT)
-            // {
-                var lineBreak = string.Empty;
-                if (text.EndsWith(Environment.NewLine) == true)
-                    lineBreak = Environment.NewLine;
-                text = text.Substring(0, text.Length - Environment.NewLine.Length);
-                var items = text.Split(Environment.NewLine, StringSplitOptions.None);
-                var half = bufferWidth / 2;
-                // Console.MoveBufferArea(half, this.y1, bufferWidth - half, items.Length, 0, this.y1);
-                var itemList = new List<string>(items.Length);
-                foreach (var item in items)
-                {
-                    var len = GetStringLength(item);
-                    var line = item.PadRight(bufferWidth - (len - item.Length));
-                    itemList.Add(line);
-                }
-                var text5 = string.Join(Environment.NewLine, itemList) + lineBreak;
-            // }
-
-            var y123 = this.y1;
+            var sx = x8;
+            var sy = this.y1;
             if (y3 >= bufferHeight)
             {
                 var count = (y3 - this.y3);
@@ -1087,12 +1053,11 @@ namespace JSSoft.Library.Commands
                 this.y2 = y1 + y2 - y1;
                 this.y3 = y1 + y3 - y1;
             }
-            Console.SetCursorPosition(x8, y123);
+            Console.SetCursorPosition(sx, sy);
             writer.Write(text5);
             this.InvokeDrawPrompt(writer, prompt);
             this.InvokeDrawCommand(writer, command);
             this.OnDrawEnd(writer, x3, y3, bufferHeight);
-
             return (x9, y9);
         }
 
