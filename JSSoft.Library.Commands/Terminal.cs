@@ -909,6 +909,11 @@ namespace JSSoft.Library.Commands
         internal (int x, int y) NextPosition(string text, int x, int y)
         {
             var bufferWidth = this.width;
+            return NextPosition(text, bufferWidth, x, y);
+        }
+
+        internal static (int x, int y) NextPosition(string text, int bufferWidth, int x, int y)
+        {
             for (var i = 0; i < text.Length; i++)
             {
                 var ch = text[i];
@@ -936,6 +941,12 @@ namespace JSSoft.Library.Commands
                 }
             }
             return (x, y);
+        }
+
+        internal static int GetStringLength(string text)
+        {
+            var (x, y) = NextPosition(text, int.MaxValue, 0, 0);
+            return x;
         }
 
         internal string ReadStringInternal(string prompt)
@@ -1028,29 +1039,30 @@ namespace JSSoft.Library.Commands
             var (x2, y2) = this.NextPosition(prompt, x1, y1);
             var (x3, y3) = this.NextPosition(command, x2, y2);
 
-            var clear = "\r" + new string(' ', Console.BufferWidth) + "\r";
-            var text2 = x9 == 0 ? text : text + Environment.NewLine;
-            // var text3 = text2 + prompt + command;
-            var text4 = clear + text2;
-            var text5 = text4.Replace("\n", "\n" + clear);
+            // var clear = "\r" + new string(' ', Console.BufferWidth) + "\r";
+            // var text2 = x9 == 0 ? text : text + Environment.NewLine;
+            // // var text3 = text2 + prompt + command;
+            // var text4 = clear + text2;
+            // var text5 = text4.Replace("\n", "\n" + clear);
 
-            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
-            {
+            // if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+            // {
                 var lineBreak = string.Empty;
                 if (text.EndsWith(Environment.NewLine) == true)
                     lineBreak = Environment.NewLine;
                 text = text.Substring(0, text.Length - Environment.NewLine.Length);
                 var items = text.Split(Environment.NewLine, StringSplitOptions.None);
                 var half = bufferWidth / 2;
-                Console.MoveBufferArea(half, this.y1, bufferWidth - half, items.Length, 0, this.y1);
+                // Console.MoveBufferArea(half, this.y1, bufferWidth - half, items.Length, 0, this.y1);
                 var itemList = new List<string>(items.Length);
                 foreach (var item in items)
                 {
-                    var line = item.PadRight(half);
+                    var len = GetStringLength(item);
+                    var line = item.PadRight(bufferWidth - (len - item.Length));
                     itemList.Add(line);
                 }
-                text5 = string.Join(Environment.NewLine, itemList) + lineBreak;
-            }
+                var text5 = string.Join(Environment.NewLine, itemList) + lineBreak;
+            // }
 
             var y123 = this.y1;
             if (y3 >= bufferHeight)
@@ -1073,15 +1085,20 @@ namespace JSSoft.Library.Commands
             writer.Write(text5);
             this.InvokeDrawPrompt(writer, prompt);
             this.InvokeDrawCommand(writer, command);
+            this.OnDrawEnd(writer, x3, y3, bufferHeight);
 
-            if (y3 >= Console.BufferHeight)
+            return (x9, y9);
+        }
+
+        private void OnDrawEnd(TextWriter writer, int x, int y, int bufferHeight)
+        {
+            if (y >= bufferHeight)
             {
-                if (Environment.OSVersion.Platform == PlatformID.Unix && x3 == 0)
+                if (Environment.OSVersion.Platform == PlatformID.Unix && x == 0)
                 {
                     writer.WriteLine();
                 }
             }
-            return (x9, y9);
         }
 
         internal static object LockedObject { get; } = new object();
