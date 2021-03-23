@@ -32,6 +32,7 @@ namespace JSSoft.Library.Commands.Repl
             var shell = Container.GetService<IShell>();
             shell.Prompt = Directory.GetCurrentDirectory();
             await shell.StartAsync();
+            System.Console.WriteLine();
         }
     }
 }

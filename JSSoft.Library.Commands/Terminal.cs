@@ -371,10 +371,11 @@ namespace JSSoft.Library.Commands
                 if (this.isHidden == false)
                 {
                     using var visible = TerminalCursorVisible.Set(false);
+                    var bufferWidth = this.width;
                     var index = this.prompt.Length + value;
                     var text = this.promptText.Substring(0, index);
                     var (x1, y1) = (0, this.Top);
-                    var (x2, y2) = NextPosition(text, x1, y1);
+                    var (x2, y2) = NextPosition(text, bufferWidth, x1, y1);
                     y2 = Math.Min(y2, Console.BufferHeight - 1);
                     if (Environment.OSVersion.Platform == PlatformID.Unix)
                         Console.SetCursorPosition(x2, 0);
@@ -575,10 +576,11 @@ namespace JSSoft.Library.Commands
                 else
                 {
                     cursorPosition += text.Length;
+                    var bufferWidth = this.width;
                     var bufferHeight = this.height;
                     var (x1, y1) = (0, this.y1);
                     var (x2, y2) = (this.x2, this.y2);
-                    var (x3, y3) = this.NextPosition(command, x2, y2);
+                    var (x3, y3) = NextPosition(command, bufferWidth, x2, y2);
 
                     if (y3 >= bufferHeight)
                     {
@@ -627,12 +629,13 @@ namespace JSSoft.Library.Commands
 
         private (int x, int y) SetCursorPosition(int cursorPosition)
         {
+            var bufferWidth = this.width;
             var bufferHeight = this.height;
             var position = this.isHidden == true ? 0 : cursorPosition;
             var (x1, y1) = (0, this.y1);
             var index = this.prompt.Length + position;
             var text = this.promptText.Substring(0, index);
-            var (x2, y2) = this.NextPosition(text, x1, y1);
+            var (x2, y2) = NextPosition(text, bufferWidth, x1, y1);
             y2 = Math.Min(y2, bufferHeight - 1);
             if (Environment.OSVersion.Platform == PlatformID.Unix)
                 Console.SetCursorPosition(x2, 0);
@@ -642,11 +645,12 @@ namespace JSSoft.Library.Commands
 
         private void BackspaceImpl()
         {
+            var bufferWidth = this.width;
             var extra = this.command.Substring(this.cursorPosition);
             var cursorPosition = this.cursorPosition;
             var command = this.command.Remove(this.cursorPosition - 1, 1);
             var endPosition = this.command.Length;
-            var (x3, y3) = this.NextPosition(command, this.x2, this.y2);
+            var (x3, y3) = NextPosition(command, bufferWidth, this.x2, this.y2);
 
             if (this.isHidden == false)
             {
@@ -873,8 +877,8 @@ namespace JSSoft.Library.Commands
                 this.cursorPosition = 0;
                 this.isHidden = isHidden;
                 this.inputText = defaultText;
-                (this.x2, this.y2) = this.NextPosition(prompt, 0, this.y1);
-                (this.x3, this.y3) = this.NextPosition(command, this.x2, this.y2);
+                (this.x2, this.y2) = NextPosition(prompt, this.width, 0, this.y1);
+                (this.x3, this.y3) = NextPosition(command, this.width, this.x2, this.y2);
                 this.Draw();
             }
         }
@@ -906,11 +910,11 @@ namespace JSSoft.Library.Commands
             // this.y3 = Console.CursorTop;
         }
 
-        internal (int x, int y) NextPosition(string text, int x, int y)
-        {
-            var bufferWidth = this.width;
-            return NextPosition(text, bufferWidth, x, y);
-        }
+        // internal (int x, int y) NextPosition(string text, int x, int y)
+        // {
+        //     var bufferWidth = this.width;
+        //     return NextPosition(text, bufferWidth, x, y);
+        // }
 
         internal static (int x, int y) NextPosition(string text, int bufferWidth, int x, int y)
         {
@@ -957,9 +961,10 @@ namespace JSSoft.Library.Commands
 
         internal void Erase()
         {
+            var bufferWidth = this.width;
             var (x, y) = (Console.CursorLeft, Console.CursorTop);
             var (x1, y1) = (0, this.y1);
-            var (x2, y2) = NextPosition(this.promptText, x1, y1);
+            var (x2, y2) = NextPosition(this.promptText, bufferWidth, x1, y1);
             var text = this.isHidden == true ? string.Empty : this.command;
             var writer = this.writer;
             for (var i = y1; i <= y2; i++)
@@ -1003,10 +1008,11 @@ namespace JSSoft.Library.Commands
         internal void Draw()
         {
             Console.SetCursorPosition(0, this.y1);
+            var bufferWidth = this.width;
             var command = this.isHidden == true ? string.Empty : this.command;
             var (x1, y1) = (0, this.y1);
-            var (x2, y2) = this.NextPosition(prompt, x1, y1);
-            var (x3, y3) = this.NextPosition(command, x2, y2);
+            var (x2, y2) = NextPosition(prompt, bufferWidth, x1, y1);
+            var (x3, y3) = NextPosition(command, bufferWidth, x2, y2);
             this.InvokeDrawPrompt(this.writer, prompt);
             this.InvokeDrawCommand(this.writer, command);
 
@@ -1034,10 +1040,10 @@ namespace JSSoft.Library.Commands
             var prompt = this.prompt;
             var command = this.command;
             var (x8, y8) = (0, this.y1);
-            var (x9, y9) = this.NextPosition(text, x8, y8);
+            var (x9, y9) = NextPosition(text, bufferWidth, x8, y8);
             var (x1, y1) = x9 == 0 ? (x9, y9) : (0, y9 + 1);
-            var (x2, y2) = this.NextPosition(prompt, x1, y1);
-            var (x3, y3) = this.NextPosition(command, x2, y2);
+            var (x2, y2) = NextPosition(prompt, bufferWidth, x1, y1);
+            var (x3, y3) = NextPosition(command, bufferWidth, x2, y2);
 
             // var clear = "\r" + new string(' ', Console.BufferWidth) + "\r";
             // var text2 = x9 == 0 ? text : text + Environment.NewLine;
