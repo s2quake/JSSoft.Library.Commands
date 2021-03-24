@@ -556,65 +556,40 @@ namespace JSSoft.Library.Commands
             {
                 using var visible = TerminalCursorVisible.Set(false);
                 var writer = this.writer;
-                var cursorPosition = this.cursorPosition;
+                var cursorPosition = this.isHidden == true ? 0 : this.cursorPosition + text.Length;
                 var extra = this.command.Substring(this.cursorPosition);
                 var command = this.command.Insert(this.cursorPosition, text);
                 var promptText = this.prompt + command;
 
-                if (this.isHidden == true)
+                this.cursorPosition = cursorPosition;
+                this.command = command;
+                this.promptText = this.prompt + this.command;
+                if (this.isHidden == false)
                 {
-                    cursorPosition = 0;
-                }
-                else
-                {
-                    cursorPosition += text.Length;
                     var bufferWidth = this.width;
                     var bufferHeight = this.height;
                     var (x1, y1) = (this.x1, this.y1);
                     var (x2, y2) = (this.x2, this.y2);
                     var (x3, y3) = NextPosition(command, bufferWidth, x2, y2);
 
+                    var sx = this.x2;
+                    var sy = this.y2;
                     if (y3 >= bufferHeight)
                     {
-                        var count = (y3 - this.y3);
-                        // var l = count - (bufferHeight - y1);
-                        for (var i = 0; i < count; i++)
-                        {
-                            writer.WriteLine();
-                        }
-                        this.y1 -= count;
+                        this.y1 -= (y3 - this.y3);
                         this.y2 = this.y1 + y2 - y1;
                         this.y3 = this.y1 + y3 - y1;
-                        // y8 = yn;
                     }
                     else
                     {
-
+                        this.x3 = x3;
+                        this.y3 = y3;
                     }
-                    this.SetCursorPosition(0);
-
-
+                    Console.SetCursorPosition(sx, sy);
                     this.InvokeDrawCommand(writer, command);
-
-                    // if (y3 >= Console.BufferHeight)
-                    // {
-                    //     if (Environment.OSVersion.Platform == PlatformID.Unix && x3 == 0)
-                    //     {
-                    //         writer.WriteLine();
-                    //     }
-                    //     this.y1--;
-                    //     this.y2 = this.y1 + (y2 - y1);
-                    //     this.y3 = this.y1 + (y3 + y1);
-                    // }
-                    // else
-                    // {
-                    //     this.x3 = x3;
-                    //     this.y3 = y3;
-                    // }
+                    this.OnDrawEnd(writer, x3, y3, bufferHeight);
                 }
-                this.cursorPosition = cursorPosition;
-                this.command = command;
-                this.promptText = this.prompt + this.command;
+
                 this.SetCursorPosition(this.cursorPosition);
             }
         }
