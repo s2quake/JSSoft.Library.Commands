@@ -405,17 +405,17 @@ namespace JSSoft.Library.Commands
                         y3 -= offset;
                     }
 
+                    this.command = value;
+                    this.promptText = this.prompt + this.command;
+                    this.cursorPosition = this.command.Length;
+                    (this.x1, this.y1) = (x1, y1);
+                    (this.x2, this.y2) = (x2, y2);
+                    (this.x3, this.y3) = (x3, y3);
+
                     Console.SetCursorPosition(sx1, sy1);
                     writer.Write(text);
                     this.OnDrawEnd(writer, x3, y3, bufferHeight);
                     Console.SetCursorPosition(sx2, sy2);
-
-                    (this.x1, this.y1) = (x1, y1);
-                    (this.x2, this.y2) = (x2, y2);
-                    (this.x3, this.y3) = (x3, y3);
-                    this.command = value;
-                    this.promptText = this.prompt + this.command;
-                    this.cursorPosition = this.command.Length;
                 }
             }
         }
@@ -524,13 +524,56 @@ namespace JSSoft.Library.Commands
         {
             lock (LockedObject)
             {
+                var bufferWidth = this.width;
+                var bufferHeight = this.height;
+                var command = this.isHidden == true ? string.Empty : this.command;
+                var pre = command.Substring(0, this.cursorPosition);
+                var (x1, y1) = (this.x1, this.y1);
+                var (x2, y2) = NextPosition(prompt, bufferWidth, x1, y1);
+                var (x3, y3) = NextPosition(command, bufferWidth, x2, y2);
+                var len = (this.y3 - y3) * bufferWidth - x3 + this.x3;
+                var text = prompt + command + string.Empty.PadRight(Math.Max(0, len));
+
+                var (sx1, sy1) = (x1, y1);
+                var (sx2, sy2) = NextPosition(pre, bufferWidth, x2, y2);
+                if (y3 >= bufferHeight)
+                {
+                    var offset = y3 - this.y3;
+                    sy2 -= offset;
+                    y1 -= offset;
+                    y2 -= offset;
+                    y3 -= offset;
+                }
+
                 this.prompt = prompt;
                 this.promptText = this.prompt + this.command;
-                if (this.writer != null)
+                (this.x1, this.y1) = (x1, y1);
+                (this.x2, this.y2) = (x2, y2);
+                (this.x3, this.y3) = (x3, y3);
+
+                if (writer != null)
                 {
-                    this.Erase(this.writer, this.x1, this.y1, this.x3, this.y3);
-                    this.Draw();
+                    Console.SetCursorPosition(sx1, sy1);
+                    writer.Write(text);
+                    this.OnDrawEnd(writer, x3, y3, bufferHeight);
+                    Console.SetCursorPosition(sx2, sy2);
+                    // this.SetCursorPosition(this.cursorPosition);
                 }
+
+                // if (y3 >= Console.BufferHeight)
+                // {
+                //     this.y1 -= (y2 - y1);
+                //     this.y2 = this.y1 + (y2 - y1);
+                //     this.y3 = this.y1 + (y3 - y1);
+                // }
+
+                // this.prompt = prompt;
+                // this.promptText = this.prompt + this.command;
+                // if (this.writer != null)
+                // {
+                //     this.Erase(this.writer, this.x1, this.y1, this.x3, this.y3);
+                //     this.Draw();
+                // }
             }
         }
 
@@ -591,22 +634,21 @@ namespace JSSoft.Library.Commands
                     var (x2, y2) = (this.x2, this.y2);
                     var (x3, y3) = NextPosition(command, bufferWidth, x2, y2);
 
-                    var sx = this.x2;
-                    var sy = this.y2;
+                    var (sx1, sy1) = (this.x2, this.y2);
+                    var (sx2, sy2) = (x3, y3);
                     if (y3 >= bufferHeight)
                     {
-                        this.y1 -= (y3 - this.y3);
-                        this.y2 = this.y1 + y2 - y1;
-                        this.y3 = this.y1 + y3 - y1;
+                        var offset = y3 - this.y3;
+                        y1 -= offset;
+                        y2 -= offset;
+                        y3 -= offset;
                     }
-                    else
-                    {
-                        this.x3 = x3;
-                        this.y3 = y3;
-                    }
-                    Console.SetCursorPosition(sx, sy);
+                    (this.x1, this.y1) = (x1, y1);
+                    (this.x2, this.y2) = (x2, y2);
+                    (this.x3, this.y3) = (x3, y3);
+                    Console.SetCursorPosition(sx1, sy1);
                     this.InvokeDrawCommand(writer, command);
-                    this.OnDrawEnd(writer, x3, y3, bufferHeight);
+                    this.OnDrawEnd(writer, sx2, sy2, bufferHeight);
                 }
 
                 this.SetCursorPosition(this.cursorPosition);
@@ -646,8 +688,8 @@ namespace JSSoft.Library.Commands
             this.command = command;
             this.promptText = this.prompt + this.command;
             this.cursorPosition = cursorPosition;
-            this.x3 = x4;
-            this.y3 = y4;
+            (this.x3, this.y3) = (x4, y4);
+
             Console.SetCursorPosition(x3, y3);
             writer.Write(text);
             Console.SetCursorPosition(x3, y3);
@@ -1020,10 +1062,8 @@ namespace JSSoft.Library.Commands
             var text5 = GetOverwrappedText(text, bufferWidth);
             var text6 = GetOverwrappedText(promptText, bufferWidth);
 
-            var sx = x8;
-            var sy = this.y1;
-            var sx2 = x8;
-            var sy2 = this.y1;
+            var (sx1, sy1) = (x8, this.y1);
+            var (sx2, sy2) = (x8, this.y1);
             var h = (y3 - y8 + 1);
             if (y3 >= bufferHeight)
             {
@@ -1038,7 +1078,7 @@ namespace JSSoft.Library.Commands
                 this.y2 = y1 + y2 - y1;
                 this.y3 = y1 + y3 - y1;
             }
-            Console.SetCursorPosition(sx, sy);
+            Console.SetCursorPosition(sx1, sy1);
             writer.Write(string.Empty.PadRight(h * bufferWidth - 1, ' '));
             Console.SetCursorPosition(sx2, sy2);
             writer.Write(text5 + text6);
@@ -1051,9 +1091,16 @@ namespace JSSoft.Library.Commands
         {
             if (y >= bufferHeight)
             {
-                // if (Environment.OSVersion.Platform == PlatformID.Unix)
+                if (Environment.OSVersion.Platform == PlatformID.Win32NT)
                 {
                     if (x == 0 && Console.CursorLeft != 0)
+                    {
+                        writer.WriteLine();
+                    }
+                }
+                else if (Environment.OSVersion.Platform == PlatformID.Unix)
+                {
+                    if (x == 0)
                     {
                         writer.WriteLine();
                     }

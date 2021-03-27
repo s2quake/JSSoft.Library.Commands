@@ -32,15 +32,19 @@ namespace JSSoft.Library.Commands.Repl.Commands
     [CommandSummary("테스트 명령어", Locale = "ko-KR")]
     class TestCommand : CommandMethodBase
     {
+        private readonly Lazy<IShell> shell;
         private Task task;
         private CancellationTokenSource cancellation;
 
-        public TestCommand()
+        [ImportingConstructor]
+        public TestCommand(Lazy<IShell> shell)
             : base(new string[] { "t" })
         {
+            this.shell = shell;
         }
 
         [CommandMethod]
+        [CommandMethodProperty(nameof(IsPrompt))]
         [CommandSummary("Start async task")]
         [CommandSummary("비동기 작업을 시작합니다.", Locale = "ko-KR")]
         [CommandMethodStaticProperty(typeof(FilterProperties))]
@@ -143,11 +147,24 @@ namespace JSSoft.Library.Commands.Repl.Commands
             get; set;
         }
 
+        [CommandPropertySwitch('p')]
+        public bool IsPrompt
+        {
+            get; set;
+        }
+
         private void Test()
         {
             while (!this.cancellation.IsCancellationRequested)
             {
-                Console.WriteLine(DateTime.Now + Environment.NewLine + "wow");
+                if (this.IsPrompt == true)
+                {
+                    this.shell.Value.Prompt = $"{DateTime.Now}";
+                }
+                else
+                {
+                    Console.WriteLine(DateTime.Now + Environment.NewLine + "wow");
+                }
                 Thread.Sleep(1000);
             }
         }
