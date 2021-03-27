@@ -38,7 +38,6 @@ namespace JSSoft.Library.Commands.Repl
             // }
             // var w = b['최'];
             // File.WriteAllBytes(@"C:\Users\s2quake\source\repos\workspace\JSSoft.Library.Commands\JSSoft.Library.Commands\Win32NT.dat", b);
-            System.Console.WriteLine();
             var shell = Container.GetService<IShell>();
             shell.Prompt = Directory.GetCurrentDirectory();
             await shell.StartAsync();
