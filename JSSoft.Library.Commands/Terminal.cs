@@ -33,17 +33,18 @@ namespace JSSoft.Library.Commands
 {
     public class Terminal
     {
-        private static readonly ConsoleKeyInfo cancelKeyInfo = new ConsoleKeyInfo('\u0003', ConsoleKey.C, false, false, true);
+        private static readonly ConsoleKeyInfo cancelKeyInfo = new('\u0003', ConsoleKey.C, false, false, true);
         private static byte[] charWidths;
         private static int defaultBufferWidth = 80;
 
-        private readonly Dictionary<ConsoleKeyInfo, Action> actionMaps = new Dictionary<ConsoleKeyInfo, Action>();
-        private readonly List<string> histories = new List<string>();
-        private readonly List<string> completions = new List<string>();
+        private readonly Dictionary<ConsoleKeyInfo, Action> actionMaps = new();
+        private readonly List<string> histories = new();
+        private readonly List<string> completions = new();
 
-        private TerminalPoint pt1 = new TerminalPoint(0, Console.CursorTop);
+        private TerminalPoint pt1 = new(0, Console.CursorTop);
         private TerminalPoint pt2;
         private TerminalPoint pt3;
+        private StringBuilder outputText = new();
         private int width = Console.BufferWidth;
         private int height = Console.BufferHeight;
         private int historyIndex;
@@ -251,14 +252,9 @@ namespace JSSoft.Library.Commands
         {
             lock (LockedObject)
             {
-                if (this.cursorPosition < this.command.Length)
+                if (this.CursorPosition < this.Command.Length)
                 {
-                    using (TerminalCursorVisible.Set(false))
-                    {
-                        this.CursorPosition++;
-                        this.Backspace();
-                        this.UpdateInputText();
-                    }
+                    this.DeleteImpl();
                 }
             }
         }
@@ -286,7 +282,6 @@ namespace JSSoft.Library.Commands
                 if (this.CursorPosition > 0)
                 {
                     this.CursorPosition--;
-                    this.UpdateInputText();
                 }
             }
         }
@@ -298,7 +293,6 @@ namespace JSSoft.Library.Commands
                 if (this.CursorPosition < this.command.Length)
                 {
                     this.CursorPosition++;
-                    this.UpdateInputText();
                 }
             }
         }
@@ -310,35 +304,18 @@ namespace JSSoft.Library.Commands
                 if (this.CursorPosition > 0)
                 {
                     this.BackspaceImpl();
-                    this.UpdateInputText();
                 }
             }
         }
 
         public void DeleteToEnd()
         {
-            lock (LockedObject)
-            {
-                this.command = this.command.Substring(this.cursorPosition);
-                this.inputText = this.command;
-                this.completion = string.Empty;
-                this.promptText = this.prompt + this.command;
-                if (this.writer != null)
-                    this.Draw();
-            }
+            this.Command = this.command.Substring(this.cursorPosition);
         }
 
         public void DeleteToHome()
         {
-            lock (LockedObject)
-            {
-                this.command = this.command.Remove(this.cursorPosition);
-                this.inputText = this.command;
-                this.completion = string.Empty;
-                this.promptText = this.prompt + this.command;
-                if (this.writer != null)
-                    this.Draw();
-            }
+            this.Command = this.command.Remove(this.cursorPosition);
         }
 
         public void NextCompletion()
@@ -362,7 +339,12 @@ namespace JSSoft.Library.Commands
             get => this.cursorPosition;
             set
             {
+                if (value < 0 || value > this.command.Length)
+                    throw new ArgumentOutOfRangeException(nameof(value));
+
                 this.cursorPosition = value;
+                this.inputText = this.command.Substring(0, value);
+                this.completion = string.Empty;
                 this.Sync();
                 if (this.isHidden == false)
                 {
@@ -380,17 +362,17 @@ namespace JSSoft.Library.Commands
             {
                 if (value == null)
                     throw new ArgumentNullException(nameof(value));
-                if (this.command == value)
-                    return;
                 lock (LockedObject)
                 {
+                    if (this.command == value)
+                        return;
                     using var visible = TerminalCursorVisible.Set(false);
                     var bufferWidth = this.width;
                     var bufferHeight = this.height;
                     var pt1 = this.pt1;
                     var pt2 = this.pt2;
                     var pt3 = NextPosition(value, bufferWidth, pt2);
-                    var len = (this.pt3.Y - pt3.Y) * bufferWidth - pt3.X + this.pt3.X;
+                    var len = pt3.DistanceOf(this.pt3, bufferWidth);
                     var text = value + string.Empty.PadRight(Math.Max(0, len));
 
                     var s1 = pt2;
@@ -407,6 +389,8 @@ namespace JSSoft.Library.Commands
                     this.command = value;
                     this.promptText = this.prompt + this.command;
                     this.cursorPosition = this.command.Length;
+                    this.inputText = value;
+                    this.completion = string.Empty;
                     this.pt1 = pt1;
                     this.pt2 = pt2;
                     this.pt3 = pt3;
@@ -530,7 +514,7 @@ namespace JSSoft.Library.Commands
                 var pt1 = this.pt1;
                 var pt2 = NextPosition(prompt, bufferWidth, pt1);
                 var pt3 = NextPosition(command, bufferWidth, pt2);
-                var len = (this.pt3.Y - pt3.Y) * bufferWidth - pt3.X + this.pt3.X;
+                var len = pt3.DistanceOf(this.pt3, bufferWidth);
                 var text = prompt + command + string.Empty.PadRight(Math.Max(0, len));
 
                 var s1 = pt1;
@@ -608,7 +592,9 @@ namespace JSSoft.Library.Commands
 
                 this.cursorPosition = cursorPosition;
                 this.command = command;
-                this.promptText = this.prompt + this.command;
+                this.promptText = this.prompt + command;
+                this.inputText = command.Substring(0, cursorPosition);
+                this.completion = string.Empty;
                 if (this.isHidden == false)
                 {
                     var bufferWidth = this.width;
@@ -665,12 +651,34 @@ namespace JSSoft.Library.Commands
             var pt2 = this.pt2;
             var pt3 = NextPosition(pre, bufferWidth, pt2);
             var pt4 = NextPosition(extra, bufferWidth, pt3);
-            var len = (this.pt3.Y - pt3.Y) * bufferWidth - pt3.X + this.pt3.X;
+            var len = pt3.DistanceOf(this.pt3, bufferWidth);
             var text = extra + string.Empty.PadRight(len);
 
             this.command = command;
             this.promptText = this.prompt + this.command;
             this.cursorPosition = cursorPosition;
+            this.pt3 = pt4;
+
+            this.SetCursorPosition(pt3);
+            writer.Write(text);
+            this.SetCursorPosition(pt3);
+        }
+
+        private void DeleteImpl()
+        {
+            var bufferWidth = this.width;
+            var extra = this.command.Substring(this.cursorPosition + 1);
+            var command = this.command.Remove(this.cursorPosition, 1);
+            var pre = command.Substring(0, command.Length - extra.Length);
+            var endPosition = this.command.Length;
+            var pt2 = this.pt2;
+            var pt3 = NextPosition(pre, bufferWidth, pt2);
+            var pt4 = NextPosition(extra, bufferWidth, pt3);
+            var len = pt3.DistanceOf(this.pt3, bufferWidth);
+            var text = extra + string.Empty.PadRight(len);
+
+            this.command = command;
+            this.promptText = this.prompt + this.command;
             this.pt3 = pt4;
 
             this.SetCursorPosition(pt3);
@@ -736,11 +744,11 @@ namespace JSSoft.Library.Commands
             }
         }
 
-        private void UpdateInputText()
-        {
-            this.inputText = this.command.Substring(0, this.cursorPosition);
-            this.completion = string.Empty;
-        }
+        // private void UpdateInputText()
+        // {
+        //     this.inputText = this.command.Substring(0, this.cursorPosition);
+        //     this.completion = string.Empty;
+        // }
 
         private object ReadNumber(string prompt, object defaultValue, Func<string, bool> validation)
         {
@@ -811,7 +819,6 @@ namespace JSSoft.Library.Commands
                 if (keyChars != string.Empty && validation(this.Text + keyChars) == true)
                 {
                     this.InsertText(keyChars);
-                    this.UpdateInputText();
                 }
             }
         }
@@ -1002,21 +1009,9 @@ namespace JSSoft.Library.Commands
             return this.ReadLineImpl(i => true, true);
         }
 
-        internal void Erase(TextWriter writer, int x1, int y1, int x2, int y2)
-        {
-            var bufferWidth = this.width;
-            var (sx, sy) = (Console.CursorLeft, Console.CursorTop);
-            var x = x1;
-            var len = (y2 - y1) * bufferWidth - x1 + x2;
-            var text = string.Empty.PadRight(len);
-            Console.SetCursorPosition(x1, y1);
-            writer.Write(text);
-            Console.SetCursorPosition(sx, sy);
-        }
-
         internal void Draw()
         {
-            SetCursorPosition(this.pt1);
+            this.SetCursorPosition(this.pt1);
             var bufferWidth = this.width;
             var bufferHeight = this.height;
             var command = this.isHidden == true ? string.Empty : this.command;
@@ -1066,6 +1061,7 @@ namespace JSSoft.Library.Commands
                 this.pt2.Y = pt1.Y + pt2.Y - pt1.Y;
                 this.pt3.Y = pt1.Y + pt3.Y - pt1.Y;
             }
+            this.outputText.Append(text);
             this.SetCursorPosition(s1);
             writer.Write(string.Empty.PadRight(h * bufferWidth - 1, ' '));
             this.SetCursorPosition(s2);

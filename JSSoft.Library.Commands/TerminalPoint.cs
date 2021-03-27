@@ -64,7 +64,7 @@ namespace JSSoft.Library.Commands
                 {
                     count = bufferWidth - 1;
                 }
-                for (; x <= count; x++)
+                for (; x < count; x++)
                 {
                     c++;
                 }
