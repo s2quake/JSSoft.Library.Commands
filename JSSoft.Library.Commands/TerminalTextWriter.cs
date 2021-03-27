@@ -78,9 +78,9 @@ namespace JSSoft.Library.Commands
         private void WriteToStream(string text)
         {
             var (x1, y1) = (this.x, this.terminal.Top + this.offsetY);
-            var (x2, y2) = this.terminal.Draw(this.writer, text, x1, y1);
-            this.x = x2;
-            this.offsetY = x2 != 0 ? -1 : this.offsetY;
+            var pt2 = this.terminal.Draw(this.writer, text, x1, y1);
+            this.x = pt2.X;
+            this.offsetY = pt2.X != 0 ? -1 : this.offsetY;
         }
     }
 }

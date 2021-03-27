@@ -41,8 +41,9 @@ namespace JSSoft.Library.Commands
         private readonly List<string> histories = new List<string>();
         private readonly List<string> completions = new List<string>();
 
-        private int x1 = 0;
-        private int y1 = Console.CursorTop;
+        private TerminalPoint pt1 = new TerminalPoint(0, Console.CursorTop);
+        private TerminalPoint pt2;
+        private TerminalPoint pt3;
         private int width = Console.BufferWidth;
         private int height = Console.BufferHeight;
         private int historyIndex;
@@ -57,8 +58,6 @@ namespace JSSoft.Library.Commands
         private bool isHidden;
         private bool treatControlCAsInput;
         private bool isCancellationRequested;
-        private int x2, y2;
-        private int x3, y3;
 
         static Terminal()
         {
@@ -388,34 +387,34 @@ namespace JSSoft.Library.Commands
                     using var visible = TerminalCursorVisible.Set(false);
                     var bufferWidth = this.width;
                     var bufferHeight = this.height;
-                    var (x1, y1) = (this.x1, this.y1);
-                    var (x2, y2) = (this.x2, this.y2);
-                    var (x3, y3) = NextPosition(value, bufferWidth, x2, y2);
-                    var len = (this.y3 - y3) * bufferWidth - x3 + this.x3;
+                    var pt1 = this.pt1;
+                    var pt2 = this.pt2;
+                    var pt3 = NextPosition(value, bufferWidth, pt2);
+                    var len = (this.pt3.Y - pt3.Y) * bufferWidth - pt3.X + this.pt3.X;
                     var text = value + string.Empty.PadRight(Math.Max(0, len));
 
-                    var (sx1, sy1) = (x2, y2);
-                    var (sx2, sy2) = (x3, y3);
-                    if (y3 >= bufferHeight)
+                    var s1 = pt2;
+                    var s2 = pt3;
+                    if (pt3.Y >= bufferHeight)
                     {
-                        var offset = y3 - this.y3;
-                        sy2 -= offset;
-                        y1 -= offset;
-                        y2 -= offset;
-                        y3 -= offset;
+                        var offset = pt3.Y - this.pt3.Y;
+                        s2.Y -= offset;
+                        pt1.Y -= offset;
+                        pt2.Y -= offset;
+                        pt3.Y -= offset;
                     }
 
                     this.command = value;
                     this.promptText = this.prompt + this.command;
                     this.cursorPosition = this.command.Length;
-                    (this.x1, this.y1) = (x1, y1);
-                    (this.x2, this.y2) = (x2, y2);
-                    (this.x3, this.y3) = (x3, y3);
+                    this.pt1 = pt1;
+                    this.pt2 = pt2;
+                    this.pt3 = pt3;
 
-                    Console.SetCursorPosition(sx1, sy1);
+                    this.SetCursorPosition(s1);
                     writer.Write(text);
-                    this.OnDrawEnd(writer, x3, y3, bufferHeight);
-                    Console.SetCursorPosition(sx2, sy2);
+                    this.OnDrawEnd(writer, pt3, bufferHeight);
+                    this.SetCursorPosition(s2);
                 }
             }
         }
@@ -430,12 +429,12 @@ namespace JSSoft.Library.Commands
             {
                 if (this.width != Console.BufferWidth)
                 {
-                    this.y1 = Console.CursorTop - (this.prompt.Length + this.cursorPosition) / Console.BufferWidth;
+                    this.pt1.Y = Console.CursorTop - (this.prompt.Length + this.cursorPosition) / Console.BufferWidth;
                     this.width = Console.BufferWidth;
                 }
-                return this.y1;
+                return this.pt1.Y;
             }
-            internal set => this.y1 = value;
+            internal set => this.pt1.Y = value;
         }
 
         public bool IsEnabled { get; set; } = true;
@@ -528,52 +527,36 @@ namespace JSSoft.Library.Commands
                 var bufferHeight = this.height;
                 var command = this.isHidden == true ? string.Empty : this.command;
                 var pre = command.Substring(0, this.cursorPosition);
-                var (x1, y1) = (this.x1, this.y1);
-                var (x2, y2) = NextPosition(prompt, bufferWidth, x1, y1);
-                var (x3, y3) = NextPosition(command, bufferWidth, x2, y2);
-                var len = (this.y3 - y3) * bufferWidth - x3 + this.x3;
+                var pt1 = this.pt1;
+                var pt2 = NextPosition(prompt, bufferWidth, pt1);
+                var pt3 = NextPosition(command, bufferWidth, pt2);
+                var len = (this.pt3.Y - pt3.Y) * bufferWidth - pt3.X + this.pt3.X;
                 var text = prompt + command + string.Empty.PadRight(Math.Max(0, len));
 
-                var (sx1, sy1) = (x1, y1);
-                var (sx2, sy2) = NextPosition(pre, bufferWidth, x2, y2);
-                if (y3 >= bufferHeight)
+                var s1 = pt1;
+                var s2 = NextPosition(pre, bufferWidth, pt2);
+                if (pt3.Y >= bufferHeight)
                 {
-                    var offset = y3 - this.y3;
-                    sy2 -= offset;
-                    y1 -= offset;
-                    y2 -= offset;
-                    y3 -= offset;
+                    var offset = pt3.Y - this.pt3.Y;
+                    s2.Y -= offset;
+                    pt1.Y -= offset;
+                    pt2.Y -= offset;
+                    pt3.Y -= offset;
                 }
 
                 this.prompt = prompt;
                 this.promptText = this.prompt + this.command;
-                (this.x1, this.y1) = (x1, y1);
-                (this.x2, this.y2) = (x2, y2);
-                (this.x3, this.y3) = (x3, y3);
+                this.pt1 = pt1;
+                this.pt2 = pt2;
+                this.pt3 = pt3;
 
                 if (writer != null)
                 {
-                    Console.SetCursorPosition(sx1, sy1);
+                    this.SetCursorPosition(s1);
                     writer.Write(text);
-                    this.OnDrawEnd(writer, x3, y3, bufferHeight);
-                    Console.SetCursorPosition(sx2, sy2);
-                    // this.SetCursorPosition(this.cursorPosition);
+                    this.OnDrawEnd(writer, pt3, bufferHeight);
+                    this.SetCursorPosition(s2);
                 }
-
-                // if (y3 >= Console.BufferHeight)
-                // {
-                //     this.y1 -= (y2 - y1);
-                //     this.y2 = this.y1 + (y2 - y1);
-                //     this.y3 = this.y1 + (y3 - y1);
-                // }
-
-                // this.prompt = prompt;
-                // this.promptText = this.prompt + this.command;
-                // if (this.writer != null)
-                // {
-                //     this.Erase(this.writer, this.x1, this.y1, this.x3, this.y3);
-                //     this.Draw();
-                // }
             }
         }
 
@@ -630,45 +613,45 @@ namespace JSSoft.Library.Commands
                 {
                     var bufferWidth = this.width;
                     var bufferHeight = this.height;
-                    var (x1, y1) = (this.x1, this.y1);
-                    var (x2, y2) = (this.x2, this.y2);
-                    var (x3, y3) = NextPosition(command, bufferWidth, x2, y2);
+                    var pt1 = this.pt1;
+                    var pt2 = this.pt2;
+                    var pt3 = NextPosition(command, bufferWidth, pt2);
 
-                    var (sx1, sy1) = (this.x2, this.y2);
-                    var (sx2, sy2) = (x3, y3);
-                    if (y3 >= bufferHeight)
+                    var s1 = this.pt2;
+                    var s2 = pt3;
+                    if (pt3.Y >= bufferHeight)
                     {
-                        var offset = y3 - this.y3;
-                        y1 -= offset;
-                        y2 -= offset;
-                        y3 -= offset;
+                        var offset = pt3.Y - this.pt3.Y;
+                        pt1.Y -= offset;
+                        pt2.Y -= offset;
+                        pt3.Y -= offset;
                     }
-                    (this.x1, this.y1) = (x1, y1);
-                    (this.x2, this.y2) = (x2, y2);
-                    (this.x3, this.y3) = (x3, y3);
-                    Console.SetCursorPosition(sx1, sy1);
+                    this.pt1 = pt1;
+                    this.pt2 = pt2;
+                    this.pt3 = pt3;
+                    this.SetCursorPosition(s1);
                     this.InvokeDrawCommand(writer, command);
-                    this.OnDrawEnd(writer, sx2, sy2, bufferHeight);
+                    this.OnDrawEnd(writer, s2, bufferHeight);
                 }
 
                 this.SetCursorPosition(this.cursorPosition);
             }
         }
 
-        private (int x, int y) SetCursorPosition(int cursorPosition)
+        private TerminalPoint SetCursorPosition(int cursorPosition)
         {
             var bufferWidth = this.width;
             var bufferHeight = this.height;
             var position = this.isHidden == true ? 0 : cursorPosition;
-            var (x1, y1) = (this.x1, this.y1);
+            var pt1 = this.pt1;
             var index = this.prompt.Length + position;
             var text = this.promptText.Substring(0, index);
-            var (x2, y2) = NextPosition(text, bufferWidth, x1, y1);
-            y2 = Math.Min(y2, bufferHeight - 1);
+            var pt2 = NextPosition(text, bufferWidth, pt1);
+            pt2.Y = Math.Min(pt2.Y, bufferHeight - 1);
             if (Environment.OSVersion.Platform == PlatformID.Unix)
-                Console.SetCursorPosition(x2, 0);
-            Console.SetCursorPosition(x2, y2);
-            return (x2, y2);
+                Console.SetCursorPosition(pt2.X, 0);
+            this.SetCursorPosition(pt2);
+            return pt2;
         }
 
         private void BackspaceImpl()
@@ -679,20 +662,20 @@ namespace JSSoft.Library.Commands
             var pre = command.Substring(0, command.Length - extra.Length);
             var cursorPosition = this.cursorPosition - 1;
             var endPosition = this.command.Length;
-            var (x2, y2) = (this.x2, this.y2);
-            var (x3, y3) = NextPosition(pre, bufferWidth, x2, y2);
-            var (x4, y4) = NextPosition(extra, bufferWidth, x3, y3);
-            var len = (this.y3 - y3) * bufferWidth - x3 + this.x3;
+            var pt2 = this.pt2;
+            var pt3 = NextPosition(pre, bufferWidth, pt2);
+            var pt4 = NextPosition(extra, bufferWidth, pt3);
+            var len = (this.pt3.Y - pt3.Y) * bufferWidth - pt3.X + this.pt3.X;
             var text = extra + string.Empty.PadRight(len);
 
             this.command = command;
             this.promptText = this.prompt + this.command;
             this.cursorPosition = cursorPosition;
-            (this.x3, this.y3) = (x4, y4);
+            this.pt3 = pt4;
 
-            Console.SetCursorPosition(x3, y3);
+            this.SetCursorPosition(pt3);
             writer.Write(text);
-            Console.SetCursorPosition(x3, y3);
+            this.SetCursorPosition(pt3);
         }
 
         private void CompletionImpl(Func<string[], string, string> func)
@@ -877,7 +860,7 @@ namespace JSSoft.Library.Commands
                 this.treatControlCAsInput = Console.TreatControlCAsInput;
                 Console.TreatControlCAsInput = true;
 
-                this.y1 = Console.CursorTop;
+                this.pt1.Y = Console.CursorTop;
                 this.width = Console.BufferWidth;
                 this.isHidden = false;
                 this.command = defaultText;
@@ -886,8 +869,8 @@ namespace JSSoft.Library.Commands
                 this.cursorPosition = 0;
                 this.isHidden = isHidden;
                 this.inputText = defaultText;
-                (this.x2, this.y2) = NextPosition(prompt, this.width, this.x1, this.y1);
-                (this.x3, this.y3) = NextPosition(command, this.width, this.x2, this.y2);
+                this.pt2 = NextPosition(prompt, this.width, this.pt1);
+                this.pt3 = NextPosition(command, this.width, this.pt2);
                 this.Draw();
             }
         }
@@ -952,8 +935,10 @@ namespace JSSoft.Library.Commands
             return lineList.ToArray();
         }
 
-        internal static (int x, int y) NextPosition(string text, int bufferWidth, int x, int y)
+        internal static TerminalPoint NextPosition(string text, int bufferWidth, TerminalPoint pt)
         {
+            var x = pt.X;
+            var y = pt.Y;
             for (var i = 0; i < text.Length; i++)
             {
                 var ch = text[i];
@@ -980,13 +965,13 @@ namespace JSSoft.Library.Commands
                     x += w;
                 }
             }
-            return (x, y);
+            return new TerminalPoint(x, y);
         }
 
         internal static int GetStringLength(string text)
         {
-            var (x, y) = NextPosition(text, int.MaxValue, 0, 0);
-            return x;
+            var pt = NextPosition(text, int.MaxValue, TerminalPoint.Zero);
+            return pt.X;
         }
 
         internal static string GetOverwrappedText(string text, int bufferWidth)
@@ -1009,6 +994,8 @@ namespace JSSoft.Library.Commands
             }
         }
 
+        internal void SetCursorPosition(TerminalPoint pt) => Console.SetCursorPosition(pt.X, pt.Y);
+
         internal string ReadStringInternal(string prompt)
         {
             using var initializer = new Initializer(this, prompt, string.Empty, false);
@@ -1029,78 +1016,79 @@ namespace JSSoft.Library.Commands
 
         internal void Draw()
         {
-            Console.SetCursorPosition(this.x1, this.y1);
+            SetCursorPosition(this.pt1);
             var bufferWidth = this.width;
             var bufferHeight = this.height;
             var command = this.isHidden == true ? string.Empty : this.command;
-            var (x1, y1) = (this.x1, this.y1);
-            var (x2, y2) = NextPosition(prompt, bufferWidth, x1, y1);
-            var (x3, y3) = NextPosition(command, bufferWidth, x2, y2);
-            if (y3 >= Console.BufferHeight)
+            var pt1 = this.pt1;
+            var pt2 = NextPosition(prompt, bufferWidth, pt1);
+            var pt3 = NextPosition(command, bufferWidth, pt2);
+            if (pt3.Y >= Console.BufferHeight)
             {
-                this.y1 -= (y2 - y1);
-                this.y2 = this.y1 + (y2 - y1);
-                this.y3 = this.y1 + (y3 - y1);
+                var offset = (pt2.Y - pt1.Y);
+                this.pt1.Y -= (pt2.Y - pt1.Y);
+                this.pt2.Y = this.pt1.Y + (pt2.Y - pt1.Y);
+                this.pt3.Y = this.pt1.Y + (pt3.Y - pt1.Y);
             }
             this.InvokeDrawPrompt(this.writer, prompt);
             this.InvokeDrawCommand(this.writer, command);
-            this.OnDrawEnd(this.writer, x3, y3, bufferHeight);
+            this.OnDrawEnd(this.writer, pt3, bufferHeight);
         }
 
-        internal (int x, int y) Draw(TextWriter writer, string text, int x, int y)
+        internal TerminalPoint Draw(TextWriter writer, string text, int x, int y)
         {
             var bufferWidth = this.width;
             var bufferHeight = this.height;
             var promptText = this.promptText;
             var prompt = this.prompt;
             var command = this.command;
-            var (x8, y8) = (this.x1, this.y1);
-            var (x9, y9) = NextPosition(text, bufferWidth, x8, y8);
-            var (x1, y1) = x9 == 0 ? (x9, y9) : (0, y9 + 1);
-            var (x2, y2) = NextPosition(prompt, bufferWidth, x1, y1);
-            var (x3, y3) = NextPosition(command, bufferWidth, x2, y2);
+            var pt8 = this.pt1;
+            var pt9 = NextPosition(text, bufferWidth, pt8);
+            var pt1 = pt9.X == 0 ? new TerminalPoint(pt9.X, pt9.Y) : new TerminalPoint(0, pt9.Y + 1);
+            var pt2 = NextPosition(prompt, bufferWidth, pt1);
+            var pt3 = NextPosition(command, bufferWidth, pt2);
             var text5 = GetOverwrappedText(text, bufferWidth);
             var text6 = GetOverwrappedText(promptText, bufferWidth);
 
-            var (sx1, sy1) = (x8, this.y1);
-            var (sx2, sy2) = (x8, this.y1);
-            var h = (y3 - y8 + 1);
-            if (y3 >= bufferHeight)
+            var s1 = new TerminalPoint(pt8.X, this.pt1.Y);
+            var s2 = new TerminalPoint(pt8.X, this.pt1.Y);
+            var h = (pt3.Y - pt8.Y + 1);
+            if (pt3.Y >= bufferHeight)
             {
-                this.y1 = (y1 + bufferHeight) - (y3 + 1);
-                this.y2 = this.y1 + y2 - y1;
-                this.y3 = this.y1 + y3 - y1;
-                sy2 = this.y1 - (y9 - y8);
+                this.pt1.Y = (pt1.Y + bufferHeight) - (pt3.Y + 1);
+                this.pt2.Y = this.pt1.Y + pt2.Y - pt1.Y;
+                this.pt3.Y = this.pt1.Y + pt3.Y - pt1.Y;
+                s2.Y = this.pt1.Y - (pt9.Y - pt8.Y);
             }
             else
             {
-                this.y1 = y1;
-                this.y2 = y1 + y2 - y1;
-                this.y3 = y1 + y3 - y1;
+                this.pt1.Y = pt1.Y;
+                this.pt2.Y = pt1.Y + pt2.Y - pt1.Y;
+                this.pt3.Y = pt1.Y + pt3.Y - pt1.Y;
             }
-            Console.SetCursorPosition(sx1, sy1);
+            this.SetCursorPosition(s1);
             writer.Write(string.Empty.PadRight(h * bufferWidth - 1, ' '));
-            Console.SetCursorPosition(sx2, sy2);
+            this.SetCursorPosition(s2);
             writer.Write(text5 + text6);
-            this.OnDrawEnd(writer, x3, y3, bufferHeight);
+            this.OnDrawEnd(writer, pt3, bufferHeight);
             this.SetCursorPosition(this.cursorPosition);
-            return (x9, y9);
+            return pt9;
         }
 
-        private void OnDrawEnd(TextWriter writer, int x, int y, int bufferHeight)
+        private void OnDrawEnd(TextWriter writer, TerminalPoint pt, int bufferHeight)
         {
-            if (y >= bufferHeight)
+            if (pt.Y >= bufferHeight)
             {
                 if (Environment.OSVersion.Platform == PlatformID.Win32NT)
                 {
-                    if (x == 0 && Console.CursorLeft != 0)
+                    if (pt.X == 0 && Console.CursorLeft != 0)
                     {
                         writer.WriteLine();
                     }
                 }
                 else if (Environment.OSVersion.Platform == PlatformID.Unix)
                 {
-                    if (x == 0)
+                    if (pt.X == 0)
                     {
                         writer.WriteLine();
                     }
