@@ -34,8 +34,8 @@ namespace JSSoft.Library.Commands
     public class Terminal
     {
         private static readonly ConsoleKeyInfo cancelKeyInfo = new ConsoleKeyInfo('\u0003', ConsoleKey.C, false, false, true);
-        private static readonly Dictionary<char, int> charToWidth = new Dictionary<char, int>(char.MaxValue);
-        private static int bufferWidth = 80;
+        private static byte[] charWidths;
+        private static int defaultBufferWidth = 80;
 
         private readonly Dictionary<ConsoleKeyInfo, Action> actionMaps = new Dictionary<ConsoleKeyInfo, Action>();
         private readonly List<string> histories = new List<string>();
@@ -62,16 +62,19 @@ namespace JSSoft.Library.Commands
 
         static Terminal()
         {
+            var platformName = GetPlatformName(Environment.OSVersion.Platform);
+            var name = $"{typeof(Terminal).Namespace}.{platformName}.dat";
+            using var stream = typeof(Terminal).Assembly.GetManifestResourceStream(name);
+            var buffer = new byte[stream.Length];
+            stream.Read(buffer, 0, buffer.Length);
+            charWidths = buffer;
+
+            string GetPlatformName(PlatformID platformID) => platformID switch
             {
-                var name = $"{typeof(Terminal).Namespace}.{PlatformID.Win32NT}.dat";
-                using var stream = typeof(Terminal).Assembly.GetManifestResourceStream(name);
-                var buffer = new byte[stream.Length];
-                stream.Read(buffer, 0, buffer.Length);
-                for (var i = char.MinValue; i < char.MaxValue; i++)
-                {
-                    charToWidth.Add(i, buffer[i]);
-                }
-            }
+                PlatformID.Unix => $"{PlatformID.Unix}",
+                PlatformID.Win32NT => $"{PlatformID.Win32NT}",
+                _ => $"{PlatformID.Win32NT}",
+            };
         }
 
         public static bool IsOutputRedirected =>
@@ -94,7 +97,7 @@ namespace JSSoft.Library.Commands
             var length = 0;
             foreach (var item in text)
             {
-                length += charToWidth[item];
+                length += charWidths[(int)item];
             }
             return length;
         }
@@ -362,6 +365,7 @@ namespace JSSoft.Library.Commands
             set
             {
                 this.cursorPosition = value;
+                this.Sync();
                 if (this.isHidden == false)
                 {
                     using var visible = TerminalCursorVisible.Set(false);
@@ -427,7 +431,7 @@ namespace JSSoft.Library.Commands
             {
                 if (Terminal.IsOutputRedirected == false)
                     return Console.BufferWidth;
-                return bufferWidth;
+                return defaultBufferWidth;
             }
             set
             {
@@ -435,7 +439,7 @@ namespace JSSoft.Library.Commands
                     throw new InvalidOperationException(Resources.Exception_BufferWidthCannotSet);
                 if (value <= 0)
                     throw new ArgumentOutOfRangeException();
-                bufferWidth = value;
+                defaultBufferWidth = value;
             }
         }
 
@@ -873,6 +877,43 @@ namespace JSSoft.Library.Commands
             this.OnDrawCommand(writer, command);
         }
 
+        internal static int[] Split(string text, int bufferWidth)
+        {
+            var lineList = new List<int>((text.Length / bufferWidth) + 1);
+            var x = 0;
+            var y = 0;
+            for (var i = 0; i < text.Length; i++)
+            {
+                var ch = text[i];
+                if (ch == '\r')
+                {
+                    x = 0;
+                    continue;
+                }
+                else if (ch == '\n')
+                {
+                    lineList.Add(x);
+                    x = 0;
+                    y++;
+                    continue;
+                }
+
+                var w = charWidths[(int)ch];
+                if (x + w >= bufferWidth)
+                {
+                    lineList.Add(x);
+                    x = x + w - bufferWidth;
+                    y++;
+                }
+                else
+                {
+                    x += w;
+                }
+            }
+            lineList.Add(x);
+            return lineList.ToArray();
+        }
+
         internal static (int x, int y) NextPosition(string text, int bufferWidth, int x, int y)
         {
             for (var i = 0; i < text.Length; i++)
@@ -890,7 +931,11 @@ namespace JSSoft.Library.Commands
                     continue;
                 }
 
-                var w = charToWidth[ch];
+                var w = charWidths[(int)ch];
+                if (w < 0)
+                {
+                    int qewr=0;
+                }
                 if (x + w >= bufferWidth)
                 {
                     x = x + w - bufferWidth;
@@ -913,14 +958,17 @@ namespace JSSoft.Library.Commands
         internal static string GetOverwrappedText(string text, int bufferWidth)
         {
             var lineBreak = text.EndsWith(Environment.NewLine) == true ? Environment.NewLine : string.Empty;
-            var text2 = text.Substring(0, text.Length - Environment.NewLine.Length);
+            var text2 = text.Substring(0, text.Length - lineBreak.Length);
             var items = text2.Split(Environment.NewLine, StringSplitOptions.None);
             var itemList = new List<string>(items.Length);
             foreach (var item in items)
             {
-                var len = GetStringLength(item);
-                var line = item.PadRight(bufferWidth - (len - item.Length));
-                itemList.Add(line);
+                // var ss = Split(item, bufferWidth);
+                // var (x, y) = NextPosition(item, bufferWidth, 0, 0);
+                // var len = GetStringLength(item);
+                // var l = ((len / bufferWidth) + 1) * bufferWidth;
+                // var line = item.PadRight(l - (len - item.Length));
+                itemList.Add(item + "\x1b[K");
             }
             return string.Join(Environment.NewLine, itemList) + lineBreak;
         }
@@ -1009,18 +1057,22 @@ namespace JSSoft.Library.Commands
             var (x2, y2) = NextPosition(prompt, bufferWidth, x1, y1);
             var (x3, y3) = NextPosition(command, bufferWidth, x2, y2);
             var text5 = GetOverwrappedText(text, bufferWidth);
+            var text6 = GetOverwrappedText(promptText, bufferWidth);
+            // if (y >= bufferHeight)
+            // {
+            //     if (Environment.OSVersion.Platform == PlatformID.Unix && x == 0)
+            //     {
+            //         text6 += "\r";
+            //     }
+            // }
 
             var sx = x8;
             var sy = this.y1;
             if (y3 >= bufferHeight)
             {
-                var count = (y3 - this.y3);
-                var offset = y3 - bufferHeight + 1;
-                var yn = y8 - offset;
-                this.y1 = yn + y1 - y8;
+                this.y1 = (y1 + bufferHeight) - (y3 + 1);
                 this.y2 = this.y1 + y2 - y1;
                 this.y3 = this.y1 + y3 - y1;
-                y8 = yn;
             }
             else
             {
@@ -1029,10 +1081,11 @@ namespace JSSoft.Library.Commands
                 this.y3 = y1 + y3 - y1;
             }
             Console.SetCursorPosition(sx, sy);
-            writer.Write(text5);
-            this.InvokeDrawPrompt(writer, prompt);
-            this.InvokeDrawCommand(writer, command);
+            writer.Write(text5 + text6);
+            // this.InvokeDrawPrompt(writer, prompt);
+            // this.InvokeDrawCommand(writer, command);
             this.OnDrawEnd(writer, x3, y3, bufferHeight);
+            this.SetCursorPosition(this.cursorPosition);
             return (x9, y9);
         }
 
@@ -1044,6 +1097,14 @@ namespace JSSoft.Library.Commands
                 {
                     writer.WriteLine();
                 }
+            }
+        }
+
+        private void Sync()
+        {
+            if (this.width != Console.BufferWidth)
+            {
+                int qwer = 0;
             }
         }
 

@@ -19,6 +19,7 @@
 // Forked from https://github.com/NtreevSoft/CommandLineParser
 // Namespaces and files starting with "Ntreev" have been renamed to "JSSoft".
 
+using System;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -28,11 +29,20 @@ namespace JSSoft.Library.Commands.Repl
     {
         static async Task Main(string[] _)
         {
+            // var count = ushort.MaxValue + 1;
+            // byte[] b = new byte[count];
+            // for (var i = 32u; i < count; i++)
+            // {
+            //     System.Console.Write($"\u001b[H{(char)i}");
+            //     b[i] = (byte)System.Console.CursorLeft;
+            // }
+            // var w = b['최'];
+            // File.WriteAllBytes("/Users/s2quake-mac/Projects/workspace/JSSoft.Library.Commands/JSSoft.Library.Commands/Unix.dat", b);
             System.Console.WriteLine();
             var shell = Container.GetService<IShell>();
             shell.Prompt = Directory.GetCurrentDirectory();
             await shell.StartAsync();
-            System.Console.WriteLine();
+            System.Console.WriteLine("\u001b0");
         }
     }
 }
