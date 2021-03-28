@@ -30,5 +30,7 @@ namespace JSSoft.Library.Commands.Repl
         Task StartAsync();
 
         string Prompt { get; set; }
+
+        string ReadString(string prompt, string command, bool isHidden);
     }
 }

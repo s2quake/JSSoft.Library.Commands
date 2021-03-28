@@ -64,7 +64,7 @@ namespace JSSoft.Library.Commands
                 {
                     count = bufferWidth - 1;
                 }
-                for (; x < count; x++)
+                for (; x <= count; x++)
                 {
                     c++;
                 }
@@ -138,6 +138,16 @@ namespace JSSoft.Library.Commands
         public static bool operator !=(TerminalPoint pt1, TerminalPoint pt2)
         {
             return pt1.Y != pt2.Y || pt1.X != pt2.X;
+        }
+
+        public static TerminalPoint operator +(TerminalPoint pt1, TerminalPoint pt2)
+        {
+            return new TerminalPoint(pt1.X + pt2.X, pt1.Y + pt2.Y);
+        }
+
+        public static TerminalPoint operator -(TerminalPoint pt1, TerminalPoint pt2)
+        {
+            return new TerminalPoint(pt1.X - pt2.X, pt1.Y - pt2.Y);
         }
 
         public static readonly TerminalPoint Zero = new TerminalPoint(0, 0);

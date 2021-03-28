@@ -79,6 +79,13 @@ namespace JSSoft.Library.Commands.Repl.Commands
         }
 
         [CommandMethod]
+        public void Login()
+        {
+            var text = this.Shell.ReadString("password: ", string.Empty, true);
+            this.Out.WriteLine(text);
+        }
+
+        [CommandMethod]
         public void PushMany(params string[] items)
         {
             foreach (var item in items)
@@ -163,11 +170,16 @@ namespace JSSoft.Library.Commands.Repl.Commands
                 }
                 else
                 {
-                    Console.WriteLine(DateTime.Now + Environment.NewLine + "wow");
+                    // if (DateTime.Now.Millisecond % 2 == 0)
+                    //     Console.WriteLine(DateTime.Now + Environment.NewLine + "wow");
+                    // else
+                        Console.Write(DateTime.Now + Environment.NewLine + "wow");
                 }
                 Thread.Sleep(1000);
             }
         }
+
+        private IShell Shell => this.shell.Value;
 
         protected override bool IsMethodEnabled(CommandMethodDescriptor descriptor)
         {

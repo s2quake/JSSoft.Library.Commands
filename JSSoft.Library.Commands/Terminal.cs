@@ -60,6 +60,8 @@ namespace JSSoft.Library.Commands
         private bool isHidden;
         private bool treatControlCAsInput;
         private bool isCancellationRequested;
+        private ConsoleColor?[] foregroundColors = new ConsoleColor?[] { };
+        private ConsoleColor?[] backgroundColors = new ConsoleColor?[] { };
 
         static Terminal()
         {
@@ -181,14 +183,14 @@ namespace JSSoft.Library.Commands
             return this.ReadString(prompt, string.Empty, isHidden);
         }
 
-        public string ReadString(string prompt, string defaultText)
+        public string ReadString(string prompt, string command)
         {
-            return this.ReadString(prompt, defaultText, false);
+            return this.ReadString(prompt, command, false);
         }
 
-        public string ReadString(string prompt, string defaultText, bool isHidden)
+        public string ReadString(string prompt, string command, bool isHidden)
         {
-            using var initializer = new Initializer(this, prompt, defaultText, isHidden);
+            using var initializer = new Initializer(this, prompt, command, isHidden);
             return this.ReadLineImpl(i => true, false);
         }
 
@@ -211,24 +213,30 @@ namespace JSSoft.Library.Commands
 
         public void NextHistory()
         {
-            if (this.historyIndex + 1 < this.histories.Count)
+            lock (LockedObject)
             {
-                this.Command = this.histories[this.historyIndex + 1];
-                this.historyIndex++;
+                if (this.historyIndex + 1 < this.histories.Count)
+                {
+                    this.SetCommand(this.histories[this.historyIndex + 1]);
+                    this.historyIndex++;
+                }
             }
         }
 
         public void PrevHistory()
         {
-            if (this.historyIndex > 0)
+            lock (LockedObject)
             {
-                this.Command = this.histories[this.historyIndex - 1];
-                this.historyIndex--;
-            }
-            else if (this.histories.Count == 1)
-            {
-                this.Command = this.histories[0];
-                this.historyIndex = 0;
+                if (this.historyIndex > 0)
+                {
+                    this.SetCommand(this.histories[this.historyIndex - 1]);
+                    this.historyIndex--;
+                }
+                else if (this.histories.Count == 1)
+                {
+                    this.SetCommand(this.histories[0]);
+                    this.historyIndex = 0;
+                }
             }
         }
 
@@ -530,43 +538,48 @@ namespace JSSoft.Library.Commands
             lock (LockedObject)
             {
                 using var visible = TerminalCursorVisible.Set(false);
+                var bufferWidth = this.width;
+                var bufferHeight = this.height;
                 var writer = this.writer;
                 var cursorPosition = this.cursorPosition + text.Length;
                 var extra = this.command.Substring(this.cursorPosition);
                 var command = this.command.Insert(this.cursorPosition, text);
                 var promptText = this.prompt + command;
 
+                var pt1 = this.pt1;
+                var pt2 = this.pt2;
+                var pt3 = NextPosition(command, bufferWidth, pt2);
+
+                var s1 = this.pt2;
+                var s2 = pt3;
+                if (pt3.Y >= bufferHeight)
+                {
+                    var offset = pt3.Y - this.pt3.Y;
+                    pt1.Y -= offset;
+                    pt2.Y -= offset;
+                    pt3.Y -= offset;
+                }
+
                 this.cursorPosition = cursorPosition;
                 this.command = command;
                 this.promptText = this.prompt + command;
                 this.inputText = command.Substring(0, cursorPosition);
                 this.completion = string.Empty;
+                this.pt1 = pt1;
+                this.pt2 = pt2;
+                this.pt3 = pt3;
+
                 if (this.isHidden == false)
                 {
-                    var bufferWidth = this.width;
-                    var bufferHeight = this.height;
-                    var pt1 = this.pt1;
-                    var pt2 = this.pt2;
-                    var pt3 = NextPosition(command, bufferWidth, pt2);
-
-                    var s1 = this.pt2;
-                    var s2 = pt3;
-                    if (pt3.Y >= bufferHeight)
-                    {
-                        var offset = pt3.Y - this.pt3.Y;
-                        pt1.Y -= offset;
-                        pt2.Y -= offset;
-                        pt3.Y -= offset;
-                    }
-                    this.pt1 = pt1;
-                    this.pt2 = pt2;
-                    this.pt3 = pt3;
                     this.SetCursorPosition(s1);
                     this.InvokeDrawCommand(writer, command);
                     this.WriteEndLine(writer, s2, bufferHeight);
+                    this.SetCursorPositionTest(this.cursorPosition);
                 }
-
-                this.SetCursorPositionTest(this.cursorPosition);
+                else
+                {
+                    this.SetCursorPosition(s1);
+                }
             }
         }
 
@@ -605,9 +618,16 @@ namespace JSSoft.Library.Commands
             this.cursorPosition = cursorPosition;
             this.pt3 = pt4;
 
-            this.SetCursorPosition(pt3);
-            writer.Write(text);
-            this.SetCursorPosition(pt3);
+            if (this.isHidden == false)
+            {
+                this.SetCursorPosition(pt3);
+                writer.Write(text);
+                this.SetCursorPosition(pt3);
+            }
+            else
+            {
+                this.SetCursorPosition(pt2);
+            }
         }
 
         private void DeleteImpl()
@@ -627,9 +647,16 @@ namespace JSSoft.Library.Commands
             this.promptText = this.prompt + this.command;
             this.pt3 = pt4;
 
-            this.SetCursorPosition(pt3);
-            writer.Write(text);
-            this.SetCursorPosition(pt3);
+            if (this.isHidden == false)
+            {
+                this.SetCursorPosition(pt3);
+                writer.Write(text);
+                this.SetCursorPosition(pt3);
+            }
+            else
+            {
+                this.SetCursorPosition(pt2);
+            }
         }
 
         private void CompletionImpl(Func<string[], string, string> func)
@@ -684,8 +711,8 @@ namespace JSSoft.Library.Commands
                 {
                     command = leftText + completion;
                 }
-                this.completion = completion;
                 this.SetCommand(command);
+                this.completion = completion;
                 this.inputText = inputText;
             }
         }
@@ -694,7 +721,7 @@ namespace JSSoft.Library.Commands
         {
             var bufferWidth = this.width;
             var bufferHeight = this.height;
-            var command = this.isHidden == true ? string.Empty : this.command;
+            var command = this.command;
             var pre = command.Substring(0, this.cursorPosition);
             var pt1 = this.pt1;
             var pt2 = NextPosition(prompt, bufferWidth, pt1);
@@ -914,16 +941,17 @@ namespace JSSoft.Library.Commands
                 this.treatControlCAsInput = Console.TreatControlCAsInput;
                 this.width = bufferWidth;
                 this.height = bufferHeight;
-                this.isHidden = false;
                 this.command = command;
                 this.prompt = prompt;
                 this.promptText = prompt + command;
                 this.cursorPosition = 0;
                 this.isHidden = isHidden;
                 this.inputText = command;
+                this.completion = string.Empty;
                 this.pt1 = pt1;
                 this.pt2 = pt2;
                 this.pt3 = pt3;
+                this.ct1 = TerminalPoint.Zero;
 
                 this.SetCursorPosition(s1);
                 this.InvokeDrawPrompt(writer, prompt);
@@ -1066,17 +1094,19 @@ namespace JSSoft.Library.Commands
             var promptText = this.promptText;
             var prompt = this.prompt;
             var command = this.command;
-            var pt8 = this.pt1;
-            var pt9 = NextPosition(text, bufferWidth, pt8);
+            var text1 = text.EndsWith(Environment.NewLine) == true ? text : text + Environment.NewLine;
+            var pt8 = this.pt1 + this.ct1;
+            var ct1 = NextPosition(text, bufferWidth, pt8);
+            var pt9 = NextPosition(text1, bufferWidth, pt8);
             var pt1 = pt9.X == 0 ? new TerminalPoint(pt9.X, pt9.Y) : new TerminalPoint(0, pt9.Y + 1);
             var pt2 = NextPosition(prompt, bufferWidth, pt1);
             var pt3 = NextPosition(command, bufferWidth, pt2);
-            var text5 = GetOverwrappedText(text, bufferWidth);
+            var text5 = GetOverwrappedText(text1, bufferWidth);
             var text6 = GetOverwrappedText(promptText, bufferWidth);
 
-            var s1 = new TerminalPoint(pt8.X, this.pt1.Y);
-            var s2 = new TerminalPoint(pt8.X, this.pt1.Y);
-            var h = (pt3.Y - pt8.Y + 1);
+            var s1 = new TerminalPoint(pt8.X, pt8.Y);
+            var s2 = new TerminalPoint(pt8.X, pt8.Y);
+            var h = (pt3.Y - ct1.Y + 1);
             if (pt3.Y >= bufferHeight)
             {
                 this.pt1.Y = (pt1.Y + bufferHeight) - (pt3.Y + 1);
@@ -1090,6 +1120,7 @@ namespace JSSoft.Library.Commands
                 this.pt2.Y = pt1.Y + pt2.Y - pt1.Y;
                 this.pt3.Y = pt1.Y + pt3.Y - pt1.Y;
             }
+            this.ct1 = new TerminalPoint(ct1.X, ct1.X != 0 ? -1 : 0);
             this.outputText.Append(text);
 
             this.SetCursorPosition(s1);
@@ -1138,10 +1169,10 @@ namespace JSSoft.Library.Commands
         {
             private readonly Terminal terminal;
 
-            public Initializer(Terminal terminal, string prompt, string defaultText, bool isHidden)
+            public Initializer(Terminal terminal, string prompt, string command, bool isHidden)
             {
                 this.terminal = terminal;
-                this.terminal.Initialize(prompt, defaultText, isHidden);
+                this.terminal.Initialize(prompt, command, isHidden);
             }
 
             public void Dispose()
