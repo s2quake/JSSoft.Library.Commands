@@ -30,8 +30,6 @@ namespace JSSoft.Library.Commands
         private readonly TextWriter writer;
         private readonly Terminal terminal;
         private readonly Encoding encoding;
-        private int offsetY;
-        private int x;
 
         public TerminalTextWriter(TextWriter writer, Terminal terminal, Encoding encoding)
         {
@@ -71,10 +69,7 @@ namespace JSSoft.Library.Commands
 
         private void WriteToStream(string text)
         {
-            var (x1, y1) = (this.x, this.terminal.Top + this.offsetY);
-            var pt2 = this.terminal.Draw(this.writer, text, x1, y1);
-            this.x = pt2.X;
-            this.offsetY = pt2.X != 0 ? -1 : this.offsetY;
+            this.terminal.Draw(this.writer, text);
         }
     }
 }

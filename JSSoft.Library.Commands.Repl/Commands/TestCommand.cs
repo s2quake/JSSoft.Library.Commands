@@ -170,12 +170,29 @@ namespace JSSoft.Library.Commands.Repl.Commands
                 }
                 else
                 {
-                    // if (DateTime.Now.Millisecond % 2 == 0)
-                    //     Console.WriteLine(DateTime.Now + Environment.NewLine + "wow");
-                    // else
-                        Console.Write(DateTime.Now + Environment.NewLine + "wow");
+                    Console.Write(DateTime.Now + Environment.NewLine + "wow" + Environment.NewLine + DateTime.Now + Environment.NewLine + "wow");
+                    Console.Write(DateTime.Now + Environment.NewLine + "wow" + Environment.NewLine + DateTime.Now + Environment.NewLine + "wow");
+                    Console.Write("01234567890123456789012345678901234567890123456789012345678901234567890123456789");
+                    Console.Write(DateTime.Now + Environment.NewLine + "wow" + Environment.NewLine + DateTime.Now + Environment.NewLine + "wow");
+                    var v = DateTime.Now.Millisecond % 4;
+                    // v = 2;
+                    switch (v)
+                    {
+                        case 0:
+                            Console.WriteLine(DateTime.Now + Environment.NewLine + "wow" + Environment.NewLine + "12093810938012");
+                            break;
+                        case 1:
+                            Console.Write(DateTime.Now + Environment.NewLine + "wow" + Environment.NewLine + DateTime.Now + Environment.NewLine + "wow" + Environment.NewLine + DateTime.Now + Environment.NewLine + "wow" + Environment.NewLine + DateTime.Now + Environment.NewLine + "wow" + Environment.NewLine + DateTime.Now + Environment.NewLine + "wow");
+                            break;
+                        case 2:
+                            Console.Write("01234567890123456789012345678901234567890123456789012345678901234567890123456789");
+                            break;
+                        case 3:
+                            Console.WriteLine(DateTime.Now);
+                            break;
+                    }
                 }
-                Thread.Sleep(1000);
+                Thread.Sleep(300);
             }
         }
 

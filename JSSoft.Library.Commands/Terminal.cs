@@ -261,7 +261,7 @@ namespace JSSoft.Library.Commands
         {
             lock (LockedObject)
             {
-                if (this.CursorPosition < this.Command.Length)
+                if (this.cursorPosition < this.command.Length)
                 {
                     this.DeleteImpl();
                 }
@@ -310,7 +310,7 @@ namespace JSSoft.Library.Commands
         {
             lock (LockedObject)
             {
-                if (this.CursorPosition > 0)
+                if (this.cursorPosition > 0)
                 {
                     this.BackspaceImpl();
                 }
@@ -544,11 +544,13 @@ namespace JSSoft.Library.Commands
                 var cursorPosition = this.cursorPosition + text.Length;
                 var extra = this.command.Substring(this.cursorPosition);
                 var command = this.command.Insert(this.cursorPosition, text);
+                var pre = command.Substring(0, command.Length - extra.Length);
                 var promptText = this.prompt + command;
 
                 var pt1 = this.pt1;
                 var pt2 = this.pt2;
                 var pt3 = NextPosition(command, bufferWidth, pt2);
+                var c1 = NextPosition(pre, bufferWidth, pt2);
 
                 var s1 = this.pt2;
                 var s2 = pt3;
@@ -558,6 +560,7 @@ namespace JSSoft.Library.Commands
                     pt1.Y -= offset;
                     pt2.Y -= offset;
                     pt3.Y -= offset;
+                    c1.Y -= offset;
                 }
 
                 this.cursorPosition = cursorPosition;
@@ -574,7 +577,7 @@ namespace JSSoft.Library.Commands
                     this.SetCursorPosition(s1);
                     this.InvokeDrawCommand(writer, command);
                     this.WriteEndLine(writer, s2, bufferHeight);
-                    this.SetCursorPositionTest(this.cursorPosition);
+                    this.SetCursorPosition(c1);
                 }
                 else
                 {
@@ -610,8 +613,8 @@ namespace JSSoft.Library.Commands
             var pt2 = this.pt2;
             var pt3 = NextPosition(pre, bufferWidth, pt2);
             var pt4 = NextPosition(extra, bufferWidth, pt3);
-            var len = pt3.DistanceOf(this.pt3, bufferWidth);
-            var text = extra + string.Empty.PadRight(len);
+            var len = pt4.DistanceOf(new TerminalPoint(bufferWidth - 1, pt4.Y), bufferWidth);
+            var text = extra + string.Empty.PadRight(len - 1);
 
             this.command = command;
             this.promptText = this.prompt + this.command;
@@ -640,8 +643,8 @@ namespace JSSoft.Library.Commands
             var pt2 = this.pt2;
             var pt3 = NextPosition(pre, bufferWidth, pt2);
             var pt4 = NextPosition(extra, bufferWidth, pt3);
-            var len = pt3.DistanceOf(this.pt3, bufferWidth);
-            var text = extra + string.Empty.PadRight(len);
+            var len = pt4.DistanceOf(new TerminalPoint(bufferWidth - 1, pt4.Y), bufferWidth);
+            var text = extra + string.Empty.PadRight(len - 1);
 
             this.command = command;
             this.promptText = this.prompt + this.command;
@@ -1087,16 +1090,17 @@ namespace JSSoft.Library.Commands
             return this.ReadLineImpl(i => true, true);
         }
 
-        internal TerminalPoint Draw(TextWriter writer, string text, int x, int y)
+        internal void Draw(TextWriter writer, string text)
         {
             var bufferWidth = this.width;
             var bufferHeight = this.height;
             var promptText = this.promptText;
             var prompt = this.prompt;
             var command = this.command;
-            var text1 = text.EndsWith(Environment.NewLine) == true ? text : text + Environment.NewLine;
+            var pre = this.command.Substring(0, this.cursorPosition);
             var pt8 = this.pt1 + this.ct1;
             var ct1 = NextPosition(text, bufferWidth, pt8);
+            var text1 = text.EndsWith(Environment.NewLine) == true || ct1.X == 0 ? text : text + Environment.NewLine;
             var pt9 = NextPosition(text1, bufferWidth, pt8);
             var pt1 = pt9.X == 0 ? new TerminalPoint(pt9.X, pt9.Y) : new TerminalPoint(0, pt9.Y + 1);
             var pt2 = NextPosition(prompt, bufferWidth, pt1);
@@ -1106,30 +1110,28 @@ namespace JSSoft.Library.Commands
 
             var s1 = new TerminalPoint(pt8.X, pt8.Y);
             var s2 = new TerminalPoint(pt8.X, pt8.Y);
-            var h = (pt3.Y - ct1.Y + 1);
+            var len = s1.DistanceOf(pt3, bufferWidth);
             if (pt3.Y >= bufferHeight)
             {
-                this.pt1.Y = (pt1.Y + bufferHeight) - (pt3.Y + 1);
-                this.pt2.Y = this.pt1.Y + pt2.Y - pt1.Y;
-                this.pt3.Y = this.pt1.Y + pt3.Y - pt1.Y;
-                s2.Y = this.pt1.Y - (pt9.Y - pt8.Y);
+                var offset = pt3.Y + 1 - bufferHeight;
+                pt1.Y -= offset;
+                pt2.Y -= offset;
+                pt3.Y -= offset;
+                s2.Y -= offset;
             }
-            else
-            {
-                this.pt1.Y = pt1.Y;
-                this.pt2.Y = pt1.Y + pt2.Y - pt1.Y;
-                this.pt3.Y = pt1.Y + pt3.Y - pt1.Y;
-            }
+
+            this.pt1 = pt1;
+            this.pt2 = pt2;
+            this.pt3 = pt3;
             this.ct1 = new TerminalPoint(ct1.X, ct1.X != 0 ? -1 : 0);
             this.outputText.Append(text);
 
             this.SetCursorPosition(s1);
-            writer.Write(string.Empty.PadRight(h * bufferWidth - 1, ' '));
+            writer.Write(string.Empty.PadRight(len - 1));
             this.SetCursorPosition(s2);
             writer.Write(text5 + text6);
             this.WriteEndLine(writer, pt3, bufferHeight);
             this.SetCursorPositionTest(this.cursorPosition);
-            return pt9;
         }
 
         private void WriteEndLine(TextWriter writer, TerminalPoint pt, int bufferHeight)
