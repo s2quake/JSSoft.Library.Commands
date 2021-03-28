@@ -46,10 +46,8 @@ namespace JSSoft.Library.Commands
         {
             lock (Terminal.LockedObject)
             {
-                using (TerminalCursorVisible.Set(false))
-                {
-                    this.WriteToStream(value.ToString());
-                }
+                using var visible = TerminalCursorVisible.Set(false);
+                this.WriteToStream(value.ToString());
             }
         }
 
@@ -57,10 +55,8 @@ namespace JSSoft.Library.Commands
         {
             lock (Terminal.LockedObject)
             {
-                using (TerminalCursorVisible.Set(false))
-                {
-                    this.WriteToStream(value);
-                }
+                using var visible = TerminalCursorVisible.Set(false);
+                this.WriteToStream(value);
             }
         }
 
@@ -68,10 +64,8 @@ namespace JSSoft.Library.Commands
         {
             lock (Terminal.LockedObject)
             {
-                using (TerminalCursorVisible.Set(false))
-                {
-                    this.WriteToStream(value + Environment.NewLine);
-                }
+                using var visible = TerminalCursorVisible.Set(false);
+                this.WriteToStream(value + Environment.NewLine);
             }
         }
 

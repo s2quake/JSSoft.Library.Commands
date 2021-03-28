@@ -44,10 +44,7 @@ namespace JSSoft.Library.Commands
             set
             {
                 this.prompt1 = value;
-                // if (this.IsReading == true)
-                {
-                    this.SetPrompt(this.Prefix + this.Prompt + this.Postfix);
-                }
+                base.Prompt = this.Prefix + this.Prompt + this.Postfix;
             }
         }
 
@@ -57,10 +54,7 @@ namespace JSSoft.Library.Commands
             set
             {
                 this.prefix = value;
-                if (this.IsReading == true)
-                {
-                    this.SetPrompt(this.Prefix + this.Prompt + this.Postfix);
-                }
+                base.Prompt = this.Prefix + this.Prompt + this.Postfix;
             }
         }
 
@@ -70,10 +64,7 @@ namespace JSSoft.Library.Commands
             set
             {
                 this.postfix = value;
-                if (this.IsReading == true)
-                {
-                    this.SetPrompt(this.Prefix + this.Prompt + this.Postfix);
-                }
+                base.Prompt = this.Prefix + this.Prompt + this.Postfix;
             }
         }
 
