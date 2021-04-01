@@ -35,7 +35,8 @@ namespace JSSoft.Library.Commands
     {
         private static readonly ConsoleKeyInfo cancelKeyInfo = new('\u0003', ConsoleKey.C, false, false, true);
         private static byte[] charWidths;
-        private static int defaultBufferWidth = 80;
+        private static TextWriter consoleOut = Console.Out;
+        private static TextWriter consoleError = Console.Error;
 
         private readonly Dictionary<ConsoleKeyInfo, Action> actionMaps = new();
         private readonly List<string> histories = new();
@@ -55,8 +56,10 @@ namespace JSSoft.Library.Commands
         private string inputText = string.Empty;
         private string completion = string.Empty;
         private int cursorPosition;
-        private TextWriter writer;
-        private TextWriter errorWriter;
+        // private TextWriter writer;
+        private TextWriter externalOut;
+        private TextWriter externalError;
+
         private bool isHidden;
         private bool treatControlCAsInput;
         private bool isCancellationRequested;
@@ -131,6 +134,9 @@ namespace JSSoft.Library.Commands
                 this.actionMaps.Add(new ConsoleKeyInfo('\0', ConsoleKey.Tab, true, false, false), this.PrevCompletion);
             else
                 this.actionMaps.Add(new ConsoleKeyInfo('\t', ConsoleKey.Tab, true, false, false), this.PrevCompletion);
+
+            this.externalOut = new TerminalTextWriter(consoleOut, this, Console.OutputEncoding);
+            this.externalError = new TerminalTextWriter(consoleError, this, Console.OutputEncoding);
         }
 
         public long? ReadLong(string prompt)
@@ -190,8 +196,13 @@ namespace JSSoft.Library.Commands
 
         public string ReadString(string prompt, string command, bool isHidden)
         {
-            using var initializer = new Initializer(this, prompt, command, isHidden);
-            return this.ReadLineImpl(i => true, false);
+            using var initializer = new Initializer(this)
+            {
+                Prompt = prompt,
+                Command = command,
+                IsHidden = isHidden,
+            };
+            return initializer.ReadLineImpl(i => true, false);
         }
 
         public SecureString ReadSecureString(string prompt)
@@ -207,8 +218,11 @@ namespace JSSoft.Library.Commands
 
         public ConsoleKey ReadKey(string prompt, params ConsoleKey[] filters)
         {
-            using var initializer = new Initializer(this, prompt, string.Empty, false);
-            return this.ReadKeyImpl(filters);
+            using var initializer = new Initializer(this)
+            {
+                Prompt = prompt,
+            };
+            return initializer.ReadKeyImpl(filters);
         }
 
         public void NextHistory()
@@ -399,7 +413,7 @@ namespace JSSoft.Library.Commands
             }
         }
 
-        public bool IsReading => this.writer != null;
+        public bool IsReading { get; private set; }
 
         public int Top
         {
@@ -416,24 +430,6 @@ namespace JSSoft.Library.Commands
         }
 
         public bool IsEnabled { get; set; } = true;
-
-        public static int BufferWidth
-        {
-            get
-            {
-                if (Terminal.IsOutputRedirected == false)
-                    return Console.BufferWidth;
-                return defaultBufferWidth;
-            }
-            set
-            {
-                if (Terminal.IsOutputRedirected == false)
-                    throw new InvalidOperationException(Resources.Exception_BufferWidthCannotSet);
-                if (value <= 0)
-                    throw new ArgumentOutOfRangeException();
-                defaultBufferWidth = value;
-            }
-        }
 
         public static string NextCompletion(string[] completions, string text)
         {
@@ -497,6 +493,7 @@ namespace JSSoft.Library.Commands
             return text;
         }
 
+        public static Terminal Current { get; private set; }
 
         public event TerminalCancelEventHandler CancelKeyPress;
 
@@ -530,6 +527,10 @@ namespace JSSoft.Library.Commands
             writer.Write(command);
         }
 
+        protected virtual TextWriter Out => Console.Out;
+
+        protected virtual TextWriter Error => Console.Error;
+
         private void InsertText(string text)
         {
             if (text == string.Empty)
@@ -540,7 +541,6 @@ namespace JSSoft.Library.Commands
                 using var visible = TerminalCursorVisible.Set(false);
                 var bufferWidth = this.width;
                 var bufferHeight = this.height;
-                var writer = this.writer;
                 var cursorPosition = this.cursorPosition + text.Length;
                 var extra = this.command.Substring(this.cursorPosition);
                 var command = this.command.Insert(this.cursorPosition, text);
@@ -574,16 +574,26 @@ namespace JSSoft.Library.Commands
 
                 if (this.isHidden == false)
                 {
-                    this.SetCursorPosition(s1);
-                    this.InvokeDrawCommand(writer, command);
-                    this.WriteEndLine(writer, s2, bufferHeight);
-                    this.SetCursorPosition(c1);
+                    Draw(s1, s2, command, bufferHeight);
+                    if (Environment.OSVersion.Platform == PlatformID.Unix)
+                        SetCursorPosition(s1);
+                    SetCursorPosition(c1);
                 }
                 else
                 {
-                    this.SetCursorPosition(s1);
+                    SetCursorPosition(s1);
                 }
             }
+        }
+
+        private static void Draw(TerminalPoint pt1, TerminalPoint pt2, string text, int bufferHeight)
+        {
+            using var stream = Console.OpenStandardOutput();
+            using var writer = new StreamWriter(stream);
+            writer.Write(text);
+            WriteEndLine(writer, pt2, bufferHeight);
+            SetCursorPosition(pt1);
+            writer.Close();
         }
 
         private TerminalPoint SetCursorPositionTest(int cursorPosition)
@@ -598,13 +608,14 @@ namespace JSSoft.Library.Commands
             pt2.Y = Math.Min(pt2.Y, bufferHeight - 1);
             if (Environment.OSVersion.Platform == PlatformID.Unix)
                 Console.SetCursorPosition(pt2.X, 0);
-            this.SetCursorPosition(pt2);
+            SetCursorPosition(pt2);
             return pt2;
         }
 
         private void BackspaceImpl()
         {
             var bufferWidth = this.width;
+            var bufferHeight = this.height;
             var extra = this.command.Substring(this.cursorPosition);
             var command = this.command.Remove(this.cursorPosition - 1, 1);
             var pre = command.Substring(0, command.Length - extra.Length);
@@ -613,8 +624,8 @@ namespace JSSoft.Library.Commands
             var pt2 = this.pt2;
             var pt3 = NextPosition(pre, bufferWidth, pt2);
             var pt4 = NextPosition(extra, bufferWidth, pt3);
-            var len = pt4.DistanceOf(new TerminalPoint(bufferWidth - 1, pt4.Y), bufferWidth);
-            var text = extra + string.Empty.PadRight(len - 1);
+            var pt5 = new TerminalPoint(bufferWidth - 1, pt4.Y);
+            var text = extra + PadString(pt4, pt5, bufferWidth);
 
             this.command = command;
             this.promptText = this.prompt + this.command;
@@ -623,19 +634,21 @@ namespace JSSoft.Library.Commands
 
             if (this.isHidden == false)
             {
-                this.SetCursorPosition(pt3);
-                writer.Write(text);
-                this.SetCursorPosition(pt3);
+                Draw(pt3, pt4, text, bufferHeight);
+                // this.SetCursorPosition(pt3);
+                // writer.Write(text);
+                SetCursorPosition(pt3);
             }
             else
             {
-                this.SetCursorPosition(pt2);
+                SetCursorPosition(pt2);
             }
         }
 
         private void DeleteImpl()
         {
             var bufferWidth = this.width;
+            var bufferHeight = this.height;
             var extra = this.command.Substring(this.cursorPosition + 1);
             var command = this.command.Remove(this.cursorPosition, 1);
             var pre = command.Substring(0, command.Length - extra.Length);
@@ -643,8 +656,8 @@ namespace JSSoft.Library.Commands
             var pt2 = this.pt2;
             var pt3 = NextPosition(pre, bufferWidth, pt2);
             var pt4 = NextPosition(extra, bufferWidth, pt3);
-            var len = pt4.DistanceOf(new TerminalPoint(bufferWidth - 1, pt4.Y), bufferWidth);
-            var text = extra + string.Empty.PadRight(len - 1);
+            var pt5 = new TerminalPoint(bufferWidth - 1, pt4.Y);
+            var text = extra + PadString(pt4, pt5, bufferWidth);
 
             this.command = command;
             this.promptText = this.prompt + this.command;
@@ -652,13 +665,14 @@ namespace JSSoft.Library.Commands
 
             if (this.isHidden == false)
             {
-                this.SetCursorPosition(pt3);
-                writer.Write(text);
-                this.SetCursorPosition(pt3);
+                // this.SetCursorPosition(pt3);
+                // writer.Write(text);
+                Draw(pt3, pt4, text, bufferHeight);
+                SetCursorPosition(pt3);
             }
             else
             {
-                this.SetCursorPosition(pt2);
+                SetCursorPosition(pt2);
             }
         }
 
@@ -729,8 +743,7 @@ namespace JSSoft.Library.Commands
             var pt1 = this.pt1;
             var pt2 = NextPosition(prompt, bufferWidth, pt1);
             var pt3 = NextPosition(command, bufferWidth, pt2);
-            var len = pt3.DistanceOf(this.pt3, bufferWidth);
-            var text = prompt + command + string.Empty.PadRight(Math.Max(0, len));
+            var text = prompt + command + PadString(pt3, this.pt3, bufferWidth);
 
             var s1 = pt1;
             var s2 = NextPosition(pre, bufferWidth, pt2);
@@ -749,12 +762,10 @@ namespace JSSoft.Library.Commands
             this.pt2 = pt2;
             this.pt3 = pt3;
 
-            if (writer != null)
+            if (this.IsReading == true)
             {
-                this.SetCursorPosition(s1);
-                writer.Write(text);
-                this.WriteEndLine(writer, pt3, bufferHeight);
-                this.SetCursorPosition(s2);
+                Draw(s1, pt3, text, bufferHeight);
+                SetCursorPosition(s2);
             }
         }
 
@@ -766,8 +777,7 @@ namespace JSSoft.Library.Commands
             var pt1 = this.pt1;
             var pt2 = this.pt2;
             var pt3 = NextPosition(value, bufferWidth, pt2);
-            var len = pt3.DistanceOf(this.pt3, bufferWidth);
-            var text = value + string.Empty.PadRight(Math.Max(0, len));
+            var text = value + PadString(pt3, this.pt3, bufferWidth);
 
             var s1 = pt2;
             var s2 = pt3;
@@ -789,10 +799,8 @@ namespace JSSoft.Library.Commands
             this.pt2 = pt2;
             this.pt3 = pt3;
 
-            this.SetCursorPosition(s1);
-            writer.Write(text);
-            this.WriteEndLine(writer, pt3, bufferHeight);
-            this.SetCursorPosition(s2);
+            Draw(s1, pt3, text, bufferHeight);
+            SetCursorPosition(s2);
         }
 
         private void SetCursorPosition(int cursorPosition)
@@ -800,17 +808,20 @@ namespace JSSoft.Library.Commands
             this.cursorPosition = cursorPosition;
             this.inputText = this.command.Substring(0, cursorPosition);
             this.completion = string.Empty;
-            this.Sync();
             if (this.isHidden == false)
             {
                 this.SetCursorPositionTest(cursorPosition);
             }
         }
 
-        private object ReadNumber(string prompt, object defaultValue, Func<string, bool> validation)
+        private object ReadNumber(string prompt, object value, Func<string, bool> validation)
         {
-            using var initializer = new Initializer(this, prompt, $"{defaultValue}", false);
-            return this.ReadLineImpl(validation, false);
+            using var initializer = new Initializer(this)
+            {
+                Prompt = prompt,
+                Command = $"{value}"
+            };
+            return initializer.ReadLineImpl(validation, false);
         }
 
         private string ReadLineImpl(Func<string, bool> validation, bool recordHistory)
@@ -884,6 +895,10 @@ namespace JSSoft.Library.Commands
         {
             while (this.isCancellationRequested == false)
             {
+                if (this.width != Console.BufferWidth)
+                {
+                    // this.Wow();
+                }
                 if (Console.KeyAvailable == true)
                 {
                     yield return Console.ReadKey(true);
@@ -928,7 +943,7 @@ namespace JSSoft.Library.Commands
                 var pt3 = NextPosition(command, bufferWidth, pt2);
                 var s1 = pt1;
 
-                if (pt3.Y >= Console.BufferHeight)
+                if (pt3.Y >= bufferHeight)
                 {
                     var offset = (pt2.Y - pt1.Y);
                     pt1.Y -= offset;
@@ -936,11 +951,6 @@ namespace JSSoft.Library.Commands
                     pt3.Y -= offset;
                 }
 
-                Console.SetOut(new TerminalTextWriter(Console.Out, this, Console.OutputEncoding));
-                Console.SetError(new TerminalTextWriter(Console.Error, this, Console.OutputEncoding));
-                Console.TreatControlCAsInput = true;
-                this.writer = writer;
-                this.errorWriter = errorWriter;
                 this.treatControlCAsInput = Console.TreatControlCAsInput;
                 this.width = bufferWidth;
                 this.height = bufferHeight;
@@ -955,11 +965,9 @@ namespace JSSoft.Library.Commands
                 this.pt2 = pt2;
                 this.pt3 = pt3;
                 this.ct1 = TerminalPoint.Zero;
+                this.IsReading = true;
 
-                this.SetCursorPosition(s1);
-                this.InvokeDrawPrompt(writer, prompt);
-                this.InvokeDrawCommand(writer, command);
-                this.WriteEndLine(writer, pt3, bufferHeight);
+                Draw(s1, pt3, prompt + command, bufferHeight);
             }
         }
 
@@ -968,11 +976,14 @@ namespace JSSoft.Library.Commands
             lock (LockedObject)
             {
                 Console.TreatControlCAsInput = this.treatControlCAsInput;
-                Console.SetOut(this.writer);
-                Console.SetError(this.errorWriter);
-                Console.WriteLine();
-                this.writer = null;
+                using (var stream = Console.OpenStandardOutput())
+                using (var writer = new StreamWriter(stream))
+                {
+                    writer.WriteLine();
+                }
+                this.outputText.AppendLine(this.promptText);
                 this.isHidden = false;
+                this.IsReading = false;
             }
         }
 
@@ -1082,12 +1093,24 @@ namespace JSSoft.Library.Commands
             }
         }
 
-        internal void SetCursorPosition(TerminalPoint pt) => Console.SetCursorPosition(pt.X, pt.Y);
+        internal static string PadString(TerminalPoint pt1, TerminalPoint pt2, int bufferWidth)
+        {
+            var len = Math.Max(0, pt1.DistanceOf(pt2, bufferWidth) - 1);
+            var text = string.Empty;
+            if (Environment.OSVersion.Platform == PlatformID.Unix)
+                return string.Empty.PadRight(len) + "\x1b[0K";
+            return string.Empty.PadRight(len);
+        }
+
+        internal static void SetCursorPosition(TerminalPoint pt) => Console.SetCursorPosition(pt.X, pt.Y);
 
         internal string ReadStringInternal(string prompt)
         {
-            using var initializer = new Initializer(this, prompt, string.Empty, false);
-            return this.ReadLineImpl(i => true, true);
+            using var initializer = new Initializer(this)
+            {
+                Prompt = prompt,
+            };
+            return initializer.ReadLineImpl(i => true, true);
         }
 
         internal void Draw(TextWriter writer, string text)
@@ -1110,7 +1133,9 @@ namespace JSSoft.Library.Commands
 
             var s1 = new TerminalPoint(pt8.X, pt8.Y);
             var s2 = new TerminalPoint(pt8.X, pt8.Y);
+            var s3 = pt3;
             var len = s1.DistanceOf(pt3, bufferWidth);
+            var text7 = PadString(s1, pt3, bufferWidth);
             if (pt3.Y >= bufferHeight)
             {
                 var offset = pt3.Y + 1 - bufferHeight;
@@ -1126,15 +1151,23 @@ namespace JSSoft.Library.Commands
             this.ct1 = new TerminalPoint(ct1.X, ct1.X != 0 ? -1 : 0);
             this.outputText.Append(text);
 
-            this.SetCursorPosition(s1);
-            writer.Write(string.Empty.PadRight(len - 1));
-            this.SetCursorPosition(s2);
-            writer.Write(text5 + text6);
-            this.WriteEndLine(writer, pt3, bufferHeight);
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+            {
+                // this.SetCursorPosition(s1);
+                // writer.Write(text7);
+                // this.SetCursorPosition(s2);
+                // writer.Write(text5 + text6);
+                // this.WriteEndLine(writer, pt3, bufferHeight);
+                Draw(s1, pt3, text7 + text5 + text6, bufferHeight);
+            }
+            else
+            {
+                Draw(s1, s3, text5 + text6, bufferHeight);
+            }
             this.SetCursorPositionTest(this.cursorPosition);
         }
 
-        private void WriteEndLine(TextWriter writer, TerminalPoint pt, int bufferHeight)
+        private static void WriteEndLine(TextWriter writer, TerminalPoint pt, int bufferHeight)
         {
             if (pt.Y >= bufferHeight)
             {
@@ -1155,14 +1188,6 @@ namespace JSSoft.Library.Commands
             }
         }
 
-        private void Sync()
-        {
-            if (this.width != Console.BufferWidth)
-            {
-                int qwer = 0;
-            }
-        }
-
         internal static object LockedObject { get; } = new object();
 
         #region Initializer
@@ -1171,10 +1196,27 @@ namespace JSSoft.Library.Commands
         {
             private readonly Terminal terminal;
 
-            public Initializer(Terminal terminal, string prompt, string command, bool isHidden)
+            public Initializer(Terminal terminal)
             {
                 this.terminal = terminal;
-                this.terminal.Initialize(prompt, command, isHidden);
+            }
+
+            public string Prompt { get; set; } = string.Empty;
+
+            public string Command { get; set; } = string.Empty;
+
+            public bool IsHidden { get; set; }
+
+            public string ReadLineImpl(Func<string, bool> validation, bool recordHistory)
+            {
+                this.terminal.Initialize(this.Prompt, this.Command, this.IsHidden);
+                return this.terminal.ReadLineImpl(validation, recordHistory);
+            }
+
+            public ConsoleKey ReadKeyImpl(params ConsoleKey[] filters)
+            {
+                this.terminal.Initialize(this.Prompt, this.Command, this.IsHidden);
+                return this.terminal.ReadKeyImpl(filters);
             }
 
             public void Dispose()

@@ -192,7 +192,7 @@ namespace JSSoft.Library.Commands.Repl.Commands
                             break;
                     }
                 }
-                Thread.Sleep(300);
+                Thread.Sleep(1000);
             }
         }
 

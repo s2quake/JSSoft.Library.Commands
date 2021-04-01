@@ -77,6 +77,7 @@ namespace JSSoft.Library.Commands
         public void Start()
         {
             string line;
+            Console.Clear();
             while ((line = this.ReadStringInternal(this.Prefix + this.Prompt + this.Postfix)) != null)
             {
                 try
@@ -113,6 +114,17 @@ namespace JSSoft.Library.Commands
         {
             string line;
             CancellationTokenSource cancellation = null;
+
+            var writer = Console.Out;
+            var errorWriter = Console.Error;
+            var treatControlCAsInput = Console.TreatControlCAsInput;
+
+            this.commandContext.Out = Console.Out;
+            this.commandContext.Error = Console.Error;
+            Console.SetOut(new TerminalTextWriter(Console.Out, this, Console.OutputEncoding));
+            Console.SetError(new TerminalTextWriter(Console.Error, this, Console.OutputEncoding));
+            Console.TreatControlCAsInput = true;
+
             while ((line = this.ReadStringInternal(this.Prefix + this.Prompt + this.Postfix)) != null)
             {
                 var oldTreatControlCAsInput = Console.TreatControlCAsInput;
@@ -154,6 +166,9 @@ namespace JSSoft.Library.Commands
                     break;
             }
 
+            Console.TreatControlCAsInput = treatControlCAsInput;
+            Console.SetOut(writer);
+            Console.SetError(errorWriter);
             void ConsoleCancelEventHandler(object sender, ConsoleCancelEventArgs e)
             {
                 e.Cancel = true;

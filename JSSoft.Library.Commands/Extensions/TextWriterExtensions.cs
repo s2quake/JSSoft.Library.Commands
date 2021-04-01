@@ -110,7 +110,7 @@ namespace JSSoft.Library.Commands.Extensions
         /// </summary>
         public static void Print<T>(this TextWriter writer, T[] items, Action<T, TextWriter, string> action, Func<T, string> selector)
         {
-            var maxWidth = Terminal.BufferWidth;
+            var maxWidth = 80;
             var lineCount = 4;
 
             while (true)

@@ -53,6 +53,8 @@ namespace JSSoft.Library.Commands
 
         public int DistanceOf(TerminalPoint point, int bufferWidth)
         {
+            if (this == point)
+                return 1;
             var (s1, s2, op) = this < point ? (this, point, 1) : (point, this, -1);
             var x = s1.X;
             var y = s1.Y;
