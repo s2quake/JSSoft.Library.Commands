@@ -29,19 +29,10 @@ namespace JSSoft.Library.Commands.Repl
     {
         static async Task Main(string[] _)
         {
-            // var count = ushort.MaxValue + 1;
-            // byte[] b = new byte[count];
-            // for (var i = 32u; i < count; i++)
-            // {
-            //     System.Console.Write($"\u001b[H{(char)i}");
-            //     b[i] = (byte)System.Console.CursorLeft;
-            // }
-            // var w = b['최'];
-            // File.WriteAllBytes(@"C:\Users\s2quake\source\repos\workspace\JSSoft.Library.Commands\JSSoft.Library.Commands\Win32NT.dat", b);
             var shell = Container.GetService<IShell>();
-            shell.Prompt = Directory.GetCurrentDirectory();
+            Console.WriteLine();
             await shell.StartAsync();
-            System.Console.WriteLine("\u001b0");
+            Console.WriteLine("\u001b0");
         }
     }
 }

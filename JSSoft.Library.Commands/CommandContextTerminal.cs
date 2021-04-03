@@ -29,44 +29,44 @@ namespace JSSoft.Library.Commands
     public class CommandContextTerminal : Terminal
     {
         private readonly CommandContextBase commandContext;
-        private string prompt1;
-        private string prefix;
-        private string postfix;
+        // private string prompt1;
+        // private string prefix;
+        // private string postfix;
 
         public CommandContextTerminal(CommandContextBase commandContext)
         {
             this.commandContext = commandContext;
         }
 
-        public new string Prompt
-        {
-            get => this.prompt1 ?? string.Empty;
-            set
-            {
-                this.prompt1 = value;
-                base.Prompt = this.Prefix + this.Prompt + this.Postfix;
-            }
-        }
+        // public new string Prompt
+        // {
+        //     get => this.prompt1 ?? string.Empty;
+        //     set
+        //     {
+        //         this.prompt1 = value;
+        //         base.Prompt = this.Prefix + this.Prompt + this.Postfix;
+        //     }
+        // }
 
-        public string Prefix
-        {
-            get => this.prefix ?? string.Empty;
-            set
-            {
-                this.prefix = value;
-                base.Prompt = this.Prefix + this.Prompt + this.Postfix;
-            }
-        }
+        // public string Prefix
+        // {
+        //     get => this.prefix ?? string.Empty;
+        //     set
+        //     {
+        //         this.prefix = value;
+        //         base.Prompt = this.Prefix + this.Prompt + this.Postfix;
+        //     }
+        // }
 
-        public string Postfix
-        {
-            get => this.postfix ?? string.Empty;
-            set
-            {
-                this.postfix = value;
-                base.Prompt = this.Prefix + this.Prompt + this.Postfix;
-            }
-        }
+        // public string Postfix
+        // {
+        //     get => this.postfix ?? string.Empty;
+        //     set
+        //     {
+        //         this.postfix = value;
+        //         base.Prompt = this.Prefix + this.Prompt + this.Postfix;
+        //     }
+        // }
 
         public new void Cancel()
         {
@@ -78,7 +78,7 @@ namespace JSSoft.Library.Commands
         {
             string line;
             Console.Clear();
-            while ((line = this.ReadStringInternal(this.Prefix + this.Prompt + this.Postfix)) != null)
+            while ((line = this.ReadStringInternal(this.Prompt)) != null)
             {
                 try
                 {
@@ -125,7 +125,7 @@ namespace JSSoft.Library.Commands
             Console.SetError(new TerminalTextWriter(Console.Error, this, Console.OutputEncoding));
             Console.TreatControlCAsInput = true;
 
-            while ((line = this.ReadStringInternal(this.Prefix + this.Prompt + this.Postfix)) != null)
+            while ((line = this.ReadStringInternal(this.Prompt)) != null)
             {
                 var oldTreatControlCAsInput = Console.TreatControlCAsInput;
                 try
@@ -135,7 +135,14 @@ namespace JSSoft.Library.Commands
                     Console.CancelKeyPress += ConsoleCancelEventHandler;
                     if (this.OnPreviewExecute(line) == true)
                         continue;
-                    await this.commandContext.ExecuteAsync(this.commandContext.Name + " " + line, cancellation.Token);
+                    var task = this.commandContext.ExecuteAsync(this.commandContext.Name + " " + line, cancellation.Token);
+                    while (task.IsCompleted == false)
+                    {
+                        await Task.Delay(1);
+                        this.Sync();
+                    }
+                    if (task.Exception != null)
+                        throw task.Exception;
                     this.OnExecuted(null);
                 }
                 catch (TargetInvocationException e)

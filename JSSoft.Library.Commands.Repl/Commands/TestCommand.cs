@@ -125,6 +125,12 @@ namespace JSSoft.Library.Commands.Repl.Commands
         {
         }
 
+        [CommandMethod]
+        public async Task SleepAsync()
+        {
+            await Task.Delay(10000);
+        }
+
         [CommandProperty]
         public string P3
         {

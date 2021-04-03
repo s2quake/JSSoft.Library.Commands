@@ -20,6 +20,7 @@
 // Namespaces and files starting with "Ntreev" have been renamed to "JSSoft".
 
 using System.ComponentModel.Composition;
+using System.IO;
 
 namespace JSSoft.Library.Commands.Repl
 {
@@ -30,8 +31,7 @@ namespace JSSoft.Library.Commands.Repl
         public Shell(ShellCommandContext commandContext)
            : base(commandContext)
         {
-            this.Prompt = "shell";
-            this.Postfix = ">";
+            this.Prompt = $"{Directory.GetCurrentDirectory()}>";
         }
     }
 }
