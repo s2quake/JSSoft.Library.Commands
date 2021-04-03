@@ -78,6 +78,8 @@ namespace JSSoft.Library.Commands
         [DllImport("kernel32.dll")]
         public static extern uint GetLastError();
 
+        internal Queue<string> stringList = new Queue<string>();
+
         static Terminal()
         {
             var platformName = GetPlatformName(Environment.OSVersion.Platform);
@@ -640,7 +642,7 @@ namespace JSSoft.Library.Commands
         private static string GetRenderString(TerminalPoint pt1, TerminalPoint pt2, TerminalPoint ct, string text, int bufferHeight)
         {
             var line = GetCursorString(pt1);
-            if (IsEnd(pt2, bufferHeight) == true)
+            if (IsEnd(pt2, bufferHeight) == true && text.EndsWith(Environment.NewLine) == false)
                 line += text + Environment.NewLine;
             else
                 line += text;
@@ -925,62 +927,74 @@ namespace JSSoft.Library.Commands
             {
                 Thread.Sleep(1);
                 this.Sync();
+                lock (ExternalObject)
+                {
+                    if (this.stringList.Any() == true)
+                    {
+                        var line = this.stringList.Dequeue();
+                        RenderInternal(line);
+                    }
+                }
                 if (this.isCancellationRequested == true)
                     return null;
                 if (this.IsEnabled == false)
                     continue;
-                var keys = this.ReadKeys().ToArray();
-                if (this.isCancellationRequested == true)
-                    return null;
+                // var keys = this.ReadKeys().ToArray();
+                // if (this.isCancellationRequested == true)
+                //     return null;
 
+                if (Console.KeyAvailable == false)
+                    continue;
+
+                var key = Console.ReadKey(true);
                 var keyChars = string.Empty;
-                foreach (var key in keys)
+                // foreach (var key in keys)
+                // {
+                if (key == cancelKeyInfo)
                 {
-                    if (key == cancelKeyInfo)
+                    var args = new TerminalCancelEventArgs(ConsoleSpecialKey.ControlC);
+                    this.OnCancelKeyPress(args);
+                    if (args.Cancel == false)
                     {
-                        var args = new TerminalCancelEventArgs(ConsoleSpecialKey.ControlC);
-                        this.OnCancelKeyPress(args);
-                        if (args.Cancel == false)
-                        {
-                            this.OnCancelled(EventArgs.Empty);
-                            throw new OperationCanceledException(Resources.Exception_ReadOnlyCanceled);
-                        }
-                    }
-                    else if (this.actionMaps.ContainsKey(key) == true)
-                    {
-                        this.actionMaps[key]();
-                    }
-                    else if (key.Key == ConsoleKey.Enter)
-                    {
-                        var command = this.command;
-                        if (recordHistory == true)
-                        {
-                            if (this.isHidden == false && command != string.Empty)
-                            {
-                                if (this.histories.Contains(command) == false)
-                                {
-                                    this.histories.Add(command);
-                                    this.historyIndex = this.histories.Count;
-                                }
-                                else
-                                {
-                                    this.historyIndex = this.histories.LastIndexOf(command) + 1;
-                                }
-                            }
-                        }
-                        this.prompt = string.Empty;
-                        this.command = string.Empty;
-                        this.promptText = string.Empty;
-                        this.cursorIndex = 0;
-                        this.inputText = string.Empty;
-                        this.completion = string.Empty;
-                        return command;
-                    }
-                    else if (key.KeyChar != '\0')
-                    {
-                        keyChars += key.KeyChar;
+                        this.OnCancelled(EventArgs.Empty);
+                        throw new OperationCanceledException(Resources.Exception_ReadOnlyCanceled);
                     }
                 }
+                else if (this.actionMaps.ContainsKey(key) == true)
+                {
+                    this.actionMaps[key]();
+                }
+                else if (key.Key == ConsoleKey.Enter)
+                {
+                    var command = this.command;
+                    if (recordHistory == true)
+                    {
+                        if (this.isHidden == false && command != string.Empty)
+                        {
+                            if (this.histories.Contains(command) == false)
+                            {
+                                this.histories.Add(command);
+                                this.historyIndex = this.histories.Count;
+                            }
+                            else
+                            {
+                                this.historyIndex = this.histories.LastIndexOf(command) + 1;
+                            }
+                        }
+                    }
+                    this.prompt = string.Empty;
+                    this.command = string.Empty;
+                    this.promptText = string.Empty;
+                    this.cursorIndex = 0;
+                    this.inputText = string.Empty;
+                    this.completion = string.Empty;
+                    return command;
+                }
+                else if (key.KeyChar != '\0')
+                {
+                    keyChars += key.KeyChar;
+                }
+                // }
 
                 if (keyChars != string.Empty && validation(this.Command + keyChars) == true)
                 {
@@ -1054,7 +1068,7 @@ namespace JSSoft.Library.Commands
                 this.pt1 = pt1;
                 this.pt2 = pt2;
                 this.pt3 = pt3;
-                this.ct1 = TerminalPoint.Zero;
+                this.ct1 = new TerminalPoint(0, -1);
                 this.IsReading = true;
 
                 Render(renderText);
@@ -1105,7 +1119,7 @@ namespace JSSoft.Library.Commands
             var pre = this.command.Substring(0, this.cursorIndex);
             var pt8 = this.pt1 + this.ct1;
             var ct1 = NextPosition(text, bufferWidth, pt8);
-            var text1 = text.EndsWith(Environment.NewLine) == true || ct1.X == 0 ? text : text + Environment.NewLine;
+            var text1 = text.EndsWith(Environment.NewLine) == true || ct1 == TerminalPoint.Zero ? text : text + Environment.NewLine;
             var pt9 = NextPosition(text1, bufferWidth, pt8);
             var pt1 = pt9.X == 0 ? new TerminalPoint(pt9.X, pt9.Y) : new TerminalPoint(0, pt9.Y + 1);
             var pt2 = NextPosition(prompt, bufferWidth, pt1);
@@ -1138,6 +1152,8 @@ namespace JSSoft.Library.Commands
         }
 
         internal static object LockedObject { get; } = new object();
+
+        internal static object ExternalObject { get; } = new object();
 
         #region Initializer
 

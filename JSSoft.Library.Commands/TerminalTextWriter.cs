@@ -40,7 +40,7 @@ namespace JSSoft.Library.Commands
 
         public override void Write(char value)
         {
-            lock (Terminal.LockedObject)
+            lock (Terminal.ExternalObject)
             {
                 this.WriteToStream(value.ToString());
             }
@@ -48,7 +48,7 @@ namespace JSSoft.Library.Commands
 
         public override void Write(string value)
         {
-            lock (Terminal.LockedObject)
+            lock (Terminal.ExternalObject)
             {
                 this.WriteToStream(value);
             }
@@ -56,7 +56,7 @@ namespace JSSoft.Library.Commands
 
         public override void WriteLine(string value)
         {
-            lock (Terminal.LockedObject)
+            lock (Terminal.ExternalObject)
             {
                 this.WriteToStream(value + Environment.NewLine);
             }
@@ -64,7 +64,8 @@ namespace JSSoft.Library.Commands
 
         private void WriteToStream(string text)
         {
-            this.terminal.RenderInternal(text);
+            this.terminal.stringList.Enqueue(text);
+            // this.terminal.RenderInternal(text);
         }
     }
 }
