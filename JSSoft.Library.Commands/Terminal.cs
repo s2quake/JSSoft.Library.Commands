@@ -57,7 +57,7 @@ namespace JSSoft.Library.Commands
         private string promptText = string.Empty;
         private string inputText = string.Empty;
         private string completion = string.Empty;
-        private int cursorPosition;
+        private int cursorIndex;
 
         private bool isHidden;
         private bool isCancellationRequested;
@@ -299,7 +299,7 @@ namespace JSSoft.Library.Commands
         {
             lock (LockedObject)
             {
-                if (this.cursorPosition < this.command.Length)
+                if (this.cursorIndex < this.command.Length)
                 {
                     this.DeleteImpl();
                 }
@@ -310,7 +310,7 @@ namespace JSSoft.Library.Commands
         {
             lock (LockedObject)
             {
-                this.SetCursorPosition(0);
+                this.SetCursorIndex(0);
             }
         }
 
@@ -318,7 +318,7 @@ namespace JSSoft.Library.Commands
         {
             lock (LockedObject)
             {
-                this.SetCursorPosition(this.command.Length);
+                this.SetCursorIndex(this.command.Length);
             }
         }
 
@@ -326,9 +326,9 @@ namespace JSSoft.Library.Commands
         {
             lock (LockedObject)
             {
-                if (this.cursorPosition > 0)
+                if (this.cursorIndex > 0)
                 {
-                    this.SetCursorPosition(this.cursorPosition - 1);
+                    this.SetCursorIndex(this.cursorIndex - 1);
                 }
             }
         }
@@ -337,9 +337,9 @@ namespace JSSoft.Library.Commands
         {
             lock (LockedObject)
             {
-                if (this.cursorPosition < this.command.Length)
+                if (this.cursorIndex < this.command.Length)
                 {
-                    this.SetCursorPosition(this.cursorPosition + 1);
+                    this.SetCursorIndex(this.cursorIndex + 1);
                 }
             }
         }
@@ -348,7 +348,7 @@ namespace JSSoft.Library.Commands
         {
             lock (LockedObject)
             {
-                if (this.cursorPosition > 0)
+                if (this.cursorIndex > 0)
                 {
                     this.BackspaceImpl();
                 }
@@ -359,7 +359,7 @@ namespace JSSoft.Library.Commands
         {
             lock (LockedObject)
             {
-                this.SetCommand(this.command.Substring(this.cursorPosition));
+                this.SetCommand(this.command.Substring(this.cursorIndex));
             }
         }
 
@@ -367,7 +367,7 @@ namespace JSSoft.Library.Commands
         {
             lock (LockedObject)
             {
-                this.SetCommand(this.command.Remove(this.cursorPosition));
+                this.SetCommand(this.command.Remove(this.cursorIndex));
             }
         }
 
@@ -389,16 +389,16 @@ namespace JSSoft.Library.Commands
 
         public int CursorPosition
         {
-            get => this.cursorPosition;
+            get => this.cursorIndex;
             set
             {
                 if (value < 0 || value > this.command.Length)
                     throw new ArgumentOutOfRangeException(nameof(value));
-                if (this.cursorPosition == value)
+                if (this.cursorIndex == value)
                     return;
                 lock (LockedObject)
                 {
-                    this.SetCursorPosition(value);
+                    this.SetCursorIndex(value);
                 }
             }
         }
@@ -550,9 +550,9 @@ namespace JSSoft.Library.Commands
             {
                 var bufferWidth = this.width;
                 var bufferHeight = this.height;
-                var cursorPosition = this.cursorPosition + text.Length;
-                var extra = this.command.Substring(this.cursorPosition);
-                var command = this.command.Insert(this.cursorPosition, text);
+                var cursorIndex = this.cursorIndex + text.Length;
+                var extra = this.command.Substring(this.cursorIndex);
+                var command = this.command.Insert(this.cursorIndex, text);
                 var pre = command.Substring(0, command.Length - extra.Length);
                 var promptText = this.prompt + command;
 
@@ -572,10 +572,10 @@ namespace JSSoft.Library.Commands
                     ct1.Y -= offset;
                 }
 
-                this.cursorPosition = cursorPosition;
+                this.cursorIndex = cursorIndex;
                 this.command = command;
                 this.promptText = this.prompt + command;
-                this.inputText = command.Substring(0, cursorPosition);
+                this.inputText = command.Substring(0, cursorIndex);
                 this.completion = string.Empty;
                 this.pt1 = pt1;
                 this.pt2 = pt2;
@@ -690,10 +690,10 @@ namespace JSSoft.Library.Commands
         {
             var bufferWidth = this.width;
             var bufferHeight = this.height;
-            var extra = this.command.Substring(this.cursorPosition);
-            var command = this.command.Remove(this.cursorPosition - 1, 1);
+            var extra = this.command.Substring(this.cursorIndex);
+            var command = this.command.Remove(this.cursorIndex - 1, 1);
             var pre = command.Substring(0, command.Length - extra.Length);
-            var cursorPosition = this.cursorPosition - 1;
+            var cursorIndex = this.cursorIndex - 1;
             var endPosition = this.command.Length;
             var pt2 = this.pt2;
             var pt3 = NextPosition(pre, bufferWidth, pt2);
@@ -701,7 +701,7 @@ namespace JSSoft.Library.Commands
 
             this.command = command;
             this.promptText = this.prompt + this.command;
-            this.cursorPosition = cursorPosition;
+            this.cursorIndex = cursorIndex;
             this.pt3 = pt4;
 
             if (this.isHidden == false)
@@ -720,8 +720,8 @@ namespace JSSoft.Library.Commands
         {
             var bufferWidth = this.width;
             var bufferHeight = this.height;
-            var extra = this.command.Substring(this.cursorPosition + 1);
-            var command = this.command.Remove(this.cursorPosition, 1);
+            var extra = this.command.Substring(this.cursorIndex + 1);
+            var command = this.command.Remove(this.cursorIndex, 1);
             var pre = command.Substring(0, command.Length - extra.Length);
             var endPosition = this.command.Length;
             var pt2 = this.pt2;
@@ -806,7 +806,7 @@ namespace JSSoft.Library.Commands
             var bufferWidth = this.width;
             var bufferHeight = this.height;
             var command = this.command;
-            var pre = command.Substring(0, this.cursorPosition);
+            var pre = command.Substring(0, this.cursorIndex);
             var pt1 = this.pt1;
             var pt2 = NextPosition(prompt, bufferWidth, pt1);
             var pt3 = NextPosition(command, bufferWidth, pt2);
@@ -861,7 +861,7 @@ namespace JSSoft.Library.Commands
 
             this.command = value;
             this.promptText = this.prompt + this.command;
-            this.cursorPosition = this.command.Length;
+            this.cursorIndex = this.command.Length;
             this.inputText = value;
             this.completion = string.Empty;
             this.pt1 = pt1;
@@ -871,15 +871,15 @@ namespace JSSoft.Library.Commands
             Render(renderText);
         }
 
-        private void SetCursorPosition(int cursorPosition)
+        private void SetCursorIndex(int cursorIndex)
         {
             var bufferWidth = this.width;
             var bufferHeight = this.height;
-            var text = this.isHidden == true ? string.Empty : this.command.Substring(0, cursorPosition);
+            var text = this.isHidden == true ? string.Empty : this.command.Substring(0, cursorIndex);
             var pt4 = NextPosition(text, bufferWidth, this.pt2);
 
-            this.cursorPosition = cursorPosition;
-            this.inputText = this.command.Substring(0, cursorPosition);
+            this.cursorIndex = cursorIndex;
+            this.inputText = this.command.Substring(0, cursorIndex);
             this.completion = string.Empty;
             SetCursorPosition(pt4);
         }
@@ -930,7 +930,7 @@ namespace JSSoft.Library.Commands
                         var text = this.command;
                         this.command = string.Empty;
                         this.promptText = this.prompt + this.command;
-                        this.cursorPosition = 0;
+                        this.cursorIndex = 0;
 
                         if (recordHistory == true)
                         {
@@ -1020,7 +1020,7 @@ namespace JSSoft.Library.Commands
                 this.command = command;
                 this.prompt = prompt;
                 this.promptText = prompt + command;
-                this.cursorPosition = 0;
+                this.cursorIndex = 0;
                 this.isHidden = isHidden;
                 this.inputText = command;
                 this.completion = string.Empty;
@@ -1065,7 +1065,7 @@ namespace JSSoft.Library.Commands
             var promptText = this.promptText;
             var prompt = this.prompt;
             var command = this.command;
-            var pre = this.command.Substring(0, this.cursorPosition);
+            var pre = this.command.Substring(0, this.cursorIndex);
             var pt8 = this.pt1 + this.ct1;
             var ct1 = NextPosition(text, bufferWidth, pt8);
             var text1 = text.EndsWith(Environment.NewLine) == true || ct1.X == 0 ? text : text + Environment.NewLine;
