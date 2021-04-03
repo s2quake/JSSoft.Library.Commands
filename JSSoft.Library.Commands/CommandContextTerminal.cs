@@ -29,7 +29,7 @@ namespace JSSoft.Library.Commands
     public class CommandContextTerminal : Terminal
     {
         private readonly CommandContextBase commandContext;
-        // private string prompt1;
+         private string prompt = string.Empty;
         // private string prefix;
         // private string postfix;
 
@@ -38,35 +38,14 @@ namespace JSSoft.Library.Commands
             this.commandContext = commandContext;
         }
 
-        // public new string Prompt
-        // {
-        //     get => this.prompt1 ?? string.Empty;
-        //     set
-        //     {
-        //         this.prompt1 = value;
-        //         base.Prompt = this.Prefix + this.Prompt + this.Postfix;
-        //     }
-        // }
-
-        // public string Prefix
-        // {
-        //     get => this.prefix ?? string.Empty;
-        //     set
-        //     {
-        //         this.prefix = value;
-        //         base.Prompt = this.Prefix + this.Prompt + this.Postfix;
-        //     }
-        // }
-
-        // public string Postfix
-        // {
-        //     get => this.postfix ?? string.Empty;
-        //     set
-        //     {
-        //         this.postfix = value;
-        //         base.Prompt = this.Prefix + this.Prompt + this.Postfix;
-        //     }
-        // }
+        public new string Prompt
+        {
+            get => this.prompt;
+            set
+            {
+                this.prompt = value ?? throw new ArgumentNullException(nameof(value));
+            }
+        }
 
         public new void Cancel()
         {
@@ -119,10 +98,10 @@ namespace JSSoft.Library.Commands
             var errorWriter = Console.Error;
             var treatControlCAsInput = Console.TreatControlCAsInput;
 
-            this.commandContext.Out = Console.Out;
-            this.commandContext.Error = Console.Error;
-            Console.SetOut(new TerminalTextWriter(this, Console.OutputEncoding));
-            Console.SetError(new TerminalTextWriter(this, Console.OutputEncoding));
+            this.commandContext.Out = new TerminalTextWriter(this, Console.OutputEncoding);
+            this.commandContext.Error = new TerminalTextWriter(this, Console.OutputEncoding);
+            Console.SetOut(this.commandContext.Out);
+            Console.SetError(this.commandContext.Error);
             Console.TreatControlCAsInput = true;
 
             while ((line = this.ReadStringInternal(this.Prompt)) != null)

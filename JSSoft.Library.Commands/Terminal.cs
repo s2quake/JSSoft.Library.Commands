@@ -529,15 +529,40 @@ namespace JSSoft.Library.Commands
             return query.ToArray();
         }
 
-        protected virtual TextWriter Out => Console.Out;
-
-        protected virtual TextWriter Error => Console.Error;
-
         public void Sync()
         {
             if (this.width != Console.BufferWidth)
             {
-                int qwe = 0;
+                using (var stream = Console.OpenStandardOutput())
+                using (var writer = new StreamWriter(stream, Console.OutputEncoding))
+                {
+
+                    writer.Write("\x1b[2J\x1b[H");
+                    writer.WriteLine(this.outputText.ToString());
+
+                }
+                var bufferWidth = Console.BufferWidth;
+                var bufferHeight = Console.BufferHeight;
+                var pt1 = new TerminalPoint(0, Console.CursorTop);
+                var pt2 = NextPosition(prompt, bufferWidth, pt1);
+                var pt3 = NextPosition(command, bufferWidth, pt2);
+                var st1 = pt1;
+                if (pt3.Y >= bufferHeight)
+                {
+                    var offset = (pt2.Y - pt1.Y);
+                    pt1.Y -= offset;
+                    pt2.Y -= offset;
+                    pt3.Y -= offset;
+                }
+                var renderText = GetRenderString(st1, pt3, pt3, prompt + command, bufferHeight);
+
+                this.width = bufferWidth;
+                this.height = bufferHeight;
+                this.pt1 = pt1;
+                this.pt2 = pt2;
+                this.pt3 = pt3;
+                this.ct1 = TerminalPoint.Zero;
+                Render(renderText);
             }
         }
 
@@ -927,27 +952,29 @@ namespace JSSoft.Library.Commands
                     }
                     else if (key.Key == ConsoleKey.Enter)
                     {
-                        var text = this.command;
-                        this.command = string.Empty;
-                        this.promptText = this.prompt + this.command;
-                        this.cursorIndex = 0;
-
+                        var command = this.command;
                         if (recordHistory == true)
                         {
-                            if (this.isHidden == false && text != string.Empty)
+                            if (this.isHidden == false && command != string.Empty)
                             {
-                                if (this.histories.Contains(text) == false)
+                                if (this.histories.Contains(command) == false)
                                 {
-                                    this.histories.Add(text);
+                                    this.histories.Add(command);
                                     this.historyIndex = this.histories.Count;
                                 }
                                 else
                                 {
-                                    this.historyIndex = this.histories.LastIndexOf(text) + 1;
+                                    this.historyIndex = this.histories.LastIndexOf(command) + 1;
                                 }
                             }
                         }
-                        return text;
+                        this.prompt = string.Empty;
+                        this.command = string.Empty;
+                        this.promptText = string.Empty;
+                        this.cursorIndex = 0;
+                        this.inputText = string.Empty;
+                        this.completion = string.Empty;
+                        return command;
                     }
                     else if (key.KeyChar != '\0')
                     {
@@ -1044,6 +1071,16 @@ namespace JSSoft.Library.Commands
                     writer.WriteLine();
                 }
                 this.outputText.AppendLine(this.promptText);
+                this.pt1 = new TerminalPoint(0, Console.CursorTop);
+                this.pt2 = this.pt1;
+                this.pt3 = this.pt1;
+                this.ct1 = TerminalPoint.Zero;
+                this.prompt = string.Empty;
+                this.command = string.Empty;
+                this.promptText = string.Empty;
+                this.cursorIndex = 0;
+                this.inputText = string.Empty;
+                this.completion = string.Empty;
                 this.isHidden = false;
                 this.IsReading = false;
             }
