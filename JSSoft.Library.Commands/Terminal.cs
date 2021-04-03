@@ -41,7 +41,7 @@ namespace JSSoft.Library.Commands
         private static TextWriter consoleError = Console.Error;
 
         private readonly Dictionary<ConsoleKeyInfo, Func<object>> systemActions = new();
-        private readonly Dictionary<ConsoleKeyInfo, Action> actionMaps = new();
+        private readonly Dictionary<ConsoleKeyInfo, Action> keyBindings = new();
         private readonly List<string> histories = new();
         private readonly Queue<string> stringQueue = new Queue<string>();
 
@@ -141,29 +141,29 @@ namespace JSSoft.Library.Commands
                 throw new Exception("Terminal cannot use. Console.IsInputRedirected must be false");
             this.systemActions.Add(new ConsoleKeyInfo('\u0003', ConsoleKey.C, false, false, true), this.OnCancel);
             this.systemActions.Add(new ConsoleKeyInfo('\r', ConsoleKey.Enter, false, false, false), this.OnEnter);
-            this.actionMaps.Add(new ConsoleKeyInfo('\u001b', ConsoleKey.Escape, false, false, false), this.Clear);
+            this.keyBindings.Add(new ConsoleKeyInfo('\u001b', ConsoleKey.Escape, false, false, false), this.Clear);
             if (Environment.OSVersion.Platform == PlatformID.Unix)
             {
-                this.actionMaps.Add(new ConsoleKeyInfo('\u007f', ConsoleKey.Backspace, false, false, false), this.Backspace);
+                this.keyBindings.Add(new ConsoleKeyInfo('\u007f', ConsoleKey.Backspace, false, false, false), this.Backspace);
             }
             else
             {
-                this.actionMaps.Add(new ConsoleKeyInfo('\b', ConsoleKey.Backspace, false, false, false), this.Backspace);
+                this.keyBindings.Add(new ConsoleKeyInfo('\b', ConsoleKey.Backspace, false, false, false), this.Backspace);
             }
-            this.actionMaps.Add(new ConsoleKeyInfo('\0', ConsoleKey.Delete, false, false, false), this.Delete);
-            this.actionMaps.Add(new ConsoleKeyInfo('\0', ConsoleKey.Home, false, false, false), this.Home);
-            this.actionMaps.Add(new ConsoleKeyInfo('\0', ConsoleKey.Home, false, false, true), this.DeleteToHome);
-            this.actionMaps.Add(new ConsoleKeyInfo('\0', ConsoleKey.End, false, false, false), this.End);
-            this.actionMaps.Add(new ConsoleKeyInfo('\0', ConsoleKey.End, false, false, true), this.DeleteToEnd);
-            this.actionMaps.Add(new ConsoleKeyInfo('\0', ConsoleKey.UpArrow, false, false, false), this.PrevHistory);
-            this.actionMaps.Add(new ConsoleKeyInfo('\0', ConsoleKey.DownArrow, false, false, false), this.NextHistory);
-            this.actionMaps.Add(new ConsoleKeyInfo('\0', ConsoleKey.LeftArrow, false, false, false), this.Left);
-            this.actionMaps.Add(new ConsoleKeyInfo('\0', ConsoleKey.RightArrow, false, false, false), this.Right);
-            this.actionMaps.Add(new ConsoleKeyInfo('\t', ConsoleKey.Tab, false, false, false), this.NextCompletion);
+            this.keyBindings.Add(new ConsoleKeyInfo('\0', ConsoleKey.Delete, false, false, false), this.Delete);
+            this.keyBindings.Add(new ConsoleKeyInfo('\0', ConsoleKey.Home, false, false, false), this.Home);
+            this.keyBindings.Add(new ConsoleKeyInfo('\0', ConsoleKey.Home, false, false, true), this.DeleteToHome);
+            this.keyBindings.Add(new ConsoleKeyInfo('\0', ConsoleKey.End, false, false, false), this.End);
+            this.keyBindings.Add(new ConsoleKeyInfo('\0', ConsoleKey.End, false, false, true), this.DeleteToEnd);
+            this.keyBindings.Add(new ConsoleKeyInfo('\0', ConsoleKey.UpArrow, false, false, false), this.PrevHistory);
+            this.keyBindings.Add(new ConsoleKeyInfo('\0', ConsoleKey.DownArrow, false, false, false), this.NextHistory);
+            this.keyBindings.Add(new ConsoleKeyInfo('\0', ConsoleKey.LeftArrow, false, false, false), this.Left);
+            this.keyBindings.Add(new ConsoleKeyInfo('\0', ConsoleKey.RightArrow, false, false, false), this.Right);
+            this.keyBindings.Add(new ConsoleKeyInfo('\t', ConsoleKey.Tab, false, false, false), this.NextCompletion);
             if (Environment.OSVersion.Platform == PlatformID.Unix)
-                this.actionMaps.Add(new ConsoleKeyInfo('\0', ConsoleKey.Tab, true, false, false), this.PrevCompletion);
+                this.keyBindings.Add(new ConsoleKeyInfo('\0', ConsoleKey.Tab, true, false, false), this.PrevCompletion);
             else
-                this.actionMaps.Add(new ConsoleKeyInfo('\t', ConsoleKey.Tab, true, false, false), this.PrevCompletion);
+                this.keyBindings.Add(new ConsoleKeyInfo('\t', ConsoleKey.Tab, true, false, false), this.PrevCompletion);
         }
 
         public long? ReadLong(string prompt)
@@ -294,45 +294,6 @@ namespace JSSoft.Library.Commands
             {
                 this.SetCommand(string.Empty);
             }
-        }
-
-        private object OnEnter()
-        {
-            var command = this.command;
-            if (this.flags.HasFlag(TerminalFlags.IsRecordable) == true)
-            {
-                if (this.IsHidden == false && command != string.Empty)
-                {
-                    if (this.histories.Contains(command) == false)
-                    {
-                        this.histories.Add(command);
-                        this.historyIndex = this.histories.Count;
-                    }
-                    else
-                    {
-                        this.historyIndex = this.histories.LastIndexOf(command) + 1;
-                    }
-                }
-            }
-            this.prompt = string.Empty;
-            this.command = string.Empty;
-            this.promptText = string.Empty;
-            this.cursorIndex = 0;
-            this.inputText = string.Empty;
-            this.completion = string.Empty;
-            return command;
-        }
-
-        private object OnCancel()
-        {
-            var args = new TerminalCancelEventArgs(ConsoleSpecialKey.ControlC);
-            this.OnCancelKeyPress(args);
-            if (args.Cancel == false)
-            {
-                this.OnCancelled(EventArgs.Empty);
-                throw new OperationCanceledException(Resources.Exception_ReadOnlyCanceled);
-            }
-            return null;
         }
 
         public void Delete()
@@ -482,10 +443,6 @@ namespace JSSoft.Library.Commands
                 }
             }
         }
-
-        private bool IsReading => this.flags.HasFlag(TerminalFlags.IsReading);
-
-        private bool IsHidden => this.flags.HasFlag(TerminalFlags.IsHidden);
 
         public bool IsEnabled { get; set; } = true;
 
@@ -987,10 +944,10 @@ namespace JSSoft.Library.Commands
                         if (this.systemActions[key]() is string line)
                             return line;
                     }
-                    else if (this.actionMaps.ContainsKey(key) == true)
+                    else if (this.keyBindings.ContainsKey(key) == true)
                     {
                         this.FlushKeyChars(validation, ref keyChars);
-                        this.actionMaps[key]();
+                        this.keyBindings[key]();
                     }
                     else if (key.KeyChar != '\0')
                     {
@@ -1099,14 +1056,38 @@ namespace JSSoft.Library.Commands
             }
         }
 
-        internal string ReadStringInternal(string prompt)
+        private object OnEnter()
         {
-            using var initializer = new Initializer(this)
+            if (this.CanRecord == true)
             {
-                Prompt = prompt,
-                Flags = TerminalFlags.IsRecordable
-            };
-            return initializer.ReadLineImpl(i => true);
+                this.RecordCommand(this.command);
+            }
+            return this.command;
+        }
+
+        private object OnCancel()
+        {
+            var args = new TerminalCancelEventArgs(ConsoleSpecialKey.ControlC);
+            this.OnCancelKeyPress(args);
+            if (args.Cancel == false)
+            {
+                this.OnCancelled(EventArgs.Empty);
+                throw new OperationCanceledException(Resources.Exception_ReadOnlyCanceled);
+            }
+            return null;
+        }
+
+        private void RecordCommand(string command)
+        {
+            if (this.histories.Contains(command) == false)
+            {
+                this.histories.Add(command);
+                this.historyIndex = this.histories.Count;
+            }
+            else
+            {
+                this.historyIndex = this.histories.LastIndexOf(command) + 1;
+            }
         }
 
         private void RenderOutput(string text)
@@ -1149,6 +1130,24 @@ namespace JSSoft.Library.Commands
             this.outputText.Append(text);
 
             Render(renderText);
+        }
+
+        private bool IsReading => this.flags.HasFlag(TerminalFlags.IsReading);
+
+        private bool IsHidden => this.flags.HasFlag(TerminalFlags.IsHidden);
+
+        private bool IsRecordable => this.flags.HasFlag(TerminalFlags.IsRecordable);
+
+        private bool CanRecord => this.IsRecordable == true && this.IsHidden == false && this.command != string.Empty;
+
+        internal string ReadStringInternal(string prompt)
+        {
+            using var initializer = new Initializer(this)
+            {
+                Prompt = prompt,
+                Flags = TerminalFlags.IsRecordable
+            };
+            return initializer.ReadLineImpl(i => true);
         }
 
         internal static object LockedObject { get; } = new object();
