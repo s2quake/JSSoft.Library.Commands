@@ -115,14 +115,14 @@ namespace JSSoft.Library.Commands
             string line;
             CancellationTokenSource cancellation = null;
 
-            var writer = Console.Out;
+            var outWriter = Console.Out;
             var errorWriter = Console.Error;
             var treatControlCAsInput = Console.TreatControlCAsInput;
 
             this.commandContext.Out = Console.Out;
             this.commandContext.Error = Console.Error;
-            Console.SetOut(new TerminalTextWriter(Console.Out, this, Console.OutputEncoding));
-            Console.SetError(new TerminalTextWriter(Console.Error, this, Console.OutputEncoding));
+            Console.SetOut(new TerminalTextWriter(this, Console.OutputEncoding));
+            Console.SetError(new TerminalTextWriter(this, Console.OutputEncoding));
             Console.TreatControlCAsInput = true;
 
             while ((line = this.ReadStringInternal(this.Prompt)) != null)
@@ -174,7 +174,7 @@ namespace JSSoft.Library.Commands
             }
 
             Console.TreatControlCAsInput = treatControlCAsInput;
-            Console.SetOut(writer);
+            Console.SetOut(outWriter);
             Console.SetError(errorWriter);
             void ConsoleCancelEventHandler(object sender, ConsoleCancelEventArgs e)
             {

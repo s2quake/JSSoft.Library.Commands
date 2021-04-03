@@ -27,13 +27,11 @@ namespace JSSoft.Library.Commands
 {
     class TerminalTextWriter : TextWriter
     {
-        private readonly TextWriter writer;
         private readonly Terminal terminal;
         private readonly Encoding encoding;
 
-        public TerminalTextWriter(TextWriter writer, Terminal terminal, Encoding encoding)
+        public TerminalTextWriter(Terminal terminal, Encoding encoding)
         {
-            this.writer = writer ?? throw new ArgumentNullException(nameof(writer));
             this.terminal = terminal ?? throw new ArgumentNullException(nameof(terminal));
             this.encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
         }
@@ -44,7 +42,6 @@ namespace JSSoft.Library.Commands
         {
             lock (Terminal.LockedObject)
             {
-                using var visible = TerminalCursorVisible.Set(false);
                 this.WriteToStream(value.ToString());
             }
         }
@@ -53,7 +50,6 @@ namespace JSSoft.Library.Commands
         {
             lock (Terminal.LockedObject)
             {
-                using var visible = TerminalCursorVisible.Set(false);
                 this.WriteToStream(value);
             }
         }
@@ -62,14 +58,13 @@ namespace JSSoft.Library.Commands
         {
             lock (Terminal.LockedObject)
             {
-                using var visible = TerminalCursorVisible.Set(false);
                 this.WriteToStream(value + Environment.NewLine);
             }
         }
 
         private void WriteToStream(string text)
         {
-            this.terminal.Draw(this.writer, text);
+            this.terminal.RenderInternal(text);
         }
     }
 }

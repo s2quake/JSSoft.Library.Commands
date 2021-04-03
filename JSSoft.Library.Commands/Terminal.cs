@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Security;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -33,6 +34,7 @@ namespace JSSoft.Library.Commands
 {
     public class Terminal
     {
+        private const string escEraseLine = "\x1b[K";
         private static readonly ConsoleKeyInfo cancelKeyInfo = new('\u0003', ConsoleKey.C, false, false, true);
         private static byte[] charWidths;
         private static TextWriter consoleOut = Console.Out;
@@ -63,6 +65,22 @@ namespace JSSoft.Library.Commands
         private ConsoleColor?[] foregroundColors = new ConsoleColor?[] { };
         private ConsoleColor?[] backgroundColors = new ConsoleColor?[] { };
 
+        private const int STD_OUTPUT_HANDLE = -11;
+        private const uint ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004;
+        private const uint DISABLE_NEWLINE_AUTO_RETURN = 0x0008;
+
+        [DllImport("kernel32.dll")]
+        private static extern bool GetConsoleMode(IntPtr hConsoleHandle, out uint lpMode);
+
+        [DllImport("kernel32.dll")]
+        private static extern bool SetConsoleMode(IntPtr hConsoleHandle, uint dwMode);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        private static extern IntPtr GetStdHandle(int nStdHandle);
+
+        [DllImport("kernel32.dll")]
+        public static extern uint GetLastError();
+
         static Terminal()
         {
             var platformName = GetPlatformName(Environment.OSVersion.Platform);
@@ -78,6 +96,21 @@ namespace JSSoft.Library.Commands
                 PlatformID.Win32NT => $"{PlatformID.Win32NT}",
                 _ => $"{PlatformID.Win32NT}",
             };
+
+            if (IsWin32NT == true)
+            {
+                var iStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+                if (!GetConsoleMode(iStdOut, out uint outConsoleMode))
+                {
+                    throw new InvalidOperationException("failed to get output console mode");
+                }
+
+                outConsoleMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING | DISABLE_NEWLINE_AUTO_RETURN;
+                if (SetConsoleMode(iStdOut, outConsoleMode) == false)
+                {
+                    throw new InvalidOperationException($"failed to set output console mode, error code: {GetLastError()}");
+                }
+            }
         }
 
         public static bool IsOutputRedirected =>
@@ -373,6 +406,7 @@ namespace JSSoft.Library.Commands
             }
         }
 
+        [Obsolete]
         public string Text => this.command;
 
         public string Command
@@ -409,21 +443,11 @@ namespace JSSoft.Library.Commands
 
         public bool IsReading { get; private set; }
 
-        public int Top
-        {
-            get
-            {
-                if (this.width != Console.BufferWidth)
-                {
-                    this.pt1.Y = Console.CursorTop - (this.prompt.Length + this.cursorPosition) / Console.BufferWidth;
-                    this.width = Console.BufferWidth;
-                }
-                return this.pt1.Y;
-            }
-            internal set => this.pt1.Y = value;
-        }
-
         public bool IsEnabled { get; set; } = true;
+
+        public static bool IsUnix = Environment.OSVersion.Platform == PlatformID.Unix;
+
+        public static bool IsWin32NT = Environment.OSVersion.Platform == PlatformID.Win32NT;
 
         public static string NextCompletion(string[] completions, string text)
         {
@@ -540,7 +564,6 @@ namespace JSSoft.Library.Commands
 
             lock (LockedObject)
             {
-                using var visible = TerminalCursorVisible.Set(false);
                 var bufferWidth = this.width;
                 var bufferHeight = this.height;
                 var cursorPosition = this.cursorPosition + text.Length;
@@ -576,7 +599,8 @@ namespace JSSoft.Library.Commands
 
                 if (this.isHidden == false)
                 {
-                    Draw(s1, s2, c1, command, bufferHeight);
+                    var renderText = GetRenderString(s1, s2, c1, command, bufferHeight);
+                    Render(renderText);
                 }
                 else
                 {
@@ -585,53 +609,98 @@ namespace JSSoft.Library.Commands
             }
         }
 
-        public static bool IsUnix = Environment.OSVersion.Platform == PlatformID.Unix;
-
-        private static void Draw(TerminalPoint pt1, TerminalPoint pt2, TerminalPoint ct, string text, int bufferHeight)
+        private static string GetEraseString(TerminalPoint pt1, TerminalPoint pt2)
         {
-            using var stream = Console.OpenStandardOutput();
-            using var writer = new StreamWriter(stream, Console.OutputEncoding);
-            writer.AutoFlush = true;
-            if (IsUnix == true)
+            var text = escEraseLine;
+            for (var y = pt1.Y; y < pt2.Y; y++)
             {
-                writer.Write($"\x1b[{pt1.Y + 1};{pt1.X + 1}f");
+                text += Environment.NewLine;
+                text += escEraseLine;
             }
-            if (IsEnd(pt2, bufferHeight) == true)
-                writer.WriteLine(text);
-            else
-                writer.Write(text);
-            if (IsUnix == true)
-            {
-                writer.Write($"\x1b[{ct.Y + 1};{ct.X + 1}f");
-            }
+            return text;
         }
 
-        private static string GetEscapeString(TerminalPoint pt)
+        private static string GetOverwrappedString(string text, int bufferWidth)
+        {
+            var lineBreak = text.EndsWith(Environment.NewLine) == true ? Environment.NewLine : string.Empty;
+            var text2 = text.Substring(0, text.Length - lineBreak.Length);
+            var items = text2.Split(Environment.NewLine, StringSplitOptions.None);
+            return string.Join($"{escEraseLine}{Environment.NewLine}", items) + lineBreak;
+        }
+
+        private static string GetRenderString(TerminalPoint pt1, TerminalPoint pt2, TerminalPoint ct, string text, int bufferHeight)
+        {
+            var line = GetCursorString(pt1);
+            if (IsEnd(pt2, bufferHeight) == true)
+                line += text + Environment.NewLine;
+            else
+                line += text;
+            line += GetCursorString(ct);
+            return line;
+        }
+
+        private static string GetCursorString(TerminalPoint pt)
         {
             return $"\x1b[{pt.Y + 1};{pt.X + 1}f";
         }
 
-        // private TerminalPoint SetCursorPositionTest(int cursorPosition)
-        // {
-        //     var bufferWidth = this.width;
-        //     var bufferHeight = this.height;
-        //     var text = this.isHidden == true ? string.Empty : this.command.Substring(0, cursorPosition);
-        //     var pt4 = NextPosition(text, bufferWidth, this.pt2);
-        //     // pt2.Y = Math.Min(pt2.Y, bufferHeight - 1);
-        //     if (Environment.OSVersion.Platform == PlatformID.Unix)
-        //     {
-        //         using (var stream = Console.OpenStandardOutput())
-        //         using (var writer = new StreamWriter(stream, Console.OutputEncoding))
-        //         {
-        //             writer.Write(GetEscapeString(pt4));
-        //         }
-        //     }
-        //     else
-        //     {
-        //         SetCursorPosition(pt2);
-        //     }
-        //     return pt2;
-        // }
+        private static void Render(string text)
+        {
+            using var stream = Console.OpenStandardOutput();
+            using var writer = new StreamWriter(stream, Console.OutputEncoding) { AutoFlush = true };
+            writer.Write(text);
+        }
+
+        private static bool IsEnd(TerminalPoint pt, int bufferHeight)
+        {
+            if (pt.Y >= bufferHeight && pt.X == 0)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private static void SetCursorPosition(TerminalPoint pt)
+        {
+            using (var stream = Console.OpenStandardOutput())
+            using (var writer = new StreamWriter(stream, Console.OutputEncoding))
+            {
+                writer.Write(GetCursorString(pt));
+            }
+        }
+
+        private static TerminalPoint NextPosition(string text, int bufferWidth, TerminalPoint pt)
+        {
+            var x = pt.X;
+            var y = pt.Y;
+            for (var i = 0; i < text.Length; i++)
+            {
+                var ch = text[i];
+                if (ch == '\r')
+                {
+                    x = 0;
+                    continue;
+                }
+                else if (ch == '\n')
+                {
+                    x = 0;
+                    y++;
+                    continue;
+                }
+
+                var w = charWidths[(int)ch];
+                if (x + w >= bufferWidth)
+                {
+                    x = x + w - bufferWidth;
+                    y++;
+                }
+                else
+                {
+                    x += w;
+                }
+            }
+            return new TerminalPoint(x, y);
+        }
 
         private void BackspaceImpl()
         {
@@ -645,8 +714,6 @@ namespace JSSoft.Library.Commands
             var pt2 = this.pt2;
             var pt3 = NextPosition(pre, bufferWidth, pt2);
             var pt4 = NextPosition(extra, bufferWidth, pt3);
-            var pt5 = new TerminalPoint(bufferWidth - 1, pt4.Y);
-            var text = GenerateString();
 
             this.command = command;
             this.promptText = this.prompt + this.command;
@@ -655,17 +722,13 @@ namespace JSSoft.Library.Commands
 
             if (this.isHidden == false)
             {
-                Draw(pt3, pt3, pt3, text, bufferHeight);
+                var text = extra + escEraseLine;
+                var renderText = GetRenderString(pt3, pt3, pt3, text, bufferHeight);
+                Render(renderText);
             }
             else
             {
                 SetCursorPosition(pt2);
-            }
-            string GenerateString()
-            {
-                if (IsUnix == true)
-                    return extra + "\x1b[K";
-                return extra + PadString(pt4, pt5, bufferWidth);
             }
         }
 
@@ -680,8 +743,6 @@ namespace JSSoft.Library.Commands
             var pt2 = this.pt2;
             var pt3 = NextPosition(pre, bufferWidth, pt2);
             var pt4 = NextPosition(extra, bufferWidth, pt3);
-            var pt5 = new TerminalPoint(bufferWidth - 1, pt4.Y);
-            var text = GenerateString();
 
             this.command = command;
             this.promptText = this.prompt + this.command;
@@ -689,17 +750,13 @@ namespace JSSoft.Library.Commands
 
             if (this.isHidden == false)
             {
-                Draw(pt3, pt3, pt3, text, bufferHeight);
+                var text = extra + escEraseLine;
+                var renderText = GetRenderString(pt3, pt3, pt3, text, bufferHeight);
+                Render(renderText);
             }
             else
             {
                 SetCursorPosition(pt2);
-            }
-            string GenerateString()
-            {
-                if (IsUnix == true)
-                    return extra + "\x1b[K";
-                return extra + PadString(pt4, pt5, bufferWidth);
             }
         }
 
@@ -741,7 +798,6 @@ namespace JSSoft.Library.Commands
             }
 
             var completions = this.GetCompletion(argList.ToArray(), find);
-            using var visible = TerminalCursorVisible.Set(false);
             if (completions != null && completions.Any())
             {
                 var completion = func(completions, this.completion);
@@ -771,7 +827,7 @@ namespace JSSoft.Library.Commands
             var pt2 = NextPosition(prompt, bufferWidth, pt1);
             var pt3 = NextPosition(command, bufferWidth, pt2);
             var pt4 = NextPosition(pre, bufferWidth, pt2);
-            var text = prompt + command + PadString(pt3, this.pt3, bufferWidth);
+            var text = prompt + command + escEraseLine;
 
             var s1 = pt1;
             var s2 = NextPosition(pre, bufferWidth, pt2);
@@ -783,28 +839,29 @@ namespace JSSoft.Library.Commands
                 pt2.Y -= offset;
                 pt3.Y -= offset;
             }
+            var renderText = GetRenderString(s1, pt3, pt4, text, bufferHeight);
 
             this.prompt = prompt;
-            this.promptText = this.prompt + this.command;
+            this.promptText = prompt + command;
             this.pt1 = pt1;
             this.pt2 = pt2;
             this.pt3 = pt3;
 
             if (this.IsReading == true)
             {
-                Draw(s1, pt3, pt4, text, bufferHeight);
+                Render(renderText);
             }
         }
 
         private void SetCommand(string value)
         {
-            using var visible = TerminalCursorVisible.Set(false);
             var bufferWidth = this.width;
             var bufferHeight = this.height;
+            var eraseText = GetCursorString(this.pt2) + GetEraseString(this.pt2, this.pt3);
             var pt1 = this.pt1;
             var pt2 = this.pt2;
             var pt3 = NextPosition(value, bufferWidth, pt2);
-            var text = value + PadString(pt3, this.pt3, bufferWidth);
+            var text = value + escEraseLine;
 
             var s1 = pt2;
             var s2 = pt3;
@@ -816,6 +873,7 @@ namespace JSSoft.Library.Commands
                 pt2.Y -= offset;
                 pt3.Y -= offset;
             }
+            var renderText = eraseText + GetRenderString(s1, pt3, pt3, text, bufferHeight);
 
             this.command = value;
             this.promptText = this.prompt + this.command;
@@ -826,7 +884,7 @@ namespace JSSoft.Library.Commands
             this.pt2 = pt2;
             this.pt3 = pt3;
 
-            Draw(s1, pt3, pt3, text, bufferHeight);
+            Render(renderText);
         }
 
         private void SetCursorPosition(int cursorPosition)
@@ -885,7 +943,7 @@ namespace JSSoft.Library.Commands
                     }
                     else if (key.Key == ConsoleKey.Enter)
                     {
-                        var text = this.Text;
+                        var text = this.command;
                         this.command = string.Empty;
                         this.promptText = this.prompt + this.command;
                         this.cursorPosition = 0;
@@ -913,7 +971,7 @@ namespace JSSoft.Library.Commands
                     }
                 }
 
-                if (keyChars != string.Empty && validation(this.Text + keyChars) == true)
+                if (keyChars != string.Empty && validation(this.Command + keyChars) == true)
                 {
                     this.InsertText(keyChars);
                 }
@@ -960,12 +1018,10 @@ namespace JSSoft.Library.Commands
             {
                 var bufferWidth = Console.BufferWidth;
                 var bufferHeight = Console.BufferHeight;
-
                 var pt1 = new TerminalPoint(0, Console.CursorTop);
                 var pt2 = NextPosition(prompt, bufferWidth, pt1);
                 var pt3 = NextPosition(command, bufferWidth, pt2);
                 var s1 = pt1;
-
                 if (pt3.Y >= bufferHeight)
                 {
                     var offset = (pt2.Y - pt1.Y);
@@ -973,6 +1029,7 @@ namespace JSSoft.Library.Commands
                     pt2.Y -= offset;
                     pt3.Y -= offset;
                 }
+                var renderText = GetRenderString(s1, pt3, pt3, prompt + command, bufferHeight);
 
                 this.treatControlCAsInput = Console.TreatControlCAsInput;
                 this.width = bufferWidth;
@@ -990,7 +1047,7 @@ namespace JSSoft.Library.Commands
                 this.ct1 = TerminalPoint.Zero;
                 this.IsReading = true;
 
-                Draw(s1, pt3, pt3, prompt + command, bufferHeight);
+                Render(renderText);
             }
         }
 
@@ -1009,132 +1066,6 @@ namespace JSSoft.Library.Commands
             }
         }
 
-        private void InvokeDrawPrompt(TextWriter writer, string prompt)
-        {
-            this.OnDrawPrompt(writer, prompt);
-        }
-
-        private void InvokeDrawCommand(TextWriter writer, string command)
-        {
-            this.OnDrawCommand(writer, command);
-        }
-
-        internal static int[] Split(string text, int bufferWidth)
-        {
-            var lineList = new List<int>((text.Length / bufferWidth) + 1);
-            var x = 0;
-            var y = 0;
-            for (var i = 0; i < text.Length; i++)
-            {
-                var ch = text[i];
-                if (ch == '\r')
-                {
-                    x = 0;
-                    continue;
-                }
-                else if (ch == '\n')
-                {
-                    lineList.Add(x);
-                    x = 0;
-                    y++;
-                    continue;
-                }
-
-                var w = charWidths[(int)ch];
-                if (x + w >= bufferWidth)
-                {
-                    lineList.Add(x);
-                    x = x + w - bufferWidth;
-                    y++;
-                }
-                else
-                {
-                    x += w;
-                }
-            }
-            lineList.Add(x);
-            return lineList.ToArray();
-        }
-
-        internal static TerminalPoint NextPosition(string text, int bufferWidth, TerminalPoint pt)
-        {
-            var x = pt.X;
-            var y = pt.Y;
-            for (var i = 0; i < text.Length; i++)
-            {
-                var ch = text[i];
-                if (ch == '\r')
-                {
-                    x = 0;
-                    continue;
-                }
-                else if (ch == '\n')
-                {
-                    x = 0;
-                    y++;
-                    continue;
-                }
-
-                var w = charWidths[(int)ch];
-                if (x + w >= bufferWidth)
-                {
-                    x = x + w - bufferWidth;
-                    y++;
-                }
-                else
-                {
-                    x += w;
-                }
-            }
-            return new TerminalPoint(x, y);
-        }
-
-        internal static int GetStringLength(string text)
-        {
-            var pt = NextPosition(text, int.MaxValue, TerminalPoint.Zero);
-            return pt.X;
-        }
-
-        internal static string GetOverwrappedText(string text, int bufferWidth)
-        {
-            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
-            {
-                return text;
-            }
-            else
-            {
-                var lineBreak = text.EndsWith(Environment.NewLine) == true ? Environment.NewLine : string.Empty;
-                var text2 = text.Substring(0, text.Length - lineBreak.Length);
-                var items = text2.Split(Environment.NewLine, StringSplitOptions.None);
-                return string.Join($"\x1b[K{Environment.NewLine}", items) + lineBreak;
-            }
-        }
-
-        internal static string PadString(TerminalPoint pt1, TerminalPoint pt2, int bufferWidth)
-        {
-            var len = Math.Max(0, pt1.DistanceOf(pt2, bufferWidth) - 1);
-            var text = string.Empty;
-            if (Environment.OSVersion.Platform == PlatformID.Unix)
-                return string.Empty.PadRight(len) + "\x1b[0K";
-            return string.Empty.PadRight(len);
-        }
-
-        internal static void SetCursorPosition(TerminalPoint pt)
-        {
-            if (Environment.OSVersion.Platform == PlatformID.Unix)
-            {
-                using (var stream = Console.OpenStandardOutput())
-                using (var writer = new StreamWriter(stream, Console.OutputEncoding))
-                {
-                    writer.Write(GetEscapeString(pt));
-                }
-            }
-            else
-            {
-                Console.SetCursorPosition(pt.X, pt.Y);
-            }
-        }
-
         internal string ReadStringInternal(string prompt)
         {
             using var initializer = new Initializer(this)
@@ -1144,7 +1075,7 @@ namespace JSSoft.Library.Commands
             return initializer.ReadLineImpl(i => true, true);
         }
 
-        internal void Draw(TextWriter writer, string text)
+        internal void RenderInternal(string text)
         {
             var bufferWidth = this.width;
             var bufferHeight = this.height;
@@ -1160,13 +1091,12 @@ namespace JSSoft.Library.Commands
             var pt2 = NextPosition(prompt, bufferWidth, pt1);
             var pt3 = NextPosition(command, bufferWidth, pt2);
             var pt4 = NextPosition(pre, bufferWidth, pt2);
-            var text6 = GetOverwrappedText(text1 + promptText, bufferWidth);
+            var text6 = GetOverwrappedString(text1 + promptText, bufferWidth);
 
             var s1 = new TerminalPoint(pt8.X, pt8.Y);
             var s2 = new TerminalPoint(pt8.X, pt8.Y);
             var s3 = pt3;
             var len = s1.DistanceOf(pt3, bufferWidth);
-            var text7 = PadString(s1, pt3, bufferWidth);
             if (pt3.Y >= bufferHeight)
             {
                 var offset = pt3.Y + 1 - bufferHeight;
@@ -1176,6 +1106,7 @@ namespace JSSoft.Library.Commands
                 pt4.Y -= offset;
                 s2.Y -= offset;
             }
+            var renderText = GetRenderString(s1, s3, pt4, text6, bufferHeight);
 
             this.pt1 = pt1;
             this.pt2 = pt2;
@@ -1183,58 +1114,8 @@ namespace JSSoft.Library.Commands
             this.ct1 = new TerminalPoint(ct1.X, ct1.X != 0 ? -1 : 0);
             this.outputText.Append(text);
 
-            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
-            {
-                Draw(s1, pt3, pt4, text7 + text6, bufferHeight);
-            }
-            else
-            {
-                Draw(s1, s3, pt4, text6, bufferHeight);
-            }
+            Render(renderText);
         }
-
-        private static bool IsEnd(TerminalPoint pt, int bufferHeight)
-        {
-            if (pt.Y >= bufferHeight)
-            {
-                if (Environment.OSVersion.Platform == PlatformID.Win32NT)
-                {
-                    if (pt.X == 0 && Console.CursorLeft != 0)
-                    {
-                        return true;
-                    }
-                }
-                else if (Environment.OSVersion.Platform == PlatformID.Unix)
-                {
-                    if (pt.X == 0)
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-        // private static void WriteEndLine(TextWriter writer, TerminalPoint pt, int bufferHeight)
-        // {
-        //     if (pt.Y >= bufferHeight)
-        //     {
-        //         if (Environment.OSVersion.Platform == PlatformID.Win32NT)
-        //         {
-        //             if (pt.X == 0 && Console.CursorLeft != 0)
-        //             {
-        //                 writer.WriteLine();
-        //             }
-        //         }
-        //         else if (Environment.OSVersion.Platform == PlatformID.Unix)
-        //         {
-        //             if (pt.X == 0)
-        //             {
-        //                 writer.WriteLine();
-        //             }
-        //         }
-        //     }
-        // }
 
         internal static object LockedObject { get; } = new object();
 
