@@ -60,10 +60,7 @@ namespace JSSoft.Library.Commands
         private int cursorPosition;
 
         private bool isHidden;
-        private bool treatControlCAsInput;
         private bool isCancellationRequested;
-        private ConsoleColor?[] foregroundColors = new ConsoleColor?[] { };
-        private ConsoleColor?[] backgroundColors = new ConsoleColor?[] { };
 
         private const int STD_OUTPUT_HANDLE = -11;
         private const uint ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004;
@@ -406,9 +403,6 @@ namespace JSSoft.Library.Commands
             }
         }
 
-        [Obsolete]
-        public string Text => this.command;
-
         public string Command
         {
             get => this.command;
@@ -533,16 +527,6 @@ namespace JSSoft.Library.Commands
                         where item.StartsWith(find)
                         select item;
             return query.ToArray();
-        }
-
-        protected virtual void OnDrawPrompt(TextWriter writer, string prompt)
-        {
-            writer.Write(prompt);
-        }
-
-        protected virtual void OnDrawCommand(TextWriter writer, string command)
-        {
-            writer.Write(command);
         }
 
         protected virtual TextWriter Out => Console.Out;
@@ -1014,11 +998,11 @@ namespace JSSoft.Library.Commands
 
         private void Initialize(string prompt, string command, bool isHidden)
         {
+            var bufferWidth = Console.BufferWidth;
+            var bufferHeight = Console.BufferHeight;
+            var pt1 = new TerminalPoint(0, Console.CursorTop);
             lock (LockedObject)
             {
-                var bufferWidth = Console.BufferWidth;
-                var bufferHeight = Console.BufferHeight;
-                var pt1 = new TerminalPoint(0, Console.CursorTop);
                 var pt2 = NextPosition(prompt, bufferWidth, pt1);
                 var pt3 = NextPosition(command, bufferWidth, pt2);
                 var s1 = pt1;
@@ -1031,7 +1015,6 @@ namespace JSSoft.Library.Commands
                 }
                 var renderText = GetRenderString(s1, pt3, pt3, prompt + command, bufferHeight);
 
-                this.treatControlCAsInput = Console.TreatControlCAsInput;
                 this.width = bufferWidth;
                 this.height = bufferHeight;
                 this.command = command;
