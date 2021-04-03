@@ -52,12 +52,12 @@ namespace JSSoft.Library.Commands
         private int width = Console.BufferWidth;
         private int height = Console.BufferHeight;
         private int historyIndex;
+        private int cursorIndex;
         private string prompt = string.Empty;
         private string command = string.Empty;
         private string promptText = string.Empty;
         private string inputText = string.Empty;
         private string completion = string.Empty;
-        private int cursorIndex;
 
         private bool isHidden;
         private bool isCancellationRequested;
@@ -387,7 +387,7 @@ namespace JSSoft.Library.Commands
             }
         }
 
-        public int CursorPosition
+        public int CursorIndex
         {
             get => this.cursorIndex;
             set
