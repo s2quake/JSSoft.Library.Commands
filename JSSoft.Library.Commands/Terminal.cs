@@ -559,17 +559,17 @@ namespace JSSoft.Library.Commands
                 var pt1 = this.pt1;
                 var pt2 = this.pt2;
                 var pt3 = NextPosition(command, bufferWidth, pt2);
-                var c1 = NextPosition(pre, bufferWidth, pt2);
+                var ct1 = NextPosition(pre, bufferWidth, pt2);
 
-                var s1 = this.pt2;
-                var s2 = pt3;
+                var st1 = this.pt2;
+                var st2 = pt3;
                 if (pt3.Y >= bufferHeight)
                 {
                     var offset = pt3.Y - this.pt3.Y;
                     pt1.Y -= offset;
                     pt2.Y -= offset;
                     pt3.Y -= offset;
-                    c1.Y -= offset;
+                    ct1.Y -= offset;
                 }
 
                 this.cursorPosition = cursorPosition;
@@ -583,12 +583,12 @@ namespace JSSoft.Library.Commands
 
                 if (this.isHidden == false)
                 {
-                    var renderText = GetRenderString(s1, s2, c1, command, bufferHeight);
+                    var renderText = GetRenderString(st1, st2, ct1, command, bufferHeight);
                     Render(renderText);
                 }
                 else
                 {
-                    SetCursorPosition(s1);
+                    SetCursorPosition(st1);
                 }
             }
         }
@@ -813,17 +813,17 @@ namespace JSSoft.Library.Commands
             var pt4 = NextPosition(pre, bufferWidth, pt2);
             var text = prompt + command + escEraseLine;
 
-            var s1 = pt1;
-            var s2 = NextPosition(pre, bufferWidth, pt2);
+            var st1 = pt1;
+            var st2 = NextPosition(pre, bufferWidth, pt2);
             if (pt3.Y >= bufferHeight)
             {
                 var offset = pt3.Y - this.pt3.Y;
-                s2.Y -= offset;
+                st2.Y -= offset;
                 pt1.Y -= offset;
                 pt2.Y -= offset;
                 pt3.Y -= offset;
             }
-            var renderText = GetRenderString(s1, pt3, pt4, text, bufferHeight);
+            var renderText = GetRenderString(st1, pt3, pt4, text, bufferHeight);
 
             this.prompt = prompt;
             this.promptText = prompt + command;
@@ -847,17 +847,17 @@ namespace JSSoft.Library.Commands
             var pt3 = NextPosition(value, bufferWidth, pt2);
             var text = value + escEraseLine;
 
-            var s1 = pt2;
-            var s2 = pt3;
+            var st1 = pt2;
+            var st2 = pt3;
             if (pt3.Y >= bufferHeight)
             {
                 var offset = pt3.Y - this.pt3.Y;
-                s2.Y -= offset;
+                st2.Y -= offset;
                 pt1.Y -= offset;
                 pt2.Y -= offset;
                 pt3.Y -= offset;
             }
-            var renderText = eraseText + GetRenderString(s1, pt3, pt3, text, bufferHeight);
+            var renderText = eraseText + GetRenderString(st1, pt3, pt3, text, bufferHeight);
 
             this.command = value;
             this.promptText = this.prompt + this.command;
@@ -1005,7 +1005,7 @@ namespace JSSoft.Library.Commands
             {
                 var pt2 = NextPosition(prompt, bufferWidth, pt1);
                 var pt3 = NextPosition(command, bufferWidth, pt2);
-                var s1 = pt1;
+                var st1 = pt1;
                 if (pt3.Y >= bufferHeight)
                 {
                     var offset = (pt2.Y - pt1.Y);
@@ -1013,7 +1013,7 @@ namespace JSSoft.Library.Commands
                     pt2.Y -= offset;
                     pt3.Y -= offset;
                 }
-                var renderText = GetRenderString(s1, pt3, pt3, prompt + command, bufferHeight);
+                var renderText = GetRenderString(st1, pt3, pt3, prompt + command, bufferHeight);
 
                 this.width = bufferWidth;
                 this.height = bufferHeight;
@@ -1076,10 +1076,10 @@ namespace JSSoft.Library.Commands
             var pt4 = NextPosition(pre, bufferWidth, pt2);
             var text6 = GetOverwrappedString(text1 + promptText, bufferWidth);
 
-            var s1 = new TerminalPoint(pt8.X, pt8.Y);
-            var s2 = new TerminalPoint(pt8.X, pt8.Y);
-            var s3 = pt3;
-            var len = s1.DistanceOf(pt3, bufferWidth);
+            var st1 = new TerminalPoint(pt8.X, pt8.Y);
+            var st2 = new TerminalPoint(pt8.X, pt8.Y);
+            var st3 = pt3;
+            var len = st1.DistanceOf(pt3, bufferWidth);
             if (pt3.Y >= bufferHeight)
             {
                 var offset = pt3.Y + 1 - bufferHeight;
@@ -1087,9 +1087,9 @@ namespace JSSoft.Library.Commands
                 pt2.Y -= offset;
                 pt3.Y -= offset;
                 pt4.Y -= offset;
-                s2.Y -= offset;
+                st2.Y -= offset;
             }
-            var renderText = GetRenderString(s1, s3, pt4, text6, bufferHeight);
+            var renderText = GetRenderString(st1, st3, pt4, text6, bufferHeight);
 
             this.pt1 = pt1;
             this.pt2 = pt2;
