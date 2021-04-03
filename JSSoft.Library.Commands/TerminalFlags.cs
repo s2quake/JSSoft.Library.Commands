@@ -19,43 +19,28 @@
 // Forked from https://github.com/NtreevSoft/CommandLineParser
 // Namespaces and files starting with "Ntreev" have been renamed to "JSSoft".
 
+using JSSoft.Library.Commands.Properties;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Security;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace JSSoft.Library.Commands
 {
-    class TerminalTextWriter : TextWriter
+    [Flags]
+    enum TerminalFlags
     {
-        private readonly Terminal terminal;
-        private readonly Encoding encoding;
+        None = 0,
 
-        public TerminalTextWriter(Terminal terminal, Encoding encoding)
-        {
-            this.terminal = terminal ?? throw new ArgumentNullException(nameof(terminal));
-            this.encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
-        }
+        IsHidden = 1,
 
-        public override Encoding Encoding => this.encoding;
+        IsReading = 2,
 
-        public override void Write(char value)
-        {
-            this.WriteToStream(value.ToString());
-        }
-
-        public override void Write(string value)
-        {
-            this.WriteToStream(value);
-        }
-
-        public override void WriteLine(string value)
-        {
-            this.WriteToStream(value + Environment.NewLine);
-        }
-
-        private void WriteToStream(string text)
-        {
-            this.terminal.EnqueString(text);
-        }
+        IsRecordable = 4,
     }
 }

@@ -29,9 +29,7 @@ namespace JSSoft.Library.Commands
     public class CommandContextTerminal : Terminal
     {
         private readonly CommandContextBase commandContext;
-         private string prompt = string.Empty;
-        // private string prefix;
-        // private string postfix;
+        private string prompt = string.Empty;
 
         public CommandContextTerminal(CommandContextBase commandContext)
         {
@@ -118,7 +116,7 @@ namespace JSSoft.Library.Commands
                     while (task.IsCompleted == false)
                     {
                         await Task.Delay(1);
-                        this.Sync();
+                        this.UpdateLayout();
                     }
                     if (task.Exception != null)
                         throw task.Exception;

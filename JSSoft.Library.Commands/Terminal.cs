@@ -40,9 +40,10 @@ namespace JSSoft.Library.Commands
         private static TextWriter consoleOut = Console.Out;
         private static TextWriter consoleError = Console.Error;
 
+        private readonly Dictionary<ConsoleKeyInfo, Func<object>> systemActions = new();
         private readonly Dictionary<ConsoleKeyInfo, Action> actionMaps = new();
         private readonly List<string> histories = new();
-        private readonly List<string> completions = new();
+        private readonly Queue<string> stringQueue = new Queue<string>();
 
         private TerminalPoint pt1 = new(0, Console.CursorTop);
         private TerminalPoint pt2;
@@ -59,7 +60,7 @@ namespace JSSoft.Library.Commands
         private string inputText = string.Empty;
         private string completion = string.Empty;
 
-        private bool isHidden;
+        private TerminalFlags flags;
         private bool isCancellationRequested;
 
         private const int STD_OUTPUT_HANDLE = -11;
@@ -77,8 +78,6 @@ namespace JSSoft.Library.Commands
 
         [DllImport("kernel32.dll")]
         public static extern uint GetLastError();
-
-        internal Queue<string> stringList = new Queue<string>();
 
         static Terminal()
         {
@@ -140,6 +139,8 @@ namespace JSSoft.Library.Commands
         {
             if (Terminal.IsInputRedirected == true)
                 throw new Exception("Terminal cannot use. Console.IsInputRedirected must be false");
+            this.systemActions.Add(new ConsoleKeyInfo('\u0003', ConsoleKey.C, false, false, true), this.OnCancel);
+            this.systemActions.Add(new ConsoleKeyInfo('\r', ConsoleKey.Enter, false, false, false), this.OnEnter);
             this.actionMaps.Add(new ConsoleKeyInfo('\u001b', ConsoleKey.Escape, false, false, false), this.Clear);
             if (Environment.OSVersion.Platform == PlatformID.Unix)
             {
@@ -226,9 +227,9 @@ namespace JSSoft.Library.Commands
             {
                 Prompt = prompt,
                 Command = command,
-                IsHidden = isHidden,
+                Flags = TerminalFlags.IsHidden
             };
-            return initializer.ReadLineImpl(i => true, false);
+            return initializer.ReadLineImpl(i => true);
         }
 
         public SecureString ReadSecureString(string prompt)
@@ -280,9 +281,7 @@ namespace JSSoft.Library.Commands
             }
         }
 
-        public IList<string> Histories => this.histories;
-
-        public IList<string> Completions => this.completions;
+        public IReadOnlyList<string> Histories => this.histories;
 
         public void Cancel()
         {
@@ -295,6 +294,45 @@ namespace JSSoft.Library.Commands
             {
                 this.SetCommand(string.Empty);
             }
+        }
+
+        private object OnEnter()
+        {
+            var command = this.command;
+            if (this.flags.HasFlag(TerminalFlags.IsRecordable) == true)
+            {
+                if (this.IsHidden == false && command != string.Empty)
+                {
+                    if (this.histories.Contains(command) == false)
+                    {
+                        this.histories.Add(command);
+                        this.historyIndex = this.histories.Count;
+                    }
+                    else
+                    {
+                        this.historyIndex = this.histories.LastIndexOf(command) + 1;
+                    }
+                }
+            }
+            this.prompt = string.Empty;
+            this.command = string.Empty;
+            this.promptText = string.Empty;
+            this.cursorIndex = 0;
+            this.inputText = string.Empty;
+            this.completion = string.Empty;
+            return command;
+        }
+
+        private object OnCancel()
+        {
+            var args = new TerminalCancelEventArgs(ConsoleSpecialKey.ControlC);
+            this.OnCancelKeyPress(args);
+            if (args.Cancel == false)
+            {
+                this.OnCancelled(EventArgs.Empty);
+                throw new OperationCanceledException(Resources.Exception_ReadOnlyCanceled);
+            }
+            return null;
         }
 
         public void Delete()
@@ -389,6 +427,14 @@ namespace JSSoft.Library.Commands
             }
         }
 
+        public void EnqueString(string text)
+        {
+            lock (Terminal.ExternalObject)
+            {
+                this.stringQueue.Enqueue(text);
+            }
+        }
+
         public int CursorIndex
         {
             get => this.cursorIndex;
@@ -437,7 +483,9 @@ namespace JSSoft.Library.Commands
             }
         }
 
-        public bool IsReading { get; private set; }
+        private bool IsReading => this.flags.HasFlag(TerminalFlags.IsReading);
+
+        private bool IsHidden => this.flags.HasFlag(TerminalFlags.IsHidden);
 
         public bool IsEnabled { get; set; } = true;
 
@@ -525,13 +573,13 @@ namespace JSSoft.Library.Commands
 
         protected virtual string[] GetCompletion(string[] items, string find)
         {
-            var query = from item in this.completions
+            var query = from item in items
                         where item.StartsWith(find)
                         select item;
             return query.ToArray();
         }
 
-        public void Sync()
+        public void UpdateLayout()
         {
             if (this.width != Console.BufferWidth)
             {
@@ -570,9 +618,6 @@ namespace JSSoft.Library.Commands
 
         private void InsertText(string text)
         {
-            if (text == string.Empty)
-                return;
-
             lock (LockedObject)
             {
                 var bufferWidth = this.width;
@@ -608,7 +653,7 @@ namespace JSSoft.Library.Commands
                 this.pt2 = pt2;
                 this.pt3 = pt3;
 
-                if (this.isHidden == false)
+                if (this.IsHidden == false)
                 {
                     var renderText = GetRenderString(st1, st2, ct1, command, bufferHeight);
                     Render(renderText);
@@ -731,7 +776,7 @@ namespace JSSoft.Library.Commands
             this.cursorIndex = cursorIndex;
             this.pt3 = pt4;
 
-            if (this.isHidden == false)
+            if (this.IsHidden == false)
             {
                 var text = extra + escEraseLine;
                 var renderText = GetRenderString(pt3, pt3, pt3, text, bufferHeight);
@@ -759,7 +804,7 @@ namespace JSSoft.Library.Commands
             this.promptText = this.prompt + this.command;
             this.pt3 = pt4;
 
-            if (this.isHidden == false)
+            if (this.IsHidden == false)
             {
                 var text = extra + escEraseLine;
                 var renderText = GetRenderString(pt3, pt3, pt3, text, bufferHeight);
@@ -902,7 +947,7 @@ namespace JSSoft.Library.Commands
         {
             var bufferWidth = this.width;
             var bufferHeight = this.height;
-            var text = this.isHidden == true ? string.Empty : this.command.Substring(0, cursorIndex);
+            var text = this.IsHidden == true ? string.Empty : this.command.Substring(0, cursorIndex);
             var pt4 = NextPosition(text, bufferWidth, this.pt2);
 
             this.cursorIndex = cursorIndex;
@@ -918,104 +963,61 @@ namespace JSSoft.Library.Commands
                 Prompt = prompt,
                 Command = $"{value}"
             };
-            return initializer.ReadLineImpl(validation, false);
+            return initializer.ReadLineImpl(validation);
         }
 
-        private string ReadLineImpl(Func<string, bool> validation, bool recordHistory)
+        private string ReadLineImpl(Func<string, bool> validation)
         {
             while (true)
             {
                 Thread.Sleep(1);
-                this.Sync();
-                lock (ExternalObject)
-                {
-                    if (this.stringList.Any() == true)
-                    {
-                        var line = this.stringList.Dequeue();
-                        RenderInternal(line);
-                    }
-                }
+                this.UpdateLayout();
+                this.RenderStringQueue();
                 if (this.isCancellationRequested == true)
                     return null;
                 if (this.IsEnabled == false)
                     continue;
-                // var keys = this.ReadKeys().ToArray();
-                // if (this.isCancellationRequested == true)
-                //     return null;
-
-                if (Console.KeyAvailable == false)
-                    continue;
-
-                var key = Console.ReadKey(true);
                 var keyChars = string.Empty;
-                // foreach (var key in keys)
-                // {
-                if (key == cancelKeyInfo)
+                while (Console.KeyAvailable == true)
                 {
-                    var args = new TerminalCancelEventArgs(ConsoleSpecialKey.ControlC);
-                    this.OnCancelKeyPress(args);
-                    if (args.Cancel == false)
+                    var key = Console.ReadKey(true);
+                    if (this.systemActions.ContainsKey(key) == true)
                     {
-                        this.OnCancelled(EventArgs.Empty);
-                        throw new OperationCanceledException(Resources.Exception_ReadOnlyCanceled);
+                        this.FlushKeyChars(validation, ref keyChars);
+                        if (this.systemActions[key]() is string line)
+                            return line;
+                    }
+                    else if (this.actionMaps.ContainsKey(key) == true)
+                    {
+                        this.FlushKeyChars(validation, ref keyChars);
+                        this.actionMaps[key]();
+                    }
+                    else if (key.KeyChar != '\0')
+                    {
+                        keyChars += key.KeyChar;
                     }
                 }
-                else if (this.actionMaps.ContainsKey(key) == true)
-                {
-                    this.actionMaps[key]();
-                }
-                else if (key.Key == ConsoleKey.Enter)
-                {
-                    var command = this.command;
-                    if (recordHistory == true)
-                    {
-                        if (this.isHidden == false && command != string.Empty)
-                        {
-                            if (this.histories.Contains(command) == false)
-                            {
-                                this.histories.Add(command);
-                                this.historyIndex = this.histories.Count;
-                            }
-                            else
-                            {
-                                this.historyIndex = this.histories.LastIndexOf(command) + 1;
-                            }
-                        }
-                    }
-                    this.prompt = string.Empty;
-                    this.command = string.Empty;
-                    this.promptText = string.Empty;
-                    this.cursorIndex = 0;
-                    this.inputText = string.Empty;
-                    this.completion = string.Empty;
-                    return command;
-                }
-                else if (key.KeyChar != '\0')
-                {
-                    keyChars += key.KeyChar;
-                }
-                // }
-
-                if (keyChars != string.Empty && validation(this.Command + keyChars) == true)
-                {
-                    this.InsertText(keyChars);
-                }
+                this.FlushKeyChars(validation, ref keyChars);
             }
         }
 
-        private IEnumerable<ConsoleKeyInfo> ReadKeys()
+        private void FlushKeyChars(Func<string, bool> validation, ref string keyChars)
         {
-            while (this.isCancellationRequested == false)
+            if (keyChars != string.Empty && validation(this.Command + keyChars) == true)
             {
-                this.Sync();
-                if (Console.KeyAvailable == true)
+                this.InsertText(keyChars);
+            }
+            keyChars = string.Empty;
+        }
+
+        private void RenderStringQueue()
+        {
+            lock (ExternalObject)
+            {
+                if (this.stringQueue.Any() == true)
                 {
-                    yield return Console.ReadKey(true);
-                    yield break;
-                }
-                else
-                {
-                    Thread.Sleep(1);
+                    var line = this.stringQueue.Dequeue();
+                    RenderOutput(line);
                 }
             }
         }
@@ -1037,7 +1039,7 @@ namespace JSSoft.Library.Commands
             }
         }
 
-        private void Initialize(string prompt, string command, bool isHidden)
+        private void Initialize(string prompt, string command, TerminalFlags flags)
         {
             var bufferWidth = Console.BufferWidth;
             var bufferHeight = Console.BufferHeight;
@@ -1062,14 +1064,13 @@ namespace JSSoft.Library.Commands
                 this.prompt = prompt;
                 this.promptText = prompt + command;
                 this.cursorIndex = 0;
-                this.isHidden = isHidden;
                 this.inputText = command;
                 this.completion = string.Empty;
                 this.pt1 = pt1;
                 this.pt2 = pt2;
                 this.pt3 = pt3;
-                this.ct1 = new TerminalPoint(0, -1);
-                this.IsReading = true;
+                this.ct1 = TerminalPoint.Zero;
+                this.flags = flags | TerminalFlags.IsReading;
 
                 Render(renderText);
             }
@@ -1088,15 +1089,13 @@ namespace JSSoft.Library.Commands
                 this.pt1 = new TerminalPoint(0, Console.CursorTop);
                 this.pt2 = this.pt1;
                 this.pt3 = this.pt1;
-                this.ct1 = TerminalPoint.Zero;
                 this.prompt = string.Empty;
                 this.command = string.Empty;
                 this.promptText = string.Empty;
                 this.cursorIndex = 0;
                 this.inputText = string.Empty;
                 this.completion = string.Empty;
-                this.isHidden = false;
-                this.IsReading = false;
+                this.flags = TerminalFlags.None;
             }
         }
 
@@ -1105,11 +1104,12 @@ namespace JSSoft.Library.Commands
             using var initializer = new Initializer(this)
             {
                 Prompt = prompt,
+                Flags = TerminalFlags.IsRecordable
             };
-            return initializer.ReadLineImpl(i => true, true);
+            return initializer.ReadLineImpl(i => true);
         }
 
-        internal void RenderInternal(string text)
+        private void RenderOutput(string text)
         {
             var bufferWidth = this.width;
             var bufferHeight = this.height;
@@ -1170,17 +1170,17 @@ namespace JSSoft.Library.Commands
 
             public string Command { get; set; } = string.Empty;
 
-            public bool IsHidden { get; set; }
+            public TerminalFlags Flags { get; set; }
 
-            public string ReadLineImpl(Func<string, bool> validation, bool recordHistory)
+            public string ReadLineImpl(Func<string, bool> validation)
             {
-                this.terminal.Initialize(this.Prompt, this.Command, this.IsHidden);
-                return this.terminal.ReadLineImpl(validation, recordHistory);
+                this.terminal.Initialize(this.Prompt, this.Command, this.Flags);
+                return this.terminal.ReadLineImpl(validation);
             }
 
             public ConsoleKey ReadKeyImpl(params ConsoleKey[] filters)
             {
-                this.terminal.Initialize(this.Prompt, this.Command, this.IsHidden);
+                this.terminal.Initialize(this.Prompt, this.Command, this.Flags);
                 return this.terminal.ReadKeyImpl(filters);
             }
 
