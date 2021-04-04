@@ -19,16 +19,11 @@
 // Forked from https://github.com/NtreevSoft/CommandLineParser
 // Namespaces and files starting with "Ntreev" have been renamed to "JSSoft".
 
-using JSSoft.Library.Commands.Properties;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Security;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
 
 namespace JSSoft.Library.Commands
 {
@@ -87,28 +82,34 @@ namespace JSSoft.Library.Commands
 
         public int Count => this.itemByKey.Count;
 
-        public static TerminalKeyBindingCollection Win32NT { get; } = new TerminalKeyBindingCollection(new TerminalKeyBindingBase[]
+        public static TerminalKeyBindingCollection Common { get; } = new TerminalKeyBindingCollection(new TerminalKeyBindingBase[]
         {
-            new TerminalKeyBinding(new ConsoleKeyInfo('\u001b', ConsoleKey.Escape, false, false, false), (t) => t.Command = string.Empty),
-            new TerminalKeyBinding(new ConsoleKeyInfo('\b', ConsoleKey.Backspace, false, false, false), (t) => t.Backspace()),
             new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.Delete, false, false, false), (t) => t.Delete()),
             new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.Home, false, false, false), (t) => t.MoveToFirst()),
-            new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.Home, false, false, true), (t) => DeleteToFirst(t)),
             new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.End, false, false, false), (t) => t.MoveToLast()),
-            new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.End, false, false, true), (t) => DeleteToLast(t)),
             new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.UpArrow, false, false, false), (t) => t.PrevHistory()),
             new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.DownArrow, false, false, false), (t) => t.NextHistory()),
             new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.LeftArrow, false, false, false), (t) => t.Left()),
             new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.RightArrow, false, false, false), (t) => t.Right()),
-            new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.LeftArrow, false, false, true), (t) => PrevWord(t)),
-            new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.RightArrow, false, false, true), (t) => NextWord(t)),
-            new TerminalKeyBinding(new ConsoleKeyInfo('\t', ConsoleKey.Tab, false, false, false), (t) => t.NextCompletion()),
-            new TerminalKeyBinding(new ConsoleKeyInfo('\t', ConsoleKey.Tab, true, false, false), (t) => t.PrevCompletion()),
         });
 
-        public static TerminalKeyBindingCollection Unix { get; } = new TerminalKeyBindingCollection(new TerminalKeyBindingBase[]
+        public static TerminalKeyBindingCollection Win32NT { get; } = new TerminalKeyBindingCollection(Common, new TerminalKeyBindingBase[]
+        {
+            new TerminalKeyBinding(new ConsoleKeyInfo('\u001b', ConsoleKey.Escape, false, false, false), (t) => t.Command = string.Empty),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\b', ConsoleKey.Backspace, false, false, false), (t) => t.Backspace()),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.Home, false, false, true), (t) => DeleteToFirst(t)),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.End, false, false, true), (t) => DeleteToLast(t)),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\t', ConsoleKey.Tab, false, false, false), (t) => t.NextCompletion()),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\t', ConsoleKey.Tab, true, false, false), (t) => t.PrevCompletion()),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.LeftArrow, false, false, true), (t) => PrevWord(t)),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.RightArrow, false, false, true), (t) => NextWord(t)),
+        });
+
+        public static TerminalKeyBindingCollection Unix { get; } = new TerminalKeyBindingCollection(Common, new TerminalKeyBindingBase[]
         {
             new TerminalKeyBinding(new ConsoleKeyInfo('\u007f', ConsoleKey.Backspace, false, false, false), (t) => t.Backspace()),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.U, false, false, true), (t) => DeleteToFirst(t)),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.K, false, false, true), (t) => DeleteToLast(t)),
             new TerminalKeyBinding(new ConsoleKeyInfo('\t', ConsoleKey.Tab, false, false, false), (t) => t.NextCompletion()),
             new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.Tab, true, false, false), (t) => t.PrevCompletion()),
         });

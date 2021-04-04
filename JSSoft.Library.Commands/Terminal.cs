@@ -24,7 +24,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Security;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -37,8 +36,6 @@ namespace JSSoft.Library.Commands
         private const string escEraseLine = "\u001b[K";
         private static readonly ConsoleKeyInfo cancelKeyInfo = new('\u0003', ConsoleKey.C, false, false, true);
         private static byte[] charWidths;
-        private static TextWriter consoleOut = Console.Out;
-        private static TextWriter consoleError = Console.Error;
         private static TerminalKeyBindingCollection keyBindings = TerminalKeyBindingCollection.Default;
 
         private readonly Dictionary<ConsoleKeyInfo, Func<object>> systemActions = new();
@@ -91,6 +88,68 @@ namespace JSSoft.Library.Commands
                 throw new Exception("Terminal cannot use. Console.IsInputRedirected must be false");
             this.systemActions.Add(new ConsoleKeyInfo('\u0003', ConsoleKey.C, false, false, true), this.OnCancel);
             this.systemActions.Add(new ConsoleKeyInfo('\r', ConsoleKey.Enter, false, false, false), this.OnEnter);
+        }
+
+        public static string NextCompletion(string[] completions, string text)
+        {
+            completions = completions.OrderBy(item => item).ToArray();
+            if (completions.Contains(text) == true)
+            {
+                for (var i = 0; i < completions.Length; i++)
+                {
+                    var r = string.Compare(text, completions[i], true);
+                    if (r == 0)
+                    {
+                        if (i + 1 < completions.Length)
+                            return completions[i + 1];
+                        else
+                            return completions.First();
+                    }
+                }
+            }
+            else
+            {
+                for (var i = 0; i < completions.Length; i++)
+                {
+                    var r = string.Compare(text, completions[i], true);
+                    if (r < 0)
+                    {
+                        return completions[i];
+                    }
+                }
+            }
+            return text;
+        }
+
+        public static string PrevCompletion(string[] completions, string text)
+        {
+            completions = completions.OrderBy(item => item).ToArray();
+            if (completions.Contains(text) == true)
+            {
+                for (var i = completions.Length - 1; i >= 0; i--)
+                {
+                    var r = string.Compare(text, completions[i], true);
+                    if (r == 0)
+                    {
+                        if (i - 1 >= 0)
+                            return completions[i - 1];
+                        else
+                            return completions.Last();
+                    }
+                }
+            }
+            else
+            {
+                for (var i = completions.Length - 1; i >= 0; i--)
+                {
+                    var r = string.Compare(text, completions[i], true);
+                    if (r < 0)
+                    {
+                        return completions[i];
+                    }
+                }
+            }
+            return text;
         }
 
         public static int GetLength(string text)
@@ -375,68 +434,6 @@ namespace JSSoft.Library.Commands
         public static bool IsUnix => Environment.OSVersion.Platform == PlatformID.Unix;
 
         public static bool IsWin32NT => Environment.OSVersion.Platform == PlatformID.Win32NT;
-
-        public static string NextCompletion(string[] completions, string text)
-        {
-            completions = completions.OrderBy(item => item).ToArray();
-            if (completions.Contains(text) == true)
-            {
-                for (var i = 0; i < completions.Length; i++)
-                {
-                    var r = string.Compare(text, completions[i], true);
-                    if (r == 0)
-                    {
-                        if (i + 1 < completions.Length)
-                            return completions[i + 1];
-                        else
-                            return completions.First();
-                    }
-                }
-            }
-            else
-            {
-                for (var i = 0; i < completions.Length; i++)
-                {
-                    var r = string.Compare(text, completions[i], true);
-                    if (r < 0)
-                    {
-                        return completions[i];
-                    }
-                }
-            }
-            return text;
-        }
-
-        public static string PrevCompletion(string[] completions, string text)
-        {
-            completions = completions.OrderBy(item => item).ToArray();
-            if (completions.Contains(text) == true)
-            {
-                for (var i = completions.Length - 1; i >= 0; i--)
-                {
-                    var r = string.Compare(text, completions[i], true);
-                    if (r == 0)
-                    {
-                        if (i - 1 >= 0)
-                            return completions[i - 1];
-                        else
-                            return completions.Last();
-                    }
-                }
-            }
-            else
-            {
-                for (var i = completions.Length - 1; i >= 0; i--)
-                {
-                    var r = string.Compare(text, completions[i], true);
-                    if (r < 0)
-                    {
-                        return completions[i];
-                    }
-                }
-            }
-            return text;
-        }
 
         public static Terminal Current { get; private set; }
 
