@@ -1,0 +1,136 @@
+﻿// Released under the MIT License.
+// 
+// Copyright (c) 2018 Ntreev Soft co., Ltd.
+// Copyright (c) 2020 Jeesu Choi
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+// documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in all copies or substantial portions of the
+// Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+// WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+// COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// 
+// Forked from https://github.com/NtreevSoft/CommandLineParser
+// Namespaces and files starting with "Ntreev" have been renamed to "JSSoft".
+
+using JSSoft.Library.Commands.Properties;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Security;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading;
+
+namespace JSSoft.Library.Commands
+{
+    public class TerminalKeyBindingCollection : IEnumerable<TerminalKeyBindingBase>
+    {
+        private readonly Dictionary<ConsoleKeyInfo, TerminalKeyBindingBase> itemByKey;
+
+        static TerminalKeyBindingCollection()
+        {
+            if (Terminal.IsWin32NT == true)
+                Default = Win32NT;
+            else if (Terminal.IsUnix == true)
+                Default = Unix;
+        }
+
+        public TerminalKeyBindingCollection(TerminalKeyBindingCollection bindings)
+            : this(bindings, Enumerable.Empty<TerminalKeyBindingBase>())
+        {
+            this.itemByKey = new Dictionary<ConsoleKeyInfo, TerminalKeyBindingBase>();
+            this.BaseBindings = bindings ?? throw new ArgumentNullException(nameof(bindings));
+        }
+
+        public TerminalKeyBindingCollection(IEnumerable<TerminalKeyBindingBase> items)
+            : this(null, items)
+        {
+        }
+
+        public TerminalKeyBindingCollection(TerminalKeyBindingCollection bindings, IEnumerable<TerminalKeyBindingBase> items)
+        {
+            this.BaseBindings = bindings;
+            this.itemByKey = (items ?? throw new ArgumentNullException(nameof(items))).ToDictionary(item => item.Key);
+        }
+
+        public bool CanProcess(ConsoleKeyInfo key)
+        {
+            if (this.itemByKey.ContainsKey(key) == true)
+                return true;
+            if (this.BaseBindings != null)
+                return this.BaseBindings.CanProcess(key);
+            return false;
+        }
+
+        public bool Process(ConsoleKeyInfo key, Terminal terminal)
+        {
+            if (this.itemByKey.ContainsKey(key) == true)
+            {
+                if (this.itemByKey[key].Invoke(terminal) == true)
+                    return true;
+            }
+            if (this.BaseBindings != null)
+                return this.BaseBindings.Process(key, terminal);
+            return false;
+        }
+
+        public TerminalKeyBindingCollection BaseBindings { get; }
+
+        public int Count => this.itemByKey.Count;
+
+        public static TerminalKeyBindingCollection Win32NT { get; } = new TerminalKeyBindingCollection(new TerminalKeyBindingBase[]
+        {
+            new TerminalKeyBinding(new ConsoleKeyInfo('\u001b', ConsoleKey.Escape, false, false, false), (t) => t.Clear()),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\b', ConsoleKey.Backspace, false, false, false), (t) => t.Backspace()),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.Delete, false, false, false), (t) => t.Delete()),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.Home, false, false, false), (t) => t.Home()),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.Home, false, false, true), (t) => t.DeleteToHome()),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.End, false, false, false), (t) => t.End()),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.End, false, false, true), (t) => t.DeleteToEnd()),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.UpArrow, false, false, false), (t) => t.PrevHistory()),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.DownArrow, false, false, false), (t) => t.NextHistory()),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.LeftArrow, false, false, false), (t) => t.Left()),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.RightArrow, false, false, false), (t) => t.Right()),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\t', ConsoleKey.Tab, false, false, false), (t) => t.NextCompletion()),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\t', ConsoleKey.Tab, true, false, false), (t) => t.PrevCompletion()),
+        });
+
+        public static TerminalKeyBindingCollection Unix { get; } = new TerminalKeyBindingCollection(new TerminalKeyBindingBase[]
+        {
+            new TerminalKeyBinding(new ConsoleKeyInfo('\u007f', ConsoleKey.Backspace, false, false, false), (t) => t.Backspace()),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\t', ConsoleKey.Tab, false, false, false), (t) => t.NextCompletion()),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.Tab, true, false, false), (t) => t.PrevCompletion()),
+        });
+
+        public static TerminalKeyBindingCollection Default { get; }
+
+        #region IEnumerable
+
+        IEnumerator<TerminalKeyBindingBase> IEnumerable<TerminalKeyBindingBase>.GetEnumerator()
+        {
+            foreach (var item in this.itemByKey)
+            {
+                yield return item.Value;
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            foreach (var item in this.itemByKey)
+            {
+                yield return item.Value;
+            }
+        }
+
+        #endregion
+    }
+}

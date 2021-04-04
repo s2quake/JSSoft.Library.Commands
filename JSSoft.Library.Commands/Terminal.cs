@@ -39,9 +39,9 @@ namespace JSSoft.Library.Commands
         private static byte[] charWidths;
         private static TextWriter consoleOut = Console.Out;
         private static TextWriter consoleError = Console.Error;
+        private static TerminalKeyBindingCollection keyBindings = TerminalKeyBindingCollection.Default;
 
         private readonly Dictionary<ConsoleKeyInfo, Func<object>> systemActions = new();
-        private readonly Dictionary<ConsoleKeyInfo, Action> keyBindings = new();
         private readonly List<string> histories = new();
         private readonly Queue<string> stringQueue = new Queue<string>();
 
@@ -141,29 +141,6 @@ namespace JSSoft.Library.Commands
                 throw new Exception("Terminal cannot use. Console.IsInputRedirected must be false");
             this.systemActions.Add(new ConsoleKeyInfo('\u0003', ConsoleKey.C, false, false, true), this.OnCancel);
             this.systemActions.Add(new ConsoleKeyInfo('\r', ConsoleKey.Enter, false, false, false), this.OnEnter);
-            this.keyBindings.Add(new ConsoleKeyInfo('\u001b', ConsoleKey.Escape, false, false, false), this.Clear);
-            if (Environment.OSVersion.Platform == PlatformID.Unix)
-            {
-                this.keyBindings.Add(new ConsoleKeyInfo('\u007f', ConsoleKey.Backspace, false, false, false), this.Backspace);
-            }
-            else
-            {
-                this.keyBindings.Add(new ConsoleKeyInfo('\b', ConsoleKey.Backspace, false, false, false), this.Backspace);
-            }
-            this.keyBindings.Add(new ConsoleKeyInfo('\0', ConsoleKey.Delete, false, false, false), this.Delete);
-            this.keyBindings.Add(new ConsoleKeyInfo('\0', ConsoleKey.Home, false, false, false), this.Home);
-            this.keyBindings.Add(new ConsoleKeyInfo('\0', ConsoleKey.Home, false, false, true), this.DeleteToHome);
-            this.keyBindings.Add(new ConsoleKeyInfo('\0', ConsoleKey.End, false, false, false), this.End);
-            this.keyBindings.Add(new ConsoleKeyInfo('\0', ConsoleKey.End, false, false, true), this.DeleteToEnd);
-            this.keyBindings.Add(new ConsoleKeyInfo('\0', ConsoleKey.UpArrow, false, false, false), this.PrevHistory);
-            this.keyBindings.Add(new ConsoleKeyInfo('\0', ConsoleKey.DownArrow, false, false, false), this.NextHistory);
-            this.keyBindings.Add(new ConsoleKeyInfo('\0', ConsoleKey.LeftArrow, false, false, false), this.Left);
-            this.keyBindings.Add(new ConsoleKeyInfo('\0', ConsoleKey.RightArrow, false, false, false), this.Right);
-            this.keyBindings.Add(new ConsoleKeyInfo('\t', ConsoleKey.Tab, false, false, false), this.NextCompletion);
-            if (Environment.OSVersion.Platform == PlatformID.Unix)
-                this.keyBindings.Add(new ConsoleKeyInfo('\0', ConsoleKey.Tab, true, false, false), this.PrevCompletion);
-            else
-                this.keyBindings.Add(new ConsoleKeyInfo('\t', ConsoleKey.Tab, true, false, false), this.PrevCompletion);
         }
 
         public long? ReadLong(string prompt)
@@ -536,6 +513,8 @@ namespace JSSoft.Library.Commands
             return query.ToArray();
         }
 
+        protected virtual TerminalKeyBindingCollection KeyBindings => keyBindings;
+        
         public void UpdateLayout()
         {
             if (this.width != Console.BufferWidth)
@@ -944,10 +923,10 @@ namespace JSSoft.Library.Commands
                         if (this.systemActions[key]() is string line)
                             return line;
                     }
-                    else if (this.keyBindings.ContainsKey(key) == true)
+                    else if (this.KeyBindings.CanProcess(key) == true)
                     {
                         this.FlushKeyChars(validation, ref keyChars);
-                        this.keyBindings[key]();
+                        this.KeyBindings.Process(key, this);
                     }
                     else if (key.KeyChar != '\0')
                     {
