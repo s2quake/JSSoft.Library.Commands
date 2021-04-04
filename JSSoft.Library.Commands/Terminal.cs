@@ -39,7 +39,7 @@ namespace JSSoft.Library.Commands
         private static byte[] charWidths;
         private static TerminalKeyBindingCollection keyBindings = TerminalKeyBindingCollection.Default;
 
-        private readonly Dictionary<ConsoleKeyInfo, Func<object>> systemActions = new();
+        private readonly Dictionary<ConsoleKeyInfo, Func<string>> systemActions = new();
         private readonly List<string> histories = new();
         private readonly Queue<string> stringQueue = new Queue<string>();
 
@@ -463,20 +463,6 @@ namespace JSSoft.Library.Commands
 
         public static Terminal Current { get; private set; }
 
-        public event TerminalCancelEventHandler CancelKeyPress;
-
-        public event EventHandler Cancelled;
-
-        protected virtual void OnCancelKeyPress(TerminalCancelEventArgs e)
-        {
-            this.CancelKeyPress?.Invoke(this, e);
-        }
-
-        protected virtual void OnCancelled(EventArgs e)
-        {
-            this.Cancelled?.Invoke(this, e);
-        }
-
         protected virtual string[] GetCompletion(string[] items, string find)
         {
             var query = from item in items
@@ -885,8 +871,7 @@ namespace JSSoft.Library.Commands
             while (true)
             {
                 Thread.Sleep(1);
-                this.UpdateLayout();
-                this.RenderStringQueue();
+                this.Update();
                 if (this.isCancellationRequested == true)
                     return null;
                 if (this.IsEnabled == false)
@@ -898,8 +883,7 @@ namespace JSSoft.Library.Commands
                     if (this.systemActions.ContainsKey(key) == true)
                     {
                         this.FlushKeyChars(validation, ref keyChars);
-                        if (this.systemActions[key]() is string line)
-                            return line;
+                        return this.systemActions[key]();
                     }
                     else if (this.KeyBindings.CanProcess(key) == true)
                     {
@@ -1017,7 +1001,7 @@ namespace JSSoft.Library.Commands
             }
         }
 
-        private object OnEnter()
+        private string OnEnter()
         {
             if (this.CanRecord == true)
             {
@@ -1026,15 +1010,8 @@ namespace JSSoft.Library.Commands
             return this.command;
         }
 
-        private object OnCancel()
+        private string OnCancel()
         {
-            var args = new TerminalCancelEventArgs(ConsoleSpecialKey.ControlC);
-            this.OnCancelKeyPress(args);
-            if (args.Cancel == false)
-            {
-                this.OnCancelled(EventArgs.Empty);
-                throw new OperationCanceledException(Resources.Exception_ReadOnlyCanceled);
-            }
             return null;
         }
 
@@ -1105,6 +1082,12 @@ namespace JSSoft.Library.Commands
                 Flags = TerminalFlags.IsRecordable
             };
             return initializer.ReadLineImpl(i => true);
+        }
+
+        internal void Update()
+        {
+            this.UpdateLayout();
+            this.RenderStringQueue();
         }
 
         internal static object LockedObject { get; } = new object();
