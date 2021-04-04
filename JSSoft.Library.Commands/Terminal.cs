@@ -63,22 +63,6 @@ namespace JSSoft.Library.Commands
         private TerminalFlags flags;
         private bool isCancellationRequested;
 
-        private const int STD_OUTPUT_HANDLE = -11;
-        private const uint ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004;
-        private const uint DISABLE_NEWLINE_AUTO_RETURN = 0x0008;
-
-        [DllImport("kernel32.dll")]
-        private static extern bool GetConsoleMode(IntPtr hConsoleHandle, out uint lpMode);
-
-        [DllImport("kernel32.dll")]
-        private static extern bool SetConsoleMode(IntPtr hConsoleHandle, uint dwMode);
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        private static extern IntPtr GetStdHandle(int nStdHandle);
-
-        [DllImport("kernel32.dll")]
-        public static extern uint GetLastError();
-
         static Terminal()
         {
             var platformName = GetPlatformName(Environment.OSVersion.Platform);
@@ -97,33 +81,9 @@ namespace JSSoft.Library.Commands
 
             if (IsWin32NT == true)
             {
-                var iStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
-                if (!GetConsoleMode(iStdOut, out uint outConsoleMode))
-                {
-                    throw new InvalidOperationException("failed to get output console mode");
-                }
-
-                outConsoleMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING | DISABLE_NEWLINE_AUTO_RETURN;
-                if (SetConsoleMode(iStdOut, outConsoleMode) == false)
-                {
-                    throw new InvalidOperationException($"failed to set output console mode, error code: {GetLastError()}");
-                }
+                TerminalWin32NT.Initialize();
             }
         }
-
-        public static bool IsOutputRedirected =>
-#if !NET35
-                Console.IsOutputRedirected;
-#else
-                return true;
-#endif
-
-        public static bool IsInputRedirected =>
-#if !NET35
-                Console.IsInputRedirected;
-#else
-                return true;
-#endif
 
         public static int GetLength(string text)
         {
@@ -137,7 +97,7 @@ namespace JSSoft.Library.Commands
 
         public Terminal()
         {
-            if (Terminal.IsInputRedirected == true)
+            if (Console.IsInputRedirected == true)
                 throw new Exception("Terminal cannot use. Console.IsInputRedirected must be false");
             this.systemActions.Add(new ConsoleKeyInfo('\u0003', ConsoleKey.C, false, false, true), this.OnCancel);
             this.systemActions.Add(new ConsoleKeyInfo('\r', ConsoleKey.Enter, false, false, false), this.OnEnter);
@@ -491,7 +451,7 @@ namespace JSSoft.Library.Commands
 
         protected virtual TerminalKeyBindingCollection KeyBindings => keyBindings;
         
-        public void UpdateLayout()
+        protected void UpdateLayout()
         {
             if (this.width != Console.BufferWidth)
             {
@@ -1061,7 +1021,7 @@ namespace JSSoft.Library.Commands
             var pt2 = NextPosition(prompt, bufferWidth, pt1);
             var pt3 = NextPosition(command, bufferWidth, pt2);
             var pt4 = NextPosition(pre, bufferWidth, pt2);
-            var text6 = GetOverwrappedString(text1 + promptText, bufferWidth);
+            var text2 = GetOverwrappedString(text1 + promptText, bufferWidth);
 
             var st1 = new TerminalPoint(pt8.X, pt8.Y);
             var st2 = new TerminalPoint(pt8.X, pt8.Y);
@@ -1076,7 +1036,7 @@ namespace JSSoft.Library.Commands
                 pt4.Y -= offset;
                 st2.Y -= offset;
             }
-            var renderText = GetRenderString(st1, st3, pt4, text6, bufferHeight);
+            var renderText = GetRenderString(st1, st3, pt4, text2, bufferHeight);
 
             this.pt1 = pt1;
             this.pt2 = pt2;
