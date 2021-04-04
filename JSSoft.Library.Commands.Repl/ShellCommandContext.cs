@@ -31,7 +31,7 @@ namespace JSSoft.Library.Commands.Repl
         public ShellCommandContext([ImportMany] IEnumerable<ICommand> commands)
             : base(commands)
         {
-            BaseUsage = null;
+            // BaseUsage = null;
         }
     }
 }

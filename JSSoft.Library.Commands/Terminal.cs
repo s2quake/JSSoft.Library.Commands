@@ -34,7 +34,6 @@ namespace JSSoft.Library.Commands
     public class Terminal
     {
         private const string escEraseLine = "\u001b[K";
-        private static readonly ConsoleKeyInfo cancelKeyInfo = new('\u0003', ConsoleKey.C, false, false, true);
         private static byte[] charWidths;
         private static TerminalKeyBindingCollection keyBindings = TerminalKeyBindingCollection.Default;
 
@@ -431,6 +430,10 @@ namespace JSSoft.Library.Commands
 
         public bool IsEnabled { get; set; } = true;
 
+        public bool IsReading => this.flags.HasFlag(TerminalFlags.IsReading);
+
+        public bool IsHidden => this.flags.HasFlag(TerminalFlags.IsHidden);
+
         public static bool IsUnix => Environment.OSVersion.Platform == PlatformID.Unix;
 
         public static bool IsWin32NT => Environment.OSVersion.Platform == PlatformID.Win32NT;
@@ -505,7 +508,7 @@ namespace JSSoft.Library.Commands
                 var bufferWidth = this.width;
                 var bufferHeight = this.height;
                 var cursorIndex = this.cursorIndex + text.Length;
-                var extra = this.command.Substring(this.cursorIndex);
+                var extra = this.command[this.cursorIndex..];
                 var command = this.command.Insert(this.cursorIndex, text);
                 var pre = command.Substring(0, command.Length - extra.Length);
                 var promptText = this.prompt + command;
@@ -904,8 +907,12 @@ namespace JSSoft.Library.Commands
             {
                 if (this.stringQueue.Any() == true)
                 {
-                    var line = this.stringQueue.Dequeue();
-                    RenderOutput(line);
+                    var sb = new StringBuilder();
+                    while (this.stringQueue.TryDequeue(out var item))
+                    {
+                        sb.Append(item);
+                    }
+                    RenderOutput(sb.ToString());
                 }
             }
         }
@@ -1062,10 +1069,6 @@ namespace JSSoft.Library.Commands
 
             Render(renderText);
         }
-
-        private bool IsReading => this.flags.HasFlag(TerminalFlags.IsReading);
-
-        private bool IsHidden => this.flags.HasFlag(TerminalFlags.IsHidden);
 
         private bool IsRecordable => this.flags.HasFlag(TerminalFlags.IsRecordable);
 
