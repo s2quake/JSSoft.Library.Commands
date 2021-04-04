@@ -53,7 +53,9 @@ namespace JSSoft.Library.Commands
         private int historyIndex;
         private int cursorIndex;
         private string prompt = string.Empty;
+        private string promptF = string.Empty;
         private string command = string.Empty;
+        private string commandF = string.Empty;
         private string promptText = string.Empty;
         private string inputText = string.Empty;
         private string completion = string.Empty;
@@ -463,6 +465,16 @@ namespace JSSoft.Library.Commands
 
         public static Terminal Current { get; private set; }
 
+        protected virtual string FormatPrompt(string prompt)
+        {
+            return TerminalStrings.Format(prompt, TerminalColor.BrightBlue);
+        }
+
+        protected virtual string FormatCommand(string command)
+        {
+            return TerminalStrings.Format(command, TerminalColor.Red);
+        }
+
         protected virtual string[] GetCompletion(string[] items, string find)
         {
             var query = from item in items
@@ -519,6 +531,7 @@ namespace JSSoft.Library.Commands
                 var cursorIndex = this.cursorIndex + text.Length;
                 var extra = this.command[this.cursorIndex..];
                 var command = this.command.Insert(this.cursorIndex, text);
+                var commandF = this.FormatCommand(command);
                 var pre = command[..(command.Length - extra.Length)];
                 var promptText = this.prompt + command;
 
@@ -540,6 +553,7 @@ namespace JSSoft.Library.Commands
 
                 this.cursorIndex = cursorIndex;
                 this.command = command;
+                this.commandF = commandF;
                 this.promptText = this.prompt + command;
                 this.inputText = command[..cursorIndex];
                 this.completion = string.Empty;
@@ -549,7 +563,7 @@ namespace JSSoft.Library.Commands
 
                 if (this.IsHidden == false)
                 {
-                    var renderText = GetRenderString(st1, st2, ct1, command, bufferHeight);
+                    var renderText = GetRenderString(st1, st2, ct1, commandF, bufferHeight);
                     Render(renderText);
                 }
                 else
@@ -772,12 +786,13 @@ namespace JSSoft.Library.Commands
             var bufferWidth = this.width;
             var bufferHeight = this.height;
             var command = this.command;
+            var promptF = this.FormatPrompt(prompt);
             var pre = command[..this.cursorIndex];
             var pt1 = this.pt1;
             var pt2 = NextPosition(prompt, bufferWidth, pt1);
             var pt3 = NextPosition(command, bufferWidth, pt2);
             var pt4 = NextPosition(pre, bufferWidth, pt2);
-            var text = prompt + command + escEraseLine;
+            var text = promptF + command + escEraseLine;
 
             var st1 = pt1;
             var st2 = NextPosition(pre, bufferWidth, pt2);
@@ -792,6 +807,7 @@ namespace JSSoft.Library.Commands
             var renderText = GetRenderString(st1, pt3, pt4, text, bufferHeight);
 
             this.prompt = prompt;
+            this.promptF = promptF;
             this.promptText = prompt + command;
             this.pt1 = pt1;
             this.pt2 = pt2;
@@ -958,12 +974,16 @@ namespace JSSoft.Library.Commands
                     pt2.Y -= offset;
                     pt3.Y -= offset;
                 }
-                var renderText = GetRenderString(st1, pt3, pt3, prompt + command, bufferHeight);
+                var promptF = this.FormatPrompt(prompt);
+                var commandF = this.FormatCommand(command);
+                var renderText = GetRenderString(st1, pt3, pt3, promptF + commandF, bufferHeight);
 
                 this.width = bufferWidth;
                 this.height = bufferHeight;
                 this.command = command;
+                this.commandF = commandF;
                 this.prompt = prompt;
+                this.promptF = promptF;
                 this.promptText = prompt + command;
                 this.cursorIndex = 0;
                 this.inputText = command;

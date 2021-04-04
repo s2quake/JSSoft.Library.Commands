@@ -31,8 +31,20 @@ namespace JSSoft.Library.Commands.Repl
     {
         static async Task Main(string[] _)
         {
-            string source = "\x1b[2JThis text \x1b[3;20Hcontains several ANSI escapes\x1b[1;2;30;43m to format the text\x1b[K";
-string result = System.Text.RegularExpressions.Regex.Replace (source, @"\e\[(\d+;)*(\d+)?[ABCDHJKfmsu]", "");
+            // Console.WriteLine("\x1b[0;31mHello");
+            // Console.WriteLine("\x1b[0m\x1b[1;31mWorld");
+            // Console.WriteLine("\x1b[0m\x1b[2;31mHello");
+            // Console.WriteLine("\x1b[0m\x1b[3;31mWorld");
+            // Console.WriteLine("\x1b[0m\x1b[4;31mHello");
+            // Console.WriteLine("\x1b[0m\x1b[5;31mWorld");
+            // Console.WriteLine("\x1b[0m\x1b[6;31mWorld");
+            // Console.WriteLine("\x1b[0m\x1b[7;31mWorld");
+            // Console.WriteLine("\x1b[0m\x1b[8;31mWorld");
+            // Console.WriteLine("\x1b[0m\x1b[9;31mWorld");
+            // Console.Write("최지수\x08");
+            // string source = "\u001b[2JThis text \x1b[3;20Hcontains several ANSI escapes\x1b[1;2;30;43m to format the text\x1b[K";
+            // string result = System.Text.RegularExpressions.Regex.Replace(source, @"\e\[(\d+;)*(\d+)?[ABCDHJKfmsu]", string.Empty);
+            // var matches = System.Text.RegularExpressions.Regex.Matches(source, @"\e\[(\d+;)*(\d+)?[ABCDHJKfmsu]");
             var shell = Container.GetService<IShell>();
             Console.WriteLine();
             await shell.StartAsync();
