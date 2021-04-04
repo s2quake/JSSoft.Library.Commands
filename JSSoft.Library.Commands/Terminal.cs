@@ -510,7 +510,7 @@ namespace JSSoft.Library.Commands
                 var cursorIndex = this.cursorIndex + text.Length;
                 var extra = this.command[this.cursorIndex..];
                 var command = this.command.Insert(this.cursorIndex, text);
-                var pre = command.Substring(0, command.Length - extra.Length);
+                var pre = command[..(command.Length - extra.Length)];
                 var promptText = this.prompt + command;
 
                 var pt1 = this.pt1;
@@ -532,7 +532,7 @@ namespace JSSoft.Library.Commands
                 this.cursorIndex = cursorIndex;
                 this.command = command;
                 this.promptText = this.prompt + command;
-                this.inputText = command.Substring(0, cursorIndex);
+                this.inputText = command[..cursorIndex];
                 this.completion = string.Empty;
                 this.pt1 = pt1;
                 this.pt2 = pt2;
@@ -564,7 +564,7 @@ namespace JSSoft.Library.Commands
         private static string GetOverwrappedString(string text, int bufferWidth)
         {
             var lineBreak = text.EndsWith(Environment.NewLine) == true ? Environment.NewLine : string.Empty;
-            var text2 = text.Substring(0, text.Length - lineBreak.Length);
+            var text2 = text[..(text.Length - lineBreak.Length)];
             var items = text2.Split(Environment.NewLine, StringSplitOptions.None);
             return string.Join($"{escEraseLine}{Environment.NewLine}", items) + lineBreak;
         }
@@ -647,9 +647,9 @@ namespace JSSoft.Library.Commands
         {
             var bufferWidth = this.width;
             var bufferHeight = this.height;
-            var extra = this.command.Substring(this.cursorIndex);
+            var extra = this.command[this.cursorIndex..];
             var command = this.command.Remove(this.cursorIndex - 1, 1);
-            var pre = command.Substring(0, command.Length - extra.Length);
+            var pre = command[..(command.Length - extra.Length)];
             var cursorIndex = this.cursorIndex - 1;
             var endPosition = this.command.Length;
             var pt2 = this.pt2;
@@ -677,9 +677,9 @@ namespace JSSoft.Library.Commands
         {
             var bufferWidth = this.width;
             var bufferHeight = this.height;
-            var extra = this.command.Substring(this.cursorIndex + 1);
+            var extra = this.command[(this.cursorIndex + 1)..];
             var command = this.command.Remove(this.cursorIndex, 1);
-            var pre = command.Substring(0, command.Length - extra.Length);
+            var pre = command[..(command.Length - extra.Length)];
             var endPosition = this.command.Length;
             var pt2 = this.pt2;
             var pt3 = NextPosition(pre, bufferWidth, pt2);
@@ -715,7 +715,7 @@ namespace JSSoft.Library.Commands
                 if (matchText.Length > 0 && matchText.First() == '\"')
                 {
                     prefix = true;
-                    matchText = matchText.Substring(1);
+                    matchText = matchText[1..];
                 }
                 if (matchText.Length > 1 && matchText.Last() == '\"')
                 {
@@ -763,7 +763,7 @@ namespace JSSoft.Library.Commands
             var bufferWidth = this.width;
             var bufferHeight = this.height;
             var command = this.command;
-            var pre = command.Substring(0, this.cursorIndex);
+            var pre = command[..this.cursorIndex];
             var pt1 = this.pt1;
             var pt2 = NextPosition(prompt, bufferWidth, pt1);
             var pt3 = NextPosition(command, bufferWidth, pt2);
@@ -832,11 +832,11 @@ namespace JSSoft.Library.Commands
         {
             var bufferWidth = this.width;
             var bufferHeight = this.height;
-            var text = this.IsHidden == true ? string.Empty : this.command.Substring(0, cursorIndex);
+            var text = this.IsHidden == true ? string.Empty : this.command[..cursorIndex];
             var pt4 = NextPosition(text, bufferWidth, this.pt2);
 
             this.cursorIndex = cursorIndex;
-            this.inputText = this.command.Substring(0, cursorIndex);
+            this.inputText = this.command[..cursorIndex];
             this.completion = string.Empty;
             SetCursorPosition(pt4);
         }
@@ -1035,7 +1035,7 @@ namespace JSSoft.Library.Commands
             var promptText = this.promptText;
             var prompt = this.prompt;
             var command = this.command;
-            var pre = this.command.Substring(0, this.cursorIndex);
+            var pre = this.command[..this.cursorIndex];
             var pt8 = this.pt1 + this.ct1;
             var ct1 = NextPosition(text, bufferWidth, pt8);
             var text1 = text.EndsWith(Environment.NewLine) == true || ct1 == TerminalPoint.Zero ? text : text + Environment.NewLine;
