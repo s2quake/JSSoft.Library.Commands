@@ -55,7 +55,7 @@ namespace JSSoft.Library.Commands
 
         private void WriteToStream(string text)
         {
-            this.terminal.EnqueString(text);
+            this.terminal.EnqueueString(text);
         }
     }
 }

@@ -85,6 +85,14 @@ namespace JSSoft.Library.Commands
             }
         }
 
+        public Terminal()
+        {
+            if (Console.IsInputRedirected == true)
+                throw new Exception("Terminal cannot use. Console.IsInputRedirected must be false");
+            this.systemActions.Add(new ConsoleKeyInfo('\u0003', ConsoleKey.C, false, false, true), this.OnCancel);
+            this.systemActions.Add(new ConsoleKeyInfo('\r', ConsoleKey.Enter, false, false, false), this.OnEnter);
+        }
+
         public static int GetLength(string text)
         {
             var length = 0;
@@ -93,14 +101,6 @@ namespace JSSoft.Library.Commands
                 length += charWidths[(int)item];
             }
             return length;
-        }
-
-        public Terminal()
-        {
-            if (Console.IsInputRedirected == true)
-                throw new Exception("Terminal cannot use. Console.IsInputRedirected must be false");
-            this.systemActions.Add(new ConsoleKeyInfo('\u0003', ConsoleKey.C, false, false, true), this.OnCancel);
-            this.systemActions.Add(new ConsoleKeyInfo('\r', ConsoleKey.Enter, false, false, false), this.OnEnter);
         }
 
         public long? ReadLong(string prompt)
@@ -195,8 +195,7 @@ namespace JSSoft.Library.Commands
             {
                 if (this.historyIndex + 1 < this.histories.Count)
                 {
-                    this.SetCommand(this.histories[this.historyIndex + 1]);
-                    this.historyIndex++;
+                    this.SetHistoryIndex(this.historyIndex + 1);
                 }
             }
         }
@@ -207,18 +206,32 @@ namespace JSSoft.Library.Commands
             {
                 if (this.historyIndex > 0)
                 {
-                    this.SetCommand(this.histories[this.historyIndex - 1]);
-                    this.historyIndex--;
+                    this.SetHistoryIndex(this.historyIndex - 1);
                 }
                 else if (this.histories.Count == 1)
                 {
-                    this.SetCommand(this.histories[0]);
-                    this.historyIndex = 0;
+                    this.SetHistoryIndex(0);
                 }
             }
         }
 
         public IReadOnlyList<string> Histories => this.histories;
+
+        public int HistoryIndex
+        {
+            get => this.historyIndex;
+            set
+            {
+                if (value < 0 || value >= this.histories.Count)
+                    throw new ArgumentOutOfRangeException(nameof(value));
+                if (this.historyIndex == value)
+                    return;
+                lock (LockedObject)
+                {
+                    this.SetHistoryIndex(value);
+                }
+            }
+        }
 
         public void Cancel()
         {
@@ -301,7 +314,7 @@ namespace JSSoft.Library.Commands
             }
         }
 
-        public void EnqueString(string text)
+        public void EnqueueString(string text)
         {
             lock (Terminal.ExternalObject)
             {
@@ -449,8 +462,6 @@ namespace JSSoft.Library.Commands
             return query.ToArray();
         }
 
-        protected virtual TerminalKeyBindingCollection KeyBindings => keyBindings;
-        
         protected void UpdateLayout()
         {
             if (this.width != Console.BufferWidth)
@@ -487,6 +498,8 @@ namespace JSSoft.Library.Commands
                 Render(renderText);
             }
         }
+
+        protected virtual TerminalKeyBindingCollection KeyBindings => keyBindings;
 
         private void InsertText(string text)
         {
@@ -826,6 +839,12 @@ namespace JSSoft.Library.Commands
             this.inputText = this.command.Substring(0, cursorIndex);
             this.completion = string.Empty;
             SetCursorPosition(pt4);
+        }
+
+        private void SetHistoryIndex(int index)
+        {
+            this.SetCommand(this.histories[index]);
+            this.historyIndex = index;
         }
 
         private object ReadNumber(string prompt, object value, Func<string, bool> validation)
