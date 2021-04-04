@@ -34,6 +34,8 @@ namespace JSSoft.Library.Commands
     public class Terminal
     {
         private const string escEraseLine = "\u001b[K";
+        private const string escClearScreen = "\u001b[2J";
+        private const string escCursorHome = "\u001b[H";
         private static byte[] charWidths;
         private static TerminalKeyBindingCollection keyBindings = TerminalKeyBindingCollection.Default;
 
@@ -294,6 +296,27 @@ namespace JSSoft.Library.Commands
         public void Cancel()
         {
             this.isCancellationRequested = true;
+        }
+
+        public void Clear()
+        {
+            lock (LockedObject)
+            {
+                using (var stream = Console.OpenStandardOutput())
+                using (var writer = new StreamWriter(stream, Console.OutputEncoding))
+                {
+                    var offset = this.pt1.Y;
+                    var bufferWidth = this.width;
+                    var pre = this.command[..this.cursorIndex];
+                    var st1 = NextPosition(pre, bufferWidth, this.pt2);
+                    st1.Y -= offset;
+                    this.pt1.Y -= offset;
+                    this.pt2.Y -= offset;
+                    this.pt3.Y -= offset;
+                    this.ct1 = TerminalPoint.Zero;
+                    writer.Write($"{escClearScreen}{escCursorHome}" + this.promptText + GetCursorString(st1));
+                }
+            }
         }
 
         public void Delete()
