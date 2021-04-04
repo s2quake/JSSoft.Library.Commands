@@ -34,7 +34,7 @@ namespace JSSoft.Library.Commands
 {
     public class Terminal
     {
-        private const string escEraseLine = "\x1b[K";
+        private const string escEraseLine = "\u001b[K";
         private static readonly ConsoleKeyInfo cancelKeyInfo = new('\u0003', ConsoleKey.C, false, false, true);
         private static byte[] charWidths;
         private static TextWriter consoleOut = Console.Out;
@@ -265,14 +265,6 @@ namespace JSSoft.Library.Commands
             this.isCancellationRequested = true;
         }
 
-        public void Clear()
-        {
-            lock (LockedObject)
-            {
-                this.SetCommand(string.Empty);
-            }
-        }
-
         public void Delete()
         {
             lock (LockedObject)
@@ -284,7 +276,7 @@ namespace JSSoft.Library.Commands
             }
         }
 
-        public void Home()
+        public void MoveToFirst()
         {
             lock (LockedObject)
             {
@@ -292,7 +284,7 @@ namespace JSSoft.Library.Commands
             }
         }
 
-        public void End()
+        public void MoveToLast()
         {
             lock (LockedObject)
             {
@@ -330,22 +322,6 @@ namespace JSSoft.Library.Commands
                 {
                     this.BackspaceImpl();
                 }
-            }
-        }
-
-        public void DeleteToEnd()
-        {
-            lock (LockedObject)
-            {
-                this.SetCommand(this.command.Substring(this.cursorIndex));
-            }
-        }
-
-        public void DeleteToHome()
-        {
-            lock (LockedObject)
-            {
-                this.SetCommand(this.command.Remove(this.cursorIndex));
             }
         }
 
@@ -423,9 +399,9 @@ namespace JSSoft.Library.Commands
 
         public bool IsEnabled { get; set; } = true;
 
-        public static bool IsUnix = Environment.OSVersion.Platform == PlatformID.Unix;
+        public static bool IsUnix => Environment.OSVersion.Platform == PlatformID.Unix;
 
-        public static bool IsWin32NT = Environment.OSVersion.Platform == PlatformID.Win32NT;
+        public static bool IsWin32NT => Environment.OSVersion.Platform == PlatformID.Win32NT;
 
         public static string NextCompletion(string[] completions, string text)
         {
@@ -523,7 +499,7 @@ namespace JSSoft.Library.Commands
                 using (var writer = new StreamWriter(stream, Console.OutputEncoding))
                 {
 
-                    writer.Write("\x1b[2J\x1b[H");
+                    writer.Write("\u001b[2J\u001b[H");
                     writer.WriteLine(this.outputText.ToString());
 
                 }
@@ -633,7 +609,7 @@ namespace JSSoft.Library.Commands
 
         private static string GetCursorString(TerminalPoint pt)
         {
-            return $"\x1b[{pt.Y + 1};{pt.X + 1}f";
+            return $"\u001b[{pt.Y + 1};{pt.X + 1}f";
         }
 
         private static void Render(string text)

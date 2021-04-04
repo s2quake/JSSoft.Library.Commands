@@ -89,17 +89,19 @@ namespace JSSoft.Library.Commands
 
         public static TerminalKeyBindingCollection Win32NT { get; } = new TerminalKeyBindingCollection(new TerminalKeyBindingBase[]
         {
-            new TerminalKeyBinding(new ConsoleKeyInfo('\u001b', ConsoleKey.Escape, false, false, false), (t) => t.Clear()),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\u001b', ConsoleKey.Escape, false, false, false), (t) => t.Command = string.Empty),
             new TerminalKeyBinding(new ConsoleKeyInfo('\b', ConsoleKey.Backspace, false, false, false), (t) => t.Backspace()),
             new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.Delete, false, false, false), (t) => t.Delete()),
-            new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.Home, false, false, false), (t) => t.Home()),
-            new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.Home, false, false, true), (t) => t.DeleteToHome()),
-            new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.End, false, false, false), (t) => t.End()),
-            new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.End, false, false, true), (t) => t.DeleteToEnd()),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.Home, false, false, false), (t) => t.MoveToFirst()),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.Home, false, false, true), (t) => DeleteToFirst(t)),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.End, false, false, false), (t) => t.MoveToLast()),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.End, false, false, true), (t) => DeleteToLast(t)),
             new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.UpArrow, false, false, false), (t) => t.PrevHistory()),
             new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.DownArrow, false, false, false), (t) => t.NextHistory()),
             new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.LeftArrow, false, false, false), (t) => t.Left()),
             new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.RightArrow, false, false, false), (t) => t.Right()),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.LeftArrow, false, false, true), (t) => PrevWord(t)),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.RightArrow, false, false, true), (t) => NextWord(t)),
             new TerminalKeyBinding(new ConsoleKeyInfo('\t', ConsoleKey.Tab, false, false, false), (t) => t.NextCompletion()),
             new TerminalKeyBinding(new ConsoleKeyInfo('\t', ConsoleKey.Tab, true, false, false), (t) => t.PrevCompletion()),
         });
@@ -112,6 +114,58 @@ namespace JSSoft.Library.Commands
         });
 
         public static TerminalKeyBindingCollection Default { get; }
+
+        private static int PrevWord(Terminal terminal)
+        {
+            if (terminal.CursorIndex > 0)
+            {
+                var index = terminal.CursorIndex - 1;
+                var command = terminal.Command;
+                var pattern = @"^\w|(?=\b)\w|$";
+                var matches = Regex.Matches(command, pattern).Cast<Match>();
+                var match = matches.Where(item => item.Index <= index).Last();
+                terminal.CursorIndex = match.Index;
+            }
+            return terminal.CursorIndex;
+        }
+
+        private static int NextWord(Terminal terminal)
+        {
+            var command = terminal.Command;
+            if (terminal.CursorIndex < command.Length)
+            {
+                var index = terminal.CursorIndex;
+                var pattern = @"\w(?<=\b)|$";
+                var matches = Regex.Matches(command, pattern).Cast<Match>();
+                var match = matches.Where(item => item.Index > index).First();
+                terminal.CursorIndex = Math.Min(command.Length, match.Index + 1);
+            }
+            return terminal.CursorIndex;
+        }
+
+        private static void DeleteToLast(Terminal terminal)
+        {
+            var index = terminal.CursorIndex;
+            var command = terminal.Command;
+            terminal.Command = command.Substring(0, index);
+        }
+
+        private static void DeleteToFirst(Terminal terminal)
+        {
+            var index = terminal.CursorIndex;
+            var command = terminal.Command;
+            terminal.Command = command.Remove(0, index);
+            terminal.CursorIndex = 0;
+        }
+
+        private static void DeletePrevWord(Terminal terminal)
+        {
+            var index2 = terminal.CursorIndex;
+            var command = terminal.Command;
+            var index1 = PrevWord(terminal);
+            var length = index2 - index1;
+            terminal.Command = command.Remove(index1, length);
+        }
 
         #region IEnumerable
 
