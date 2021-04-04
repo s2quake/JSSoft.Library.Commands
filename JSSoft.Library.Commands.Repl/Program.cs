@@ -31,6 +31,8 @@ namespace JSSoft.Library.Commands.Repl
     {
         static async Task Main(string[] _)
         {
+            string source = "\x1b[2JThis text \x1b[3;20Hcontains several ANSI escapes\x1b[1;2;30;43m to format the text\x1b[K";
+string result = System.Text.RegularExpressions.Regex.Replace (source, @"\e\[(\d+;)*(\d+)?[ABCDHJKfmsu]", "");
             var shell = Container.GetService<IShell>();
             Console.WriteLine();
             await shell.StartAsync();

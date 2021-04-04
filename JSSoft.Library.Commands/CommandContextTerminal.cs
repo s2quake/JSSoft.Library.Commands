@@ -29,6 +29,7 @@ namespace JSSoft.Library.Commands
     public class CommandContextTerminal : Terminal
     {
         private readonly CommandContextBase commandContext;
+        private CancellationTokenSource cancellation = new();
         private string prompt = string.Empty;
 
         public CommandContextTerminal(CommandContextBase commandContext)
@@ -39,128 +40,42 @@ namespace JSSoft.Library.Commands
         public new string Prompt
         {
             get => this.prompt;
-            set
-            {
-                this.prompt = value ?? throw new ArgumentNullException(nameof(value));
-            }
+            set => this.prompt = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         public new void Cancel()
         {
-            this.IsCancellationRequested = true;
             base.Cancel();
-        }
-
-        public void Start()
-        {
-            string line;
-            Console.Clear();
-            while ((line = this.ReadStringInternal(this.Prompt)) != null)
-            {
-                try
-                {
-                    if (this.OnPreviewExecute(line) == true)
-                        continue;
-                    this.commandContext.Execute(this.commandContext.Name + " " + line);
-                    this.OnExecuted(null);
-                }
-                catch (TargetInvocationException e)
-                {
-                    this.OnExecuted(e);
-                    this.WriteException(e.InnerException ?? e);
-                }
-                catch (AggregateException e)
-                {
-                    this.OnExecuted(e);
-                    foreach (var item in e.InnerExceptions)
-                    {
-                        this.WriteException(item);
-                    }
-                }
-                catch (Exception e)
-                {
-                    this.OnExecuted(e);
-                    this.WriteException(e);
-                }
-                if (this.IsCancellationRequested == true)
-                    break;
-            }
+            this.cancellation.Cancel();
         }
 
         public async Task StartAsync()
         {
-            string line;
-            CancellationTokenSource cancellation = null;
+            var consoleOut = Console.Out;
+            var consoleError = Console.Error;
+            var consoleControlC = Console.TreatControlCAsInput;
 
-            var outWriter = Console.Out;
-            var errorWriter = Console.Error;
-            var treatControlCAsInput = Console.TreatControlCAsInput;
+            var commnadOut = new TerminalTextWriter(this, Console.OutputEncoding);
+            var commnadError = new TerminalTextWriter(this, Console.OutputEncoding);
 
-            this.commandContext.Out = new TerminalTextWriter(this, Console.OutputEncoding);
-            this.commandContext.Error = new TerminalTextWriter(this, Console.OutputEncoding);
-            Console.SetOut(this.commandContext.Out);
-            Console.SetError(this.commandContext.Error);
+            Console.SetOut(commnadOut);
+            Console.SetError(commnadError);
             Console.TreatControlCAsInput = true;
+            this.commandContext.Out = commnadOut;
+            this.commandContext.Error = commnadError;
 
-            while ((line = this.ReadStringInternal(this.Prompt)) != null)
+            while (this.cancellation.IsCancellationRequested == false)
             {
-                var oldTreatControlCAsInput = Console.TreatControlCAsInput;
-                try
+                if (this.ReadStringInternal(this.Prompt) is string command)
                 {
-                    Console.TreatControlCAsInput = false;
-                    cancellation = new CancellationTokenSource();
-                    Console.CancelKeyPress += ConsoleCancelEventHandler;
-                    if (this.OnPreviewExecute(line) == true)
-                        continue;
-                    var task = this.commandContext.ExecuteAsync(this.commandContext.Name + " " + line, cancellation.Token);
-                    while (task.IsCompleted == false)
-                    {
-                        await Task.Delay(1);
-                        this.UpdateLayout();
-                    }
-                    if (task.Exception != null)
-                        throw task.Exception;
-                    this.OnExecuted(null);
+                    await this.ExecuteCommandAsync(command);
                 }
-                catch (TargetInvocationException e)
-                {
-                    this.OnExecuted(e);
-                    this.WriteException(e.InnerException ?? e);
-                }
-                catch (AggregateException e)
-                {
-                    this.OnExecuted(e);
-                    foreach (var item in e.InnerExceptions)
-                    {
-                        this.WriteException(item);
-                    }
-                }
-                catch (Exception e)
-                {
-                    this.OnExecuted(e);
-                    this.WriteException(e);
-                }
-                finally
-                {
-                    Console.TreatControlCAsInput = oldTreatControlCAsInput;
-                    Console.CancelKeyPress -= ConsoleCancelEventHandler;
-                    cancellation = null;
-                }
-                if (this.IsCancellationRequested == true)
-                    break;
             }
 
-            Console.TreatControlCAsInput = treatControlCAsInput;
-            Console.SetOut(outWriter);
-            Console.SetError(errorWriter);
-            void ConsoleCancelEventHandler(object sender, ConsoleCancelEventArgs e)
-            {
-                e.Cancel = true;
-                cancellation.Cancel();
-            }
+            Console.TreatControlCAsInput = consoleControlC;
+            Console.SetOut(consoleOut);
+            Console.SetError(consoleError);
         }
-
-        public bool IsCancellationRequested { get; private set; }
 
         public bool DetailErrorMessage { get; set; }
 
@@ -177,6 +92,66 @@ namespace JSSoft.Library.Commands
         protected virtual void OnExecuted(Exception e)
         {
 
+        }
+
+        private async Task ExecuteCommandAsync(string line)
+        {
+            var consoleControlC = Console.TreatControlCAsInput;
+            var cancellation = new CancellationTokenSource();
+            try
+            {
+                Console.TreatControlCAsInput = false;
+                Console.CancelKeyPress += ConsoleCancelEventHandler;
+                if (this.OnPreviewExecute(line) == true)
+                    return;
+                var task = this.commandContext.ExecuteAsync(this.commandContext.Name + " " + line, cancellation.Token);
+                while (task.IsCompleted == false)
+                {
+                    this.Update();
+                    await Task.Delay(1);
+                }
+                if (task.Exception != null)
+                    throw task.Exception;
+                this.OnExecuted(null);
+            }
+            catch (Exception e)
+            {
+                this.OnExecuteWithException(e);
+            }
+            finally
+            {
+                Console.TreatControlCAsInput = consoleControlC;
+                Console.CancelKeyPress -= ConsoleCancelEventHandler;
+                cancellation = null;
+            }
+
+            void ConsoleCancelEventHandler(object sender, ConsoleCancelEventArgs e)
+            {
+                e.Cancel = true;
+                cancellation.Cancel();
+            }
+        }
+
+        private void OnExecuteWithException(Exception e)
+        {
+            if (e is TargetInvocationException e1)
+            {
+                this.OnExecuted(e1);
+                this.WriteException(e1.InnerException ?? e1);
+            }
+            else if (e is AggregateException e2)
+            {
+                this.OnExecuted(e2);
+                foreach (var item in e2.InnerExceptions)
+                {
+                    this.WriteException(item);
+                }
+            }
+            else
+            {
+                this.OnExecuted(e);
+                this.WriteException(e);
+            }
         }
 
         private void WriteException(Exception e)

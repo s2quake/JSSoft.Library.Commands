@@ -97,6 +97,7 @@ namespace JSSoft.Library.Commands
         {
             new TerminalKeyBinding(new ConsoleKeyInfo('\u001b', ConsoleKey.Escape, false, false, false), (t) => t.Command = string.Empty),
             new TerminalKeyBinding(new ConsoleKeyInfo('\b', ConsoleKey.Backspace, false, false, false), (t) => t.Backspace()),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\b', ConsoleKey.H, false, false, true), (t) => t.Backspace()),
             new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.Home, false, false, true), (t) => DeleteToFirst(t)),
             new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.End, false, false, true), (t) => DeleteToLast(t)),
             new TerminalKeyBinding(new ConsoleKeyInfo('\t', ConsoleKey.Tab, false, false, false), (t) => t.NextCompletion()),
