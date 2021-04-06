@@ -467,12 +467,12 @@ namespace JSSoft.Library.Commands
 
         protected virtual string FormatPrompt(string prompt)
         {
-            return TerminalStrings.Format(prompt, TerminalColor.BrightBlue);
+            return TerminalStrings.Foreground(prompt, TerminalGraphic.Italic, TerminalColor.BrightBlue);
         }
 
         protected virtual string FormatCommand(string command)
         {
-            return TerminalStrings.Format(command, TerminalColor.Red);
+            return TerminalStrings.Color(command, TerminalColor.Red, TerminalColor.BrightGreen);
         }
 
         protected virtual string[] GetCompletion(string[] items, string find)
@@ -1053,6 +1053,7 @@ namespace JSSoft.Library.Commands
             var bufferWidth = this.width;
             var bufferHeight = this.height;
             var promptText = this.promptText;
+            var promptTextF = this.promptF + this.commandF;
             var prompt = this.prompt;
             var command = this.command;
             var pre = this.command[..this.cursorIndex];
@@ -1064,7 +1065,7 @@ namespace JSSoft.Library.Commands
             var pt2 = NextPosition(prompt, bufferWidth, pt1);
             var pt3 = NextPosition(command, bufferWidth, pt2);
             var pt4 = NextPosition(pre, bufferWidth, pt2);
-            var text2 = GetOverwrappedString(text1 + promptText, bufferWidth);
+            var text2 = GetOverwrappedString(text1 + promptTextF, bufferWidth);
 
             var st1 = new TerminalPoint(pt8.X, pt8.Y);
             var st2 = new TerminalPoint(pt8.X, pt8.Y);

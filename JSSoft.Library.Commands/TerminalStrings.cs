@@ -73,9 +73,24 @@ namespace JSSoft.Library.Commands
             { TerminalColor.BrightWhite, 107 },
         };
 
-        public static string Format(string text, TerminalColor foreground)
+        public static string Foreground(string text, TerminalColor foreground)
         {
             return $"\x1b[0;{foregroundValues[foreground]}m{text}\x1b[0m";
+        }
+
+        public static string Foreground(string text, TerminalGraphic graphic, TerminalColor foreground)
+        {
+            return $"\x1b[{(int)graphic};{foregroundValues[foreground]}m{text}\x1b[0m";
+        }
+
+        public static string Background(string text, TerminalColor background)
+        {
+            return $"\x1b[0;{backgroundValues[background]}m{text}\x1b[0m";
+        }
+
+        public static string Color(string text, TerminalColor foreground, TerminalColor background)
+        {
+            return $"\x1b[0;{foregroundValues[foreground]};{backgroundValues[background]}m{text}\x1b[0m";
         }
     }
 }
