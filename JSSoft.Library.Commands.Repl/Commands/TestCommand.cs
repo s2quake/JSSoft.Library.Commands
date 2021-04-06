@@ -178,7 +178,7 @@ namespace JSSoft.Library.Commands.Repl.Commands
                 {
                     Console.Write(DateTime.Now + Environment.NewLine + "wow" + Environment.NewLine + DateTime.Now + Environment.NewLine + "wow");
                     Console.Write(DateTime.Now + Environment.NewLine + "wow" + Environment.NewLine + DateTime.Now + Environment.NewLine + "wow");
-                    Console.Write("01234567890123456789012345678901234567890123456789012345678901234567890123456789");
+                    Console.Write(TerminalStrings.Foreground("01234567890123456789012345678901234567890123456789012345678901234567890123456789", TerminalColor.Red));
                     Console.Write(DateTime.Now + Environment.NewLine + "wow" + Environment.NewLine + DateTime.Now + Environment.NewLine + "wow");
                     var v = DateTime.Now.Millisecond % 4;
                     // v = 2;

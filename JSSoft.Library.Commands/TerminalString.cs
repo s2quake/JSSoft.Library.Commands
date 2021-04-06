@@ -23,7 +23,7 @@ using System;
 
 namespace JSSoft.Library.Commands
 {
-    public class TerminalString
+    class TerminalString
     {
         public TerminalString(string text)
         {
@@ -45,6 +45,10 @@ namespace JSSoft.Library.Commands
         {
             return this.Text.Substring(start, length);
         }
+
+        public static implicit operator TerminalString(string value) => new TerminalString(value);
+
+        public static implicit operator string(TerminalString value) => value.Text;
 
         public string Original { get; }
 

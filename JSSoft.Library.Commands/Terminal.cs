@@ -490,10 +490,8 @@ namespace JSSoft.Library.Commands
                 using (var stream = Console.OpenStandardOutput())
                 using (var writer = new StreamWriter(stream, Console.OutputEncoding))
                 {
-
                     writer.Write("\u001b[2J\u001b[H");
                     writer.WriteLine(this.outputText.ToString());
-
                 }
                 var bufferWidth = Console.BufferWidth;
                 var bufferHeight = Console.BufferHeight;
@@ -664,6 +662,11 @@ namespace JSSoft.Library.Commands
                 }
             }
             return new TerminalPoint(x, y);
+        }
+
+        public static string StripOff(string text)
+        {
+            return Regex.Replace(text, @"\e\[(\d+;)*(\d+)?[ABCDHJKfmsu]", string.Empty);
         }
 
         private void BackspaceImpl()
@@ -1056,7 +1059,7 @@ namespace JSSoft.Library.Commands
             }
         }
 
-        private void RenderOutput(string text)
+        private void RenderOutput(string textF)
         {
             var bufferWidth = this.width;
             var bufferHeight = this.height;
@@ -1064,10 +1067,11 @@ namespace JSSoft.Library.Commands
             var promptTextF = this.promptF + this.commandF;
             var prompt = this.prompt;
             var command = this.command;
+            var text = StripOff(textF);
             var pre = this.command[..this.cursorIndex];
             var pt8 = this.pt1 + this.ct1;
             var ct1 = NextPosition(text, bufferWidth, pt8);
-            var text1 = text.EndsWith(Environment.NewLine) == true || ct1 == TerminalPoint.Zero ? text : text + Environment.NewLine;
+            var text1 = text.EndsWith(Environment.NewLine) == true || ct1 == TerminalPoint.Zero ? textF : textF + Environment.NewLine;
             var pt9 = NextPosition(text1, bufferWidth, pt8);
             var pt1 = pt9.X == 0 ? new TerminalPoint(pt9.X, pt9.Y) : new TerminalPoint(0, pt9.Y + 1);
             var pt2 = NextPosition(prompt, bufferWidth, pt1);
