@@ -20,34 +20,37 @@
 // Namespaces and files starting with "Ntreev" have been renamed to "JSSoft".
 
 using System;
-using System.ComponentModel.Composition;
-using System.IO;
-using System.Text.RegularExpressions;
 
-namespace JSSoft.Library.Commands.Repl
+namespace JSSoft.Library.Commands
 {
-    [Export(typeof(IShell))]
-    class Shell : CommandContextTerminal, IShell
+    public class TerminalString
     {
-        [ImportingConstructor]
-        public Shell(ShellCommandContext commandContext)
-           : base(commandContext)
+        public TerminalString(string text)
         {
-            this.Prompt = $"{Directory.GetCurrentDirectory()}$ ";
+            this.Original = text ?? throw new ArgumentNullException(nameof(text));
+            this.Text = StripOff(text);
         }
 
-        protected override string FormatPrompt(string prompt)
+        public override string ToString()
         {
-            var match = Regex.Match(prompt, "(.+)(\\$.+)");
-            if (match.Success == true)
-            {
-                var path = match.Groups[1].Value;
-                var post = TerminalStrings.Foreground(match.Groups[2].Value, TerminalColor.BrightGreen);
-                var coloredSeparator = TerminalStrings.Foreground("/", TerminalColor.Red);
-                var coloredPath = Regex.Replace(path, "/", coloredSeparator);
-                return coloredPath + post;
-            }
-            return prompt;
+            return this.Text;
         }
+
+        public static string StripOff(string text)
+        {
+            return System.Text.RegularExpressions.Regex.Replace(text, @"\e\[(\d+;)*(\d+)?[ABCDHJKfmsu]", string.Empty);
+        }
+
+        public string Slice(int start, int length)
+        {
+            return this.Text.Substring(start, length);
+        }
+
+        public string Original { get; }
+
+        public string Text { get; }
+
+        public int Length => this.Text.Length;
+
     }
 }

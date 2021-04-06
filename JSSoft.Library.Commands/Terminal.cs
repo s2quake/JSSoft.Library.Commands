@@ -672,22 +672,25 @@ namespace JSSoft.Library.Commands
             var bufferHeight = this.height;
             var extra = this.command[this.cursorIndex..];
             var command = this.command.Remove(this.cursorIndex - 1, 1);
+            var commandF = this.FormatCommand(command);
             var pre = command[..(command.Length - extra.Length)];
             var cursorIndex = this.cursorIndex - 1;
             var endPosition = this.command.Length;
             var pt2 = this.pt2;
             var pt3 = NextPosition(pre, bufferWidth, pt2);
             var pt4 = NextPosition(extra, bufferWidth, pt3);
+            var eraseText = GetCursorString(this.pt2) + GetEraseString(this.pt2, this.pt3);
 
             this.command = command;
+            this.commandF = commandF;
             this.promptText = this.prompt + this.command;
             this.cursorIndex = cursorIndex;
             this.pt3 = pt4;
 
             if (this.IsHidden == false)
             {
-                var text = extra + escEraseLine;
-                var renderText = GetRenderString(pt3, pt3, pt3, text, bufferHeight);
+                var text = commandF + escEraseLine;
+                var renderText = eraseText + GetRenderString(pt2, pt4, pt3, text, bufferHeight);
                 Render(renderText);
             }
             else
@@ -702,20 +705,23 @@ namespace JSSoft.Library.Commands
             var bufferHeight = this.height;
             var extra = this.command[(this.cursorIndex + 1)..];
             var command = this.command.Remove(this.cursorIndex, 1);
+            var commandF = this.FormatCommand(command);
             var pre = command[..(command.Length - extra.Length)];
             var endPosition = this.command.Length;
             var pt2 = this.pt2;
             var pt3 = NextPosition(pre, bufferWidth, pt2);
             var pt4 = NextPosition(extra, bufferWidth, pt3);
+            var eraseText = GetCursorString(this.pt2) + GetEraseString(this.pt2, this.pt3);
 
             this.command = command;
+            this.commandF = commandF;
             this.promptText = this.prompt + this.command;
             this.pt3 = pt4;
 
             if (this.IsHidden == false)
             {
-                var text = extra + escEraseLine;
-                var renderText = GetRenderString(pt3, pt3, pt3, text, bufferHeight);
+                var text = commandF + escEraseLine;
+                var renderText = eraseText + GetRenderString(pt2, pt4, pt3, text, bufferHeight);
                 Render(renderText);
             }
             else
@@ -823,11 +829,12 @@ namespace JSSoft.Library.Commands
         {
             var bufferWidth = this.width;
             var bufferHeight = this.height;
+            var commandF = this.FormatCommand(value);
             var eraseText = GetCursorString(this.pt2) + GetEraseString(this.pt2, this.pt3);
             var pt1 = this.pt1;
             var pt2 = this.pt2;
             var pt3 = NextPosition(value, bufferWidth, pt2);
-            var text = value + escEraseLine;
+            var text = commandF + escEraseLine;
 
             var st1 = pt2;
             var st2 = pt3;
@@ -842,6 +849,7 @@ namespace JSSoft.Library.Commands
             var renderText = eraseText + GetRenderString(st1, pt3, pt3, text, bufferHeight);
 
             this.command = value;
+            this.commandF = commandF;
             this.promptText = this.prompt + this.command;
             this.cursorIndex = this.command.Length;
             this.inputText = value;
