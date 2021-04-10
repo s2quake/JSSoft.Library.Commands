@@ -31,6 +31,8 @@ namespace JSSoft.Library.Commands.Repl
 
         string Prompt { get; set; }
 
+        string CurrentDirectory { get; set; }
+
         string ReadString(string prompt, string command, bool isHidden);
     }
 }

@@ -51,19 +51,19 @@ namespace JSSoft.Library.Commands.Repl.Commands
             var shell = this.shell.Value;
             if (this.DirectoryName == string.Empty)
             {
-                this.Out.WriteLine(shell.Prompt);
+                this.Out.WriteLine(shell.CurrentDirectory);
             }
             else if (this.DirectoryName == "..")
             {
                 var dir = Path.GetDirectoryName(Directory.GetCurrentDirectory());
                 Directory.SetCurrentDirectory(dir);
-                shell.Prompt = dir;
+                shell.CurrentDirectory = dir;
             }
             else if (Directory.Exists(this.DirectoryName) == true)
             {
                 var dir = new DirectoryInfo(this.DirectoryName).FullName;
                 Directory.SetCurrentDirectory(dir);
-                shell.Prompt = dir;
+                shell.CurrentDirectory = dir;
             }
             else
             {

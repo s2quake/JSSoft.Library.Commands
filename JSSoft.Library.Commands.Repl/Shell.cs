@@ -29,11 +29,23 @@ namespace JSSoft.Library.Commands.Repl
     [Export(typeof(IShell))]
     class Shell : CommandContextTerminal, IShell
     {
+        private string currentDirectory = Directory.GetCurrentDirectory();
+
         [ImportingConstructor]
         public Shell(ShellCommandContext commandContext)
            : base(commandContext)
         {
             this.Prompt = $"{Directory.GetCurrentDirectory()}$ ";
+        }
+
+        public string CurrentDirectory
+        {
+            get => this.currentDirectory;
+            set
+            {
+                this.currentDirectory = value ?? throw new ArgumentNullException(nameof(value));
+                this.UpdatePrompt();
+            }
         }
 
         protected override string FormatPrompt(string prompt)
@@ -48,6 +60,16 @@ namespace JSSoft.Library.Commands.Repl
                 return coloredPath + post;
             }
             return prompt;
+        }
+
+        private void UpdatePrompt()
+        {
+            if (Terminal.IsUnix == true)
+                this.Prompt = $"{this.currentDirectory}$ ";
+            else if (Terminal.IsWin32NT == true)
+                this.Prompt = $"{this.currentDirectory}>";
+            else
+                this.Prompt = $"{this.currentDirectory}>";
         }
     }
 }
