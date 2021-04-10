@@ -499,11 +499,15 @@ namespace JSSoft.Library.Commands
                 var pt4 = NextPosition(pre, bufferWidth, pt3);
                 var st1 = pt1;
                 var st3 = this.pt3;
-                if (pt4 == pt)
+                var offset2 = pt3.Y - pt1.Y;
+                if (offset2 != offset)
                 {
-                    int qewr = 0;
+                    pt1 = new TerminalPoint(0, pt.Y - offset2);
+                    pt2 = NextPosition(this.prompt, bufferWidth, pt1);
+                    pt3 = NextPosition(this.command, bufferWidth, pt2);
+                    pt4 = NextPosition(pre, bufferWidth, pt3);
                 }
-                else
+                else if (pt4 != pt)
                 {
                     pt2 = NextPosition(this.prompt, bufferWidth, pt1);
                     pt3 = NextPosition(this.command, bufferWidth, pt2);
@@ -516,7 +520,6 @@ namespace JSSoft.Library.Commands
                     pt2.Y -= offset;
                     pt3.Y -= offset;
                     pt4.Y -= offset;
-                    // st2.Y -= offset;
                 }
 
                 var eraseText = GetCursorString(st1) + GetEraseString(st1, st3);
