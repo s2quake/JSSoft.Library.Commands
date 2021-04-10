@@ -80,9 +80,24 @@ namespace JSSoft.Library.Commands
             return $"\x1b[0;{backgroundValues[background]}m{text}\x1b[0m";
         }
 
-        public static string Color(string text, TerminalColor foreground, TerminalColor background)
+        public static string FromColor(string text, TerminalColor? foreground, TerminalColor? background)
         {
-            return $"\x1b[0;{foregroundValues[foreground]};{backgroundValues[background]}m{text}\x1b[0m";
+            if (foreground != null && background != null)
+            {
+                return $"\x1b[0;{foregroundValues[foreground.Value]};{backgroundValues[background.Value]}m{text}\x1b[0m";
+            }
+            else if (foreground != null)
+            {
+                return $"\x1b[0;{foregroundValues[foreground.Value]}m{text}\x1b[0m";
+            }
+            else if (background != null)
+            {
+                return $"\x1b[0;{backgroundValues[background.Value]}m{text}\x1b[0m";
+            }
+            else
+            {
+                return text;
+            }
         }
     }
 }

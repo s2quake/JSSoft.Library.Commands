@@ -53,9 +53,13 @@ namespace JSSoft.Library.Commands
             this.WriteToStream(value + Environment.NewLine);
         }
 
+        public TerminalColor? Foreground { get; set; }
+
+        public TerminalColor? Background { get; set; }
+
         private void WriteToStream(string text)
         {
-            this.terminal.EnqueueString(text);
+            this.terminal.EnqueueString(TerminalStrings.FromColor(text, this.Foreground, this.Background));
         }
     }
 }

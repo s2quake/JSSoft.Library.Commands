@@ -56,7 +56,7 @@ namespace JSSoft.Library.Commands
             var consoleControlC = Console.TreatControlCAsInput;
 
             var commnadOut = new TerminalTextWriter(this, Console.OutputEncoding);
-            var commnadError = new TerminalTextWriter(this, Console.OutputEncoding);
+            var commnadError = new TerminalTextWriter(this, Console.OutputEncoding) { Foreground = TerminalColor.BrightRed };
 
             Console.SetOut(commnadOut);
             Console.SetError(commnadError);

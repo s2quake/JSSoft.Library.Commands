@@ -473,7 +473,7 @@ namespace JSSoft.Library.Commands
 
         protected virtual string FormatCommand(string command)
         {
-            return TerminalStrings.Color(command, TerminalColor.Red, TerminalColor.BrightGreen);
+            return TerminalStrings.FromColor(command, TerminalColor.Red, TerminalColor.BrightGreen);
         }
 
         protected virtual string[] GetCompletion(string[] items, string find)
@@ -488,7 +488,6 @@ namespace JSSoft.Library.Commands
         {
             if (this.width != Console.BufferWidth)
             {
-                return;
                 var bufferWidth = Console.BufferWidth;
                 var bufferHeight = Console.BufferHeight;
                 var offset = this.pt3.Y - this.pt1.Y;
@@ -595,14 +594,6 @@ namespace JSSoft.Library.Commands
                 text += escEraseLine;
             }
             return text;
-        }
-
-        private static string GetOverwrappedString(string text, int bufferWidth)
-        {
-            var lineBreak = text.EndsWith(Environment.NewLine) == true ? Environment.NewLine : string.Empty;
-            var text2 = text[..(text.Length - lineBreak.Length)];
-            var items = text2.Split(Environment.NewLine, StringSplitOptions.None);
-            return string.Join($"{escEraseLine}\r\n", items) + escEraseLine + lineBreak;
         }
 
         private static string GetRenderString(TerminalPoint pt1, TerminalPoint pt2, TerminalPoint ct, string text, int bufferHeight)
@@ -1086,13 +1077,14 @@ namespace JSSoft.Library.Commands
             var pre = this.command[..this.cursorIndex];
             var pt8 = this.pt1 + this.ct1;
             var ct1 = NextPosition(text, bufferWidth, pt8);
-            var text1 = text.EndsWith(Environment.NewLine) == true || ct1 == TerminalPoint.Zero ? textF : textF + Environment.NewLine;
+            var text1F = text.EndsWith(Environment.NewLine) == true || ct1 == TerminalPoint.Zero ? textF : textF + Environment.NewLine;
+            var text1 = StripOff(text1F);
             var pt9 = NextPosition(text1, bufferWidth, pt8);
             var pt1 = pt9.X == 0 ? new TerminalPoint(pt9.X, pt9.Y) : new TerminalPoint(0, pt9.Y + 1);
             var pt2 = NextPosition(prompt, bufferWidth, pt1);
             var pt3 = NextPosition(command, bufferWidth, pt2);
             var pt4 = NextPosition(pre, bufferWidth, pt2);
-            var text2 = GetOverwrappedString(text1 + promptTextF, bufferWidth);
+            var text2 = text1F + promptTextF;
 
             var st1 = new TerminalPoint(pt8.X, pt8.Y);
             var st2 = new TerminalPoint(pt8.X, pt8.Y);
