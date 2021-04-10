@@ -36,6 +36,7 @@ namespace JSSoft.Library.Commands
         private const string escEraseLine = "\u001b[K";
         private const string escClearScreen = "\u001b[2J";
         private const string escCursorHome = "\u001b[H";
+        private const string escEraseDown = "\u001b[J";
         private static byte[] charWidths;
         private static TerminalKeyBindingCollection keyBindings = TerminalKeyBindingCollection.Default;
 
@@ -487,33 +488,47 @@ namespace JSSoft.Library.Commands
         {
             if (this.width != Console.BufferWidth)
             {
-                using (var stream = Console.OpenStandardOutput())
-                using (var writer = new StreamWriter(stream, Console.OutputEncoding))
-                {
-                    writer.Write("\u001b[2J\u001b[H");
-                    writer.WriteLine(this.outputText.ToString());
-                }
+                return;
                 var bufferWidth = Console.BufferWidth;
                 var bufferHeight = Console.BufferHeight;
-                var pt1 = new TerminalPoint(0, Console.CursorTop);
-                var pt2 = NextPosition(prompt, bufferWidth, pt1);
-                var pt3 = NextPosition(command, bufferWidth, pt2);
+                var offset = this.pt3.Y - this.pt1.Y;
+                var pt = new TerminalPoint(Console.CursorLeft, Console.CursorTop);
+                var pt1 = new TerminalPoint(0, pt.Y - offset);
+                var pt2 = NextPosition(this.prompt, bufferWidth, pt1);
+                var pt3 = NextPosition(this.command, bufferWidth, pt2);
+                var pre = this.command[..cursorIndex];
+                var pt4 = NextPosition(pre, bufferWidth, pt3);
                 var st1 = pt1;
+                var st3 = this.pt3;
+                if (pt4 == pt)
+                {
+                    int qewr = 0;
+                }
+                else
+                {
+                    pt2 = NextPosition(this.prompt, bufferWidth, pt1);
+                    pt3 = NextPosition(this.command, bufferWidth, pt2);
+                    pt4 = NextPosition(pre, bufferWidth, pt2);
+                }
                 if (pt3.Y >= bufferHeight)
                 {
-                    var offset = (pt2.Y - pt1.Y);
+                    offset = pt3.Y + 1 - bufferHeight;
                     pt1.Y -= offset;
                     pt2.Y -= offset;
                     pt3.Y -= offset;
+                    pt4.Y -= offset;
+                    // st2.Y -= offset;
                 }
-                var renderText = GetRenderString(st1, pt3, pt3, prompt + command, bufferHeight);
+
+                var eraseText = GetCursorString(st1) + GetEraseString(st1, st3);
+                var text = promptF + commandF + escEraseLine;
+                var renderText = eraseText + GetRenderString(pt1, pt3, pt4, text, bufferHeight);
 
                 this.width = bufferWidth;
                 this.height = bufferHeight;
                 this.pt1 = pt1;
                 this.pt2 = pt2;
                 this.pt3 = pt3;
-                this.ct1 = TerminalPoint.Zero;
                 Render(renderText);
             }
         }
@@ -587,12 +602,12 @@ namespace JSSoft.Library.Commands
             var lineBreak = text.EndsWith(Environment.NewLine) == true ? Environment.NewLine : string.Empty;
             var text2 = text[..(text.Length - lineBreak.Length)];
             var items = text2.Split(Environment.NewLine, StringSplitOptions.None);
-            return string.Join($"{escEraseLine}{Environment.NewLine}", items) + lineBreak;
+            return string.Join($"{escEraseLine}\r\n", items) + escEraseLine + lineBreak;
         }
 
         private static string GetRenderString(TerminalPoint pt1, TerminalPoint pt2, TerminalPoint ct, string text, int bufferHeight)
         {
-            var line = GetCursorString(pt1);
+            var line = GetCursorString(pt1) + escEraseDown;
             if (IsEnd(pt2, bufferHeight) == true && text.EndsWith(Environment.NewLine) == false)
                 line += text + Environment.NewLine;
             else

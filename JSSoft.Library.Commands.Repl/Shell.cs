@@ -43,8 +43,8 @@ namespace JSSoft.Library.Commands.Repl
             {
                 var path = match.Groups[1].Value;
                 var post = TerminalStrings.Foreground(match.Groups[2].Value, TerminalColor.BrightGreen);
-                var coloredSeparator = TerminalStrings.Foreground("/", TerminalColor.Red);
-                var coloredPath = Regex.Replace(path, "/", coloredSeparator);
+                var coloredSeparator = TerminalStrings.Foreground($"{Path.AltDirectorySeparatorChar}", TerminalColor.Red);
+                var coloredPath = Regex.Replace(path, $"\\{Path.AltDirectorySeparatorChar}", coloredSeparator);
                 return coloredPath + post;
             }
             return prompt;
