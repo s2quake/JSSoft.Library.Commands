@@ -59,7 +59,7 @@ namespace JSSoft.Library.Commands
             get
             {
                 if (this.isPassword == true)
-                    return string.Empty.PadRight(this.text.Length, '*');
+                    return string.Empty.PadRight(this.text.Length, Terminal.PasswordCharacter);
                 return this.text;
             }
         }
@@ -69,7 +69,7 @@ namespace JSSoft.Library.Commands
             get
             {
                 if (this.isPassword == true)
-                    return string.Empty.PadRight(this.text.Length, '*');
+                    return string.Empty.PadRight(this.text.Length, Terminal.PasswordCharacter);
                 if (this.format == string.Empty)
                     return this.text;
                 return this.format;

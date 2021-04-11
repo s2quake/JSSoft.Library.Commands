@@ -87,37 +87,37 @@ namespace JSSoft.Library.Commands
             new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.Delete, false, false, false), (t) => t.Delete()),
             new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.Home, false, false, false), (t) => t.MoveToFirst()),
             new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.End, false, false, false), (t) => t.MoveToLast()),
-            new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.UpArrow, false, false, false), (t) => t.PrevHistory()),
-            new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.DownArrow, false, false, false), (t) => t.NextHistory()),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.UpArrow, false, false, false), (t) => t.PrevHistory(), (t) => !t.IsPassword),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.DownArrow, false, false, false), (t) => t.NextHistory(), (t) => !t.IsPassword),
             new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.LeftArrow, false, false, false), (t) => t.Left()),
             new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.RightArrow, false, false, false), (t) => t.Right()),
         });
 
         public static TerminalKeyBindingCollection Win32NT { get; } = new TerminalKeyBindingCollection(Common, new TerminalKeyBindingBase[]
         {
-            new TerminalKeyBinding(new ConsoleKeyInfo('\u001b', ConsoleKey.Escape, false, false, false), (t) => t.Command = string.Empty),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\u001b', ConsoleKey.Escape, false, false, false), (t) => t.Command = string.Empty, (t) => !t.IsPassword),
             new TerminalKeyBinding(new ConsoleKeyInfo('\b', ConsoleKey.Backspace, false, false, false), (t) => t.Backspace()),
             new TerminalKeyBinding(new ConsoleKeyInfo('\b', ConsoleKey.H, false, false, true), (t) => t.Backspace()),
-            new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.Home, false, false, true), (t) => DeleteToFirst(t)),
-            new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.End, false, false, true), (t) => DeleteToLast(t)),
-            new TerminalKeyBinding(new ConsoleKeyInfo('\t', ConsoleKey.Tab, false, false, false), (t) => t.NextCompletion()),
-            new TerminalKeyBinding(new ConsoleKeyInfo('\t', ConsoleKey.Tab, true, false, false), (t) => t.PrevCompletion()),
-            new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.LeftArrow, false, false, true), (t) => PrevWord(t)),
-            new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.RightArrow, false, false, true), (t) => NextWord(t)),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.Home, false, false, true), (t) => DeleteToFirst(t), (t) => !t.IsPassword),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.End, false, false, true), (t) => DeleteToLast(t), (t) => !t.IsPassword),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\t', ConsoleKey.Tab, false, false, false), (t) => t.NextCompletion(), (t) => !t.IsPassword),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\t', ConsoleKey.Tab, true, false, false), (t) => t.PrevCompletion(), (t) => !t.IsPassword),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.LeftArrow, false, false, true), (t) => PrevWord(t), (t) => !t.IsPassword),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.RightArrow, false, false, true), (t) => NextWord(t), (t) => !t.IsPassword),
         });
 
         public static TerminalKeyBindingCollection Unix { get; } = new TerminalKeyBindingCollection(Common, new TerminalKeyBindingBase[]
         {
             new TerminalKeyBinding(new ConsoleKeyInfo('\u001b', ConsoleKey.Escape, false, false, false), (t) => {}),
             new TerminalKeyBinding(new ConsoleKeyInfo('\u007f', ConsoleKey.Backspace, false, false, false), (t) => t.Backspace()),
-            new TerminalKeyBinding(new ConsoleKeyInfo('\u0015', ConsoleKey.U, false, false, true), (t) => DeleteToFirst(t)),
-            new TerminalKeyBinding(new ConsoleKeyInfo('\u000b', ConsoleKey.K, false, false, true), (t) => DeleteToLast(t)),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\u0015', ConsoleKey.U, false, false, true), (t) => DeleteToFirst(t), (t) => !t.IsPassword),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\u000b', ConsoleKey.K, false, false, true), (t) => DeleteToLast(t), (t) => !t.IsPassword),
             new TerminalKeyBinding(new ConsoleKeyInfo('\u0005', ConsoleKey.E, false, false, true), (t) => t.MoveToLast()),
             new TerminalKeyBinding(new ConsoleKeyInfo('\u0001', ConsoleKey.A, false, false, true), (t) => t.MoveToFirst()),
-            new TerminalKeyBinding(new ConsoleKeyInfo('\u0027', ConsoleKey.W, false, false, true), (t) => DeletePrevWord(t)),
-            new TerminalKeyBinding(new ConsoleKeyInfo('\u000c', ConsoleKey.L, false, false, true), (t) => t.Clear()),
-            new TerminalKeyBinding(new ConsoleKeyInfo('\t', ConsoleKey.Tab, false, false, false), (t) => t.NextCompletion()),
-            new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.Tab, true, false, false), (t) => t.PrevCompletion()),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\u0027', ConsoleKey.W, false, false, true), (t) => DeletePrevWord(t), (t) => !t.IsPassword),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\u000c', ConsoleKey.L, false, false, true), (t) => t.Clear(), (t) => !t.IsPassword),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\t', ConsoleKey.Tab, false, false, false), (t) => t.NextCompletion(), (t) => !t.IsPassword),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\0', ConsoleKey.Tab, true, false, false), (t) => t.PrevCompletion(), (t) => !t.IsPassword),
         });
 
         public static TerminalKeyBindingCollection Default { get; }

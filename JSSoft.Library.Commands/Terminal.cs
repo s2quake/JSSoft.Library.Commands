@@ -37,6 +37,7 @@ namespace JSSoft.Library.Commands
         private const string escCursorHome = "\u001b[H";
         private const string escEraseDown = "\u001b[J";
         private static byte[] charWidths;
+        private const string passwordPattern = "[~`! @#$%^&*()_\\-+={[}\\]|\\\\:;\"'<,>.?/0-9a-zA-Z]";
         private static TerminalKeyBindingCollection keyBindings = TerminalKeyBindingCollection.Default;
 
         private readonly Dictionary<ConsoleKeyInfo, Func<string>> systemActions = new();
@@ -253,6 +254,8 @@ namespace JSSoft.Library.Commands
         {
             lock (LockedObject)
             {
+                if (this.IsPassword == true)
+                    throw new InvalidOperationException();
                 if (this.historyIndex + 1 < this.histories.Count)
                 {
                     this.SetHistoryIndex(this.historyIndex + 1);
@@ -264,6 +267,8 @@ namespace JSSoft.Library.Commands
         {
             lock (LockedObject)
             {
+                if (this.IsPassword == true)
+                    throw new InvalidOperationException();
                 if (this.historyIndex > 0)
                 {
                     this.SetHistoryIndex(this.historyIndex - 1);
@@ -382,6 +387,8 @@ namespace JSSoft.Library.Commands
         {
             lock (LockedObject)
             {
+                if (this.IsPassword == true)
+                    throw new InvalidOperationException();
                 this.CompletionImpl(NextCompletion);
             }
         }
@@ -390,6 +397,8 @@ namespace JSSoft.Library.Commands
         {
             lock (LockedObject)
             {
+                if (this.IsPassword == true)
+                    throw new InvalidOperationException();
                 this.CompletionImpl(PrevCompletion);
             }
         }
@@ -425,6 +434,8 @@ namespace JSSoft.Library.Commands
             {
                 if (value == null)
                     throw new ArgumentNullException(nameof(value));
+                if (this.IsPassword == true)
+                    throw new InvalidOperationException();
                 if (this.command == value)
                     return;
                 lock (LockedObject)
@@ -461,6 +472,8 @@ namespace JSSoft.Library.Commands
         public static bool IsWin32NT => Environment.OSVersion.Platform == PlatformID.Win32NT;
 
         public static Terminal Current { get; private set; }
+
+        public static char PasswordCharacter { get; set; } = '*';
 
         protected virtual string FormatPrompt(string prompt)
         {
@@ -778,7 +791,7 @@ namespace JSSoft.Library.Commands
         {
             var bufferWidth = this.width;
             var bufferHeight = this.height;
-            var command = new TerminalString(value, this.FormatCommand);
+            var command = new TerminalString(value, this.FormatCommand) { IsPassword = this.IsPassword };
             var pt1 = this.pt1;
             var pt2 = this.pt2;
             var pt3 = NextPosition(value, bufferWidth, pt2);
@@ -859,7 +872,7 @@ namespace JSSoft.Library.Commands
                         this.FlushKeyChars(validation, ref keyChars);
                         this.KeyBindings.Process(key, this);
                     }
-                    else if (key.KeyChar != '\0')
+                    else if (this.PreviewKeyChar(key.KeyChar) == true)
                     {
                         keyChars += key.KeyChar;
                     }
@@ -911,6 +924,17 @@ namespace JSSoft.Library.Commands
                     return key.Key;
                 }
             }
+        }
+
+        private bool PreviewKeyChar(char ch)
+        {
+            if (ch != '\0')
+            {
+                if (this.IsPassword == true)
+                    return Regex.IsMatch($"{ch}", passwordPattern);
+                return true;
+            }
+            return false;
         }
 
         private void Initialize(string prompt, string command, TerminalFlags flags)
@@ -1073,10 +1097,13 @@ namespace JSSoft.Library.Commands
         class Initializer : IDisposable
         {
             private readonly Terminal terminal;
+            private bool isControlC = Console.TreatControlCAsInput;
 
             public Initializer(Terminal terminal)
             {
                 this.terminal = terminal;
+                this.isControlC = Console.TreatControlCAsInput;
+                Console.TreatControlCAsInput = true;
             }
 
             public string Prompt { get; set; } = string.Empty;
@@ -1100,6 +1127,7 @@ namespace JSSoft.Library.Commands
             public void Dispose()
             {
                 this.terminal.Release();
+                Console.TreatControlCAsInput = this.isControlC;
             }
         }
 

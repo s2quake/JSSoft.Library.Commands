@@ -60,7 +60,6 @@ namespace JSSoft.Library.Commands
 
             Console.SetOut(commnadOut);
             Console.SetError(commnadError);
-            Console.TreatControlCAsInput = true;
             this.commandContext.Out = commnadOut;
             this.commandContext.Error = commnadError;
 
@@ -72,7 +71,6 @@ namespace JSSoft.Library.Commands
                 }
             }
 
-            Console.TreatControlCAsInput = consoleControlC;
             Console.SetOut(consoleOut);
             Console.SetError(consoleError);
         }
