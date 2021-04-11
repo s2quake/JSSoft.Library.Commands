@@ -33,6 +33,7 @@ namespace JSSoft.Library.Commands
         {
             this.text = text ?? throw new ArgumentNullException(nameof(text));
             this.format = text;
+            this.isPassword = false;
         }
 
         public TerminalString(string text, Func<string, string> formatter)
@@ -41,32 +42,45 @@ namespace JSSoft.Library.Commands
                 throw new ArgumentNullException(nameof(formatter));
             this.text = text ?? throw new ArgumentNullException(nameof(text));
             this.format = formatter(text);
+            this.isPassword = false;
         }
 
         public TerminalString(string text, string format)
         {
             this.text = text ?? throw new ArgumentNullException(nameof(text));
             this.format = format ?? throw new ArgumentNullException(nameof(format));
+            this.isPassword = false;
         }
+
+        public string OriginText => this.text;
 
         public string Text
         {
-            get => this.text;
-            set => this.text = value ?? throw new ArgumentNullException(nameof(value));
+            get
+            {
+                if (this.isPassword == true)
+                    return string.Empty.PadRight(this.text.Length, '*');
+                return this.text;
+            }
         }
 
         public string Format
         {
             get
             {
+                if (this.isPassword == true)
+                    return string.Empty.PadRight(this.text.Length, '*');
                 if (this.format == string.Empty)
                     return this.text;
                 return this.format;
             }
-            set => this.format = value ?? throw new ArgumentNullException(nameof(value));
         }
 
-        public bool IsPassword { get; set; }
+        public bool IsPassword
+        {
+            get => this.isPassword;
+            set => this.isPassword = value;
+        }
 
         public int Length => this.Text.Length;
 
@@ -83,7 +97,7 @@ namespace JSSoft.Library.Commands
         public TerminalString Insert(int startIndex, string value, Func<string, string> formatter)
         {
             var item = this.text.Insert(startIndex, value);
-            return new TerminalString(item, formatter(item));
+            return new TerminalString(item, formatter(item)) { isPassword = this.isPassword };
         }
 
         public string Remove(int startIndex, int count)
@@ -94,7 +108,7 @@ namespace JSSoft.Library.Commands
         public TerminalString Remove(int startIndex, int count, Func<string, string> formatter)
         {
             var item = this.text.Remove(startIndex, count);
-            return new TerminalString(item, formatter(item));
+            return new TerminalString(item, formatter(item)) { isPassword = this.isPassword };
         }
 
         public static implicit operator string(TerminalString s)

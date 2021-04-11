@@ -208,9 +208,9 @@ namespace JSSoft.Library.Commands
             return this.ReadString(prompt, string.Empty);
         }
 
-        public string ReadString(string prompt, bool isHidden)
+        public string ReadString(string prompt, bool isPassword)
         {
-            return this.ReadString(prompt, string.Empty, isHidden);
+            return this.ReadString(prompt, string.Empty, isPassword);
         }
 
         public string ReadString(string prompt, string command)
@@ -218,7 +218,7 @@ namespace JSSoft.Library.Commands
             return this.ReadString(prompt, command, false);
         }
 
-        public string ReadString(string prompt, string command, bool isHidden)
+        public string ReadString(string prompt, string command, bool isPassword)
         {
             using var initializer = new Initializer(this)
             {
@@ -568,14 +568,7 @@ namespace JSSoft.Library.Commands
                 this.pt2 = pt2;
                 this.pt3 = pt3;
 
-                if (this.IsPassword == false)
-                {
-                    RenderString(st1, st2, ct1, bufferHeight, command);
-                }
-                else
-                {
-                    SetCursorPosition(st1);
-                }
+                RenderString(st1, st2, ct1, bufferHeight, command);
             }
         }
 
@@ -583,7 +576,7 @@ namespace JSSoft.Library.Commands
         {
             var capacity = items.Sum(item => item.Length) + 30;
             var sb = new StringBuilder(capacity);
-            var last = items.Any() == true ? items.Last().Text : string.Empty;
+            var last = items.Any() == true ? items.Last() : string.Empty;
             sb.Append(pt1.CursorString);
             sb.Append(escEraseDown);
             foreach (var item in items)
@@ -613,16 +606,11 @@ namespace JSSoft.Library.Commands
 
         private static TerminalPoint NextPosition(string text, int bufferWidth, TerminalPoint pt)
         {
-            return NextPosition(text, bufferWidth, pt, false);
-        }
-
-        private static TerminalPoint NextPosition(string text, int bufferWidth, TerminalPoint pt, bool isPassword)
-        {
             var x = pt.X;
             var y = pt.Y;
             for (var i = 0; i < text.Length; i++)
             {
-                var ch = isPassword == true ? '*' : text[i];
+                var ch = text[i];
                 if (ch == '\r')
                 {
                     x = 0;
@@ -672,14 +660,7 @@ namespace JSSoft.Library.Commands
             this.cursorIndex = cursorIndex;
             this.pt3 = pt4;
 
-            if (this.IsPassword == false)
-            {
-                RenderString(pt2, pt4, pt3, bufferHeight, command);
-            }
-            else
-            {
-                SetCursorPosition(pt2);
-            }
+            RenderString(pt2, pt4, pt3, bufferHeight, command);
         }
 
         private void DeleteImpl()
@@ -697,15 +678,7 @@ namespace JSSoft.Library.Commands
             this.command = command;
             this.promptText = this.prompt + this.command;
             this.pt3 = pt4;
-
-            if (this.IsPassword == false)
-            {
-                RenderString(pt2, pt4, pt3, bufferHeight, command);
-            }
-            else
-            {
-                SetCursorPosition(pt2);
-            }
+            RenderString(pt2, pt4, pt3, bufferHeight, command);
         }
 
         private void CompletionImpl(Func<string[], string, string> func)
@@ -775,8 +748,8 @@ namespace JSSoft.Library.Commands
             var pre = command[..this.cursorIndex];
             var pt1 = this.pt1;
             var pt2 = NextPosition(prompt, bufferWidth, pt1);
-            var pt3 = NextPosition(command, bufferWidth, pt2, isPassword);
-            var pt4 = NextPosition(pre, bufferWidth, pt2, isPassword);
+            var pt3 = NextPosition(command, bufferWidth, pt2);
+            var pt4 = NextPosition(pre, bufferWidth, pt2);
 
             var st1 = pt1;
             var st2 = pt4;
@@ -837,7 +810,7 @@ namespace JSSoft.Library.Commands
         {
             var bufferWidth = this.width;
             var bufferHeight = this.height;
-            var text = this.IsPassword == true ? string.Empty : this.command[..cursorIndex];
+            var text = this.command[..cursorIndex];
             var pt4 = NextPosition(text, bufferWidth, this.pt2);
 
             this.cursorIndex = cursorIndex;
@@ -947,11 +920,11 @@ namespace JSSoft.Library.Commands
             var pt1 = new TerminalPoint(0, Console.CursorTop);
             lock (LockedObject)
             {
-                var isHidden = flags.HasFlag(TerminalFlags.IsPassword);
+                var isPassword = flags.HasFlag(TerminalFlags.IsPassword);
                 var promptS = new TerminalString(prompt, this.FormatPrompt);
-                var commandS = new TerminalString(command, this.FormatCommand);
+                var commandS = new TerminalString(command, this.FormatCommand) { IsPassword = isPassword };
                 var pt2 = NextPosition(prompt, bufferWidth, pt1);
-                var pt3 = isHidden == true ? pt2 : NextPosition(command, bufferWidth, pt2);
+                var pt3 = NextPosition(command, bufferWidth, pt2);
                 var st1 = pt1;
                 if (pt3.Y >= bufferHeight)
                 {
@@ -965,7 +938,7 @@ namespace JSSoft.Library.Commands
                 this.height = bufferHeight;
                 this.prompt = promptS;
                 this.command = commandS;
-                this.promptText = isHidden == true ? promptS : promptS + commandS;
+                this.promptText = promptS + commandS;
                 this.cursorIndex = 0;
                 this.inputText = command;
                 this.completion = string.Empty;
@@ -1008,7 +981,7 @@ namespace JSSoft.Library.Commands
             {
                 this.RecordCommand(this.command);
             }
-            return this.command;
+            return this.command.OriginText;
         }
 
         private string OnCancel()
@@ -1033,7 +1006,7 @@ namespace JSSoft.Library.Commands
         {
             var bufferWidth = this.width;
             var bufferHeight = this.height;
-            var promptText = this.IsPassword == true ? this.prompt : this.promptText;
+            var promptText = this.promptText;
             var prompt = this.prompt;
             var command = this.command;
             var text = StripOff(textF);
@@ -1045,8 +1018,8 @@ namespace JSSoft.Library.Commands
             var pt9 = NextPosition(text1, bufferWidth, pt8);
             var pt1 = pt9.X == 0 ? new TerminalPoint(pt9.X, pt9.Y) : new TerminalPoint(0, pt9.Y + 1);
             var pt2 = NextPosition(prompt, bufferWidth, pt1);
-            var pt3 = this.IsPassword == true ? pt2 : NextPosition(command, bufferWidth, pt2);
-            var pt4 = this.IsPassword == true ? pt2 : NextPosition(pre, bufferWidth, pt2);
+            var pt3 = NextPosition(command, bufferWidth, pt2);
+            var pt4 = NextPosition(pre, bufferWidth, pt2);
 
             var st1 = new TerminalPoint(pt8.X, pt8.Y);
             var st2 = new TerminalPoint(pt8.X, pt8.Y);
