@@ -80,6 +80,11 @@ namespace JSSoft.Library.Commands
             return $"\x1b[0;{backgroundValues[background]}m{text}\x1b[0m";
         }
 
+        public static string FromColor(string text, TerminalColor? foreground)
+        {
+            return FromColor(text, foreground, null);
+        }
+
         public static string FromColor(string text, TerminalColor? foreground, TerminalColor? background)
         {
             if (foreground != null && background != null)

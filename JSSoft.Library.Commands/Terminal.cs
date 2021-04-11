@@ -52,11 +52,9 @@ namespace JSSoft.Library.Commands
         private int height = Console.BufferHeight;
         private int historyIndex;
         private int cursorIndex;
-        private string prompt = string.Empty;
-        private string promptF = string.Empty;
-        private string command = string.Empty;
-        private string commandF = string.Empty;
-        private string promptText = string.Empty;
+        private TerminalString prompt = TerminalString.Empty;
+        private TerminalString command = TerminalString.Empty;
+        private TerminalString promptText = TerminalString.Empty;
         private string inputText = string.Empty;
         private string completion = string.Empty;
 
@@ -309,7 +307,7 @@ namespace JSSoft.Library.Commands
                 var offset = this.pt1.Y;
                 var bufferWidth = this.width;
                 var pre = this.command[..this.cursorIndex];
-                var promptTextF = this.promptF + this.commandF;
+                var promptTextF = this.prompt.Format + this.command.Format;
                 var st1 = NextPosition(pre, bufferWidth, this.pt2);
                 st1.Y -= offset;
                 this.pt1.Y -= offset;
@@ -488,6 +486,8 @@ namespace JSSoft.Library.Commands
             {
                 var bufferWidth = Console.BufferWidth;
                 var bufferHeight = Console.BufferHeight;
+                var prompt = this.prompt;
+                var command = this.command;
                 var offset = this.pt3.Y - this.pt1.Y;
                 var pt = new TerminalPoint(Console.CursorLeft, Console.CursorTop);
                 var pt1 = new TerminalPoint(0, pt.Y - offset);
@@ -525,7 +525,7 @@ namespace JSSoft.Library.Commands
                 this.pt1 = pt1;
                 this.pt2 = pt2;
                 this.pt3 = pt3;
-                RenderString(pt1, pt3, pt4, bufferHeight, promptF, commandF);
+                RenderString(pt1, pt3, pt4, bufferHeight, prompt, command);
             }
         }
 
@@ -539,8 +539,7 @@ namespace JSSoft.Library.Commands
                 var bufferHeight = this.height;
                 var cursorIndex = this.cursorIndex + text.Length;
                 var extra = this.command[this.cursorIndex..];
-                var command = this.command.Insert(this.cursorIndex, text);
-                var commandF = this.FormatCommand(command);
+                var command = this.command.Insert(this.cursorIndex, text, this.FormatCommand);
                 var pre = command[..(command.Length - extra.Length)];
                 var promptText = this.prompt + command;
 
@@ -562,7 +561,6 @@ namespace JSSoft.Library.Commands
 
                 this.cursorIndex = cursorIndex;
                 this.command = command;
-                this.commandF = commandF;
                 this.promptText = this.prompt + command;
                 this.inputText = command[..cursorIndex];
                 this.completion = string.Empty;
@@ -572,7 +570,7 @@ namespace JSSoft.Library.Commands
 
                 if (this.IsHidden == false)
                 {
-                    RenderString(st1, st2, ct1, bufferHeight, commandF);
+                    RenderString(st1, st2, ct1, bufferHeight, command);
                 }
                 else
                 {
@@ -581,17 +579,17 @@ namespace JSSoft.Library.Commands
             }
         }
 
-        private static void RenderString(TerminalPoint pt1, TerminalPoint pt2, TerminalPoint ct1, int bufferHeight, params string[] items)
+        private static void RenderString(TerminalPoint pt1, TerminalPoint pt2, TerminalPoint ct1, int bufferHeight, params TerminalString[] items)
         {
             using var stream = Console.OpenStandardOutput();
             using var writer = new StreamWriter(stream, Console.OutputEncoding) { AutoFlush = true };
             var capacity = items.Sum(item => item.Length) + 30;
             var sb = new StringBuilder(capacity);
-            var last = items.LastOrDefault() ?? string.Empty;
+            var last = items.Any() == true ? items.Last().Text : string.Empty;
             sb.Append($"{pt1.CursorString}{escEraseDown}");
             foreach (var item in items)
             {
-                sb.Append(item);
+                sb.Append(item.Format);
             }
             if (pt2.Y >= bufferHeight && pt2.X == 0 && last.EndsWith(Environment.NewLine) == false)
                 sb.Append(Environment.NewLine);
@@ -649,8 +647,7 @@ namespace JSSoft.Library.Commands
             var bufferWidth = this.width;
             var bufferHeight = this.height;
             var extra = this.command[this.cursorIndex..];
-            var command = this.command.Remove(this.cursorIndex - 1, 1);
-            var commandF = this.FormatCommand(command);
+            var command = this.command.Remove(this.cursorIndex - 1, 1, this.FormatCommand);
             var pre = command[..(command.Length - extra.Length)];
             var cursorIndex = this.cursorIndex - 1;
             var endPosition = this.command.Length;
@@ -659,14 +656,13 @@ namespace JSSoft.Library.Commands
             var pt4 = NextPosition(extra, bufferWidth, pt3);
 
             this.command = command;
-            this.commandF = commandF;
             this.promptText = this.prompt + this.command;
             this.cursorIndex = cursorIndex;
             this.pt3 = pt4;
 
             if (this.IsHidden == false)
             {
-                RenderString(pt2, pt4, pt3, bufferHeight, commandF);
+                RenderString(pt2, pt4, pt3, bufferHeight, command);
             }
             else
             {
@@ -679,8 +675,7 @@ namespace JSSoft.Library.Commands
             var bufferWidth = this.width;
             var bufferHeight = this.height;
             var extra = this.command[(this.cursorIndex + 1)..];
-            var command = this.command.Remove(this.cursorIndex, 1);
-            var commandF = this.FormatCommand(command);
+            var command = this.command.Remove(this.cursorIndex, 1, this.FormatCommand);
             var pre = command[..(command.Length - extra.Length)];
             var endPosition = this.command.Length;
             var pt2 = this.pt2;
@@ -688,13 +683,12 @@ namespace JSSoft.Library.Commands
             var pt4 = NextPosition(extra, bufferWidth, pt3);
 
             this.command = command;
-            this.commandF = commandF;
             this.promptText = this.prompt + this.command;
             this.pt3 = pt4;
 
             if (this.IsHidden == false)
             {
-                RenderString(pt2, pt4, pt3, bufferHeight, commandF);
+                RenderString(pt2, pt4, pt3, bufferHeight, command);
             }
             else
             {
@@ -759,18 +753,17 @@ namespace JSSoft.Library.Commands
             }
         }
 
-        private void SetPrompt(string prompt)
+        private void SetPrompt(string value)
         {
             var bufferWidth = this.width;
             var bufferHeight = this.height;
             var command = this.command;
-            var promptF = this.FormatPrompt(prompt);
+            var prompt = new TerminalString(value, this.FormatPrompt);
             var pre = command[..this.cursorIndex];
             var pt1 = this.pt1;
             var pt2 = NextPosition(prompt, bufferWidth, pt1);
             var pt3 = NextPosition(command, bufferWidth, pt2);
             var pt4 = NextPosition(pre, bufferWidth, pt2);
-            var text = promptF + commandF;
 
             var st1 = pt1;
             var st2 = NextPosition(pre, bufferWidth, pt2);
@@ -784,7 +777,6 @@ namespace JSSoft.Library.Commands
             }
 
             this.prompt = prompt;
-            this.promptF = promptF;
             this.promptText = prompt + command;
             this.pt1 = pt1;
             this.pt2 = pt2;
@@ -792,7 +784,7 @@ namespace JSSoft.Library.Commands
 
             if (this.IsReading == true)
             {
-                RenderString(st1, pt3, pt4, bufferHeight, text);
+                RenderString(st1, pt3, pt4, bufferHeight, prompt, command);
             }
         }
 
@@ -800,7 +792,7 @@ namespace JSSoft.Library.Commands
         {
             var bufferWidth = this.width;
             var bufferHeight = this.height;
-            var commandF = this.FormatCommand(value);
+            var command = new TerminalString(value, this.FormatCommand);
             var pt1 = this.pt1;
             var pt2 = this.pt2;
             var pt3 = NextPosition(value, bufferWidth, pt2);
@@ -816,8 +808,7 @@ namespace JSSoft.Library.Commands
                 pt3.Y -= offset;
             }
 
-            this.command = value;
-            this.commandF = commandF;
+            this.command = command;
             this.promptText = this.prompt + this.command;
             this.cursorIndex = this.command.Length;
             this.inputText = value;
@@ -826,7 +817,7 @@ namespace JSSoft.Library.Commands
             this.pt2 = pt2;
             this.pt3 = pt3;
 
-            RenderString(st1, pt3, pt3, bufferHeight, commandF);
+            RenderString(st1, pt3, pt3, bufferHeight, command);
         }
 
         private void SetCursorIndex(int cursorIndex)
@@ -940,6 +931,8 @@ namespace JSSoft.Library.Commands
             var pt1 = new TerminalPoint(0, Console.CursorTop);
             lock (LockedObject)
             {
+                var promptS = new TerminalString(prompt, this.FormatPrompt);
+                var commandS = new TerminalString(command,this.FormatCommand);
                 var pt2 = NextPosition(prompt, bufferWidth, pt1);
                 var pt3 = NextPosition(command, bufferWidth, pt2);
                 var st1 = pt1;
@@ -950,16 +943,12 @@ namespace JSSoft.Library.Commands
                     pt2.Y -= offset;
                     pt3.Y -= offset;
                 }
-                var promptF = this.FormatPrompt(prompt);
-                var commandF = this.FormatCommand(command);
 
                 this.width = bufferWidth;
                 this.height = bufferHeight;
-                this.command = command;
-                this.commandF = commandF;
-                this.prompt = prompt;
-                this.promptF = promptF;
-                this.promptText = prompt + command;
+                this.prompt = promptS;
+                this.command = commandS;
+                this.promptText = promptS + commandS;
                 this.cursorIndex = 0;
                 this.inputText = command;
                 this.completion = string.Empty;
@@ -969,7 +958,7 @@ namespace JSSoft.Library.Commands
                 this.ct1 = TerminalPoint.Zero;
                 this.flags = flags | TerminalFlags.IsReading;
 
-                RenderString(st1, pt3, pt3, bufferHeight, promptF, commandF);
+                RenderString(st1, pt3, pt3, bufferHeight, promptS, commandS);
             }
         }
 
@@ -986,9 +975,9 @@ namespace JSSoft.Library.Commands
                 this.pt1 = new TerminalPoint(0, Console.CursorTop);
                 this.pt2 = this.pt1;
                 this.pt3 = this.pt1;
-                this.prompt = string.Empty;
-                this.command = string.Empty;
-                this.promptText = string.Empty;
+                this.prompt = TerminalString.Empty;
+                this.command = TerminalString.Empty;
+                this.promptText = TerminalString.Empty;
                 this.cursorIndex = 0;
                 this.inputText = string.Empty;
                 this.completion = string.Empty;
@@ -1028,7 +1017,6 @@ namespace JSSoft.Library.Commands
             var bufferWidth = this.width;
             var bufferHeight = this.height;
             var promptText = this.promptText;
-            var promptTextF = this.promptF + this.commandF;
             var prompt = this.prompt;
             var command = this.command;
             var text = StripOff(textF);
@@ -1040,8 +1028,8 @@ namespace JSSoft.Library.Commands
             var pt9 = NextPosition(text1, bufferWidth, pt8);
             var pt1 = pt9.X == 0 ? new TerminalPoint(pt9.X, pt9.Y) : new TerminalPoint(0, pt9.Y + 1);
             var pt2 = NextPosition(prompt, bufferWidth, pt1);
-            var pt3 = NextPosition(command, bufferWidth, pt2);
-            var pt4 = NextPosition(pre, bufferWidth, pt2);
+            var pt3 = this.IsHidden == true ? pt2 : NextPosition(command, bufferWidth, pt2);
+            var pt4 = this.IsHidden == true ? pt2 : NextPosition(pre, bufferWidth, pt2);
 
             var st1 = new TerminalPoint(pt8.X, pt8.Y);
             var st2 = new TerminalPoint(pt8.X, pt8.Y);
@@ -1063,7 +1051,7 @@ namespace JSSoft.Library.Commands
             this.ct1 = new TerminalPoint(ct1.X, ct1.X != 0 ? -1 : 0);
             this.outputText.Append(text);
 
-            RenderString(st1, st3, pt4, bufferHeight, text1F, promptTextF);
+            RenderString(st1, st3, pt4, bufferHeight, new TerminalString(text1, text1F), promptText);
         }
 
         private bool IsRecordable => this.flags.HasFlag(TerminalFlags.IsRecordable);
