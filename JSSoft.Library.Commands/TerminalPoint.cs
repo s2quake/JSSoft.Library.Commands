@@ -156,6 +156,8 @@ namespace JSSoft.Library.Commands
 
         public static readonly TerminalPoint Invalid = new TerminalPoint(-1, -1);
 
+        internal string CursorString => $"\u001b[{this.Y + 1};{this.X + 1}f";
+
         #region implementations
 
         bool IEquatable<TerminalPoint>.Equals(TerminalPoint other)

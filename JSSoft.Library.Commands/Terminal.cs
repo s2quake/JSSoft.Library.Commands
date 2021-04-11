@@ -304,20 +304,19 @@ namespace JSSoft.Library.Commands
         {
             lock (LockedObject)
             {
-                using (var stream = Console.OpenStandardOutput())
-                using (var writer = new StreamWriter(stream, Console.OutputEncoding))
-                {
-                    var offset = this.pt1.Y;
-                    var bufferWidth = this.width;
-                    var pre = this.command[..this.cursorIndex];
-                    var st1 = NextPosition(pre, bufferWidth, this.pt2);
-                    st1.Y -= offset;
-                    this.pt1.Y -= offset;
-                    this.pt2.Y -= offset;
-                    this.pt3.Y -= offset;
-                    this.ct1 = TerminalPoint.Zero;
-                    writer.Write($"{escClearScreen}{escCursorHome}" + this.promptText + GetCursorString(st1));
-                }
+                using var stream = Console.OpenStandardOutput();
+                using var writer = new StreamWriter(stream, Console.OutputEncoding);
+                var offset = this.pt1.Y;
+                var bufferWidth = this.width;
+                var pre = this.command[..this.cursorIndex];
+                var promptTextF = this.promptF + this.commandF;
+                var st1 = NextPosition(pre, bufferWidth, this.pt2);
+                st1.Y -= offset;
+                this.pt1.Y -= offset;
+                this.pt2.Y -= offset;
+                this.pt3.Y -= offset;
+                this.ct1 = TerminalPoint.Zero;
+                writer.Write($"{escClearScreen}{escCursorHome}{promptTextF}{st1.CursorString}");
             }
         }
 
@@ -521,15 +520,12 @@ namespace JSSoft.Library.Commands
                     pt4.Y -= offset;
                 }
 
-                var text = promptF + commandF;
-                var renderText = GetRenderString(pt1, pt3, pt4, text, bufferHeight);
-
                 this.width = bufferWidth;
                 this.height = bufferHeight;
                 this.pt1 = pt1;
                 this.pt2 = pt2;
                 this.pt3 = pt3;
-                Render(renderText);
+                RenderString(pt1, pt3, pt4, bufferHeight, promptF, commandF);
             }
         }
 
@@ -576,8 +572,7 @@ namespace JSSoft.Library.Commands
 
                 if (this.IsHidden == false)
                 {
-                    var renderText = GetRenderString(st1, st2, ct1, bufferHeight, commandF);
-                    Render(renderText);
+                    RenderString(st1, st2, ct1, bufferHeight, commandF);
                 }
                 else
                 {
@@ -586,75 +581,29 @@ namespace JSSoft.Library.Commands
             }
         }
 
-        private static string GetRenderString(TerminalPoint pt1, TerminalPoint pt2, TerminalPoint ct, string text, int bufferHeight)
+        private static void RenderString(TerminalPoint pt1, TerminalPoint pt2, TerminalPoint ct1, int bufferHeight, params string[] items)
         {
-            var line = GetCursorString(pt1) + escEraseDown;
-            if (IsEnd(pt2, text, bufferHeight) == true)
-                line += text + Environment.NewLine;
-            else
-                line += text;
-            line += GetCursorString(ct);
-            return line;
-        }
-
-        private static string GetRenderString(TerminalPoint pt1, TerminalPoint pt2, TerminalPoint ct, int bufferHeight, params string[] items)
-        {
-            var ptText = GetCursorString(pt1);
-            var ctText = GetCursorString(ct);
-            var sb = new StringBuilder(GetCapcity());
-            sb.Append($"{ptText}{escEraseDown}");
+            using var stream = Console.OpenStandardOutput();
+            using var writer = new StreamWriter(stream, Console.OutputEncoding) { AutoFlush = true };
+            var capacity = items.Sum(item => item.Length) + 30;
+            var sb = new StringBuilder(capacity);
+            var last = items.LastOrDefault() ?? string.Empty;
+            sb.Append($"{pt1.CursorString}{escEraseDown}");
             foreach (var item in items)
             {
                 sb.Append(item);
             }
-            if (IsEnd() == true)
+            if (pt2.Y >= bufferHeight && pt2.X == 0 && last.EndsWith(Environment.NewLine) == false)
                 sb.Append(Environment.NewLine);
-            sb.Append(ctText);
-            return sb.ToString();
-
-            int GetCapcity()
-            {
-                return items.Sum(item => item.Length) + ptText.Length + escEraseDown.Length + Environment.NewLine.Length + ctText.Length;
-            }
-
-            bool IsEnd()
-            {
-                if (items.Any() == true && pt2.Y >= bufferHeight && pt2.X == 0 && items.Last().EndsWith(Environment.NewLine) == false)
-                {
-                    return true;
-                }
-                return false;
-            }
-        }
-
-        private static string GetCursorString(TerminalPoint pt)
-        {
-            return $"\u001b[{pt.Y + 1};{pt.X + 1}f";
-        }
-
-        private static void Render(string text)
-        {
-            using var stream = Console.OpenStandardOutput();
-            using var writer = new StreamWriter(stream, Console.OutputEncoding) { AutoFlush = true };
-            writer.Write(text);
-        }
-
-        private static bool IsEnd(TerminalPoint pt, string text, int bufferHeight)
-        {
-            if (pt.Y >= bufferHeight && pt.X == 0 && text.EndsWith(Environment.NewLine) == false)
-            {
-                return true;
-            }
-            return false;
+            sb.Append(ct1.CursorString);
+            writer.Write(sb.ToString());
         }
 
         private static void SetCursorPosition(TerminalPoint pt)
         {
-            using (var stream = Console.OpenStandardOutput())
-            using (var writer = new StreamWriter(stream, Console.OutputEncoding))
-            {
-                writer.Write(GetCursorString(pt));
-            }
+            using var stream = Console.OpenStandardOutput();
+            using var writer = new StreamWriter(stream, Console.OutputEncoding);
+            writer.Write(pt.CursorString);
         }
 
         private static TerminalPoint NextPosition(string text, int bufferWidth, TerminalPoint pt)
@@ -690,7 +639,7 @@ namespace JSSoft.Library.Commands
             return new TerminalPoint(x, y);
         }
 
-        public static string StripOff(string text)
+        private static string StripOff(string text)
         {
             return Regex.Replace(text, @"\e\[(\d+;)*(\d+)?[ABCDHJKfmsu]", string.Empty);
         }
@@ -717,8 +666,7 @@ namespace JSSoft.Library.Commands
 
             if (this.IsHidden == false)
             {
-                var renderText = GetRenderString(pt2, pt4, pt3, commandF, bufferHeight);
-                Render(renderText);
+                RenderString(pt2, pt4, pt3, bufferHeight, commandF);
             }
             else
             {
@@ -746,8 +694,7 @@ namespace JSSoft.Library.Commands
 
             if (this.IsHidden == false)
             {
-                var renderText = GetRenderString(pt2, pt4, pt3, commandF, bufferHeight);
-                Render(renderText);
+                RenderString(pt2, pt4, pt3, bufferHeight, commandF);
             }
             else
             {
@@ -835,7 +782,6 @@ namespace JSSoft.Library.Commands
                 pt2.Y -= offset;
                 pt3.Y -= offset;
             }
-            var renderText = GetRenderString(st1, pt3, pt4, text, bufferHeight);
 
             this.prompt = prompt;
             this.promptF = promptF;
@@ -846,7 +792,7 @@ namespace JSSoft.Library.Commands
 
             if (this.IsReading == true)
             {
-                Render(renderText);
+                RenderString(st1, pt3, pt4, bufferHeight, text);
             }
         }
 
@@ -869,7 +815,6 @@ namespace JSSoft.Library.Commands
                 pt2.Y -= offset;
                 pt3.Y -= offset;
             }
-            var renderText = GetRenderString(st1, pt3, pt3, commandF, bufferHeight);
 
             this.command = value;
             this.commandF = commandF;
@@ -881,7 +826,7 @@ namespace JSSoft.Library.Commands
             this.pt2 = pt2;
             this.pt3 = pt3;
 
-            Render(renderText);
+            RenderString(st1, pt3, pt3, bufferHeight, commandF);
         }
 
         private void SetCursorIndex(int cursorIndex)
@@ -1007,7 +952,6 @@ namespace JSSoft.Library.Commands
                 }
                 var promptF = this.FormatPrompt(prompt);
                 var commandF = this.FormatCommand(command);
-                var renderText = GetRenderString(st1, pt3, pt3, promptF + commandF, bufferHeight);
 
                 this.width = bufferWidth;
                 this.height = bufferHeight;
@@ -1025,7 +969,7 @@ namespace JSSoft.Library.Commands
                 this.ct1 = TerminalPoint.Zero;
                 this.flags = flags | TerminalFlags.IsReading;
 
-                Render(renderText);
+                RenderString(st1, pt3, pt3, bufferHeight, promptF, commandF);
             }
         }
 
@@ -1112,7 +1056,6 @@ namespace JSSoft.Library.Commands
                 pt4.Y -= offset;
                 st2.Y -= offset;
             }
-            var renderText = GetRenderString(st1, st3, pt4, bufferHeight, text1F, promptTextF);
 
             this.pt1 = pt1;
             this.pt2 = pt2;
@@ -1120,7 +1063,7 @@ namespace JSSoft.Library.Commands
             this.ct1 = new TerminalPoint(ct1.X, ct1.X != 0 ? -1 : 0);
             this.outputText.Append(text);
 
-            Render(renderText);
+            RenderString(st1, st3, pt4, bufferHeight, text1F, promptTextF);
         }
 
         private bool IsRecordable => this.flags.HasFlag(TerminalFlags.IsRecordable);
