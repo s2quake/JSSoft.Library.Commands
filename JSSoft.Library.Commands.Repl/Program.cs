@@ -32,7 +32,7 @@ namespace JSSoft.Library.Commands.Repl
         static async Task Main(string[] _)
         {
             // var ss = "ㅈㄷㄱ\n".Split(Environment.NewLine, StringSplitOptions.None);
-            // Console.Write("\x1b[1;3f");
+            // Console.Write("\u001b[0;31;102msdalkfjaslkjlkjlkjlkjkjijoqwjflkadjkljoijwoij\u001b[0m\u001b[24;2f");
             // Console.Write("\x1b[J");
             // Console.Write("\x1b");
             // Console.Write("\x1b[H\x1b[J\x1b[1B\x1b[J\x1b[1B\x1b[J\x1b[1B\x1b[J\x1b[1B\x1b[J\x1b[1B\x1b[J\x1b[1B");

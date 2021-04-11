@@ -581,8 +581,6 @@ namespace JSSoft.Library.Commands
 
         private static void RenderString(TerminalPoint pt1, TerminalPoint pt2, TerminalPoint ct1, int bufferHeight, params TerminalString[] items)
         {
-            using var stream = Console.OpenStandardOutput();
-            using var writer = new StreamWriter(stream, Console.OutputEncoding) { AutoFlush = true };
             var capacity = items.Sum(item => item.Length) + 30;
             var sb = new StringBuilder(capacity);
             var last = items.Any() == true ? items.Last().Text : string.Empty;
@@ -594,7 +592,14 @@ namespace JSSoft.Library.Commands
             if (pt2.Y >= bufferHeight && pt2.X == 0 && last.EndsWith(Environment.NewLine) == false)
                 sb.Append(Environment.NewLine);
             sb.Append(ct1.CursorString);
-            writer.Write(sb.ToString());
+            RenderString(sb.ToString());
+        }
+
+        private static void RenderString(string text)
+        {
+            using var stream = Console.OpenStandardOutput();
+            using var writer = new StreamWriter(stream, Console.OutputEncoding) { AutoFlush = true };
+            writer.Write(text);
         }
 
         private static void SetCursorPosition(TerminalPoint pt)
@@ -893,6 +898,7 @@ namespace JSSoft.Library.Commands
 
         private void RenderStringQueue()
         {
+            var text = string.Empty;
             lock (ExternalObject)
             {
                 if (this.stringQueue.Any() == true)
@@ -902,9 +908,11 @@ namespace JSSoft.Library.Commands
                     {
                         sb.Append(item);
                     }
-                    RenderOutput(sb.ToString());
+                    text = sb.ToString();
                 }
             }
+            if (text != string.Empty)
+                RenderOutput(text);
         }
 
         private ConsoleKey ReadKeyImpl(params ConsoleKey[] filters)
@@ -932,7 +940,7 @@ namespace JSSoft.Library.Commands
             lock (LockedObject)
             {
                 var promptS = new TerminalString(prompt, this.FormatPrompt);
-                var commandS = new TerminalString(command,this.FormatCommand);
+                var commandS = new TerminalString(command, this.FormatCommand);
                 var pt2 = NextPosition(prompt, bufferWidth, pt1);
                 var pt3 = NextPosition(command, bufferWidth, pt2);
                 var st1 = pt1;

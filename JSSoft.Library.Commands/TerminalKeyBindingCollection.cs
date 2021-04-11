@@ -108,6 +108,7 @@ namespace JSSoft.Library.Commands
 
         public static TerminalKeyBindingCollection Unix { get; } = new TerminalKeyBindingCollection(Common, new TerminalKeyBindingBase[]
         {
+            new TerminalKeyBinding(new ConsoleKeyInfo('\u001b', ConsoleKey.Escape, false, false, false), (t) => {}),
             new TerminalKeyBinding(new ConsoleKeyInfo('\u007f', ConsoleKey.Backspace, false, false, false), (t) => t.Backspace()),
             new TerminalKeyBinding(new ConsoleKeyInfo('\u0015', ConsoleKey.U, false, false, true), (t) => DeleteToFirst(t)),
             new TerminalKeyBinding(new ConsoleKeyInfo('\u000b', ConsoleKey.K, false, false, true), (t) => DeleteToLast(t)),
