@@ -37,7 +37,7 @@ namespace JSSoft.Library.Commands
     {
         None = 0,
 
-        IsHidden = 1,
+        IsPassword = 1,
 
         IsReading = 2,
 

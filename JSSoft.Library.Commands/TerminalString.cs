@@ -27,6 +27,7 @@ namespace JSSoft.Library.Commands
     {
         private string text;
         private string format;
+        private bool isPassword;
 
         public TerminalString(string text)
         {
@@ -64,6 +65,8 @@ namespace JSSoft.Library.Commands
             }
             set => this.format = value ?? throw new ArgumentNullException(nameof(value));
         }
+
+        public bool IsPassword { get; set; }
 
         public int Length => this.Text.Length;
 
