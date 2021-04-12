@@ -309,15 +309,14 @@ namespace JSSoft.Library.Commands
             {
                 using var stream = Console.OpenStandardOutput();
                 using var writer = new StreamWriter(stream, Console.OutputEncoding);
-                var offset = this.pt1.Y;
+                var offset = new TerminalPoint(0, this.pt1.Y);
                 var bufferWidth = this.width;
                 var pre = this.command[..this.cursorIndex];
                 var promptTextF = this.prompt.Format + this.command.Format;
-                var st1 = NextPosition(pre, bufferWidth, this.pt2);
-                st1.Y -= offset;
-                this.pt1.Y -= offset;
-                this.pt2.Y -= offset;
-                this.pt3.Y -= offset;
+                var st1 = NextPosition(pre, bufferWidth, this.pt2) - offset;
+                this.pt1 -= offset;
+                this.pt2 -= offset;
+                this.pt3 -= offset;
                 this.ct1 = TerminalPoint.Zero;
                 writer.Write($"{escClearScreen}{escCursorHome}{promptTextF}{st1.CursorString}");
             }
@@ -501,44 +500,29 @@ namespace JSSoft.Library.Commands
                 var bufferHeight = Console.BufferHeight;
                 var prompt = this.prompt;
                 var command = this.command;
-                var offset = this.pt3.Y - this.pt1.Y;
+                var offset1 = this.pt3.Y - this.pt1.Y;
+                var pre = this.command[..cursorIndex];
                 var pt = new TerminalPoint(Console.CursorLeft, Console.CursorTop);
-                var pt1 = new TerminalPoint(0, pt.Y - offset);
+                var pt1 = new TerminalPoint(0, pt.Y - offset1);
                 var pt2 = NextPosition(this.prompt, bufferWidth, pt1);
                 var pt3 = NextPosition(this.command, bufferWidth, pt2);
-                var pre = this.command[..cursorIndex];
-                var pt4 = NextPosition(pre, bufferWidth, pt3);
-                var st1 = pt1;
-                var st3 = this.pt3;
+                var ct1 = NextPosition(pre, bufferWidth, pt3);
                 var offset2 = pt3.Y - pt1.Y;
-                if (offset2 != offset)
-                {
-                    pt1 = new TerminalPoint(0, pt.Y - offset2);
-                    pt2 = NextPosition(this.prompt, bufferWidth, pt1);
-                    pt3 = NextPosition(this.command, bufferWidth, pt2);
-                    pt4 = NextPosition(pre, bufferWidth, pt3);
-                }
-                else if (pt4 != pt)
-                {
-                    pt2 = NextPosition(this.prompt, bufferWidth, pt1);
-                    pt3 = NextPosition(this.command, bufferWidth, pt2);
-                    pt4 = NextPosition(pre, bufferWidth, pt2);
-                }
-                if (pt3.Y >= bufferHeight)
-                {
-                    offset = pt3.Y + 1 - bufferHeight;
-                    pt1.Y -= offset;
-                    pt2.Y -= offset;
-                    pt3.Y -= offset;
-                    pt4.Y -= offset;
-                }
+                var nt1 = offset2 != offset1 ? new TerminalPoint(0, pt.Y - offset2) : pt1;
+                var nt2 = NextPosition(prompt, bufferWidth, nt1);
+                var nt3 = NextPosition(command, bufferWidth, nt2);
+                var nt4 = NextPosition(pre, bufferWidth, nt3);
+                var offset = nt3.Y >= bufferHeight ? new TerminalPoint(0, nt3.Y + 1 - bufferHeight) : TerminalPoint.Zero;
+                var st1 = nt1 - offset;
+                var st2 = nt3 - offset;
+                var st3 = nt4 - offset;
 
                 this.width = bufferWidth;
                 this.height = bufferHeight;
-                this.pt1 = pt1;
-                this.pt2 = pt2;
-                this.pt3 = pt3;
-                RenderString(pt1, pt3, pt4, bufferHeight, prompt, command);
+                this.pt1 = nt1 - offset;
+                this.pt2 = nt2 - offset;
+                this.pt3 = nt3 - offset;
+                RenderString(st1, st2, st3, bufferHeight, prompt, command);
             }
         }
 
@@ -555,33 +539,25 @@ namespace JSSoft.Library.Commands
                 var command = this.command.Insert(this.cursorIndex, text, this.FormatCommand);
                 var prompt = this.prompt;
                 var pre = command[..(command.Length - extra.Length)];
-
                 var pt1 = this.pt1;
                 var pt2 = this.pt2;
                 var pt3 = NextPosition(command, bufferWidth, pt2);
-                var ct1 = NextPosition(pre, bufferWidth, pt2);
-
-                var st1 = this.pt2;
+                var pt4 = NextPosition(pre, bufferWidth, pt2);
+                var offset = pt3.Y >= bufferHeight ? new TerminalPoint(0, pt3.Y - this.pt3.Y) : TerminalPoint.Zero;
+                var st1 = pt2;
                 var st2 = pt3;
-                if (pt3.Y >= bufferHeight)
-                {
-                    var offset = pt3.Y - this.pt3.Y;
-                    pt1.Y -= offset;
-                    pt2.Y -= offset;
-                    pt3.Y -= offset;
-                    ct1.Y -= offset;
-                }
+                var st3 = pt4 - offset; 
 
                 this.cursorIndex = cursorIndex;
                 this.command = command;
                 this.promptText = prompt + command;
                 this.inputText = command[..cursorIndex];
                 this.completion = string.Empty;
-                this.pt1 = pt1;
-                this.pt2 = pt2;
-                this.pt3 = pt3;
+                this.pt1 = pt1 - offset;
+                this.pt2 = pt2 - offset;
+                this.pt3 = pt3 - offset;
 
-                RenderString(st1, st2, ct1, bufferHeight, command);
+                RenderString(st1, st2, st3, bufferHeight, command);
             }
         }
 
@@ -596,7 +572,7 @@ namespace JSSoft.Library.Commands
             {
                 sb.Append(item.Format);
             }
-            if (pt2.Y >= bufferHeight && pt2.X == 0 && last.EndsWith(Environment.NewLine) == false)
+            if (pt2.Y > pt1.Y && pt2.X == 0 && last.EndsWith(Environment.NewLine) == false)
                 sb.Append(Environment.NewLine);
             sb.Append(escEraseDown);
             sb.Append(ct1.CursorString);
@@ -763,27 +739,21 @@ namespace JSSoft.Library.Commands
             var pt2 = NextPosition(prompt, bufferWidth, pt1);
             var pt3 = NextPosition(command, bufferWidth, pt2);
             var pt4 = NextPosition(pre, bufferWidth, pt2);
+            var offset = pt3.Y >= bufferHeight ? new TerminalPoint(0, pt3.Y - this.pt3.Y) : TerminalPoint.Zero;
 
             var st1 = pt1;
-            var st2 = pt4;
-            if (pt3.Y >= bufferHeight)
-            {
-                var offset = pt3.Y - this.pt3.Y;
-                st2.Y -= offset;
-                pt1.Y -= offset;
-                pt2.Y -= offset;
-                pt3.Y -= offset;
-            }
+            var st2 = pt3 - offset;
+            var st3 = pt4 - offset;
 
             this.prompt = prompt;
             this.promptText = prompt + command;
-            this.pt1 = pt1;
-            this.pt2 = pt2;
-            this.pt3 = pt3;
+            this.pt1 = pt1 - offset;
+            this.pt2 = pt2 - offset;
+            this.pt3 = pt3 - offset;
 
             if (this.IsReading == true)
             {
-                RenderString(st1, pt3, pt4, bufferHeight, prompt, command);
+                RenderString(st1, st2, st3, bufferHeight, prompt, command);
             }
         }
 
@@ -792,42 +762,37 @@ namespace JSSoft.Library.Commands
             var bufferWidth = this.width;
             var bufferHeight = this.height;
             var command = new TerminalString(value, this.FormatCommand) { IsPassword = this.IsPassword };
+            var prompt = this.prompt;
             var pt1 = this.pt1;
             var pt2 = this.pt2;
             var pt3 = NextPosition(value, bufferWidth, pt2);
+            var offset = pt3.Y >= bufferHeight ? new TerminalPoint(0, pt3.Y - this.pt3.Y) : TerminalPoint.Zero;
 
             var st1 = pt2;
-            var st2 = pt3;
-            if (pt3.Y >= bufferHeight)
-            {
-                var offset = pt3.Y - this.pt3.Y;
-                st2.Y -= offset;
-                pt1.Y -= offset;
-                pt2.Y -= offset;
-                pt3.Y -= offset;
-            }
+            var st2 = pt3 - offset;
+            var st3 = pt3 - offset;
 
             this.command = command;
-            this.promptText = this.prompt + this.command;
-            this.cursorIndex = this.command.Length;
+            this.promptText = prompt + command;
+            this.cursorIndex = command.Length;
             this.inputText = value;
             this.completion = string.Empty;
-            this.pt1 = pt1;
-            this.pt2 = pt2;
-            this.pt3 = pt3;
+            this.pt1 = pt1 - offset;
+            this.pt2 = pt2 - offset;
+            this.pt3 = pt3 - offset;
 
-            RenderString(st1, pt3, pt3, bufferHeight, command);
+            RenderString(st1, st2, st3, bufferHeight, command);
         }
 
         private void SetCursorIndex(int cursorIndex)
         {
             var bufferWidth = this.width;
             var bufferHeight = this.height;
-            var text = this.command[..cursorIndex];
-            var pt4 = NextPosition(text, bufferWidth, this.pt2);
+            var pre = this.command[..cursorIndex];
+            var pt4 = NextPosition(pre, bufferWidth, this.pt2);
 
             this.cursorIndex = cursorIndex;
-            this.inputText = this.command[..cursorIndex];
+            this.inputText = pre;
             this.completion = string.Empty;
             SetCursorPosition(pt4);
         }
@@ -949,14 +914,10 @@ namespace JSSoft.Library.Commands
                 var commandS = new TerminalString(command, this.FormatCommand) { IsPassword = isPassword };
                 var pt2 = NextPosition(prompt, bufferWidth, pt1);
                 var pt3 = NextPosition(command, bufferWidth, pt2);
+                var offset = pt3.Y >= bufferHeight ? new TerminalPoint(0, pt2.Y - pt1.Y) : TerminalPoint.Zero;
                 var st1 = pt1;
-                if (pt3.Y >= bufferHeight)
-                {
-                    var offset = (pt2.Y - pt1.Y);
-                    pt1.Y -= offset;
-                    pt2.Y -= offset;
-                    pt3.Y -= offset;
-                }
+                var st2 = pt3 - offset;
+                var st3 = pt3 - offset;
 
                 this.width = bufferWidth;
                 this.height = bufferHeight;
@@ -966,13 +927,13 @@ namespace JSSoft.Library.Commands
                 this.cursorIndex = 0;
                 this.inputText = command;
                 this.completion = string.Empty;
-                this.pt1 = pt1;
-                this.pt2 = pt2;
-                this.pt3 = pt3;
+                this.pt1 = pt1 - offset;
+                this.pt2 = pt2 - offset;
+                this.pt3 = pt3 - offset;
                 this.ct1 = TerminalPoint.Zero;
                 this.flags = flags | TerminalFlags.IsReading;
 
-                RenderString(st1, pt3, pt3, bufferHeight, promptS, commandS);
+                RenderString(st1, st2, st3, bufferHeight, promptS, commandS);
             }
         }
 
@@ -1045,27 +1006,18 @@ namespace JSSoft.Library.Commands
             var pt3 = NextPosition(command, bufferWidth, pt2);
             var pt4 = NextPosition(pre, bufferWidth, pt2);
 
+            var offset = pt3.Y >= bufferHeight ? new TerminalPoint(0, pt3.Y + 1 - bufferHeight) : TerminalPoint.Zero;
             var st1 = new TerminalPoint(pt8.X, pt8.Y);
-            var st2 = new TerminalPoint(pt8.X, pt8.Y);
-            var st3 = pt3;
-            var len = st1.DistanceOf(pt3, bufferWidth);
-            if (pt3.Y >= bufferHeight)
-            {
-                var offset = pt3.Y + 1 - bufferHeight;
-                pt1.Y -= offset;
-                pt2.Y -= offset;
-                pt3.Y -= offset;
-                pt4.Y -= offset;
-                st2.Y -= offset;
-            }
+            var st2 = pt3 - offset;
+            var st3 = pt4 - offset;
 
-            this.pt1 = pt1;
-            this.pt2 = pt2;
-            this.pt3 = pt3;
+            this.pt1 = pt1 - offset;
+            this.pt2 = pt2 - offset;
+            this.pt3 = pt3 - offset;
             this.ct1 = new TerminalPoint(ct1.X, ct1.X != 0 ? -1 : 0);
             this.outputText.Append(text);
 
-            RenderString(st1, st3, pt4, bufferHeight, new TerminalString(text1, text1F), promptText);
+            RenderString(st1, st2, st3, bufferHeight, new TerminalString(text1, text1F), promptText);
         }
 
         private bool IsRecordable => this.flags.HasFlag(TerminalFlags.IsRecordable);

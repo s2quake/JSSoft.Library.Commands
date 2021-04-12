@@ -40,7 +40,11 @@ namespace JSSoft.Library.Commands
         public new string Prompt
         {
             get => this.prompt;
-            set => this.prompt = value ?? throw new ArgumentNullException(nameof(value));
+            set
+            {
+                this.prompt = value ?? throw new ArgumentNullException(nameof(value));
+                base.Prompt = value;
+            }
         }
 
         public new void Cancel()

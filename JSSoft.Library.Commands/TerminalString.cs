@@ -89,20 +89,10 @@ namespace JSSoft.Library.Commands
             return this.Text.Substring(start, length);
         }
 
-        public string Insert(int startIndex, string value)
-        {
-            return this.text.Insert(startIndex, value);
-        }
-
         public TerminalString Insert(int startIndex, string value, Func<string, string> formatter)
         {
             var item = this.text.Insert(startIndex, value);
             return new TerminalString(item, formatter(item)) { isPassword = this.isPassword };
-        }
-
-        public string Remove(int startIndex, int count)
-        {
-            return this.text.Remove(startIndex, count);
         }
 
         public TerminalString Remove(int startIndex, int count, Func<string, string> formatter)
