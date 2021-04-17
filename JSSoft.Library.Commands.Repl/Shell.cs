@@ -23,19 +23,38 @@ using System;
 using System.ComponentModel.Composition;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace JSSoft.Library.Commands.Repl
 {
     [Export(typeof(IShell))]
-    class Shell : CommandContextTerminal, IShell
+    class Shell : IShell
     {
+        private readonly Lazy<ShellTerminal> terminal;
         private string currentDirectory = Directory.GetCurrentDirectory();
+        private CancellationTokenSource cancellation;
 
         [ImportingConstructor]
-        public Shell(ShellCommandContext commandContext)
-           : base(commandContext)
+        public Shell(Lazy<ShellTerminal> terminal)
         {
-            this.Prompt = $"{Directory.GetCurrentDirectory()}$ ";
+            this.terminal = terminal;
+        }
+
+        public void Cancel()
+        {
+            this.cancellation.Cancel();
+        }
+
+        public string ReadString(string prompt, string command, bool isHidden)
+        {
+            return this.Terminal.ReadString(prompt, command, isHidden);
+        }
+
+        public Task StartAsync()
+        {
+            this.cancellation = new ();
+            return this.Terminal.StartAsync(this.cancellation.Token);
         }
 
         public string CurrentDirectory
@@ -44,32 +63,17 @@ namespace JSSoft.Library.Commands.Repl
             set
             {
                 this.currentDirectory = value ?? throw new ArgumentNullException(nameof(value));
-                this.UpdatePrompt();
+                this.OnDirectoryChanged(EventArgs.Empty);
             }
         }
 
-        protected override string FormatPrompt(string prompt)
+        public event EventHandler DirectoryChanged;
+
+        protected virtual void OnDirectoryChanged(EventArgs e)
         {
-            var match = Regex.Match(prompt, "(.+)(\\$.+)");
-            if (match.Success == true)
-            {
-                var path = match.Groups[1].Value;
-                var post = TerminalStrings.Foreground(match.Groups[2].Value, TerminalColor.BrightGreen);
-                var coloredSeparator = TerminalStrings.Foreground($"{Path.AltDirectorySeparatorChar}", TerminalColor.Red);
-                var coloredPath = Regex.Replace(path, $"\\{Path.AltDirectorySeparatorChar}", coloredSeparator);
-                return coloredPath + post;
-            }
-            return prompt;
+            this.DirectoryChanged?.Invoke(this, e);
         }
 
-        private void UpdatePrompt()
-        {
-            if (Terminal.IsUnix == true)
-                this.Prompt = $"{this.currentDirectory}$ ";
-            else if (Terminal.IsWin32NT == true)
-                this.Prompt = $"{this.currentDirectory}>";
-            else
-                this.Prompt = $"{this.currentDirectory}>";
-        }
+        private ShellTerminal Terminal => this.terminal.Value;
     }
 }

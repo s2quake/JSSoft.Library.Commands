@@ -28,10 +28,10 @@ namespace JSSoft.Library.Commands.Repl.Commands
     [ResourceUsageDescription]
     class ExitCommand : CommandBase
     {
-        private readonly Lazy<IShell> shell;
+        private readonly IShell shell;
 
         [ImportingConstructor]
-        public ExitCommand(Lazy<IShell> shell)
+        public ExitCommand(IShell shell)
             : base("exit")
         {
             this.shell = shell;
@@ -45,7 +45,7 @@ namespace JSSoft.Library.Commands.Repl.Commands
 
         protected override void OnExecute()
         {
-            this.shell.Value.Cancel();
+            this.shell.Cancel();
         }
     }
 }

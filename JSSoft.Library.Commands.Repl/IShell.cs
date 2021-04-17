@@ -19,6 +19,7 @@
 // Forked from https://github.com/NtreevSoft/CommandLineParser
 // Namespaces and files starting with "Ntreev" have been renamed to "JSSoft".
 
+using System;
 using System.Threading.Tasks;
 
 namespace JSSoft.Library.Commands.Repl
@@ -29,10 +30,10 @@ namespace JSSoft.Library.Commands.Repl
 
         Task StartAsync();
 
-        string Prompt { get; set; }
-
         string CurrentDirectory { get; set; }
 
         string ReadString(string prompt, string command, bool isHidden);
+
+        event EventHandler DirectoryChanged;
     }
 }

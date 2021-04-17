@@ -25,7 +25,7 @@ using System.Text;
 
 namespace JSSoft.Library.Commands
 {
-    class TerminalTextWriter : TextWriter
+    public class TerminalTextWriter : TextWriter
     {
         private readonly Terminal terminal;
         private readonly Encoding encoding;

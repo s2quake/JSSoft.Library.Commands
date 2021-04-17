@@ -20,54 +20,53 @@
 // Namespaces and files starting with "Ntreev" have been renamed to "JSSoft".
 
 using System;
-using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.IO;
+using System.Text.RegularExpressions;
 
-namespace JSSoft.Library.Commands.Repl.Commands
+namespace JSSoft.Library.Commands.Repl
 {
-    [Export(typeof(ICommand))]
-    [UsageDescriptionProvider(typeof(ResourceUsageDescriptionProvider))]
-    class ChangeDirectoryCommand : CommandBase
+    [Export]
+    class ShellTerminal : CommandContextTerminal
     {
         private readonly IShell shell;
 
         [ImportingConstructor]
-        public ChangeDirectoryCommand(IShell shell)
-            : base("cd")
+        public ShellTerminal(IShell shell, ShellCommandContext commandContext)
+           : base(commandContext)
         {
             this.shell = shell;
-            this.DirectoryName = string.Empty;
+            this.shell.DirectoryChanged += Shell_DirectoryChanged;
+            this.UpdatePrompt();
         }
 
-        [CommandPropertyRequired("dir", DefaultValue = "")]
-        public string DirectoryName
+        protected override string FormatPrompt(string prompt)
         {
-            get; set;
+            var match = Regex.Match(prompt, "(.+)(\\$.+)");
+            if (match.Success == true)
+            {
+                var path = match.Groups[1].Value;
+                var post = TerminalStrings.Foreground(match.Groups[2].Value, TerminalColor.BrightGreen);
+                var coloredSeparator = TerminalStrings.Foreground($"{Path.AltDirectorySeparatorChar}", TerminalColor.Red);
+                var coloredPath = Regex.Replace(path, $"\\{Path.AltDirectorySeparatorChar}", coloredSeparator);
+                return coloredPath + post;
+            }
+            return prompt;
         }
 
-        protected override void OnExecute()
+        private void Shell_DirectoryChanged(object sender, EventArgs e)
         {
-            if (this.DirectoryName == string.Empty)
-            {
-                this.Out.WriteLine(this.shell.CurrentDirectory);
-            }
-            else if (this.DirectoryName == "..")
-            {
-                var dir = Path.GetDirectoryName(Directory.GetCurrentDirectory());
-                Directory.SetCurrentDirectory(dir);
-                this.shell.CurrentDirectory = dir;
-            }
-            else if (Directory.Exists(this.DirectoryName) == true)
-            {
-                var dir = new DirectoryInfo(this.DirectoryName).FullName;
-                Directory.SetCurrentDirectory(dir);
-                this.shell.CurrentDirectory = dir;
-            }
+            this.UpdatePrompt();
+        }
+
+        private void UpdatePrompt()
+        {
+            if (Terminal.IsUnix == true)
+                this.Prompt = $"{this.shell.CurrentDirectory}$ ";
+            else if (Terminal.IsWin32NT == true)
+                this.Prompt = $"{this.shell.CurrentDirectory}>";
             else
-            {
-                throw new DirectoryNotFoundException(string.Format("'{0}'은(는) 존재하지 않는 경로입니다.", this.DirectoryName));
-            }
+                this.Prompt = $"{this.shell.CurrentDirectory}>";
         }
     }
 }

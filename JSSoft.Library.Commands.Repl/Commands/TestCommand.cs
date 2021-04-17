@@ -32,12 +32,12 @@ namespace JSSoft.Library.Commands.Repl.Commands
     [CommandSummary("테스트 명령어", Locale = "ko-KR")]
     class TestCommand : CommandMethodBase
     {
-        private readonly Lazy<IShell> shell;
+        private readonly IShell shell;
         private Task task;
         private CancellationTokenSource cancellation;
 
         [ImportingConstructor]
-        public TestCommand(Lazy<IShell> shell)
+        public TestCommand(IShell shell)
             : base(new string[] { "t" })
         {
             this.shell = shell;
@@ -81,7 +81,7 @@ namespace JSSoft.Library.Commands.Repl.Commands
         [CommandMethod]
         public void Login()
         {
-            var text = this.Shell.ReadString("password: ", string.Empty, true);
+            var text = this.shell.ReadString("password: ", string.Empty, true);
             this.Out.WriteLine(text);
         }
 
@@ -172,7 +172,7 @@ namespace JSSoft.Library.Commands.Repl.Commands
             {
                 if (this.IsPrompt == true)
                 {
-                    this.shell.Value.Prompt = $"{DateTime.Now}";
+                    this.shell.CurrentDirectory = $"{DateTime.Now}";
                 }
                 else
                 {
@@ -201,8 +201,6 @@ namespace JSSoft.Library.Commands.Repl.Commands
                 Thread.Sleep(1000);
             }
         }
-
-        private IShell Shell => this.shell.Value;
 
         protected override bool IsMethodEnabled(CommandMethodDescriptor descriptor)
         {

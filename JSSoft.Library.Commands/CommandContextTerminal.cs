@@ -21,6 +21,7 @@
 
 using System;
 using System.Reflection;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -29,7 +30,6 @@ namespace JSSoft.Library.Commands
     public class CommandContextTerminal : Terminal
     {
         private readonly CommandContextBase commandContext;
-        private CancellationTokenSource cancellation = new();
         private string prompt = string.Empty;
 
         public CommandContextTerminal(CommandContextBase commandContext)
@@ -43,31 +43,26 @@ namespace JSSoft.Library.Commands
             set
             {
                 this.prompt = value ?? throw new ArgumentNullException(nameof(value));
-                base.Prompt = value;
+                if (this.IsReading == true)
+                    base.Prompt = value;
             }
         }
 
-        public new void Cancel()
-        {
-            base.Cancel();
-            this.cancellation.Cancel();
-        }
-
-        public async Task StartAsync()
+        public async Task StartAsync(CancellationToken cancellation)
         {
             var consoleOut = Console.Out;
             var consoleError = Console.Error;
             var consoleControlC = Console.TreatControlCAsInput;
 
-            var commnadOut = new TerminalTextWriter(this, Console.OutputEncoding);
-            var commnadError = new TerminalTextWriter(this, Console.OutputEncoding) { Foreground = TerminalColor.BrightRed };
+            var commnadOut = this.CreateOut(Console.OutputEncoding);
+            var commnadError = this.CreateError(Console.OutputEncoding);
 
             Console.SetOut(commnadOut);
             Console.SetError(commnadError);
             this.commandContext.Out = commnadOut;
             this.commandContext.Error = commnadError;
 
-            while (this.cancellation.IsCancellationRequested == false)
+            while (cancellation.IsCancellationRequested == false)
             {
                 if (this.ReadStringInternal(this.Prompt) is string command)
                 {
@@ -93,7 +88,16 @@ namespace JSSoft.Library.Commands
 
         protected virtual void OnExecuted(Exception e)
         {
+        }
 
+        protected virtual TerminalTextWriter CreateOut(Encoding encoding)
+        {
+            return new TerminalTextWriter(this, encoding);
+        }
+
+        protected virtual TerminalTextWriter CreateError(Encoding encoding)
+        {
+            return new TerminalTextWriter(this, encoding) { Foreground = TerminalColor.BrightRed };
         }
 
         private async Task ExecuteCommandAsync(string line)
