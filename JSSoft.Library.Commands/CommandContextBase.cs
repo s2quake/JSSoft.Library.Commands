@@ -222,6 +222,8 @@ namespace JSSoft.Library.Commands
 
         public ICommand VersionCommand => this.versionCommand;
 
+        public virtual bool IsAnsiSupported => false;
+
         public event EventHandler Executed;
 
         protected virtual IEnumerable<ICommand> ValidateCommands(IEnumerable<ICommand> commands)

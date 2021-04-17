@@ -29,6 +29,9 @@ namespace JSSoft.Library.Commands.Repl
     [Export]
     class ShellTerminal : CommandContextTerminal
     {
+        private static readonly string postfix = Terminal.IsWin32NT == true ? ">" : "$ ";
+        private static readonly string postfixC = TerminalStrings.Foreground(postfix, TerminalColor.BrightGreen);
+        private static readonly string separatorC = TerminalStrings.Foreground($"{Path.DirectorySeparatorChar}", TerminalColor.Red);
         private readonly IShell shell;
 
         [ImportingConstructor]
@@ -42,31 +45,17 @@ namespace JSSoft.Library.Commands.Repl
 
         protected override string FormatPrompt(string prompt)
         {
-            var match = Regex.Match(prompt, "(.+)(\\$.+)");
-            if (match.Success == true)
+            if (prompt.EndsWith(postfix) == true)
             {
-                var path = match.Groups[1].Value;
-                var post = TerminalStrings.Foreground(match.Groups[2].Value, TerminalColor.BrightGreen);
-                var coloredSeparator = TerminalStrings.Foreground($"{Path.AltDirectorySeparatorChar}", TerminalColor.Red);
-                var coloredPath = Regex.Replace(path, $"\\{Path.AltDirectorySeparatorChar}", coloredSeparator);
-                return coloredPath + post;
+                var text = prompt.Substring(0, prompt.Length - postfix.Length);
+                var textC = Regex.Replace(text, $"\\{Path.DirectorySeparatorChar}", separatorC);
+                return textC + postfixC;
             }
             return prompt;
         }
 
-        private void Shell_DirectoryChanged(object sender, EventArgs e)
-        {
-            this.UpdatePrompt();
-        }
+        private void Shell_DirectoryChanged(object sender, EventArgs e) => this.UpdatePrompt();
 
-        private void UpdatePrompt()
-        {
-            if (Terminal.IsUnix == true)
-                this.Prompt = $"{this.shell.CurrentDirectory}$ ";
-            else if (Terminal.IsWin32NT == true)
-                this.Prompt = $"{this.shell.CurrentDirectory}>";
-            else
-                this.Prompt = $"{this.shell.CurrentDirectory}>";
-        }
+        private void UpdatePrompt() => this.Prompt = $"{this.shell.CurrentDirectory}{postfix}";
     }
 }

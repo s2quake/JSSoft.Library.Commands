@@ -70,6 +70,11 @@ namespace JSSoft.Library.Commands
             return $"\x1b[0;{foregroundValues[foreground]}m{text}\x1b[0m";
         }
 
+        public static string Foreground(string text, TerminalGraphic graphic)
+        {
+            return $"\x1b[{(int)graphic}m{text}\x1b[0m";
+        }
+
         public static string Foreground(string text, TerminalGraphic graphic, TerminalColor foreground)
         {
             return $"\x1b[{(int)graphic};{foregroundValues[foreground]}m{text}\x1b[0m";

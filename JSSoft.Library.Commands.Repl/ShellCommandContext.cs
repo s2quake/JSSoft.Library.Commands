@@ -33,5 +33,7 @@ namespace JSSoft.Library.Commands.Repl
         {
             // BaseUsage = null;
         }
+
+        public override bool IsAnsiSupported => true;
     }
 }

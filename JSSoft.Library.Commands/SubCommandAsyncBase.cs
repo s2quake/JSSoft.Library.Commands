@@ -65,9 +65,15 @@ namespace JSSoft.Library.Commands
         protected virtual void PrintUsage(CommandUsage usage)
         {
             var descriptors = this.Members.ToArray();
-            var printer = new CommandMethodUsagePrinter(this.UsageName, this.command, this.Aliases) { Usage = usage };
+            var printer = new CommandMethodUsagePrinter(this.UsageName, this.command, this.Aliases)
+            {
+                Usage = usage,
+                IsAnsiSupported = this.IsAnsiSupported
+            };
             printer.Print(this.command.Out, this.descriptor, descriptors);
         }
+
+        protected bool IsAnsiSupported => this.command.IsAnsiSupported;
 
         private string UsageName
         {

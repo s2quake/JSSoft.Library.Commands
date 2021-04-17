@@ -81,6 +81,8 @@ namespace JSSoft.Library.Commands
 
         public CommandContextBase CommandContext => this.node.CommandContext;
 
+        public bool IsAnsiSupported => this.CommandContext.IsAnsiSupported;
+
         protected abstract void OnExecute();
 
         protected CommandMemberDescriptor GetDescriptor(string propertyName)
@@ -96,7 +98,11 @@ namespace JSSoft.Library.Commands
         protected virtual void PrintUsage(CommandUsage usage)
         {
             var descriptors = CommandDescriptor.GetMemberDescriptors(this);
-            var printer = new CommandMemberUsagePrinter(this.ExecutionName, this, this.Aliases) { Usage = usage };
+            var printer = new CommandMemberUsagePrinter(this.ExecutionName, this, this.Aliases)
+            {
+                Usage = usage, 
+                IsAnsiSupported = this.IsAnsiSupported
+            };
             printer.Print(this.Out, descriptors.ToArray());
         }
 

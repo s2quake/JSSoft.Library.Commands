@@ -31,6 +31,7 @@ namespace JSSoft.Library.Commands
             : this(new StringWriter(), Console.IsOutputRedirected == true ? int.MaxValue : Console.BufferWidth)
         {
         }
+
         public CommandTextWriter(TextWriter writer)
             : this(writer, Console.IsOutputRedirected == true ? int.MaxValue : Console.BufferWidth)
         {
@@ -49,7 +50,10 @@ namespace JSSoft.Library.Commands
 
         public void BeginGroup(string text)
         {
-            this.WriteLine(text);
+            if (this.IsAnsiSupported == true)
+                this.WriteLine(TerminalStrings.Foreground(text, TerminalGraphic.Bold));
+            else
+                this.WriteLine(text);
             this.Indent++;
         }
 
@@ -73,5 +77,7 @@ namespace JSSoft.Library.Commands
         public string TabString => IndentedTextWriter.DefaultTabString;
 
         public int Width { get; private set; }
+
+        public bool IsAnsiSupported { get; set; }
     }
 }

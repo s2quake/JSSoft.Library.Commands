@@ -78,6 +78,11 @@ namespace JSSoft.Library.Commands
             }
         }
 
+        public virtual string[] GetCompletions(CommandMethodDescriptor methodDescriptor, CommandMemberDescriptor memberDescriptor, string find)
+        {
+            return methodDescriptor.GetCompletionInternal(this, memberDescriptor, find);
+        }
+
         public string Name { get; }
 
         public string[] Aliases { get; }
@@ -100,19 +105,11 @@ namespace JSSoft.Library.Commands
 
         public CommandContextBase CommandContext => this.node.CommandContext;
 
+        public bool IsAnsiSupported => this.CommandContext.IsAnsiSupported;
+
         protected virtual bool IsMethodEnabled(CommandMethodDescriptor descriptor)
         {
             return true;
-        }
-
-        public virtual string[] GetCompletions(CommandMethodDescriptor methodDescriptor, CommandMemberDescriptor memberDescriptor, string find)
-        {
-            return methodDescriptor.GetCompletionInternal(this, memberDescriptor, find);
-        }
-
-        internal bool InvokeIsMethodEnabled(CommandMethodDescriptor descriptor)
-        {
-            return this.IsMethodEnabled(descriptor);
         }
 
         protected virtual void PrintUsage(CommandUsage usage)
@@ -121,8 +118,17 @@ namespace JSSoft.Library.Commands
                         from item in CommandDescriptor.GetMethodDescriptors(command.GetType())
                         where item.CanExecute(this)
                         select item;
-            var printer = new CommandMethodUsagePrinter(this.ExecutionName, this, this.Aliases) { Usage = usage };
+            var printer = new CommandMethodUsagePrinter(this.ExecutionName, this, this.Aliases) 
+            {
+                Usage = usage,
+                IsAnsiSupported = this.IsAnsiSupported
+            };
             printer.Print(this.Out, query.ToArray());
+        }
+
+        internal bool InvokeIsMethodEnabled(CommandMethodDescriptor descriptor)
+        {
+            return this.IsMethodEnabled(descriptor);
         }
 
         #region ICommandHost

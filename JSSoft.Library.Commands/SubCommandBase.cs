@@ -72,10 +72,16 @@ namespace JSSoft.Library.Commands
             return this.command.GetCompletions(this.descriptor, completionContext.MemberDescriptor, completionContext.Find);
         }
 
+        public bool IsAnsiSupported => this.CommandContext.IsAnsiSupported;
+
         protected virtual void PrintUsage(CommandUsage usage)
         {
             var descriptors = this.Members.ToArray();
-            var printer = new CommandMethodUsagePrinter(this.ExecutionName, this.command, this.Aliases) { Usage = usage };
+            var printer = new CommandMethodUsagePrinter(this.ExecutionName, this.command, this.Aliases)
+            {
+                Usage = usage,
+                IsAnsiSupported = this.IsAnsiSupported
+            };
             printer.Print(this.command.Out, this.descriptor, descriptors);
         }
 

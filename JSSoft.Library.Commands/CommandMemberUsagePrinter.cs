@@ -46,13 +46,13 @@ namespace JSSoft.Library.Commands
 
         public virtual void Print(TextWriter writer, CommandMemberDescriptor[] descriptors)
         {
-            using var tw = new CommandTextWriter(writer);
+            using var tw = new CommandTextWriter(writer) { IsAnsiSupported = this.IsAnsiSupported };
             this.Print(tw, descriptors);
         }
 
         public virtual void Print(TextWriter writer, CommandMemberDescriptor descriptor)
         {
-            using var tw = new CommandTextWriter(writer);
+            using var tw = new CommandTextWriter(writer) { IsAnsiSupported = this.IsAnsiSupported };;
             this.Print(tw, descriptor);
         }
 
@@ -69,6 +69,8 @@ namespace JSSoft.Library.Commands
         public string Example { get; }
 
         public CommandUsage Usage { get; set; }
+
+        public bool IsAnsiSupported { get; set; }
 
         public bool IsDetail => this.Usage == CommandUsage.Detail;
 
