@@ -100,7 +100,7 @@ namespace JSSoft.Library.Commands
             var descriptors = CommandDescriptor.GetMemberDescriptors(this);
             var printer = new CommandMemberUsagePrinter(this.ExecutionName, this, this.Aliases)
             {
-                Usage = usage, 
+                Usage = usage,
                 IsAnsiSupported = this.IsAnsiSupported
             };
             printer.Print(this.Out, descriptors.ToArray());

@@ -20,7 +20,6 @@
 // Namespaces and files starting with "Ntreev" have been renamed to "JSSoft".
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.ComponentModel;
 
 namespace JSSoft.Library.Commands.Test
 {

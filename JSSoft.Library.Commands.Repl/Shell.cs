@@ -22,7 +22,6 @@
 using System;
 using System.ComponentModel.Composition;
 using System.IO;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -53,7 +52,7 @@ namespace JSSoft.Library.Commands.Repl
 
         public Task StartAsync()
         {
-            this.cancellation = new ();
+            this.cancellation = new();
             return this.Terminal.StartAsync(this.cancellation.Token);
         }
 

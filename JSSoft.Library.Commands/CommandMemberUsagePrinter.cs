@@ -52,7 +52,7 @@ namespace JSSoft.Library.Commands
 
         public virtual void Print(TextWriter writer, CommandMemberDescriptor descriptor)
         {
-            using var tw = new CommandTextWriter(writer) { IsAnsiSupported = this.IsAnsiSupported };;
+            using var tw = new CommandTextWriter(writer) { IsAnsiSupported = this.IsAnsiSupported }; ;
             this.Print(tw, descriptor);
         }
 

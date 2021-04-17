@@ -118,7 +118,7 @@ namespace JSSoft.Library.Commands
                         from item in CommandDescriptor.GetMethodDescriptors(command.GetType())
                         where item.CanExecute(this)
                         select item;
-            var printer = new CommandMethodUsagePrinter(this.ExecutionName, this, this.Aliases) 
+            var printer = new CommandMethodUsagePrinter(this.ExecutionName, this, this.Aliases)
             {
                 Usage = usage,
                 IsAnsiSupported = this.IsAnsiSupported

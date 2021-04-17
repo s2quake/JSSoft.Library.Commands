@@ -19,10 +19,6 @@
 // Forked from https://github.com/NtreevSoft/CommandLineParser
 // Namespaces and files starting with "Ntreev" have been renamed to "JSSoft".
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 namespace JSSoft.Library.Commands
 {
     public enum TerminalColor
@@ -35,7 +31,7 @@ namespace JSSoft.Library.Commands
         Magenta,
         Cyan,
         White,
-        
+
         BrightBlack,
         BrightRed,
         BrightGreen,
