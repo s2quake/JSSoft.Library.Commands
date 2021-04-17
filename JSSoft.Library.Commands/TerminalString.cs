@@ -89,6 +89,11 @@ namespace JSSoft.Library.Commands
             return this.Text.Substring(start, length);
         }
 
+        public string Slice(int startIndex)
+        {
+            return this.Text.Substring(startIndex);
+        }
+
         public TerminalString Insert(int startIndex, string value, Func<string, string> formatter)
         {
             var item = this.text.Insert(startIndex, value);

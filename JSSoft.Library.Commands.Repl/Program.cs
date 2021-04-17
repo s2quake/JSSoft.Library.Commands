@@ -33,7 +33,7 @@ namespace JSSoft.Library.Commands.Repl
             // Console.Write("\x1b[J");
             // Console.Write("\x1b");
             // Console.Write("\x1b[H\x1b[J\x1b[1B\x1b[J\x1b[1B\x1b[J\x1b[1B\x1b[J\x1b[1B\x1b[J\x1b[1B\x1b[J\x1b[1B");
-            // Console.Write("\x1b[H\x1b[2K");
+            // Console.Write("\x1b[1mwerwerwerwe\x1b[0m");
             // Console.Write("ds.Repl/bin/Debug/netcoreapp3.1$ MacBook-Pro:JSSoft.LibraryMacBook-Pro:JSSoft.Library1MacBook-Pro:JSSoft.Library.Commands s2quake-mac$\n");
             // Console.Write("최지수 기아 타이거즈 ㄴ미아러ㅣ");
             // Console.Write("we");
