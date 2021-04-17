@@ -493,53 +493,44 @@ namespace JSSoft.Library.Commands
             return query.ToArray();
         }
 
-        protected void UpdateLayout()
+        protected void UpdateLayout(int bufferWidth, int bufferHeight)
         {
-            if (this.width != Console.BufferWidth)
+            var prompt = this.prompt;
+            var command = this.command;
+            var offsetY = this.pt4.Y - this.pt1.Y;
+            var pre = command[..cursorIndex];
+            var cursor = new TerminalPoint(Console.CursorLeft, Console.CursorTop);
+            var pt1 = new TerminalPoint(0, cursor.Y - offsetY);
+            var nt1 = PrevPosition(prompt + pre, bufferWidth, cursor);
+            if (nt1.X == 0)
             {
-                var bufferWidth = Console.BufferWidth;
-                var bufferHeight = Console.BufferHeight;
-                var prompt = this.prompt;
-                var command = this.command;
-                var offset = this.pt3.Y - this.pt1.Y;
-                var pre = command[..cursorIndex];
-                var pt = new TerminalPoint(Console.CursorLeft, Console.CursorTop);
-                var pt1 = new TerminalPoint(0, pt.Y - offset);
-                var pt2 = NextPosition(prompt, bufferWidth, pt1);
+                var pt2 = NextPosition(prompt, bufferWidth, nt1);
                 var pt3 = NextPosition(command, bufferWidth, pt2);
-                var pt4 = NextPosition(pre, bufferWidth, pt3);
-                var st1 = pt1;
-                var st3 = this.pt3;
-                var offset2 = pt4.Y - pt1.Y;
-                if (offset > 0 && pt.X == pt4.X)
-                {
-                    pt1 = new TerminalPoint(0, pt.Y - offset);
-                    pt2 = NextPosition(prompt, bufferWidth, pt1);
-                    pt3 = NextPosition(command, bufferWidth, pt2);
-                    pt4 = NextPosition(pre, bufferWidth, pt3);
-                }
-                else if (pt4 != pt)
-                {
-                    pt2 = NextPosition(prompt, bufferWidth, pt1);
-                    pt3 = NextPosition(command, bufferWidth, pt2);
-                    pt4 = NextPosition(pre, bufferWidth, pt2);
-                }
-                if (pt3.Y >= bufferHeight)
-                {
-                    offset = pt3.Y + 1 - bufferHeight;
-                    pt1.Y -= offset;
-                    pt2.Y -= offset;
-                    pt3.Y -= offset;
-                    pt4.Y -= offset;
-                }
-
+                var pt4 = NextPosition(pre, bufferWidth, pt2);
                 this.width = bufferWidth;
                 this.height = bufferHeight;
-                this.pt1 = pt1;
+                this.pt1 = nt1;
                 this.pt2 = pt2;
                 this.pt3 = pt3;
                 this.pt4 = pt4;
-                RenderString(pt1, pt3, pt4, prompt, command);
+            }
+            else
+            {
+                var pt2 = NextPosition(prompt, bufferWidth, pt1);
+                var pt3 = NextPosition(command, bufferWidth, pt2);
+                var pt4 = NextPosition(pre, bufferWidth, pt2);
+                var offset1 = pt3.Y >= bufferHeight ? new TerminalPoint(0, pt3.Y - this.pt3.Y) : TerminalPoint.Zero;
+                var st1 = pt1;
+                var st2 = pt3;
+                var st3 = pt4 - offset1;
+
+                this.width = bufferWidth;
+                this.height = bufferHeight;
+                this.pt1 = pt1 - offset1;
+                this.pt2 = pt2 - offset1;
+                this.pt3 = pt3 - offset1;
+                this.pt4 = st3;
+                RenderString(st1, st2, st3, prompt, command);
             }
         }
 
@@ -609,6 +600,39 @@ namespace JSSoft.Library.Commands
             using var stream = Console.OpenStandardOutput();
             using var writer = new StreamWriter(stream, Console.OutputEncoding);
             writer.Write(pt.CursorString);
+        }
+
+        private static TerminalPoint PrevPosition(string text, int bufferWidth, TerminalPoint pt)
+        {
+            var x = pt.X;
+            var y = pt.Y;
+            for (var i = text.Length - 1; i >= 0; i--)
+            {
+                var ch = text[i];
+                if (ch == '\r')
+                {
+                    x = bufferWidth;
+                    continue;
+                }
+                else if (ch == '\n')
+                {
+                    x = bufferWidth;
+                    y--;
+                    continue;
+                }
+
+                var w = charWidths[(int)ch];
+                if (x - w < 0)
+                {
+                    x = bufferWidth - w;
+                    y--;
+                }
+                else
+                {
+                    x -= w;
+                }
+            }
+            return new TerminalPoint(x, y);
         }
 
         private static TerminalPoint NextPosition(string text, int bufferWidth, TerminalPoint pt)
@@ -1062,7 +1086,8 @@ namespace JSSoft.Library.Commands
 
         internal void Update()
         {
-            this.UpdateLayout();
+            if (this.width != Console.BufferWidth)
+                this.UpdateLayout(Console.BufferWidth, Console.BufferHeight);
             this.RenderStringQueue();
         }
 
