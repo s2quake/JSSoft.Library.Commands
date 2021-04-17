@@ -104,7 +104,7 @@ namespace JSSoft.Library.Commands
 
         private void PrintList()
         {
-            using var writer = new CommandTextWriter();
+            using var writer = new CommandTextWriter() { IsAnsiSupported = this.IsAnsiSupported };
             var parser = new CommandLineParser(this.ExecutionName, this)
             {
                 Out = writer

@@ -20,6 +20,7 @@
 // Namespaces and files starting with "Ntreev" have been renamed to "JSSoft".
 
 using System.Collections.Generic;
+using System.Text;
 
 namespace JSSoft.Library.Commands
 {
@@ -70,24 +71,9 @@ namespace JSSoft.Library.Commands
             return $"\x1b[0;{foregroundValues[foreground]}m{text}\x1b[0m";
         }
 
-        public static string Foreground(string text, TerminalGraphic graphic)
-        {
-            return $"\x1b[{(int)graphic}m{text}\x1b[0m";
-        }
-
-        public static string Foreground(string text, TerminalGraphic graphic, TerminalColor foreground)
-        {
-            return $"\x1b[{(int)graphic};{foregroundValues[foreground]}m{text}\x1b[0m";
-        }
-
         public static string Background(string text, TerminalColor background)
         {
             return $"\x1b[0;{backgroundValues[background]}m{text}\x1b[0m";
-        }
-
-        public static string FromColor(string text, TerminalColor? foreground)
-        {
-            return FromColor(text, foreground, null);
         }
 
         public static string FromColor(string text, TerminalColor? foreground, TerminalColor? background)
@@ -108,6 +94,16 @@ namespace JSSoft.Library.Commands
             {
                 return text;
             }
+        }
+
+        internal static int GetForegroundValue(TerminalColor color)
+        {
+            return foregroundValues[color];
+        }
+
+        internal static int GetBackgroundValue(TerminalColor color)
+        {
+            return backgroundValues[color];
         }
     }
 }

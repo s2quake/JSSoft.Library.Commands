@@ -476,12 +476,12 @@ namespace JSSoft.Library.Commands
 
         protected virtual string FormatPrompt(string prompt)
         {
-            return TerminalStrings.Foreground(prompt, TerminalGraphic.Italic, TerminalColor.BrightBlue);
+            return prompt;
         }
 
         protected virtual string FormatCommand(string command)
         {
-            return TerminalStrings.FromColor(command, TerminalColor.Red, TerminalColor.BrightGreen);
+            return command;
         }
 
         protected virtual string[] GetCompletion(string[] items, string find)

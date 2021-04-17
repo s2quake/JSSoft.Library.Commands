@@ -47,20 +47,41 @@ namespace JSSoft.Library.Commands
 
         public virtual void Print(TextWriter writer, CommandMethodDescriptor[] descriptors)
         {
-            using var tw = new CommandTextWriter(writer) { IsAnsiSupported = this.IsAnsiSupported };
-            this.Print(tw, descriptors);
+            if (writer is CommandTextWriter commandWriter)
+            {
+                this.Print(commandWriter, descriptors);
+            }
+            else
+            {
+                using var tw = new CommandTextWriter(writer) { IsAnsiSupported = this.IsAnsiSupported };
+                this.Print(tw, descriptors);
+            }
         }
 
         public virtual void Print(TextWriter writer, CommandMethodDescriptor descriptor, CommandMemberDescriptor[] memberDescriptors)
         {
-            using var tw = new CommandTextWriter(writer) { IsAnsiSupported = this.IsAnsiSupported };
-            this.Print(tw, descriptor, memberDescriptors);
+            if (writer is CommandTextWriter commandWriter)
+            {
+                this.Print(commandWriter, descriptor, memberDescriptors);
+            }
+            else
+            {
+                using var tw = new CommandTextWriter(writer) { IsAnsiSupported = this.IsAnsiSupported };
+                this.Print(tw, descriptor, memberDescriptors);
+            }
         }
 
         public virtual void Print(TextWriter writer, CommandMethodDescriptor descriptor, CommandMemberDescriptor memberDescriptor)
         {
-            using var tw = new CommandTextWriter(writer) { IsAnsiSupported = this.IsAnsiSupported };
-            this.Print(tw, descriptor, memberDescriptor);
+            if (writer is CommandTextWriter commandWriter)
+            {
+                this.Print(commandWriter, descriptor, memberDescriptor);
+            }
+            else
+            {
+                using var tw = new CommandTextWriter(writer) { IsAnsiSupported = this.IsAnsiSupported };
+                this.Print(tw, descriptor, memberDescriptor);
+            }
         }
 
         public string Name { get; }

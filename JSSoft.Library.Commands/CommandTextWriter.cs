@@ -51,9 +51,16 @@ namespace JSSoft.Library.Commands
         public void BeginGroup(string text)
         {
             if (this.IsAnsiSupported == true)
-                this.WriteLine(TerminalStrings.Foreground(text, TerminalGraphic.Bold));
+            {
+                var tb = new TerminalStringBuilder() { Graphic = TerminalGraphic.Bold };
+                tb.Append(text);
+                tb.AppendEnd();
+                this.WriteLine(tb.ToString());
+            }
             else
+            {
                 this.WriteLine(text);
+            }
             this.Indent++;
         }
 
