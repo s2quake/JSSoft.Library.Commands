@@ -677,6 +677,7 @@ namespace JSSoft.Library.Commands
         {
             var bufferWidth = this.width;
             var bufferHeight = this.height;
+            var prompt = this.prompt;
             var extra = this.command[this.cursorIndex..];
             var command = this.command.Remove(this.cursorIndex - 1, 1, this.FormatCommand);
             var pre = command[..(command.Length - extra.Length)];
@@ -687,8 +688,9 @@ namespace JSSoft.Library.Commands
             var pt4 = NextPosition(extra, bufferWidth, pt3);
 
             this.command = command;
-            this.promptText = this.prompt + this.command;
+            this.promptText = prompt + command;
             this.cursorIndex = cursorIndex;
+            this.inputText = pre;
             this.pt3 = pt4;
             this.pt4 = pt3;
 
@@ -699,6 +701,7 @@ namespace JSSoft.Library.Commands
         {
             var bufferWidth = this.width;
             var bufferHeight = this.height;
+            var prompt = this.prompt;
             var extra = this.command[(this.cursorIndex + 1)..];
             var command = this.command.Remove(this.cursorIndex, 1, this.FormatCommand);
             var pre = command[..(command.Length - extra.Length)];
@@ -708,7 +711,8 @@ namespace JSSoft.Library.Commands
             var pt4 = NextPosition(extra, bufferWidth, pt3);
 
             this.command = command;
-            this.promptText = this.prompt + this.command;
+            this.promptText = prompt + command;
+            this.inputText = pre;
             this.pt3 = pt4;
             this.pt4 = pt3;
             RenderString(pt2, pt4, pt3, command);
