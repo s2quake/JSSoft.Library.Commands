@@ -31,7 +31,13 @@ namespace JSSoft.Library.Commands
         public TerminalPrompt(string text, TerminalFormat formatter)
         {
             this.text = text ?? throw new ArgumentNullException(nameof(text));
-            this.formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
+            this.formatter = formatter;
+        }
+
+        public TerminalPoint Next(TerminalPoint pt, int bufferWidth)
+        {
+            var text = this.text;
+            return Terminal.NextPosition(text, bufferWidth, pt);
         }
 
         public string Text => this.text;

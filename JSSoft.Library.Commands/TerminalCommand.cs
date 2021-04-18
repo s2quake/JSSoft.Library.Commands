@@ -78,6 +78,12 @@ namespace JSSoft.Library.Commands
             return new TerminalCommand(item, formatter);
         }
 
+        public TerminalPoint Next(TerminalPoint pt, int bufferWidth)
+        {
+            var text = this.text.Replace(Environment.NewLine, $"{Environment.NewLine}{prompt}");
+            return Terminal.NextPosition(text, bufferWidth, pt);
+        }
+
         public static implicit operator string(TerminalCommand s)
         {
             return s.text.Replace(Environment.NewLine, $"{Environment.NewLine}{prompt}");
