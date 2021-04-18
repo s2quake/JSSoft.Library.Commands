@@ -36,7 +36,8 @@ namespace JSSoft.Library.Commands
         private const string escCursorHome = "\u001b[H";
         private const string escEraseDown = "\u001b[J";
         private const string passwordPattern = "[~`! @#$%^&*()_\\-+={[}\\]|\\\\:;\"'<,>.?/0-9a-zA-Z]";
-        private const string multilinePrompt = ">> ";
+        private const string multilinePrompt = "> ";
+        private static readonly char[] multilineChars = new[] { '\"', '\'' };
         private static readonly int multilineIndent = multilinePrompt.Length;
         private static byte[] charWidths;
         private static TerminalKeyBindingCollection keyBindings = TerminalKeyBindingCollection.Default;
@@ -61,10 +62,10 @@ namespace JSSoft.Library.Commands
         private string inputText = string.Empty;
         private string completion = string.Empty;
 
-        private TextReader terminalIn;
-
         private TerminalFlags flags;
+        private Func<string, bool> validator;
         private bool isCancellationRequested;
+        private char closedCh;
 
         static Terminal()
         {
@@ -723,6 +724,7 @@ namespace JSSoft.Library.Commands
             this.inputText = pre;
             this.pt3 = pt4;
             this.pt4 = pt3;
+
             RenderString(pt2, pt4, pt3, command);
         }
 
@@ -837,7 +839,7 @@ namespace JSSoft.Library.Commands
             this.pt3 = pt3 - offset;
             this.pt4 = st3;
 
-            this.FlushKeyChars(null, ref value);
+            this.FlushKeyChars(ref value);
         }
 
         private void SetCursorIndex(int cursorIndex)
@@ -871,7 +873,7 @@ namespace JSSoft.Library.Commands
             return initializer.ReadLineImpl(validation);
         }
 
-        private string ReadLineImpl(Func<string, bool> validation)
+        private string ReadLineImpl()
         {
             while (true)
             {
@@ -881,36 +883,45 @@ namespace JSSoft.Library.Commands
                     return null;
                 if (this.IsEnabled == false)
                     continue;
-                var keyChars = string.Empty;
+                var text = string.Empty;
                 while (Console.KeyAvailable == true)
                 {
                     var key = Console.ReadKey(true);
-                    if (this.systemActions.ContainsKey(key) == true)
+                    var ch = key.KeyChar;
+                    if (this.closedCh == char.MinValue && this.systemActions.ContainsKey(key) == true)
                     {
-                        this.FlushKeyChars(validation, ref keyChars);
+                        this.FlushKeyChars(ref text);
                         return this.systemActions[key]();
                     }
                     else if (this.KeyBindings.CanProcess(key) == true)
                     {
-                        this.FlushKeyChars(validation, ref keyChars);
+                        this.FlushKeyChars(ref text);
                         this.KeyBindings.Process(key, this);
                     }
-                    else if (this.PreviewKeyChar(key.KeyChar) == true)
+                    else if (this.PreviewKeyChar(key.KeyChar) == true && this.PreviewCommand(text + key.KeyChar) == true)
                     {
-                        keyChars += key.KeyChar;
+                        if (this.closedCh == char.MinValue && multilineChars.Contains(ch) == true)
+                        {
+                            this.closedCh = ch;
+                        }
+                        else if (this.closedCh != char.MinValue && this.closedCh == ch)
+                        {
+                            this.closedCh = char.MinValue;
+                        }
+                        if (ch == '\r')
+                            text += Environment.NewLine;
+                        else
+                            text += key.KeyChar;
                     }
                 }
-                if (keyChars != string.Empty)
-                    this.FlushKeyChars(validation, ref keyChars);
+                if (text != string.Empty)
+                    this.FlushKeyChars(ref text);
             }
         }
 
-        private void FlushKeyChars(Func<string, bool> validation, ref string keyChars)
+        private void FlushKeyChars(ref string keyChars)
         {
-            if (validation?.Invoke(this.Command + keyChars) == true)
-            {
-                this.InsertText(keyChars);
-            }
+            this.InsertText(keyChars);
             keyChars = string.Empty;
         }
 
@@ -962,7 +973,14 @@ namespace JSSoft.Library.Commands
             return false;
         }
 
-        private void Initialize(string prompt, string command, TerminalFlags flags)
+        private bool PreviewCommand(string command)
+        {
+            if (this.validator != null)
+                return this.validator.Invoke(command);
+            return true;
+        }
+
+        private void Initialize(string prompt, TerminalFlags flags, Func<string, bool> validator)
         {
             var bufferWidth = Console.BufferWidth;
             var bufferHeight = Console.BufferHeight;
@@ -971,9 +989,8 @@ namespace JSSoft.Library.Commands
             {
                 var isPassword = flags.HasFlag(TerminalFlags.IsPassword);
                 var promptS = new TerminalString(prompt, this.FormatPrompt);
-                var commandS = new TerminalString(command, this.FormatCommand) { IsPassword = isPassword };
                 var pt2 = NextPosition(prompt, bufferWidth, pt1);
-                var pt3 = NextPosition(command, bufferWidth, pt2);
+                var pt3 = pt2;
                 var offset = pt3.Y >= bufferHeight ? new TerminalPoint(0, pt2.Y - pt1.Y) : TerminalPoint.Zero;
                 var st1 = pt1;
                 var st2 = pt3 - offset;
@@ -982,8 +999,8 @@ namespace JSSoft.Library.Commands
                 this.width = bufferWidth;
                 this.height = bufferHeight;
                 this.prompt = promptS;
-                this.command = commandS;
-                this.promptText = promptS + commandS;
+                this.command = TerminalString.Empty;
+                this.promptText = promptS;
                 this.cursorIndex = 0;
                 this.inputText = command;
                 this.completion = string.Empty;
@@ -993,8 +1010,9 @@ namespace JSSoft.Library.Commands
                 this.pt4 = pt3 - offset;
                 this.ot1 = TerminalPoint.Zero;
                 this.flags = flags | TerminalFlags.IsReading;
+                this.validator = validator;
 
-                RenderString(st1, st2, st3, promptS, commandS);
+                RenderString(st1, st2, st3, promptS);
             }
         }
 
@@ -1128,15 +1146,19 @@ namespace JSSoft.Library.Commands
 
             public TerminalFlags Flags { get; set; }
 
+            public Func<string, bool> Validator { get; set; }
+
             public string ReadLineImpl(Func<string, bool> validation)
             {
-                this.terminal.Initialize(this.Prompt, this.Command, this.Flags);
-                return this.terminal.ReadLineImpl(validation);
+                this.terminal.Initialize(this.Prompt, this.Flags, this.Validator);
+                this.terminal.SetCommand(this.Command);
+                return this.terminal.ReadLineImpl();
             }
 
             public ConsoleKey ReadKeyImpl(params ConsoleKey[] filters)
             {
-                this.terminal.Initialize(this.Prompt, this.Command, this.Flags);
+                this.terminal.Initialize(this.Prompt, this.Flags, this.Validator);
+                this.terminal.SetCommand(this.Command);
                 return this.terminal.ReadKeyImpl(filters);
             }
 
