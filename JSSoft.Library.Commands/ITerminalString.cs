@@ -23,15 +23,8 @@ using System;
 
 namespace JSSoft.Library.Commands
 {
-    struct TerminalString : ITerminalString
+    interface ITerminalString
     {
-        private string text;
-
-        public TerminalString(string text)
-        {
-            this.text = text ?? throw new ArgumentNullException(nameof(text));
-        }
-
-        public string Text => this.text;
+        string Text { get; }
     }
 }

@@ -56,9 +56,9 @@ namespace JSSoft.Library.Commands
         private int height = Console.BufferHeight;
         private int historyIndex;
         private int cursorIndex;
-        private TerminalString prompt = TerminalString.Empty;
-        private TerminalString command = TerminalString.Empty;
-        private TerminalString promptText = TerminalString.Empty;
+        private TerminalPrompt prompt = TerminalPrompt.Empty;
+        private TerminalCommand command = TerminalCommand.Empty;
+        private string promptText = string.Empty;
         private string inputText = string.Empty;
         private string completion = string.Empty;
 
@@ -548,7 +548,7 @@ namespace JSSoft.Library.Commands
                 var bufferHeight = this.height;
                 var cursorIndex = this.cursorIndex + text.Length;
                 var extra = this.command.Slice(this.cursorIndex);
-                var command = this.command.Insert(this.cursorIndex, text, this.FormatCommand);
+                var command = this.command.Insert(this.cursorIndex, text);
                 var prompt = this.prompt;
                 var pre = command.Slice(0, command.Length - extra.Length);
                 var pt1 = this.pt1;
@@ -562,7 +562,7 @@ namespace JSSoft.Library.Commands
 
                 this.cursorIndex = cursorIndex;
                 this.command = command;
-                this.promptText = prompt + command;
+                this.promptText = prompt.Format + command.Format;
                 this.inputText = command.Slice(0, cursorIndex);
                 this.completion = string.Empty;
                 this.pt1 = pt1 - offset;
@@ -574,16 +574,16 @@ namespace JSSoft.Library.Commands
             }
         }
 
-        private static void RenderString(TerminalPoint pt1, TerminalPoint pt2, TerminalPoint ct1, params TerminalString[] items)
+        private static void RenderString(TerminalPoint pt1, TerminalPoint pt2, TerminalPoint ct1, params ITerminalString[] items)
         {
-            var capacity = items.Sum(item => item.Length) + 30;
+            var capacity = items.Sum(item => item.Text.Length) + 30;
             var sb = new StringBuilder(capacity);
-            var last = items.Any() == true ? items.Last() : string.Empty;
+            var last = items.Any() == true ? items.Last().Text : string.Empty;
             sb.Append(pt1.CursorString);
             sb.Append(escEraseDown);
             foreach (var item in items)
             {
-                sb.Append(item.Format);
+                sb.Append(item.Text);
             }
             if (pt2.Y > pt1.Y && pt2.X == 0 && last.EndsWith(Environment.NewLine) == false)
                 sb.Append(Environment.NewLine);
@@ -688,7 +688,7 @@ namespace JSSoft.Library.Commands
             var bufferHeight = this.height;
             var prompt = this.prompt;
             var extra = this.command.Slice(this.cursorIndex);
-            var command = this.command.Remove(this.cursorIndex - 1, 1, this.FormatCommand);
+            var command = this.command.Remove(this.cursorIndex - 1, 1);
             var pre = command.Slice(0, command.Length - extra.Length);
             var cursorIndex = this.cursorIndex - 1;
             var endPosition = this.command.Length;
@@ -697,7 +697,7 @@ namespace JSSoft.Library.Commands
             var pt4 = NextPosition(extra, bufferWidth, pt3);
 
             this.command = command;
-            this.promptText = prompt + command;
+            this.promptText = prompt.Format + command.Format;
             this.cursorIndex = cursorIndex;
             this.inputText = pre;
             this.pt3 = pt4;
@@ -712,7 +712,7 @@ namespace JSSoft.Library.Commands
             var bufferHeight = this.height;
             var prompt = this.prompt;
             var extra = this.command.Slice(this.cursorIndex + 1);
-            var command = this.command.Remove(this.cursorIndex, 1, this.FormatCommand);
+            var command = this.command.Remove(this.cursorIndex, 1);
             var pre = command.Slice(0, command.Length - extra.Length);
             var endPosition = this.command.Length;
             var pt2 = this.pt2;
@@ -720,7 +720,7 @@ namespace JSSoft.Library.Commands
             var pt4 = NextPosition(extra, bufferWidth, pt3);
 
             this.command = command;
-            this.promptText = prompt + command;
+            this.promptText = prompt.Format + command.Format;
             this.inputText = pre;
             this.pt3 = pt4;
             this.pt4 = pt3;
@@ -791,7 +791,7 @@ namespace JSSoft.Library.Commands
             var bufferWidth = this.width;
             var bufferHeight = this.height;
             var command = this.command;
-            var prompt = new TerminalString(value, this.FormatPrompt);
+            var prompt = new TerminalPrompt(value, this.FormatPrompt);
             var pre = command.Slice(0, this.cursorIndex);
             var pt1 = this.pt1;
             var pt2 = NextPosition(prompt, bufferWidth, pt1);
@@ -804,7 +804,7 @@ namespace JSSoft.Library.Commands
             var st3 = pt4 - offset;
 
             this.prompt = prompt;
-            this.promptText = prompt + command;
+            this.promptText = prompt.Format + command.Format;
             this.pt1 = pt1 - offset;
             this.pt2 = pt2 - offset;
             this.pt3 = pt3 - offset;
@@ -829,8 +829,8 @@ namespace JSSoft.Library.Commands
             var st2 = pt3 - offset;
             var st3 = pt3 - offset;
 
-            this.command = TerminalString.Empty;
-            this.promptText = prompt;
+            this.command = TerminalCommand.Empty;
+            this.promptText = prompt.Format;
             this.cursorIndex = command.Length;
             this.inputText = value;
             this.completion = string.Empty;
@@ -988,7 +988,7 @@ namespace JSSoft.Library.Commands
             lock (LockedObject)
             {
                 var isPassword = flags.HasFlag(TerminalFlags.IsPassword);
-                var promptS = new TerminalString(prompt, this.FormatPrompt);
+                var promptS = new TerminalPrompt(prompt, this.FormatPrompt);
                 var pt2 = NextPosition(prompt, bufferWidth, pt1);
                 var pt3 = pt2;
                 var offset = pt3.Y >= bufferHeight ? new TerminalPoint(0, pt2.Y - pt1.Y) : TerminalPoint.Zero;
@@ -999,8 +999,8 @@ namespace JSSoft.Library.Commands
                 this.width = bufferWidth;
                 this.height = bufferHeight;
                 this.prompt = promptS;
-                this.command = TerminalString.Empty;
-                this.promptText = promptS;
+                this.command = TerminalCommand.Empty;
+                this.promptText = promptS.Format;
                 this.cursorIndex = 0;
                 this.inputText = command;
                 this.completion = string.Empty;
@@ -1030,9 +1030,9 @@ namespace JSSoft.Library.Commands
                 this.pt2 = this.pt1;
                 this.pt3 = this.pt1;
                 this.pt4 = this.pt1;
-                this.prompt = TerminalString.Empty;
-                this.command = TerminalString.Empty;
-                this.promptText = TerminalString.Empty;
+                this.prompt = TerminalPrompt.Empty;
+                this.command = TerminalCommand.Empty;
+                this.promptText = string.Empty;
                 this.cursorIndex = 0;
                 this.inputText = string.Empty;
                 this.completion = string.Empty;
@@ -1046,7 +1046,7 @@ namespace JSSoft.Library.Commands
             {
                 this.RecordCommand(this.command);
             }
-            return this.command.OriginText;
+            return this.command.Text;
         }
 
         private string OnCancel()
@@ -1098,7 +1098,7 @@ namespace JSSoft.Library.Commands
             this.ot1 = new TerminalPoint(ct1.X, ct1.X != 0 ? -1 : 0);
             this.outputText.Append(text);
 
-            RenderString(st1, st2, st3, new TerminalString(text1, text1F), promptText);
+            RenderString(st1, st2, st3, new TerminalString(text1F + promptText));
         }
 
         private bool IsRecordable => this.flags.HasFlag(TerminalFlags.IsRecordable);
