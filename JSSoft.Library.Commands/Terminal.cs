@@ -35,8 +35,10 @@ namespace JSSoft.Library.Commands
         private const string escClearScreen = "\u001b[2J";
         private const string escCursorHome = "\u001b[H";
         private const string escEraseDown = "\u001b[J";
-        private static byte[] charWidths;
         private const string passwordPattern = "[~`! @#$%^&*()_\\-+={[}\\]|\\\\:;\"'<,>.?/0-9a-zA-Z]";
+        private const string multilinePrompt = ">> ";
+        private static readonly int multilineIndent = multilinePrompt.Length;
+        private static byte[] charWidths;
         private static TerminalKeyBindingCollection keyBindings = TerminalKeyBindingCollection.Default;
 
         private readonly Dictionary<ConsoleKeyInfo, Func<string>> systemActions = new();
@@ -58,6 +60,8 @@ namespace JSSoft.Library.Commands
         private TerminalString promptText = TerminalString.Empty;
         private string inputText = string.Empty;
         private string completion = string.Empty;
+
+        private TextReader terminalIn;
 
         private TerminalFlags flags;
         private bool isCancellationRequested;
@@ -636,6 +640,11 @@ namespace JSSoft.Library.Commands
 
         private static TerminalPoint NextPosition(string text, int bufferWidth, TerminalPoint pt)
         {
+            return NextPosition(text, 0, bufferWidth, pt);
+        }
+
+        private static TerminalPoint NextPosition(string text, int indent, int bufferWidth, TerminalPoint pt)
+        {
             var x = pt.X;
             var y = pt.Y;
             for (var i = 0; i < text.Length; i++)
@@ -643,12 +652,12 @@ namespace JSSoft.Library.Commands
                 var ch = text[i];
                 if (ch == '\r')
                 {
-                    x = 0;
+                    x = indent;
                     continue;
                 }
                 else if (ch == '\n')
                 {
-                    x = 0;
+                    x = indent;
                     y++;
                     continue;
                 }
@@ -809,18 +818,17 @@ namespace JSSoft.Library.Commands
         {
             var bufferWidth = this.width;
             var bufferHeight = this.height;
-            var command = new TerminalString(value, this.FormatCommand) { IsPassword = this.IsPassword };
             var prompt = this.prompt;
             var pt1 = this.pt1;
             var pt2 = this.pt2;
-            var pt3 = NextPosition(value, bufferWidth, pt2);
+            var pt3 = NextPosition(string.Empty, bufferWidth, pt2);
             var offset = pt3.Y >= bufferHeight ? new TerminalPoint(0, pt3.Y - this.pt3.Y) : TerminalPoint.Zero;
             var st1 = pt2;
             var st2 = pt3 - offset;
             var st3 = pt3 - offset;
 
-            this.command = command;
-            this.promptText = prompt + command;
+            this.command = TerminalString.Empty;
+            this.promptText = prompt;
             this.cursorIndex = command.Length;
             this.inputText = value;
             this.completion = string.Empty;
@@ -829,7 +837,7 @@ namespace JSSoft.Library.Commands
             this.pt3 = pt3 - offset;
             this.pt4 = st3;
 
-            RenderString(st1, st2, st3, command);
+            this.FlushKeyChars(null, ref value);
         }
 
         private void SetCursorIndex(int cursorIndex)
@@ -892,13 +900,14 @@ namespace JSSoft.Library.Commands
                         keyChars += key.KeyChar;
                     }
                 }
-                this.FlushKeyChars(validation, ref keyChars);
+                if (keyChars != string.Empty)
+                    this.FlushKeyChars(validation, ref keyChars);
             }
         }
 
         private void FlushKeyChars(Func<string, bool> validation, ref string keyChars)
         {
-            if (keyChars != string.Empty && validation(this.Command + keyChars) == true)
+            if (validation?.Invoke(this.Command + keyChars) == true)
             {
                 this.InsertText(keyChars);
             }
