@@ -48,16 +48,28 @@ namespace JSSoft.Library.Commands
             }
         }
 
-        public int Length => this.text.Length;
-
-        public string Slice(int start, int length)
+        public string RenderText
         {
-            return this.Text.Substring(start, length);
+            get
+            {
+                return this.Format.Replace(Environment.NewLine, $"{Environment.NewLine}> ");
+            }
         }
 
-        public string Slice(int startIndex)
+        public int Length => this.text.Length;
+
+        public TerminalCommand Slice(int start, int length)
         {
-            return this.Text.Substring(startIndex);
+            var item = this.text.Substring(start, length);
+            var formatter = this.formatter;
+            return new TerminalCommand(item, formatter);
+        }
+
+        public TerminalCommand Slice(int startIndex)
+        {
+            var item = this.text.Substring(startIndex);
+            var formatter = this.formatter;
+            return new TerminalCommand(item, formatter);
         }
 
         public TerminalCommand Insert(int startIndex, string value)
@@ -93,7 +105,7 @@ namespace JSSoft.Library.Commands
 
         #region ITerminalString
 
-        string ITerminalString.Text => this.Format;
+        string ITerminalString.Text => this.RenderText;
 
         #endregion
     }

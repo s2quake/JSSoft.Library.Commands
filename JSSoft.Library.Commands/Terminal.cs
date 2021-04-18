@@ -38,7 +38,6 @@ namespace JSSoft.Library.Commands
         private const string passwordPattern = "[~`! @#$%^&*()_\\-+={[}\\]|\\\\:;\"'<,>.?/0-9a-zA-Z]";
         private const string multilinePrompt = "> ";
         private static readonly char[] multilineChars = new[] { '\"', '\'' };
-        private static readonly int multilineIndent = multilinePrompt.Length;
         private static byte[] charWidths;
         private static TerminalKeyBindingCollection keyBindings = TerminalKeyBindingCollection.Default;
 
@@ -65,7 +64,8 @@ namespace JSSoft.Library.Commands
         private TerminalFlags flags;
         private Func<string, bool> validator;
         private bool isCancellationRequested;
-        private char closedCh;
+        private char closedChar;
+        private int multilineIndent;
 
         static Terminal()
         {
@@ -546,6 +546,7 @@ namespace JSSoft.Library.Commands
             {
                 var bufferWidth = this.width;
                 var bufferHeight = this.height;
+                var commandIndent = this.multilineIndent;
                 var cursorIndex = this.cursorIndex + text.Length;
                 var extra = this.command.Slice(this.cursorIndex);
                 var command = this.command.Insert(this.cursorIndex, text);
@@ -553,8 +554,8 @@ namespace JSSoft.Library.Commands
                 var pre = command.Slice(0, command.Length - extra.Length);
                 var pt1 = this.pt1;
                 var pt2 = this.pt2;
-                var pt3 = NextPosition(command, bufferWidth, pt2);
-                var pt4 = NextPosition(pre, bufferWidth, pt2);
+                var pt3 = NextPosition(command.RenderText, bufferWidth, pt2);
+                var pt4 = NextPosition(pre.RenderText, bufferWidth, pt2);
                 var offset = pt3.Y >= bufferHeight ? new TerminalPoint(0, pt3.Y - this.pt3.Y) : TerminalPoint.Zero;
                 var st1 = pt2;
                 var st2 = pt3;
@@ -888,7 +889,7 @@ namespace JSSoft.Library.Commands
                 {
                     var key = Console.ReadKey(true);
                     var ch = key.KeyChar;
-                    if (this.closedCh == char.MinValue && this.systemActions.ContainsKey(key) == true)
+                    if (this.closedChar == char.MinValue && this.systemActions.ContainsKey(key) == true)
                     {
                         this.FlushKeyChars(ref text);
                         return this.systemActions[key]();
@@ -900,13 +901,15 @@ namespace JSSoft.Library.Commands
                     }
                     else if (this.PreviewKeyChar(key.KeyChar) == true && this.PreviewCommand(text + key.KeyChar) == true)
                     {
-                        if (this.closedCh == char.MinValue && multilineChars.Contains(ch) == true)
+                        if (this.closedChar == char.MinValue && multilineChars.Contains(ch) == true)
                         {
-                            this.closedCh = ch;
+                            this.closedChar = ch;
+                            this.multilineIndent = multilinePrompt.Length;
                         }
-                        else if (this.closedCh != char.MinValue && this.closedCh == ch)
+                        else if (this.closedChar != char.MinValue && this.closedChar == ch)
                         {
-                            this.closedCh = char.MinValue;
+                            this.closedChar = char.MinValue;
+                            this.multilineIndent = 0;
                         }
                         if (ch == '\r')
                             text += Environment.NewLine;
