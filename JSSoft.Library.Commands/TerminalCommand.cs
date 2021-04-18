@@ -48,14 +48,6 @@ namespace JSSoft.Library.Commands
 
         public string FormatText => this.formatText;
 
-        public string RenderText
-        {
-            get
-            {
-                return this.FormatText.Replace(Environment.NewLine, $"{Environment.NewLine}{prompt}");
-            }
-        }
-
         public int Length => this.text.Length;
 
         public TerminalCommand Slice(int start, int length)
@@ -95,7 +87,7 @@ namespace JSSoft.Library.Commands
 
         #region ITerminalString
 
-        string ITerminalString.Text => this.RenderText;
+        string ITerminalString.Text => this.FormatText.Replace(Environment.NewLine, $"{Environment.NewLine}{prompt}");
 
         #endregion
     }

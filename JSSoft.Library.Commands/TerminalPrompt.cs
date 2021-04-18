@@ -31,7 +31,7 @@ namespace JSSoft.Library.Commands
         public TerminalPrompt(string text, TerminalFormat formatter)
         {
             this.text = text ?? throw new ArgumentNullException(nameof(text));
-            this.formatter = formatter;
+            this.formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
         }
 
         public string Text => this.text;
@@ -46,46 +46,10 @@ namespace JSSoft.Library.Commands
             }
         }
 
-        public int Length => this.text.Length;
-
-        public string Slice(int start, int length)
-        {
-            return this.Text.Substring(start, length);
-        }
-
-        public string Slice(int startIndex)
-        {
-            return this.Text.Substring(startIndex);
-        }
-
-        public TerminalPrompt Insert(int startIndex, string value)
-        {
-            var item = this.text.Insert(startIndex, value);
-            var formatter = this.formatter;
-            return new TerminalPrompt(item, formatter);
-        }
-
-        public TerminalPrompt Remove(int startIndex, int count)
-        {
-            var item = this.text.Remove(startIndex, count);
-            var formatter = this.formatter;
-            return new TerminalPrompt(item, formatter);
-        }
-
         public static implicit operator string(TerminalPrompt s)
         {
             return s.Text;
         }
-
-        // public static implicit operator TerminalPrompt((string text, string format) v)
-        // {
-        //     return new TerminalPrompt(v.text, v.format);
-        // }
-
-        // public static TerminalPrompt operator +(TerminalPrompt v1, TerminalPrompt v2)
-        // {
-        //     return new TerminalPrompt(v1.Text + v2.Text, v1.Format + v2.Format);
-        // }
 
         public static TerminalPrompt Empty { get; } = new TerminalPrompt(string.Empty, null);
 

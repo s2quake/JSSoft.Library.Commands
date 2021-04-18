@@ -24,13 +24,22 @@ namespace JSSoft.Library.Commands
     public enum TerminalGraphic
     {
         Reset,
+
         Bold,
+
         Dim,
+
         Italic,
+
         Underline,
+
         Blinking,
+
         Inverse,
+
         Invisible,
+
         Strikethrough,
+
     }
 }

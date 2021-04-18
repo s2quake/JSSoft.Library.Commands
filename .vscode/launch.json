@@ -29,7 +29,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/JSSoft.Library.Commands.Repl/bin/Debug/netcoreapp3.1/repl.dll",
             "args": "",
-            "console": "integratedTerminal",
+            "console": "externalTerminal",
             "cwd": "${workspaceFolder}/JSSoft.Library.Commands.Repl/bin/Debug/netcoreapp3.1",
             "stopAtEntry": false,
             "internalConsoleOptions": "neverOpen"
