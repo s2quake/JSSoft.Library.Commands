@@ -36,7 +36,6 @@ namespace JSSoft.Library.Commands
         private const string escCursorHome = "\u001b[H";
         private const string escEraseDown = "\u001b[J";
         private const string passwordPattern = "[~`! @#$%^&*()_\\-+={[}\\]|\\\\:;\"'<,>.?/0-9a-zA-Z]";
-        private const string multilinePrompt = "> ";
         private static readonly char[] multilineChars = new[] { '\"', '\'' };
         private static byte[] charWidths;
         private static TerminalKeyBindingCollection keyBindings = TerminalKeyBindingCollection.Default;
@@ -65,7 +64,6 @@ namespace JSSoft.Library.Commands
         private Func<string, bool> validator;
         private bool isCancellationRequested;
         private char closedChar;
-        private int multilineIndent;
 
         static Terminal()
         {
@@ -317,7 +315,7 @@ namespace JSSoft.Library.Commands
                 var offset = new TerminalPoint(0, this.pt1.Y);
                 var bufferWidth = this.width;
                 var pre = this.command.Slice(0, this.cursorIndex);
-                var promptTextF = this.prompt.Format + this.command.Format;
+                var promptTextF = this.prompt.Format + this.command.FormatText;
                 var st1 = NextPosition(pre, bufferWidth, this.pt2) - offset;
                 this.pt1 -= offset;
                 this.pt2 -= offset;
@@ -433,7 +431,7 @@ namespace JSSoft.Library.Commands
 
         public string Command
         {
-            get => this.command;
+            get => this.command.GetText(this.IsPassword);
             set
             {
                 if (value == null)
@@ -546,7 +544,6 @@ namespace JSSoft.Library.Commands
             {
                 var bufferWidth = this.width;
                 var bufferHeight = this.height;
-                var commandIndent = this.multilineIndent;
                 var cursorIndex = this.cursorIndex + text.Length;
                 var extra = this.command.Slice(this.cursorIndex);
                 var command = this.command.Insert(this.cursorIndex, text);
@@ -554,8 +551,8 @@ namespace JSSoft.Library.Commands
                 var pre = command.Slice(0, command.Length - extra.Length);
                 var pt1 = this.pt1;
                 var pt2 = this.pt2;
-                var pt3 = NextPosition(command.RenderText, bufferWidth, pt2);
-                var pt4 = NextPosition(pre.RenderText, bufferWidth, pt2);
+                var pt3 = NextPosition(command, bufferWidth, pt2);
+                var pt4 = NextPosition(pre, bufferWidth, pt2);
                 var offset = pt3.Y >= bufferHeight ? new TerminalPoint(0, pt3.Y - this.pt3.Y) : TerminalPoint.Zero;
                 var st1 = pt2;
                 var st2 = pt3;
@@ -563,7 +560,7 @@ namespace JSSoft.Library.Commands
 
                 this.cursorIndex = cursorIndex;
                 this.command = command;
-                this.promptText = prompt.Format + command.Format;
+                this.promptText = prompt.Format + command.FormatText;
                 this.inputText = command.Slice(0, cursorIndex);
                 this.completion = string.Empty;
                 this.pt1 = pt1 - offset;
@@ -642,11 +639,6 @@ namespace JSSoft.Library.Commands
 
         private static TerminalPoint NextPosition(string text, int bufferWidth, TerminalPoint pt)
         {
-            return NextPosition(text, 0, bufferWidth, pt);
-        }
-
-        private static TerminalPoint NextPosition(string text, int indent, int bufferWidth, TerminalPoint pt)
-        {
             var x = pt.X;
             var y = pt.Y;
             for (var i = 0; i < text.Length; i++)
@@ -654,12 +646,12 @@ namespace JSSoft.Library.Commands
                 var ch = text[i];
                 if (ch == '\r')
                 {
-                    x = indent;
+                    x = 0;
                     continue;
                 }
                 else if (ch == '\n')
                 {
-                    x = indent;
+                    x = 0;
                     y++;
                     continue;
                 }
@@ -698,7 +690,7 @@ namespace JSSoft.Library.Commands
             var pt4 = NextPosition(extra, bufferWidth, pt3);
 
             this.command = command;
-            this.promptText = prompt.Format + command.Format;
+            this.promptText = prompt.Format + command.FormatText;
             this.cursorIndex = cursorIndex;
             this.inputText = pre;
             this.pt3 = pt4;
@@ -721,7 +713,7 @@ namespace JSSoft.Library.Commands
             var pt4 = NextPosition(extra, bufferWidth, pt3);
 
             this.command = command;
-            this.promptText = prompt.Format + command.Format;
+            this.promptText = prompt.Format + command.FormatText;
             this.inputText = pre;
             this.pt3 = pt4;
             this.pt4 = pt3;
@@ -805,7 +797,7 @@ namespace JSSoft.Library.Commands
             var st3 = pt4 - offset;
 
             this.prompt = prompt;
-            this.promptText = prompt.Format + command.Format;
+            this.promptText = prompt.Format + command.FormatText;
             this.pt1 = pt1 - offset;
             this.pt2 = pt2 - offset;
             this.pt3 = pt3 - offset;
@@ -904,12 +896,10 @@ namespace JSSoft.Library.Commands
                         if (this.closedChar == char.MinValue && multilineChars.Contains(ch) == true)
                         {
                             this.closedChar = ch;
-                            this.multilineIndent = multilinePrompt.Length;
                         }
                         else if (this.closedChar != char.MinValue && this.closedChar == ch)
                         {
                             this.closedChar = char.MinValue;
-                            this.multilineIndent = 0;
                         }
                         if (ch == '\r')
                             text += Environment.NewLine;
@@ -1047,7 +1037,7 @@ namespace JSSoft.Library.Commands
         {
             if (this.CanRecord == true)
             {
-                this.RecordCommand(this.command);
+                this.RecordCommand(this.command.Text);
             }
             return this.command.Text;
         }

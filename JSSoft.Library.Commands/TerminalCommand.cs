@@ -25,34 +25,34 @@ namespace JSSoft.Library.Commands
 {
     struct TerminalCommand : ITerminalString
     {
+        private const string prompt = "> ";
         private string text;
         private TerminalFormat formatter;
+        private string formatText;
 
         public TerminalCommand(string text, TerminalFormat formatter)
         {
             this.text = text ?? throw new ArgumentNullException(nameof(text));
             this.formatter = formatter;
+            this.formatText = formatter?.Invoke(text) ?? text;
+        }
+
+        public string GetText(bool isPassword)
+        {
+            if (isPassword == true)
+                return string.Empty.PadRight(this.text.Length, Terminal.PasswordCharacter);
+            return this.text;
         }
 
         public string Text => this.text;
 
-        public string Password => string.Empty.PadRight(this.text.Length, Terminal.PasswordCharacter);
-
-        public string Format
-        {
-            get
-            {
-                if (this.formatter != null)
-                    return this.formatter(this.text);
-                return this.text;
-            }
-        }
+        public string FormatText => this.formatText;
 
         public string RenderText
         {
             get
             {
-                return this.Format.Replace(Environment.NewLine, $"{Environment.NewLine}> ");
+                return this.FormatText.Replace(Environment.NewLine, $"{Environment.NewLine}{prompt}");
             }
         }
 
@@ -88,18 +88,8 @@ namespace JSSoft.Library.Commands
 
         public static implicit operator string(TerminalCommand s)
         {
-            return s.Text;
+            return s.text.Replace(Environment.NewLine, $"{Environment.NewLine}{prompt}");
         }
-
-        // public static implicit operator TerminalCommand((string text, string format) v)
-        // {
-        //     return new TerminalCommand(v.text, v.format);
-        // }
-
-        // public static TerminalCommand operator +(TerminalCommand v1, TerminalCommand v2)
-        // {
-        //     return new TerminalCommand(v1.Text + v2.Text, v1.Format + v2.Format);
-        // }
 
         public static TerminalCommand Empty { get; } = new TerminalCommand(string.Empty, null);
 
