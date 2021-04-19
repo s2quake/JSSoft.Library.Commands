@@ -25,30 +25,29 @@ namespace JSSoft.Library.Commands
 {
     struct TerminalPrompt : ITerminalString
     {
-        private string text;
         private TerminalFormat formatter;
 
         public TerminalPrompt(string text, TerminalFormat formatter)
         {
-            this.text = text ?? throw new ArgumentNullException(nameof(text));
+            this.Text = text ?? throw new ArgumentNullException(nameof(text));
             this.formatter = formatter;
         }
 
         public TerminalPoint Next(TerminalPoint pt, int bufferWidth)
         {
-            var text = this.text;
+            var text = this.Text;
             return Terminal.NextPosition(text, bufferWidth, pt);
         }
 
-        public string Text => this.text;
+        public string Text { get; }
 
-        public string Format
+        public string FormatText
         {
             get
             {
                 if (this.formatter != null)
-                    return this.formatter(this.text);
-                return this.text;
+                    return this.formatter(this.Text);
+                return this.Text;
             }
         }
 
@@ -61,7 +60,7 @@ namespace JSSoft.Library.Commands
 
         #region ITerminalString
 
-        string ITerminalString.Text => this.Format;
+        string ITerminalString.Text => this.FormatText;
 
         #endregion
     }

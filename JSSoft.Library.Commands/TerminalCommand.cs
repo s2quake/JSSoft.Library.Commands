@@ -26,13 +26,13 @@ namespace JSSoft.Library.Commands
     struct TerminalCommand : ITerminalString
     {
         private const string prompt = "> ";
-        private string text;
+
         private TerminalFormat formatter;
         private string formatText;
 
         public TerminalCommand(string text, TerminalFormat formatter)
         {
-            this.text = text ?? throw new ArgumentNullException(nameof(text));
+            this.Text = text ?? throw new ArgumentNullException(nameof(text));
             this.formatter = formatter;
             this.formatText = formatter?.Invoke(text) ?? text;
         }
@@ -40,53 +40,53 @@ namespace JSSoft.Library.Commands
         public string GetText(bool isPassword)
         {
             if (isPassword == true)
-                return string.Empty.PadRight(this.text.Length, Terminal.PasswordCharacter);
-            return this.text;
+                return string.Empty.PadRight(this.Text.Length, Terminal.PasswordCharacter);
+            return this.Text;
         }
 
-        public string Text => this.text;
+        public string Text { get; }
 
         public string FormatText => this.formatText;
 
-        public int Length => this.text.Length;
+        public int Length => this.Text.Length;
 
         public TerminalCommand Slice(int start, int length)
         {
-            var item = this.text.Substring(start, length);
+            var item = this.Text.Substring(start, length);
             var formatter = this.formatter;
             return new TerminalCommand(item, formatter);
         }
 
         public TerminalCommand Slice(int startIndex)
         {
-            var item = this.text.Substring(startIndex);
+            var item = this.Text.Substring(startIndex);
             var formatter = this.formatter;
             return new TerminalCommand(item, formatter);
         }
 
         public TerminalCommand Insert(int startIndex, string value)
         {
-            var item = this.text.Insert(startIndex, value);
+            var item = this.Text.Insert(startIndex, value);
             var formatter = this.formatter;
             return new TerminalCommand(item, formatter);
         }
 
         public TerminalCommand Remove(int startIndex, int count)
         {
-            var item = this.text.Remove(startIndex, count);
+            var item = this.Text.Remove(startIndex, count);
             var formatter = this.formatter;
             return new TerminalCommand(item, formatter);
         }
 
         public TerminalPoint Next(TerminalPoint pt, int bufferWidth)
         {
-            var text = this.text.Replace(Environment.NewLine, $"{Environment.NewLine}{prompt}");
+            var text = this.Text.Replace(Environment.NewLine, $"{Environment.NewLine}{prompt}");
             return Terminal.NextPosition(text, bufferWidth, pt);
         }
 
         public static implicit operator string(TerminalCommand s)
         {
-            return s.text.Replace(Environment.NewLine, $"{Environment.NewLine}{prompt}");
+            return s.Text.Replace(Environment.NewLine, $"{Environment.NewLine}{prompt}");
         }
 
         public static TerminalCommand Empty { get; } = new TerminalCommand(string.Empty, null);

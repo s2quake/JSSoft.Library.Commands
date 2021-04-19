@@ -25,13 +25,17 @@ namespace JSSoft.Library.Commands
 {
     struct TerminalString : ITerminalString
     {
-        private string text;
-
         public TerminalString(string text)
         {
-            this.text = text ?? throw new ArgumentNullException(nameof(text));
+            this.Text = text ?? throw new ArgumentNullException(nameof(text));
         }
 
-        public string Text => this.text;
+        public TerminalPoint Next(TerminalPoint pt, int bufferWidth)
+        {
+            var text = this.Text;
+            return Terminal.NextPosition(text, bufferWidth, pt);
+        }
+
+        public string Text { get; }
     }
 }
