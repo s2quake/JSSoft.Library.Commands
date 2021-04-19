@@ -52,8 +52,9 @@ namespace JSSoft.Library.Commands
             }
             else
             {
-                using var tw = new CommandTextWriter(writer) { IsAnsiSupported = this.IsAnsiSupported };
+                using var tw = new CommandTextWriter() { IsAnsiSupported = this.IsAnsiSupported };
                 this.Print(tw, descriptors);
+                writer.Write(tw.ToString());
             }
         }
 
@@ -65,8 +66,9 @@ namespace JSSoft.Library.Commands
             }
             else
             {
-                using var tw = new CommandTextWriter(writer) { IsAnsiSupported = this.IsAnsiSupported }; ;
+                using var tw = new CommandTextWriter() { IsAnsiSupported = this.IsAnsiSupported }; ;
                 this.Print(tw, descriptor);
+                writer.Write(tw.ToString());
             }
         }
 

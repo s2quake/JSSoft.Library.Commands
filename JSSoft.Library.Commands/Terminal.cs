@@ -35,10 +35,13 @@ namespace JSSoft.Library.Commands
         private const string escClearScreen = "\u001b[2J";
         private const string escCursorHome = "\u001b[H";
         private const string escEraseDown = "\u001b[J";
+        private const string escCursorInvisible = "\u001b[?25l";
+        private const string escCursorVisible = "\u001b[?25h";
         private const string passwordPattern = "[~`! @#$%^&*()_\\-+={[}\\]|\\\\:;\"'<,>.?/0-9a-zA-Z]";
         private static readonly char[] multilineChars = new[] { '\"', '\'' };
         private static byte[] charWidths;
         private static TerminalKeyBindingCollection keyBindings = TerminalKeyBindingCollection.Default;
+        private static TerminalString cursorVisible = new TerminalString(escCursorVisible);
 
         private readonly Dictionary<ConsoleKeyInfo, Func<string>> systemActions = new();
         private readonly List<string> histories = new();
@@ -64,6 +67,7 @@ namespace JSSoft.Library.Commands
         private Func<string, bool> validator;
         private bool isCancellationRequested;
         private char closedChar;
+        private Thread thread;
 
         static Terminal()
         {
@@ -93,6 +97,7 @@ namespace JSSoft.Library.Commands
                 throw new Exception("Terminal cannot use. Console.IsInputRedirected must be false");
             this.systemActions.Add(new ConsoleKeyInfo('\u0003', ConsoleKey.C, false, false, true), this.OnCancel);
             this.systemActions.Add(new ConsoleKeyInfo('\r', ConsoleKey.Enter, false, false, false), this.OnEnter);
+            this.thread = Thread.CurrentThread;
         }
 
         public static string NextCompletion(string[] completions, string text)
@@ -407,9 +412,13 @@ namespace JSSoft.Library.Commands
 
         public void EnqueueString(string text)
         {
-            lock (Terminal.ExternalObject)
+            lock (ExternalObject)
             {
                 this.stringQueue.Enqueue(text);
+            }
+            if (Thread.CurrentThread == this.thread)
+            {
+                this.RenderStringQueue();
             }
         }
 
@@ -463,6 +472,7 @@ namespace JSSoft.Library.Commands
             }
         }
 
+        [Obsolete]
         public bool IsEnabled { get; set; } = true;
 
         public bool IsReading => this.flags.HasFlag(TerminalFlags.IsReading);
@@ -533,6 +543,7 @@ namespace JSSoft.Library.Commands
                 this.pt2 = pt2 - offset1;
                 this.pt3 = pt3 - offset1;
                 this.pt4 = st3;
+
                 RenderString(st1, st2, st3, prompt, command);
             }
         }
@@ -875,12 +886,10 @@ namespace JSSoft.Library.Commands
 
         private string ReadLineImpl()
         {
-            while (true)
+            while (this.isCancellationRequested == false)
             {
                 Thread.Sleep(1);
                 this.Update();
-                if (this.isCancellationRequested == true)
-                    return null;
                 if (this.IsEnabled == false)
                     continue;
                 var text = string.Empty;
@@ -917,6 +926,7 @@ namespace JSSoft.Library.Commands
                 if (text != string.Empty)
                     this.FlushKeyChars(ref text);
             }
+            return null;
         }
 
         private void FlushKeyChars(ref string keyChars)
@@ -1011,8 +1021,7 @@ namespace JSSoft.Library.Commands
                 this.ot1 = TerminalPoint.Zero;
                 this.flags = flags | TerminalFlags.IsReading;
                 this.validator = validator;
-
-                RenderString(st1, st2, st3, promptS);
+                RenderString(st1, st2, st3, cursorVisible, promptS);
             }
         }
 
@@ -1023,7 +1032,7 @@ namespace JSSoft.Library.Commands
                 using (var stream = Console.OpenStandardOutput())
                 using (var writer = new StreamWriter(stream, Console.OutputEncoding))
                 {
-                    writer.WriteLine();
+                    writer.WriteLine(escCursorInvisible);
                 }
                 this.outputText.AppendLine(this.promptText);
                 this.pt1 = new TerminalPoint(0, Console.CursorTop);

@@ -160,7 +160,7 @@ namespace JSSoft.Library.Commands
             var name = commandContext.ExecutionName;
             var versionName = versionCommand.Name;
             var isNameVisible = commandContext.IsNameVisible;
-            var writer = commandContext.Out;
+            using var writer = new StringWriter();
             if (helpCommand is ICommandUsage helpUsage)
             {
                 helpUsage.Print(CommandUsage.None);
@@ -180,6 +180,7 @@ namespace JSSoft.Library.Commands
                 writer.WriteLine(Resources.Message_Version_Format, versionName);
             }
             writer.WriteLine();
+            commandContext.Out.Write(writer.ToString());
         }
 
         public TextWriter Out { get; set; } = Console.Out;
