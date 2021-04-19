@@ -72,6 +72,7 @@ namespace JSSoft.Library.Commands
 
             Console.SetOut(consoleOut);
             Console.SetError(consoleError);
+            Console.Write("\u001b[?25h");
         }
 
         public bool DetailErrorMessage { get; set; }
