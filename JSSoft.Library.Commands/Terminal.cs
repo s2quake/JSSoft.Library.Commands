@@ -472,9 +472,6 @@ namespace JSSoft.Library.Commands
             }
         }
 
-        [Obsolete]
-        public bool IsEnabled { get; set; } = true;
-
         public bool IsReading => this.flags.HasFlag(TerminalFlags.IsReading);
 
         public bool IsPassword => this.flags.HasFlag(TerminalFlags.IsPassword);
@@ -888,11 +885,8 @@ namespace JSSoft.Library.Commands
         {
             while (this.isCancellationRequested == false)
             {
-                Thread.Sleep(1);
-                this.Update();
-                if (this.IsEnabled == false)
-                    continue;
                 var text = string.Empty;
+                this.Update();
                 while (Console.KeyAvailable == true)
                 {
                     var key = Console.ReadKey(true);
@@ -925,6 +919,7 @@ namespace JSSoft.Library.Commands
                 }
                 if (text != string.Empty)
                     this.FlushKeyChars(ref text);
+                Thread.Sleep(1);
             }
             return null;
         }
