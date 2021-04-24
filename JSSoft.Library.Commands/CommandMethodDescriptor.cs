@@ -125,6 +125,8 @@ namespace JSSoft.Library.Commands
 
         internal string[] GetCompletionInternal(object instance, CommandMemberDescriptor memberDescriptor, string find)
         {
+            if (memberDescriptor.GetCompletionInternal(instance, find) is string[] items)
+                return items;
             return this.GetCompletion(instance, new object[] { memberDescriptor, find });
         }
     }

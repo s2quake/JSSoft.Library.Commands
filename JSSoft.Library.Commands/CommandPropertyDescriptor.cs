@@ -34,6 +34,7 @@ namespace JSSoft.Library.Commands
     {
         private readonly PropertyInfo propertyInfo;
         private readonly CommandPropertyTriggerAttribute[] triggers;
+        private CommandCompletionAttribute completionAttribute;
 
         public CommandPropertyDescriptor(PropertyInfo propertyInfo)
             : base(propertyInfo.GetCommandPropertyAttribute(), propertyInfo.Name)
@@ -55,6 +56,7 @@ namespace JSSoft.Library.Commands
                 this.DefaultValue = GetDefaultValue(propertyInfo.PropertyType, this.Attribute.DefaultValueProperty);
             else
                 this.DefaultValue = this.Attribute.DefaultValueProperty;
+            this.completionAttribute = propertyInfo.GetCustomAttribute<CommandCompletionAttribute>();
         }
 
         public override string DisplayName
@@ -139,6 +141,13 @@ namespace JSSoft.Library.Commands
                     }
                 }
             }
+        }
+
+        protected override string[] GetCompletion(object instance, string find)
+        {
+            if (this.completionAttribute != null)
+                return this.GetCompletion(instance, find, this.completionAttribute);
+            return base.GetCompletion(instance, find);
         }
 
         private static object GetDefaultValue(Type propertyType, object value)

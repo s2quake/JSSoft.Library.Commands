@@ -50,8 +50,8 @@ namespace JSSoft.Library.Commands.Repl.Commands
         [CommandMethodStaticProperty(typeof(FilterProperties))]
         public void Start()
         {
-            this.task = Task.Run(this.Test);
             this.cancellation = new CancellationTokenSource();
+            this.task = this.TestAsync();
         }
 
         public bool CanStart => true;
@@ -121,7 +121,7 @@ namespace JSSoft.Library.Commands.Repl.Commands
         [CommandMethod]
         [CommandMethodProperty(nameof(P4), nameof(P3), nameof(P5))]
         [CommandSummary("Order method")]
-        public void Order(string p1, string p2 = "123")
+        public void Order([CommandCompletion(nameof(GetNamesAsync))] string p1, string p2 = "123")
         {
         }
 
@@ -166,7 +166,7 @@ namespace JSSoft.Library.Commands.Repl.Commands
             get; set;
         }
 
-        private void Test()
+        private async Task TestAsync()
         {
             while (!this.cancellation.IsCancellationRequested)
             {
@@ -177,24 +177,24 @@ namespace JSSoft.Library.Commands.Repl.Commands
                 else
                 {
                     Console.Write(DateTime.Now + Environment.NewLine + "wow" + Environment.NewLine + DateTime.Now + Environment.NewLine + "wow");
-                    Console.Write(DateTime.Now + Environment.NewLine + "wow" + Environment.NewLine + DateTime.Now + Environment.NewLine + "wow");
-                    Console.Write(TerminalStrings.Foreground("01234567890123456789012345678901234567890123456789012345678901234567890123456789", TerminalColor.Red));
-                    Console.Write(DateTime.Now + Environment.NewLine + "wow" + Environment.NewLine + DateTime.Now + Environment.NewLine + "wow");
+                    await this.Out.WriteAsync(DateTime.Now + Environment.NewLine + "wow" + Environment.NewLine + DateTime.Now + Environment.NewLine + "wow");
+                    await this.Out.WriteAsync(TerminalStrings.Foreground("01234567890123456789012345678901234567890123456789012345678901234567890123456789", TerminalColor.Red));
+                    await this.Out.WriteAsync(DateTime.Now + Environment.NewLine + "wow" + Environment.NewLine + DateTime.Now + Environment.NewLine + "wow");
                     var v = DateTime.Now.Millisecond % 4;
                     // v = 2;
                     switch (v)
                     {
                         case 0:
-                            Console.WriteLine(DateTime.Now + Environment.NewLine + "wow" + Environment.NewLine + "12093810938012");
+                            await this.Out.WriteLineAsync(DateTime.Now + Environment.NewLine + "wow" + Environment.NewLine + "12093810938012");
                             break;
                         case 1:
-                            Console.Write(DateTime.Now + Environment.NewLine + "wow" + Environment.NewLine + DateTime.Now + Environment.NewLine + "wow" + Environment.NewLine + DateTime.Now + Environment.NewLine + "wow" + Environment.NewLine + DateTime.Now + Environment.NewLine + "wow" + Environment.NewLine + DateTime.Now + Environment.NewLine + "wow");
+                            await this.Out.WriteAsync(DateTime.Now + Environment.NewLine + "wow" + Environment.NewLine + DateTime.Now + Environment.NewLine + "wow" + Environment.NewLine + DateTime.Now + Environment.NewLine + "wow" + Environment.NewLine + DateTime.Now + Environment.NewLine + "wow" + Environment.NewLine + DateTime.Now + Environment.NewLine + "wow");
                             break;
                         case 2:
-                            Console.Write("01234567890123456789012345678901234567890123456789012345678901234567890123456789");
+                            await this.Out.WriteAsync("01234567890123456789012345678901234567890123456789012345678901234567890123456789");
                             break;
                         case 3:
-                            Console.WriteLine(DateTime.Now);
+                            await this.Out.WriteLineAsync($"{DateTime.Now}");
                             break;
                     }
                 }
@@ -213,6 +213,15 @@ namespace JSSoft.Library.Commands.Repl.Commands
                 return this.task != null && this.cancellation.IsCancellationRequested == false;
             }
             throw new NotImplementedException();
+        }
+
+        private async Task<string[]> GetNamesAsync()
+        {
+            await Task.Delay(2000);
+            return await Task.Run(() => 
+            {
+                return new string[] { "a", "b", "c" };
+            });
         }
     }
 }

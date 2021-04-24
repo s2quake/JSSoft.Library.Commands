@@ -22,6 +22,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace JSSoft.Library.Commands
 {
@@ -53,6 +54,21 @@ namespace JSSoft.Library.Commands
             this.WriteToStream(value + Environment.NewLine);
         }
 
+        public override Task WriteAsync(char value)
+        {
+            return this.WriteToStreamAsync(value.ToString());
+        }
+
+        public override Task WriteAsync(string value)
+        {
+            return this.WriteToStreamAsync(value);
+        }
+
+        public override Task WriteLineAsync(string value)
+        {
+            return this.WriteToStreamAsync(value + Environment.NewLine);
+        }
+
         public TerminalColor? Foreground { get; set; }
 
         public TerminalColor? Background { get; set; }
@@ -60,6 +76,11 @@ namespace JSSoft.Library.Commands
         private void WriteToStream(string text)
         {
             this.terminal.EnqueueString(TerminalStrings.FromColor(text, this.Foreground, this.Background));
+        }
+
+        private Task WriteToStreamAsync(string text)
+        {
+            return this.terminal.EnqueueStringAsync(TerminalStrings.FromColor(text, this.Foreground, this.Background));
         }
     }
 }

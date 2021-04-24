@@ -73,5 +73,10 @@ namespace JSSoft.Library.Commands
         {
             this.descriptor.ValidateTrigger(parseItems);
         }
+
+        protected override string[] GetCompletion(object instance, string find)
+        {
+            return this.descriptor.GetCompletionInternal(instance, find);
+        }
     }
 }

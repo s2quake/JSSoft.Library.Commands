@@ -22,6 +22,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
 
 namespace JSSoft.Library.Commands
 {
@@ -103,15 +105,35 @@ namespace JSSoft.Library.Commands
         {
         }
 
-        protected CommandPropertyBaseAttribute Attribute { get; }
-
-        internal void Parse(object instance, List<string> arguments)
+        protected virtual string[] GetCompletion(object instance, string find)
         {
-            var arg = arguments.First();
-            var value = Parser.Parse(this, arg);
-            this.SetValue(instance, value);
-            arguments.RemoveAt(0);
+            return null;
         }
+
+        protected string[] GetCompletion(object instance, string find, CommandCompletionAttribute attribute)
+        {
+            if (attribute is null)
+                throw new ArgumentNullException(nameof(attribute));
+            var methodName = attribute.MethodName;
+            var type = attribute.Type ?? instance.GetType();
+            var obj = attribute.Type != null ? null : instance;
+            var flag = attribute.Type != null ? BindingFlags.Static : BindingFlags.Instance;
+            var method = type.GetMethod(methodName, 0, BindingFlags.Public | BindingFlags.NonPublic | flag, null, new Type[] { }, null);
+            var value = method.Invoke(obj, null);
+            if (value is string[] items)
+            {
+                return items;
+            }
+            else if (value is Task<string[]> task)
+            {
+                if (task.Wait(1000) == false)
+                    return null;
+                return task.Result;
+            }
+            throw new NotImplementedException();
+        }
+
+        protected CommandPropertyBaseAttribute Attribute { get; }
 
         public virtual string NamePattern
         {
@@ -133,6 +155,14 @@ namespace JSSoft.Library.Commands
             }
         }
 
+        internal void Parse(object instance, List<string> arguments)
+        {
+            var arg = arguments.First();
+            var value = Parser.Parse(this, arg);
+            this.SetValue(instance, value);
+            arguments.RemoveAt(0);
+        }
+
         internal void SetValueInternal(object instance, object value)
         {
             this.SetValue(instance, value);
@@ -146,6 +176,11 @@ namespace JSSoft.Library.Commands
         internal void ValidateTrigger(ParseDescriptorItem[] parseItems)
         {
             this.OnValidateTrigger(parseItems);
+        }
+
+        internal string[] GetCompletionInternal(object instance, string find)
+        {
+            return this.GetCompletion(instance, find);
         }
     }
 }

@@ -22,12 +22,14 @@
 using JSSoft.Library.Commands.Extensions;
 using System;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace JSSoft.Library.Commands
 {
     public sealed class CommandParameterDescriptor : CommandMemberDescriptor
     {
         private object value;
+        private CommandCompletionAttribute completionAttribute;
 
         public CommandParameterDescriptor(ParameterInfo parameterInfo)
             : base(new CommandPropertyRequiredAttribute(), parameterInfo.Name)
@@ -37,6 +39,7 @@ namespace JSSoft.Library.Commands
             this.Description = parameterInfo.GetDescription();
             this.DefaultValue = parameterInfo.DefaultValue;
             this.MemberType = parameterInfo.ParameterType;
+            this.completionAttribute = parameterInfo.GetCustomAttribute<CommandCompletionAttribute>();
         }
 
         public override string Summary { get; }
@@ -55,6 +58,13 @@ namespace JSSoft.Library.Commands
         protected override object GetValue(object instance)
         {
             return this.value;
+        }
+
+        protected override string[] GetCompletion(object instance, string find)
+        {
+            if (this.completionAttribute != null)
+                return this.GetCompletion(instance, find, this.completionAttribute);
+            return base.GetCompletion(instance, find);
         }
     }
 }

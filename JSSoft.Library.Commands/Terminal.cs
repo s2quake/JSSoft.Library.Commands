@@ -27,6 +27,7 @@ using System.Security;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace JSSoft.Library.Commands
 {
@@ -46,6 +47,7 @@ namespace JSSoft.Library.Commands
         private readonly Dictionary<ConsoleKeyInfo, Func<string>> systemActions = new();
         private readonly List<string> histories = new();
         private readonly Queue<string> stringQueue = new Queue<string>();
+        private readonly ManualResetEvent eventSet = new ManualResetEvent(false);
 
         private TerminalPoint pt1 = new(0, Console.CursorTop);
         private TerminalPoint pt2;
@@ -416,10 +418,17 @@ namespace JSSoft.Library.Commands
             {
                 this.stringQueue.Enqueue(text);
             }
-            if (Thread.CurrentThread == this.thread)
+            this.RenderStringQueue();
+        }
+
+        public async Task EnqueueStringAsync(string text)
+        {
+            lock (ExternalObject)
             {
-                this.RenderStringQueue();
+                this.eventSet.Reset();
+                this.stringQueue.Enqueue(text);
             }
+            await Task.Run(this.eventSet.WaitOne);
         }
 
         public int CursorIndex
@@ -893,12 +902,14 @@ namespace JSSoft.Library.Commands
                     var ch = key.KeyChar;
                     if (this.closedChar == char.MinValue && this.systemActions.ContainsKey(key) == true)
                     {
-                        this.FlushKeyChars(ref text);
+                        if (text != string.Empty)
+                            this.FlushKeyChars(ref text);
                         return this.systemActions[key]();
                     }
                     else if (this.KeyBindings.CanProcess(key) == true)
                     {
-                        this.FlushKeyChars(ref text);
+                        if (text != string.Empty)
+                            this.FlushKeyChars(ref text);
                         this.KeyBindings.Process(key, this);
                     }
                     else if (this.PreviewKeyChar(key.KeyChar) == true && this.PreviewCommand(text + key.KeyChar) == true)
@@ -926,7 +937,8 @@ namespace JSSoft.Library.Commands
 
         private void FlushKeyChars(ref string keyChars)
         {
-            this.InsertText(keyChars);
+            if (keyChars != string.Empty)
+                this.InsertText(keyChars);
             keyChars = string.Empty;
         }
 
@@ -948,6 +960,7 @@ namespace JSSoft.Library.Commands
             }
             if (text != string.Empty)
                 RenderOutput(text);
+            this.eventSet.Set();
         }
 
         private ConsoleKey ReadKeyImpl(params ConsoleKey[] filters)
