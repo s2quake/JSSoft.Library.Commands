@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -118,19 +119,28 @@ namespace JSSoft.Library.Commands
             var type = attribute.Type ?? instance.GetType();
             var obj = attribute.Type != null ? null : instance;
             var flag = attribute.Type != null ? BindingFlags.Static : BindingFlags.Instance;
+            var asyncWaitTime = attribute.AsyncWaitTime;
             var method = type.GetMethod(methodName, 0, BindingFlags.Public | BindingFlags.NonPublic | flag, null, new Type[] { }, null);
-            var value = method.Invoke(obj, null);
-            if (value is string[] items)
+            try
             {
-                return items;
+                var value = method.Invoke(obj, null);
+                if (value is string[] items)
+                {
+                    return items;
+                }
+                else if (value is Task<string[]> task)
+                {
+                    if (task.Wait(asyncWaitTime) == false)
+                        return null;
+                    return task.Result;
+                }
+                throw new NotImplementedException();
             }
-            else if (value is Task<string[]> task)
+            catch (Exception e)
             {
-                if (task.Wait(1000) == false)
-                    return null;
-                return task.Result;
+                Trace.TraceError($"{e}");
+                return null;
             }
-            throw new NotImplementedException();
         }
 
         protected CommandPropertyBaseAttribute Attribute { get; }

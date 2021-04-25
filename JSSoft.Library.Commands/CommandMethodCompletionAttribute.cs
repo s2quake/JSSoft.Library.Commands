@@ -23,10 +23,10 @@ using System;
 
 namespace JSSoft.Library.Commands
 {
-    [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property)]
-    public class CommandCompletionAttribute : Attribute
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+    public class CommandMethodCompletionAttribute : Attribute
     {
-        public CommandCompletionAttribute(string methodName)
+        public CommandMethodCompletionAttribute(string methodName)
         {
             this.MethodName = methodName;
         }

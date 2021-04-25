@@ -23,15 +23,15 @@ using System;
 
 namespace JSSoft.Library.Commands
 {
-    [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property)]
-    public class CommandCompletionAttribute : Attribute
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+    public sealed class CommandMethodValidationAttribute : Attribute
     {
-        public CommandCompletionAttribute(string methodName)
+        public CommandMethodValidationAttribute(string propertyName)
         {
-            this.MethodName = methodName;
+            this.PropertyName = propertyName;
         }
 
-        public string MethodName { get; }
+        public string PropertyName { get; }
 
         public string TypeName
         {
@@ -40,7 +40,5 @@ namespace JSSoft.Library.Commands
         }
 
         public Type Type { get; set; }
-
-        public int AsyncWaitTime { get; set; } = 1000;
     }
 }

@@ -20,8 +20,11 @@
 // Namespaces and files starting with "Ntreev" have been renamed to "JSSoft".
 
 using JSSoft.Library.Commands.Extensions;
+using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace JSSoft.Library.Commands
 {
@@ -90,9 +93,33 @@ namespace JSSoft.Library.Commands
         {
             if (this.getCompletionMethod != null)
             {
-                return (string[])this.getCompletionMethod.Invoke(instance, parameters);
+                return InvokeCompletionMethod(this.getCompletionMethod, instance, parameters);
             }
             return base.GetCompletion(instance, parameters);
+        }
+
+        private static string[] InvokeCompletionMethod(MethodInfo methodInfo, object instance, object[] parameters)
+        {
+            try
+            {
+                var value = methodInfo.Invoke(instance, parameters);
+                if (value is string[] items)
+                {
+                    return items;
+                }
+                else if (value is Task<string[]> task)
+                {
+                    if (task.Wait(1000) == false)
+                        return null;
+                    return task.Result;
+                }
+                throw new NotImplementedException();
+            }
+            catch (Exception e)
+            {
+                Trace.TraceError($"{e}");
+                return null;
+            }
         }
     }
 }
