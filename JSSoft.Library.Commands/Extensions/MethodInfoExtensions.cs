@@ -75,22 +75,39 @@ namespace JSSoft.Library.Commands.Extensions
 
         public static PropertyInfo GetCanExecutableProperty(this MethodInfo methodInfo)
         {
-            var name = GetPureName(methodInfo);
-            var instanceType = methodInfo.DeclaringType;
-            return instanceType.GetProperty($"Can{name}");
+            if (methodInfo.GetCustomAttribute<CommandMethodValidationAttribute>() is CommandMethodValidationAttribute attribute)
+            {
+                var instanceType = attribute.Type ?? methodInfo.DeclaringType;
+                var propertyName = attribute.PropertyName;
+                var bindingFlags1 = attribute.Type != null ? BindingFlags.Static : BindingFlags.Instance;
+                var bindingFlags2 = BindingFlags.Public | BindingFlags.NonPublic | bindingFlags1;
+                return instanceType.GetProperty(propertyName, bindingFlags2);
+            }
+            else
+            {
+                var instanceType = methodInfo.DeclaringType;
+                var propertyName = $"Can{GetPureName(methodInfo)}";
+                var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+                return instanceType.GetProperty(propertyName, bindingFlags);
+            }
         }
 
         public static MethodInfo GetCompletionMethod(this MethodInfo methodInfo)
         {
             var instanceType = methodInfo.DeclaringType;
-            var name = $"Complete{GetPureName(methodInfo)}";
-            var method = instanceType.GetMethod(name);
-            if (method != null && method.ReturnType == typeof(string[]))
+            var isAsync = methodInfo.IsAsync();
+            var bindingFlags = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance;
+            if (isAsync == true)
             {
-                var parameters = method.GetParameters();
-                if (parameters.Length == 2 && parameters[0].ParameterType == typeof(CommandMemberDescriptor) && parameters[1].ParameterType == typeof(string))
-                    return method;
+                var asyncName = $"Complete{GetPureName(methodInfo)}Async";
+                var asyncMethod = instanceType.GetMethod(asyncName, bindingFlags);
+                if (IsCompletionAsyncMethod(asyncMethod) == true)
+                    return asyncMethod;
             }
+            var name = $"Complete{GetPureName(methodInfo)}";
+            var method = instanceType.GetMethod(name, bindingFlags);
+            if (IsCompletionMethod(method) == true)
+                return method;
             return null;
         }
 
@@ -139,6 +156,28 @@ namespace JSSoft.Library.Commands.Extensions
                         select item;
 
             return query.ToArray();
+        }
+
+        private static bool IsCompletionMethod(MethodInfo methodInfo)
+        {
+            if (methodInfo != null && methodInfo.ReturnType == typeof(string[]))
+            {
+                var parameters = methodInfo.GetParameters();
+                if (parameters.Length == 2 && parameters[0].ParameterType == typeof(CommandMemberDescriptor) && parameters[1].ParameterType == typeof(string))
+                    return true;
+            }
+            return false;
+        }
+
+        private static bool IsCompletionAsyncMethod(MethodInfo methodInfo)
+        {
+            if (methodInfo != null && methodInfo.ReturnType == typeof(Task<string[]>))
+            {
+                var parameters = methodInfo.GetParameters();
+                if (parameters.Length == 2 && parameters[0].ParameterType == typeof(CommandMemberDescriptor) && parameters[1].ParameterType == typeof(string))
+                    return true;
+            }
+            return false;
         }
     }
 }

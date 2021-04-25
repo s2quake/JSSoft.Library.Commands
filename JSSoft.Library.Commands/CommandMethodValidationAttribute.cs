@@ -28,10 +28,10 @@ namespace JSSoft.Library.Commands
     {
         public CommandMethodValidationAttribute(string propertyName)
         {
-            this.PropertyName = propertyName;
+            this.PropertyName = propertyName ?? throw new ArgumentNullException(nameof(propertyName));
         }
 
-        public string PropertyName { get; }
+        public string PropertyName { get; } = string.Empty;
 
         public string TypeName
         {

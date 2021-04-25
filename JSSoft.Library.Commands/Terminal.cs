@@ -937,8 +937,7 @@ namespace JSSoft.Library.Commands
 
         private void FlushKeyChars(ref string keyChars)
         {
-            if (keyChars != string.Empty)
-                this.InsertText(keyChars);
+            this.InsertText(keyChars);
             keyChars = string.Empty;
         }
 

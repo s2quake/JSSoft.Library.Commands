@@ -125,6 +125,12 @@ namespace JSSoft.Library.Commands.Repl.Commands
         {
         }
 
+        [CommandMethod("cmp")]
+        public async Task CompareAsync(string p1, string p2)
+        {
+            await Task.Delay(10);
+        }
+
         [CommandMethod]
         public async Task SleepAsync()
         {
@@ -218,10 +224,16 @@ namespace JSSoft.Library.Commands.Repl.Commands
         private async Task<string[]> GetNamesAsync()
         {
             await Task.Delay(2000);
-            return await Task.Run(() => 
+            return await Task.Run(() =>
             {
                 return new string[] { "a", "b", "c" };
             });
+        }
+
+        private async Task<string[]> CompleteCompareAsync(CommandMemberDescriptor descriptor, string find)
+        {
+            await Task.Delay(1);
+            return new string[] { "a", "b", "c" };
         }
     }
 }
