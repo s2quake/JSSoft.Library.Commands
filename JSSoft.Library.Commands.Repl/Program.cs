@@ -28,6 +28,8 @@ namespace JSSoft.Library.Commands.Repl
     {
         static async Task Main(string[] _)
         {
+            var info = new System.IO.DirectoryInfo("/Users/s2quake-mac/Projects/workspace/repository/.repository/users/Members");
+            info.Create();
             var shell = Container.GetService<IShell>();
             Console.WriteLine();
             await shell.StartAsync();
