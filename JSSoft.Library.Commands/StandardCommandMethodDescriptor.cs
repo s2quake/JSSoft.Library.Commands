@@ -33,6 +33,7 @@ namespace JSSoft.Library.Commands
         private readonly CommandMemberDescriptor[] members;
         private readonly PropertyInfo canExecutableProperty;
         private readonly MethodInfo getCompletionMethod;
+        private readonly int asyncWaitTime;
 
         public StandardCommandMethodDescriptor(MethodInfo methodInfo)
             : base(methodInfo)
@@ -48,6 +49,7 @@ namespace JSSoft.Library.Commands
             this.members = methodInfo.GetMemberDescriptors();
             this.canExecutableProperty = methodInfo.GetCanExecutableProperty();
             this.getCompletionMethod = methodInfo.GetCompletionMethod();
+            this.asyncWaitTime = methodInfo.GetCompletionAsyncWaitTime();
         }
 
         public override string DescriptorName { get; }
@@ -93,23 +95,24 @@ namespace JSSoft.Library.Commands
         {
             if (this.getCompletionMethod != null)
             {
-                return InvokeCompletionMethod(this.getCompletionMethod, instance, parameters);
+                return InvokeCompletionMethod(instance, parameters);
             }
             return base.GetCompletion(instance, parameters);
         }
 
-        private static string[] InvokeCompletionMethod(MethodInfo methodInfo, object instance, object[] parameters)
+        private string[] InvokeCompletionMethod(object instance, object[] parameters)
         {
             try
             {
-                var value = methodInfo.Invoke(instance, parameters);
+                var value = this.getCompletionMethod.Invoke(instance, parameters);
+                var asyncWaitTime = this.asyncWaitTime;
                 if (value is string[] items)
                 {
                     return items;
                 }
                 else if (value is Task<string[]> task)
                 {
-                    if (task.Wait(1000) == false)
+                    if (task.Wait(asyncWaitTime) == false)
                         return null;
                     return task.Result;
                 }

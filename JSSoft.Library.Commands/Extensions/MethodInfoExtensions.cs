@@ -133,6 +133,18 @@ namespace JSSoft.Library.Commands.Extensions
             return null;
         }
 
+        public static int GetCompletionAsyncWaitTime(this MethodInfo methodInfo)
+        {
+            if (methodInfo.GetCustomAttribute<CommandMethodCompletionAttribute>() is CommandMethodCompletionAttribute attribute)
+            {
+                return attribute.AsyncWaitTime;
+            }
+            else
+            {
+                return 1000;
+            }
+        }
+
         public static CommandMemberDescriptor[] GetMemberDescriptors(this MethodInfo methodInfo)
         {
             var memberList = new List<CommandMemberDescriptor>();
