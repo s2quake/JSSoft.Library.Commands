@@ -48,7 +48,9 @@ namespace JSSoft.Library.Commands.Repl.Commands
         [CommandSummary("Start async task")]
         [CommandSummary("비동기 작업을 시작합니다.", Locale = "ko-KR")]
         [CommandMethodStaticProperty(typeof(FilterProperties))]
-        public void Start()
+        [CommandMethodValidation(nameof(TestCommandExtension.CanStart), Type = typeof(TestCommandExtension))]
+        [CommandMethodCompletion(nameof(TestCommandExtension.CompleteStart), Type = typeof(TestCommandExtension))]
+        public void Start(string p1 = "")
         {
             this.cancellation = new CancellationTokenSource();
             this.task = this.TestAsync();

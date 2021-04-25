@@ -22,6 +22,7 @@
 using JSSoft.Library.Commands.Properties;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -81,7 +82,10 @@ namespace JSSoft.Library.Commands.Extensions
                 var propertyName = attribute.PropertyName;
                 var bindingFlags1 = attribute.Type != null ? BindingFlags.Static : BindingFlags.Instance;
                 var bindingFlags2 = BindingFlags.Public | BindingFlags.NonPublic | bindingFlags1;
-                return instanceType.GetProperty(propertyName, bindingFlags2);
+                var property = instanceType.GetProperty(propertyName, bindingFlags2);
+                if (property is null)
+                    Trace.TraceWarning($"'{instanceType.Name}.{propertyName}' property does not exits. ({methodInfo.DeclaringType}.{methodInfo.Name})");
+                return property;
             }
             else
             {
@@ -94,20 +98,38 @@ namespace JSSoft.Library.Commands.Extensions
 
         public static MethodInfo GetCompletionMethod(this MethodInfo methodInfo)
         {
-            var instanceType = methodInfo.DeclaringType;
-            var isAsync = methodInfo.IsAsync();
-            var bindingFlags = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance;
-            if (isAsync == true)
+            if (methodInfo.GetCustomAttribute<CommandMethodCompletionAttribute>() is CommandMethodCompletionAttribute attribute)
             {
-                var asyncName = $"Complete{GetPureName(methodInfo)}Async";
-                var asyncMethod = instanceType.GetMethod(asyncName, bindingFlags);
-                if (IsCompletionAsyncMethod(asyncMethod) == true)
-                    return asyncMethod;
+                var instanceType = attribute.Type ?? methodInfo.DeclaringType;
+                var methodName = attribute.MethodName;
+                var bindingFlags1 = attribute.Type != null ? BindingFlags.Static : BindingFlags.Instance;
+                var bindingFlags2 = BindingFlags.Public | BindingFlags.NonPublic | bindingFlags1;
+                var method = instanceType.GetMethod(methodName, bindingFlags2);
+                if (IsCompletionAsyncMethod(method) == true || IsCompletionMethod(method) == true)
+                    return method;
+                if (method is null)
+                    Trace.TraceWarning($"'{instanceType.Name}.{methodName}' method does not exits. ({methodInfo.DeclaringType}.{methodInfo.Name})");
+                else
+                    Trace.TraceWarning($"'{instanceType.Name}.{methodName}' method is invalid return type or parameter type. ({methodInfo.DeclaringType}.{methodInfo.Name})");
             }
-            var name = $"Complete{GetPureName(methodInfo)}";
-            var method = instanceType.GetMethod(name, bindingFlags);
-            if (IsCompletionMethod(method) == true)
-                return method;
+            else
+            {
+                var instanceType = methodInfo.DeclaringType;
+                var isAsync = methodInfo.IsAsync();
+                var bindingFlags = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance;
+                {
+                    var asyncName = $"Complete{GetPureName(methodInfo)}Async";
+                    var asyncMethod = instanceType.GetMethod(asyncName, bindingFlags);
+                    if (IsCompletionAsyncMethod(asyncMethod) == true)
+                        return asyncMethod;
+                }
+                {
+                    var name = $"Complete{GetPureName(methodInfo)}";
+                    var method = instanceType.GetMethod(name, bindingFlags);
+                    if (IsCompletionMethod(method) == true)
+                        return method;
+                }
+            }
             return null;
         }
 
