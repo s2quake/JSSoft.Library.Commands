@@ -22,6 +22,7 @@
 using System;
 using System.ComponentModel.Composition;
 using System.IO;
+using System.Security;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -45,9 +46,14 @@ namespace JSSoft.Library.Commands.Repl
             this.cancellation.Cancel();
         }
 
-        public string ReadString(string prompt, string command, bool isHidden)
+        public string ReadString(string prompt, string command)
         {
-            return this.Terminal.ReadString(prompt, command, isHidden);
+            return this.Terminal.ReadString(prompt, command);
+        }
+
+        public SecureString ReadSecureString(string prompt)
+        {
+            return this.Terminal.ReadSecureString(prompt);
         }
 
         public Task StartAsync()

@@ -25,28 +25,21 @@ namespace JSSoft.Library.Commands
 {
     struct TerminalCommand : ITerminalString
     {
-        private const string prompt = "> ";
+        private const string multilinePrompt = "> ";
 
         private TerminalFormat formatter;
-        private string formatText;
+        private string formattedText;
 
         public TerminalCommand(string text, TerminalFormat formatter)
         {
             this.Text = text ?? throw new ArgumentNullException(nameof(text));
             this.formatter = formatter;
-            this.formatText = formatter?.Invoke(text) ?? text;
-        }
-
-        public string GetText(bool isPassword)
-        {
-            if (isPassword == true)
-                return string.Empty.PadRight(this.Text.Length, Terminal.PasswordCharacter);
-            return this.Text;
+            this.formattedText = formatter?.Invoke(text) ?? text;
         }
 
         public string Text { get; }
 
-        public string FormatText => this.formatText;
+        public string FormattedText => this.formattedText;
 
         public int Length => this.Text.Length;
 
@@ -80,20 +73,25 @@ namespace JSSoft.Library.Commands
 
         public TerminalPoint Next(TerminalPoint pt, int bufferWidth)
         {
-            var text = this.Text.Replace(Environment.NewLine, $"{Environment.NewLine}{prompt}");
+            var text = this.Text.Replace(Environment.NewLine, $"{Environment.NewLine}{multilinePrompt}");
             return Terminal.NextPosition(text, bufferWidth, pt);
         }
 
         public static implicit operator string(TerminalCommand s)
         {
-            return s.Text.Replace(Environment.NewLine, $"{Environment.NewLine}{prompt}");
+            return s.Text.Replace(Environment.NewLine, $"{Environment.NewLine}{multilinePrompt}");
         }
 
         public static TerminalCommand Empty { get; } = new TerminalCommand(string.Empty, null);
 
+        // private static string ConvertToPassword(string text)
+        // {
+        //     return string.Empty.PadRight(text.Length, Terminal.PasswordCharacter);
+        // }
+
         #region ITerminalString
 
-        string ITerminalString.Text => this.FormatText.Replace(Environment.NewLine, $"{Environment.NewLine}{prompt}");
+        string ITerminalString.Text => this.FormattedText.Replace(Environment.NewLine, $"{Environment.NewLine}{multilinePrompt}");
 
         #endregion
     }

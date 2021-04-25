@@ -20,23 +20,25 @@
 // Namespaces and files starting with "Ntreev" have been renamed to "JSSoft".
 
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Security;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace JSSoft.Library.Commands.Repl
+namespace JSSoft.Library.Commands
 {
-    public interface IShell
+    static class SecureStringExtensions
     {
-        void Cancel();
-
-        Task StartAsync();
-
-        string CurrentDirectory { get; set; }
-
-        string ReadString(string prompt, string command);
-
-        SecureString ReadSecureString(string prompt);
-
-        event EventHandler DirectoryChanged;
+        public static void InsertAt(this SecureString secureString, int index, string text)
+        {
+            for (var i = 0; i < text.Length; i++)
+            {
+                secureString.InsertAt(i + index, text[i]);
+            }
+        }
     }
 }

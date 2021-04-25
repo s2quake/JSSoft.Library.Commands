@@ -375,7 +375,7 @@ namespace JSSoft.Library.Commands
                     if (commandNode == null)
                         return null;
                 }
-                if (commandNode.Childs.Any() == true)
+                if (commandNode.IsEnabled == true && commandNode.Childs.Any() == true)
                 {
                     itemList.RemoveAt(0);
                     return this.GetCompletion(commandNode, itemList, find);

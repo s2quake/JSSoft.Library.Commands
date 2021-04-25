@@ -22,6 +22,7 @@
 using System;
 using System.ComponentModel.Composition;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -83,8 +84,8 @@ namespace JSSoft.Library.Commands.Repl.Commands
         [CommandMethod]
         public void Login()
         {
-            var text = this.shell.ReadString("password: ", string.Empty, true);
-            this.Out.WriteLine(text);
+            var secureString = this.shell.ReadSecureString("password: ");
+            this.Out.WriteLine($"password length is '{secureString.Length}'");
         }
 
         [CommandMethod]
