@@ -1049,7 +1049,6 @@ namespace JSSoft.Library.Commands
                 this.inputText = string.Empty;
                 this.completion = string.Empty;
                 this.flags = TerminalFlags.None;
-                this.secureString?.Dispose();
                 this.secureString = null;
             }
         }
