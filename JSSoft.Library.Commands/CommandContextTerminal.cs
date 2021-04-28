@@ -64,10 +64,11 @@ namespace JSSoft.Library.Commands
 
             while (cancellation.IsCancellationRequested == false)
             {
-                if (this.ReadStringInternal(this.Prompt) is string command)
+                if (this.IsEnabled == true && this.ReadStringInternal(this.Prompt) is string command)
                 {
                     await this.ExecuteCommandAsync(command);
                 }
+                await Task.Delay(1);
             }
 
             Console.SetOut(consoleOut);

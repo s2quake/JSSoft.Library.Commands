@@ -68,7 +68,6 @@ namespace JSSoft.Library.Commands
 
         private TerminalFlags flags;
         private Func<string, bool> validator;
-        private bool isCancellationRequested;
         private char closedChar;
         private Thread thread;
 
@@ -298,11 +297,6 @@ namespace JSSoft.Library.Commands
             }
         }
 
-        public void Cancel()
-        {
-            this.isCancellationRequested = true;
-        }
-
         public void Clear()
         {
             lock (LockedObject)
@@ -474,6 +468,8 @@ namespace JSSoft.Library.Commands
         public bool IsReading => this.flags.HasFlag(TerminalFlags.IsReading);
 
         public bool IsPassword => this.flags.HasFlag(TerminalFlags.IsPassword);
+
+        public bool IsEnabled { get; set; } = true;
 
         public static bool IsUnix => Environment.OSVersion.Platform == PlatformID.Unix;
 
@@ -887,7 +883,7 @@ namespace JSSoft.Library.Commands
 
         private object ReadLineImpl()
         {
-            while (this.isCancellationRequested == false)
+            while (this.IsEnabled == true)
             {
                 var text = string.Empty;
                 this.Update();
