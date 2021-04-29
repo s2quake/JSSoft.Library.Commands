@@ -306,7 +306,7 @@ namespace JSSoft.Library.Commands
                 var offset = new TerminalPoint(0, this.pt1.Y);
                 var bufferWidth = this.width;
                 var pre = this.command.Slice(0, this.cursorIndex);
-                var promptTextF = this.prompt.FormatText + this.command.FormattedText;
+                var promptTextF = this.prompt.FormattedText + this.command.FormattedText;
                 var st1 = pre.Next(this.pt2, bufferWidth) - offset;
                 this.pt1 -= offset;
                 this.pt2 -= offset;
@@ -568,7 +568,7 @@ namespace JSSoft.Library.Commands
 
                 this.cursorIndex = newCursorIndex;
                 this.command = command;
-                this.promptText = prompt.FormatText + command.FormattedText;
+                this.promptText = prompt.FormattedText + command.FormattedText;
                 this.inputText = pre.Text;
                 this.completion = string.Empty;
                 this.pt1 = pt1 - offset;
@@ -700,7 +700,7 @@ namespace JSSoft.Library.Commands
             var pt4 = extra.Next(pt3, bufferWidth);
 
             this.command = command;
-            this.promptText = prompt.FormatText + command.FormattedText;
+            this.promptText = prompt.FormattedText + command.FormattedText;
             this.cursorIndex = cursorIndex;
             this.inputText = pre;
             this.pt3 = pt4;
@@ -725,7 +725,7 @@ namespace JSSoft.Library.Commands
             var pt4 = extra.Next(pt3, bufferWidth);
 
             this.command = command;
-            this.promptText = prompt.FormatText + command.FormattedText;
+            this.promptText = prompt.FormattedText + command.FormattedText;
             this.inputText = pre;
             this.pt3 = pt4;
             this.pt4 = pt3;
@@ -810,7 +810,7 @@ namespace JSSoft.Library.Commands
             var st3 = pt4 - offset;
 
             this.prompt = prompt;
-            this.promptText = prompt.FormatText + command.FormattedText;
+            this.promptText = prompt.FormattedText + command.FormattedText;
             this.pt1 = pt1 - offset;
             this.pt2 = pt2 - offset;
             this.pt3 = pt3 - offset;
@@ -838,7 +838,7 @@ namespace JSSoft.Library.Commands
             var st3 = pt3 - offset;
 
             this.command = TerminalCommand.Empty;
-            this.promptText = prompt.FormatText;
+            this.promptText = prompt.FormattedText;
             this.cursorIndex = command.Length;
             this.inputText = value;
             this.completion = string.Empty;
@@ -1008,7 +1008,7 @@ namespace JSSoft.Library.Commands
                 this.height = bufferHeight;
                 this.prompt = promptS;
                 this.command = new TerminalCommand(string.Empty, this.FormatCommand);
-                this.promptText = promptS.FormatText;
+                this.promptText = promptS.FormattedText;
                 this.cursorIndex = 0;
                 this.inputText = command;
                 this.completion = string.Empty;
