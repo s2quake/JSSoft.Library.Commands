@@ -32,7 +32,7 @@ namespace JSSoft.Library.Commands
         [CommandPropertyTrigger(nameof(IsDetail), false)]
         public bool IsSimple { get; set; }
 
-        [CommandProperty("option", InitValue = "")]
+        [CommandProperty("option")]
         public string OptionName { get; set; }
 
         public CommandUsage Usage

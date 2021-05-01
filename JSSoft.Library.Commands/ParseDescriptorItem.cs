@@ -65,6 +65,10 @@ namespace JSSoft.Library.Commands
                     {
                         return Activator.CreateInstance(this.Descriptor.MemberType);
                     }
+                    else if (this.Descriptor.MemberType == typeof(string))
+                    {
+                        return string.Empty;
+                    }
                     else
                     {
                         return null;
