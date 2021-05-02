@@ -120,7 +120,7 @@ namespace JSSoft.Library.Commands
             var obj = attribute.Type != null ? null : instance;
             var flag = attribute.Type != null ? BindingFlags.Static : BindingFlags.Instance;
             var asyncWaitTime = attribute.AsyncWaitTime;
-            var method = type.GetMethod(methodName, 0, BindingFlags.Public | BindingFlags.NonPublic | flag, null, new Type[] { }, null);
+            var method = type.GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | flag, null, new Type[] { }, null);
             try
             {
                 var value = method.Invoke(obj, null);
