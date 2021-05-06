@@ -70,6 +70,7 @@ namespace JSSoft.Library.Commands
         private Func<string, bool> validator;
         private char closedChar;
         private Thread thread;
+        private CancellationToken cancellation;
 
         static Terminal()
         {
@@ -881,9 +882,9 @@ namespace JSSoft.Library.Commands
             return initializer.ReadLineImpl(validation);
         }
 
-        private object ReadLineImpl()
+        private object ReadLineImpl(CancellationToken cancellation)
         {
-            while (this.IsEnabled == true)
+            while (this.IsEnabled == true && cancellation.IsCancellationRequested == false)
             {
                 var text = string.Empty;
                 this.Update();
@@ -1122,14 +1123,14 @@ namespace JSSoft.Library.Commands
 
         private bool CanRecord => this.IsRecordable == true && this.IsPassword == false && this.command != string.Empty;
 
-        internal string ReadStringInternal(string prompt)
+        internal string ReadStringInternal(string prompt, CancellationToken cancellation)
         {
             using var initializer = new Initializer(this)
             {
                 Prompt = prompt,
-                Flags = TerminalFlags.IsRecordable
+                Flags = TerminalFlags.IsRecordable,
             };
-            return initializer.ReadLineImpl(i => true) as string;
+            return initializer.ReadLineImpl(i => true, cancellation) as string;
         }
 
         internal void Update()
@@ -1167,9 +1168,14 @@ namespace JSSoft.Library.Commands
 
             public object ReadLineImpl(Func<string, bool> validation)
             {
+                return this.ReadLineImpl(validation, CancellationToken.None);
+            }
+
+            public object ReadLineImpl(Func<string, bool> validation, CancellationToken cancellation)
+            {
                 this.terminal.Initialize(this.Prompt, this.Flags, this.Validator);
                 this.terminal.SetCommand(this.Command);
-                return this.terminal.ReadLineImpl();
+                return this.terminal.ReadLineImpl(cancellation);
             }
 
             public ConsoleKey ReadKeyImpl(params ConsoleKey[] filters)

@@ -84,11 +84,6 @@ namespace JSSoft.Library.Commands
 
         public static TerminalCommand Empty { get; } = new TerminalCommand(string.Empty, null);
 
-        // private static string ConvertToPassword(string text)
-        // {
-        //     return string.Empty.PadRight(text.Length, Terminal.PasswordCharacter);
-        // }
-
         #region ITerminalString
 
         string ITerminalString.Text => this.FormattedText.Replace(Environment.NewLine, $"{Environment.NewLine}{multilinePrompt}");

@@ -64,7 +64,9 @@ namespace JSSoft.Library.Commands
 
             while (cancellation.IsCancellationRequested == false)
             {
-                if (this.IsEnabled == true && this.ReadStringInternal(this.Prompt) is string command)
+                var isEnabled = this.IsEnabled;
+                var prompt = this.Prompt;
+                if (isEnabled == true && this.ReadStringInternal(prompt, cancellation) is string command)
                 {
                     await this.ExecuteCommandAsync(command);
                 }
