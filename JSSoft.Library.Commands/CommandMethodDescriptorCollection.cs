@@ -27,7 +27,7 @@ namespace JSSoft.Library.Commands
 {
     public class CommandMethodDescriptorCollection : IEnumerable<CommandMethodDescriptor>
     {
-        private readonly List<CommandMethodDescriptor> descriptors = new List<CommandMethodDescriptor>();
+        private readonly List<CommandMethodDescriptor> descriptors = new();
 
         internal CommandMethodDescriptorCollection()
         {

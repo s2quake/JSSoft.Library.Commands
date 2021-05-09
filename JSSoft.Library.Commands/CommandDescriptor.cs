@@ -30,12 +30,12 @@ namespace JSSoft.Library.Commands
 {
     public static class CommandDescriptor
     {
-        private static readonly Dictionary<Type, CommandMethodDescriptorCollection> typeToMethodDescriptors = new Dictionary<Type, CommandMethodDescriptorCollection>();
-        private static readonly Dictionary<Type, CommandMemberDescriptorCollection> membersByType = new Dictionary<Type, CommandMemberDescriptorCollection>();
-        private static readonly Dictionary<object, CommandMemberDescriptorCollection> membersByInstance = new Dictionary<object, CommandMemberDescriptorCollection>();
-        private static readonly Dictionary<ICustomAttributeProvider, CommandMemberDescriptorCollection> providerToMemberDescriptors = new Dictionary<ICustomAttributeProvider, CommandMemberDescriptorCollection>();
-        private static readonly Dictionary<ICustomAttributeProvider, CommandMethodDescriptorCollection> providerToMethodDescriptors = new Dictionary<ICustomAttributeProvider, CommandMethodDescriptorCollection>();
-        private static readonly Dictionary<Type, IUsageDescriptionProvider> typeToUsageDescriptionProvider = new Dictionary<Type, IUsageDescriptionProvider>();
+        private static readonly Dictionary<Type, CommandMethodDescriptorCollection> typeToMethodDescriptors = new();
+        private static readonly Dictionary<Type, CommandMemberDescriptorCollection> membersByType = new();
+        private static readonly Dictionary<object, CommandMemberDescriptorCollection> membersByInstance = new();
+        private static readonly Dictionary<ICustomAttributeProvider, CommandMemberDescriptorCollection> providerToMemberDescriptors = new();
+        private static readonly Dictionary<ICustomAttributeProvider, CommandMethodDescriptorCollection> providerToMethodDescriptors = new();
+        private static readonly Dictionary<Type, IUsageDescriptionProvider> typeToUsageDescriptionProvider = new();
 
         public static IUsageDescriptionProvider GetUsageDescriptionProvider(Type type)
         {

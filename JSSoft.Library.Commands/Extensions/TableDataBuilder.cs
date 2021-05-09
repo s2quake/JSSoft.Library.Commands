@@ -28,7 +28,7 @@ namespace JSSoft.Library.Commands.Extensions
     public class TableDataBuilder
     {
         private readonly object[] headers;
-        private readonly List<string[]> rows = new List<string[]>();
+        private readonly List<string[]> rows = new();
         private string[][] data;
 
         public TableDataBuilder(params object[] headers)

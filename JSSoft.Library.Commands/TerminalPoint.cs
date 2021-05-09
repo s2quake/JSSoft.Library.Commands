@@ -145,9 +145,9 @@ namespace JSSoft.Library.Commands
             return new TerminalPoint(pt1.X - pt2.X, pt1.Y - pt2.Y);
         }
 
-        public static readonly TerminalPoint Zero = new TerminalPoint(0, 0);
+        public static readonly TerminalPoint Zero = new(0, 0);
 
-        public static readonly TerminalPoint Invalid = new TerminalPoint(-1, -1);
+        public static readonly TerminalPoint Invalid = new(-1, -1);
 
         internal string CursorString => $"\u001b[{this.Y + 1};{this.X + 1}f";
 

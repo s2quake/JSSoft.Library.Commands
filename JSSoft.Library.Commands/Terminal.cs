@@ -42,12 +42,12 @@ namespace JSSoft.Library.Commands
         private static readonly char[] multilineChars = new[] { '\"', '\'' };
         private static byte[] charWidths;
         private static TerminalKeyBindingCollection keyBindings = TerminalKeyBindingCollection.Default;
-        private static TerminalString cursorVisible = new TerminalString(escCursorVisible);
+        private static TerminalString cursorVisible = new(escCursorVisible);
 
         private readonly Dictionary<ConsoleKeyInfo, Func<object>> systemActions = new();
         private readonly List<string> histories = new();
-        private readonly Queue<string> stringQueue = new Queue<string>();
-        private readonly ManualResetEvent eventSet = new ManualResetEvent(false);
+        private readonly Queue<string> stringQueue = new();
+        private readonly ManualResetEvent eventSet = new(false);
 
         private TerminalPoint pt1 = new(0, Console.CursorTop);
         private TerminalPoint pt2;

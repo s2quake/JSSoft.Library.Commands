@@ -30,7 +30,7 @@ namespace JSSoft.Library.Commands
 {
     class ParseDescriptor
     {
-        private readonly Dictionary<string, string> unparsedArguments = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> unparsedArguments = new();
 
         /// <param name="members"></param>
         /// <param name="commandLine"></param>

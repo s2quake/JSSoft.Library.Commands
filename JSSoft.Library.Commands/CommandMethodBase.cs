@@ -29,7 +29,7 @@ namespace JSSoft.Library.Commands
 {
     public abstract class CommandMethodBase : ICommand, ICommandHost, ICommandHierarchy, ICommandCompletor, ICommandDescriptor, ICommandUsage
     {
-        private readonly CommandCollection commands = new CommandCollection();
+        private readonly CommandCollection commands = new();
         private ICommandNode node;
 
         protected CommandMethodBase()

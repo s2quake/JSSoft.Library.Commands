@@ -76,7 +76,7 @@ namespace JSSoft.Library.Commands
             return ToExample(methodInfo);
         }
 
-        public static readonly UsageDescriptionProvider Default = new UsageDescriptionProvider();
+        public static readonly UsageDescriptionProvider Default = new();
 
         public static string ToSummary(ICustomAttributeProvider customAttributeProvider)
         {

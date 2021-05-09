@@ -34,7 +34,7 @@ namespace JSSoft.Library.Commands
         public const string ExamplePrefix = "e:";
 
         private const string extension = ".resources";
-        private readonly static Dictionary<string, ResourceManager> resourceManagers = new Dictionary<string, ResourceManager>();
+        private readonly static Dictionary<string, ResourceManager> resourceManagers = new();
         private readonly string resourceName;
 
         static ResourceUsageDescriptionProvider()

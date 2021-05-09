@@ -28,7 +28,7 @@ namespace JSSoft.Library.Commands
 {
     public class CommandMemberDescriptorCollection : IEnumerable<CommandMemberDescriptor>
     {
-        private readonly List<CommandMemberDescriptor> descriptors = new List<CommandMemberDescriptor>();
+        private readonly List<CommandMemberDescriptor> descriptors = new();
 
         internal CommandMemberDescriptorCollection()
         {
