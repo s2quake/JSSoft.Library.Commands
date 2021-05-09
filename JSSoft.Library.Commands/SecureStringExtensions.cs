@@ -19,15 +19,7 @@
 // Forked from https://github.com/NtreevSoft/CommandLineParser
 // Namespaces and files starting with "Ntreev" have been renamed to "JSSoft".
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Security;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace JSSoft.Library.Commands
 {
