@@ -26,13 +26,10 @@ namespace JSSoft.Library.Commands
 {
     public struct TerminalPoint : IEquatable<TerminalPoint>, IComparable
     {
-        private int x;
-        private int y;
-
         public TerminalPoint(int x, int y)
         {
-            this.x = x;
-            this.y = y;
+            this.X = x;
+            this.Y = y;
         }
 
         public override bool Equals(object obj)
@@ -93,17 +90,9 @@ namespace JSSoft.Library.Commands
             return $"{this.X}, {this.Y}";
         }
 
-        public int X
-        {
-            get => this.x;
-            set => this.x = value;
-        }
+        public int X { get; set; }
 
-        public int Y
-        {
-            get => this.y;
-            set => this.y = value;
-        }
+        public int Y { get; set; }
 
         public static bool operator >(TerminalPoint pt1, TerminalPoint pt2)
         {
@@ -112,7 +101,7 @@ namespace JSSoft.Library.Commands
 
         public static bool operator >=(TerminalPoint pt1, TerminalPoint pt2)
         {
-            return pt1 > pt2 ? true : pt1 == pt2;
+            return pt1 > pt2 || pt1 == pt2;
         }
 
         public static bool operator <(TerminalPoint pt1, TerminalPoint pt2)
@@ -122,7 +111,7 @@ namespace JSSoft.Library.Commands
 
         public static bool operator <=(TerminalPoint pt1, TerminalPoint pt2)
         {
-            return pt1 < pt2 ? true : pt1 == pt2;
+            return pt1 < pt2 || pt1 == pt2;
         }
 
         public static bool operator ==(TerminalPoint pt1, TerminalPoint pt2)

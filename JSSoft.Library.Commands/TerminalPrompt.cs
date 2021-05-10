@@ -25,14 +25,10 @@ namespace JSSoft.Library.Commands
 {
     struct TerminalPrompt : ITerminalString
     {
-        private TerminalFormat formatter;
-        private string formattedText;
-
         public TerminalPrompt(string text, TerminalFormat formatter)
         {
             this.Text = text ?? throw new ArgumentNullException(nameof(text));
-            this.formatter = formatter;
-            this.formattedText = formatter?.Invoke(text) ?? text;
+            this.FormattedText = formatter?.Invoke(text) ?? text;
         }
 
         public TerminalPoint Next(TerminalPoint pt, int bufferWidth)
@@ -43,7 +39,7 @@ namespace JSSoft.Library.Commands
 
         public string Text { get; }
 
-        public string FormattedText => this.formattedText;
+        public string FormattedText { get; private set; }
 
         public static implicit operator string(TerminalPrompt s)
         {

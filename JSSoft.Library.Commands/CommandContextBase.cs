@@ -34,8 +34,6 @@ namespace JSSoft.Library.Commands
     public abstract class CommandContextBase
     {
         private readonly CommandNode commandNode;
-        private readonly ICommand helpCommand;
-        private readonly ICommand versionCommand;
         private readonly FileVersionInfo versionInfo;
         private readonly string fullName;
         private readonly string filename;
@@ -54,8 +52,8 @@ namespace JSSoft.Library.Commands
             this.fullName = assembly.Location;
             this.versionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
             this.Version = this.versionInfo.ProductVersion;
-            this.helpCommand = commands.SingleOrDefault(item => item.GetType().GetCustomAttribute<HelpCommandAttribute>() != null) ?? new HelpCommand();
-            this.versionCommand = commands.SingleOrDefault(item => item.GetType().GetCustomAttribute<VersionCommandAttribute>() != null) ?? new VersionCommand();
+            this.HelpCommand = commands.SingleOrDefault(item => item.GetType().GetCustomAttribute<HelpCommandAttribute>() != null) ?? new HelpCommand();
+            this.VersionCommand = commands.SingleOrDefault(item => item.GetType().GetCustomAttribute<VersionCommandAttribute>() != null) ?? new VersionCommand();
             this.commandNode = new CommandNode(this);
             this.Initialize(this.commandNode, commands);
         }
@@ -67,8 +65,8 @@ namespace JSSoft.Library.Commands
             this.Name = name ?? throw new ArgumentNullException(nameof(name));
             this.fullName = name;
             this.filename = name;
-            this.helpCommand = commands.SingleOrDefault(item => item.GetType().GetCustomAttribute<HelpCommandAttribute>() != null) ?? new HelpCommand();
-            this.versionCommand = commands.SingleOrDefault(item => item.GetType().GetCustomAttribute<VersionCommandAttribute>() != null) ?? new VersionCommand();
+            this.HelpCommand = commands.SingleOrDefault(item => item.GetType().GetCustomAttribute<HelpCommandAttribute>() != null) ?? new HelpCommand();
+            this.VersionCommand = commands.SingleOrDefault(item => item.GetType().GetCustomAttribute<VersionCommandAttribute>() != null) ?? new VersionCommand();
             this.commandNode = new CommandNode(this);
             this.Initialize(this.commandNode, commands);
         }
@@ -218,9 +216,9 @@ namespace JSSoft.Library.Commands
 
         public Action<CommandContextBase> BaseUsage { get; set; } = PrintBaseUsage;
 
-        public ICommand HelpCommand => this.helpCommand;
+        public ICommand HelpCommand { get; private set; }
 
-        public ICommand VersionCommand => this.versionCommand;
+        public ICommand VersionCommand { get; private set; }
 
         public virtual bool IsAnsiSupported => false;
 
@@ -235,9 +233,9 @@ namespace JSSoft.Library.Commands
                         select item;
 
             if (commands.Any(item => item.GetType().GetCustomAttribute<HelpCommandAttribute>() != null) == false)
-                yield return this.helpCommand;
+                yield return this.HelpCommand;
             if (commands.Any(item => item.GetType().GetCustomAttribute<VersionCommandAttribute>() != null) == false)
-                yield return this.versionCommand;
+                yield return this.VersionCommand;
             foreach (var item in query)
             {
                 yield return item;

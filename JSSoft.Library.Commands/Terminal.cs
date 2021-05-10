@@ -40,21 +40,21 @@ namespace JSSoft.Library.Commands
         private const string escCursorVisible = "\u001b[?25h";
         private const string passwordPattern = "[~`! @#$%^&*()_\\-+={[}\\]|\\\\:;\"'<,>.?/0-9a-zA-Z]";
         private static readonly char[] multilineChars = new[] { '\"', '\'' };
-        private static byte[] charWidths;
-        private static TerminalKeyBindingCollection keyBindings = TerminalKeyBindingCollection.Default;
-        private static TerminalString cursorVisible = new(escCursorVisible);
+        private static readonly byte[] charWidths;
+        private static readonly TerminalKeyBindingCollection keyBindings = TerminalKeyBindingCollection.Default;
+        private static readonly TerminalString cursorVisible = new(escCursorVisible);
 
         private readonly Dictionary<ConsoleKeyInfo, Func<object>> systemActions = new();
         private readonly List<string> histories = new();
         private readonly Queue<string> stringQueue = new();
         private readonly ManualResetEvent eventSet = new(false);
+        private readonly StringBuilder outputText = new();
 
         private TerminalPoint pt1 = new(0, Console.CursorTop);
         private TerminalPoint pt2;
         private TerminalPoint pt3;
         private TerminalPoint pt4;
         private TerminalPoint ot1;
-        private StringBuilder outputText = new();
         private int width = Console.BufferWidth;
         private int height = Console.BufferHeight;
         private int historyIndex;
@@ -69,8 +69,6 @@ namespace JSSoft.Library.Commands
         private TerminalFlags flags;
         private Func<string, bool> validator;
         private char closedChar;
-        private Thread thread;
-        private CancellationToken cancellation;
 
         static Terminal()
         {
@@ -81,12 +79,15 @@ namespace JSSoft.Library.Commands
             stream.Read(buffer, 0, buffer.Length);
             charWidths = buffer;
 
-            string GetPlatformName(PlatformID platformID) => platformID switch
+            static string GetPlatformName(PlatformID platformID)
             {
-                PlatformID.Unix => $"{PlatformID.Unix}",
-                PlatformID.Win32NT => $"{PlatformID.Win32NT}",
-                _ => $"{PlatformID.Win32NT}",
-            };
+                return platformID switch
+                {
+                    PlatformID.Unix => $"{PlatformID.Unix}",
+                    PlatformID.Win32NT => $"{PlatformID.Win32NT}",
+                    _ => $"{PlatformID.Win32NT}",
+                };
+            }
 
             if (IsWin32NT == true)
             {
@@ -100,7 +101,6 @@ namespace JSSoft.Library.Commands
                 throw new Exception("Terminal cannot use. Console.IsInputRedirected must be false");
             this.systemActions.Add(new ConsoleKeyInfo('\u0003', ConsoleKey.C, false, false, true), this.OnCancel);
             this.systemActions.Add(new ConsoleKeyInfo('\r', ConsoleKey.Enter, false, false, false), this.OnEnter);
-            this.thread = Thread.CurrentThread;
         }
 
         public static string NextCompletion(string[] completions, string text)
@@ -688,7 +688,6 @@ namespace JSSoft.Library.Commands
         private void BackspaceImpl()
         {
             var bufferWidth = this.width;
-            var bufferHeight = this.height;
             var prompt = this.prompt;
             var extra = this.command.Slice(this.cursorIndex);
             var command = this.command.Remove(this.cursorIndex - 1, 1);
@@ -714,7 +713,6 @@ namespace JSSoft.Library.Commands
         private void DeleteImpl()
         {
             var bufferWidth = this.width;
-            var bufferHeight = this.height;
             var prompt = this.prompt;
             var extra = this.command.Slice(this.cursorIndex + 1);
             var command = this.command.Remove(this.cursorIndex, 1);
@@ -777,14 +775,10 @@ namespace JSSoft.Library.Commands
             {
                 var completion = func(completions, this.completion);
                 var inputText = this.inputText;
-                var command = string.Empty;
+                var command = leftText + completion;
                 if (prefix == true || postfix == true)
                 {
                     command = leftText + "\"" + completion + "\"";
-                }
-                else
-                {
-                    command = leftText + completion;
                 }
                 this.SetCommand(command);
                 this.completion = completion;
@@ -825,7 +819,6 @@ namespace JSSoft.Library.Commands
 
         private void SetCommand(string value)
         {
-            var bufferWidth = this.width;
             var bufferHeight = this.height;
             var prompt = this.prompt;
             var pt1 = this.pt1;
@@ -834,7 +827,6 @@ namespace JSSoft.Library.Commands
 
             var pt3 = pt2;
             var offset = pt3.Y >= bufferHeight ? new TerminalPoint(0, pt3.Y - lt3.Y) : TerminalPoint.Zero;
-            var st1 = pt2;
             var st2 = pt3 - offset;
             var st3 = pt3 - offset;
 
@@ -854,7 +846,6 @@ namespace JSSoft.Library.Commands
         private void SetCursorIndex(int cursorIndex)
         {
             var bufferWidth = this.width;
-            var bufferHeight = this.height;
             var pre = this.command.Slice(0, cursorIndex);
             var pt4 = pre.Next(this.pt2, bufferWidth);
 
@@ -1149,7 +1140,7 @@ namespace JSSoft.Library.Commands
         class Initializer : IDisposable
         {
             private readonly Terminal terminal;
-            private bool isControlC = Console.TreatControlCAsInput;
+            private readonly bool isControlC = Console.TreatControlCAsInput;
 
             public Initializer(Terminal terminal)
             {

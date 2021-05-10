@@ -72,7 +72,10 @@ namespace JSSoft.Library.Commands
             }
         }
 
-        public void AppendLine() => this.AppendLine(string.Empty);
+        public void AppendLine()
+        {
+            this.AppendLine(string.Empty);
+        }
 
         public void AppendLine(string text)
         {

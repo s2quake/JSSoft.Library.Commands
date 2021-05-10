@@ -34,7 +34,7 @@ namespace JSSoft.Library.Commands
     {
         private readonly PropertyInfo propertyInfo;
         private readonly CommandPropertyTriggerAttribute[] triggers;
-        private CommandCompletionAttribute completionAttribute;
+        private readonly CommandCompletionAttribute completionAttribute;
 
         public CommandPropertyDescriptor(PropertyInfo propertyInfo)
             : base(propertyInfo.GetCommandPropertyAttribute(), propertyInfo.Name)

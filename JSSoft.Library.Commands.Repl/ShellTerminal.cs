@@ -54,8 +54,14 @@ namespace JSSoft.Library.Commands.Repl
             return prompt;
         }
 
-        private void Shell_DirectoryChanged(object sender, EventArgs e) => this.UpdatePrompt();
+        private void Shell_DirectoryChanged(object sender, EventArgs e)
+        {
+            this.UpdatePrompt();
+        }
 
-        private void UpdatePrompt() => this.Prompt = $"{this.shell.CurrentDirectory}{postfix}";
+        private void UpdatePrompt()
+        {
+            this.Prompt = $"{this.shell.CurrentDirectory}{postfix}";
+        }
     }
 }

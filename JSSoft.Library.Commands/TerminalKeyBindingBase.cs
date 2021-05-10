@@ -55,9 +55,15 @@ namespace JSSoft.Library.Commands
 
         public override ConsoleKeyInfo Key => this.key;
 
-        protected override bool OnVerify(Terminal terminal) => this.verify(terminal);
+        protected override bool OnVerify(Terminal terminal)
+        {
+            return this.verify(terminal);
+        }
 
-        protected override bool OnAction(Terminal terminal) => this.action(terminal);
+        protected override bool OnAction(Terminal terminal)
+        {
+            return this.action(terminal);
+        }
 
         private static Func<Terminal, bool> ActionToFunc(Action<Terminal> action)
         {

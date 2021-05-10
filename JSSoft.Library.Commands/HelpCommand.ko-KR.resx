@@ -135,4 +135,28 @@
   <data name="HelpInvokeInstance.SubCommand" xml:space="preserve">
     <value>하위 명령어 이름을 나타냅니다.</value>
   </data>
+  <data name="HelpInvokeInstance" xml:space="preserve">
+    <value>&amp;HelpCommand</value>
+  </data>
+  <data name="HelpInvokeInstance.IsDetail" xml:space="preserve">
+    <value>&amp;HelpCommand.IsDetail</value>
+  </data>
+  <data name="HelpInvokeInstance.IsSimple" xml:space="preserve">
+    <value>&amp;HelpCommand.IsSimple</value>
+  </data>
+  <data name="HelpInvokeInstance.OptionName" xml:space="preserve">
+    <value>&amp;HelpCommand.OptionName</value>
+  </data>
+  <data name="HelpParseInstance" xml:space="preserve">
+    <value>&amp;HelpCommand</value>
+  </data>
+  <data name="HelpParseInstance.IsDetail" xml:space="preserve">
+    <value>&amp;HelpCommand.IsDetail</value>
+  </data>
+  <data name="HelpParseInstance.IsSimple" xml:space="preserve">
+    <value>&amp;HelpCommand.IsSimple</value>
+  </data>
+  <data name="HelpParseInstance.OptionName" xml:space="preserve">
+    <value>&amp;HelpCommand.OptionName</value>
+  </data>
 </root>

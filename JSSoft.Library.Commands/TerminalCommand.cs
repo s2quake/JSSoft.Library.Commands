@@ -27,19 +27,18 @@ namespace JSSoft.Library.Commands
     {
         private const string multilinePrompt = "> ";
 
-        private TerminalFormat formatter;
-        private string formattedText;
+        private readonly TerminalFormat formatter;
 
         public TerminalCommand(string text, TerminalFormat formatter)
         {
             this.Text = text ?? throw new ArgumentNullException(nameof(text));
             this.formatter = formatter;
-            this.formattedText = formatter?.Invoke(text) ?? text;
+            this.FormattedText = formatter?.Invoke(text) ?? text;
         }
 
         public string Text { get; }
 
-        public string FormattedText => this.formattedText;
+        public string FormattedText { get; private set; }
 
         public int Length => this.Text.Length;
 

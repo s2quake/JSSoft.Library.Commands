@@ -28,7 +28,7 @@ namespace JSSoft.Library.Commands
     public sealed class CommandParameterDescriptor : CommandMemberDescriptor
     {
         private object value;
-        private CommandCompletionAttribute completionAttribute;
+        private readonly CommandCompletionAttribute completionAttribute;
 
         public CommandParameterDescriptor(ParameterInfo parameterInfo)
             : base(new CommandPropertyRequiredAttribute(), parameterInfo.Name)
