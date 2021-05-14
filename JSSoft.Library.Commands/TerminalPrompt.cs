@@ -31,6 +31,11 @@ namespace JSSoft.Library.Commands
             this.FormattedText = formatter?.Invoke(text) ?? text;
         }
 
+        public override string ToString()
+        {
+            return this.Text;
+        }
+
         public TerminalPoint Next(TerminalPoint pt, int bufferWidth)
         {
             var text = this.Text;

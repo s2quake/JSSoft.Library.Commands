@@ -33,5 +33,9 @@ namespace JSSoft.Library.Commands
         IsReading = 2,
 
         IsRecordable = 4,
+
+        IsInputCancelled = 8,
+
+        IsInputEnded = 16
     }
 }

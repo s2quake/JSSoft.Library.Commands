@@ -36,6 +36,11 @@ namespace JSSoft.Library.Commands
             this.FormattedText = formatter?.Invoke(text) ?? text;
         }
 
+        public override string ToString()
+        {
+            return this.Text;
+        }
+
         public string Text { get; }
 
         public string FormattedText { get; private set; }

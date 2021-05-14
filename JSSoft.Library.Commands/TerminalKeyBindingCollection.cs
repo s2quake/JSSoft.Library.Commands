@@ -29,6 +29,7 @@ namespace JSSoft.Library.Commands
 {
     public class TerminalKeyBindingCollection : IEnumerable<TerminalKeyBindingBase>
     {
+        private static readonly char[] multilineChars = new[] { '\"', '\'' };
         private readonly Dictionary<ConsoleKeyInfo, TerminalKeyBindingBase> itemByKey;
 
         static TerminalKeyBindingCollection()
@@ -108,6 +109,8 @@ namespace JSSoft.Library.Commands
 
         public static TerminalKeyBindingCollection Unix { get; } = new TerminalKeyBindingCollection(Common, new TerminalKeyBindingBase[]
         {
+            new TerminalKeyBinding(new ConsoleKeyInfo('\r', ConsoleKey.Enter, false, false, false), (t) => InputEnterOnUnix(t)),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\u0003', ConsoleKey.C, false, false, true), (t) => t.CancelInput()),
             new TerminalKeyBinding(new ConsoleKeyInfo('\u001b', ConsoleKey.Escape, false, false, false), (t) => {}),
             new TerminalKeyBinding(new ConsoleKeyInfo('\u007f', ConsoleKey.Backspace, false, false, false), (t) => t.Backspace()),
             new TerminalKeyBinding(new ConsoleKeyInfo('\u0015', ConsoleKey.U, false, false, true), (t) => DeleteToFirst(t), (t) => !t.IsPassword),
@@ -172,6 +175,24 @@ namespace JSSoft.Library.Commands
             var index1 = PrevWord(terminal);
             var length = index2 - index1;
             terminal.Command = command.Remove(index1, length);
+        }
+
+        private static void InputEnterOnUnix(Terminal terminal)
+        {
+            var isMultiline = IsMultilineOnUnix(terminal);
+            if (isMultiline == true)
+                terminal.InsertNewLine();
+            else
+                terminal.EndInput();
+        }
+
+        private static bool IsMultilineOnUnix(Terminal terminal)
+        {
+            var command = terminal.Command;
+            var index = command.IndexOfAny(multilineChars);
+            var ch = index >= 0 ? command[index] : char.MinValue;
+            var count = command.Count(item => item == ch);
+            return count % 2 != 0 || command.LastOrDefault() == '\\';
         }
 
         #region IEnumerable

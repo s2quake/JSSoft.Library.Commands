@@ -60,7 +60,7 @@ namespace JSSoft.Library.Commands.Test
         {
             this.parser.Parse("run current_path");
             Assert.AreEqual("current_path", this.RepositoryPath);
-            Assert.IsNull(this.Authentication);
+            Assert.AreEqual(string.Empty, this.Authentication);
         }
 
         [TestMethod]

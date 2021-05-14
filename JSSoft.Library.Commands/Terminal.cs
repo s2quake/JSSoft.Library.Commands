@@ -39,12 +39,10 @@ namespace JSSoft.Library.Commands
         private const string escCursorInvisible = "\u001b[?25l";
         private const string escCursorVisible = "\u001b[?25h";
         private const string passwordPattern = "[~`! @#$%^&*()_\\-+={[}\\]|\\\\:;\"'<,>.?/0-9a-zA-Z]";
-        private static readonly char[] multilineChars = new[] { '\"', '\'' };
         private static readonly byte[] charWidths;
         private static readonly TerminalKeyBindingCollection keyBindings = TerminalKeyBindingCollection.Default;
         private static readonly TerminalString cursorVisible = new(escCursorVisible);
 
-        private readonly Dictionary<ConsoleKeyInfo, Func<object>> systemActions = new();
         private readonly List<string> histories = new();
         private readonly Queue<string> stringQueue = new();
         private readonly ManualResetEvent eventSet = new(false);
@@ -68,7 +66,6 @@ namespace JSSoft.Library.Commands
 
         private TerminalFlags flags;
         private Func<string, bool> validator;
-        private char closedChar;
 
         static Terminal()
         {
@@ -99,8 +96,8 @@ namespace JSSoft.Library.Commands
         {
             if (Console.IsInputRedirected == true)
                 throw new Exception("Terminal cannot use. Console.IsInputRedirected must be false");
-            this.systemActions.Add(new ConsoleKeyInfo('\u0003', ConsoleKey.C, false, false, true), this.OnCancel);
-            this.systemActions.Add(new ConsoleKeyInfo('\r', ConsoleKey.Enter, false, false, false), this.OnEnter);
+            // this.systemActions.Add(new ConsoleKeyInfo('\u0003', ConsoleKey.C, false, false, true), this.OnCancel);
+            // this.systemActions.Add(new ConsoleKeyInfo('\r', ConsoleKey.Enter, false, false, false), this.OnEnter);
         }
 
         public static string NextCompletion(string[] completions, string text)
@@ -248,6 +245,22 @@ namespace JSSoft.Library.Commands
                 Prompt = prompt,
             };
             return initializer.ReadKeyImpl(filters);
+        }
+
+        public void InsertNewLine()
+        {
+            this.MoveToLast();
+            this.InsertText(Environment.NewLine);
+        }
+
+        public void EndInput()
+        {
+            this.flags |= TerminalFlags.IsInputEnded;
+        }
+
+        public void CancelInput()
+        {
+            this.flags |= TerminalFlags.IsInputCancelled;
         }
 
         public void NextHistory()
@@ -883,34 +896,22 @@ namespace JSSoft.Library.Commands
                 {
                     var key = Console.ReadKey(true);
                     var ch = key.KeyChar;
-                    if (this.closedChar == char.MinValue && this.systemActions.ContainsKey(key) == true)
+                    if (text != string.Empty)
+                        this.FlushKeyChars(ref text);
+                    if (this.KeyBindings.CanProcess(key) == true)
                     {
-                        if (text != string.Empty)
-                            this.FlushKeyChars(ref text);
-                        return this.systemActions[key]();
-                    }
-                    else if (this.KeyBindings.CanProcess(key) == true)
-                    {
-                        if (text != string.Empty)
-                            this.FlushKeyChars(ref text);
                         this.KeyBindings.Process(key, this);
                     }
                     else if (this.PreviewKeyChar(key.KeyChar) == true && this.PreviewCommand(text + key.KeyChar) == true)
                     {
-                        if (this.closedChar == char.MinValue && multilineChars.Contains(ch) == true && this.IsPassword == false)
-                        {
-                            this.closedChar = ch;
-                        }
-                        else if (this.closedChar != char.MinValue && this.closedChar == ch)
-                        {
-                            this.closedChar = char.MinValue;
-                        }
-                        if (ch == '\r')
-                            text += Environment.NewLine;
-                        else
-                            text += key.KeyChar;
+                        text += key.KeyChar;
                     }
+                    if (this.IsInputEnded == true)
+                        return this.OnInputEnd();
+                    else if (this.IsInputCancelled == true)
+                        return this.OnInputCancel();
                 }
+
                 if (text != string.Empty)
                     this.FlushKeyChars(ref text);
                 Thread.Sleep(1);
@@ -1041,18 +1042,16 @@ namespace JSSoft.Library.Commands
             }
         }
 
-        private object OnEnter()
+        private object OnInputEnd()
         {
             if (this.CanRecord == true)
-            {
                 this.RecordCommand(this.command.Text);
-            }
             if (this.IsPassword == true)
                 return this.secureString;
             return this.command.Text;
         }
 
-        private object OnCancel()
+        private object OnInputCancel()
         {
             return null;
         }
@@ -1113,6 +1112,10 @@ namespace JSSoft.Library.Commands
         private bool IsRecordable => this.flags.HasFlag(TerminalFlags.IsRecordable);
 
         private bool CanRecord => this.IsRecordable == true && this.IsPassword == false && this.command != string.Empty;
+
+        private bool IsInputCancelled => this.flags.HasFlag(TerminalFlags.IsInputCancelled);
+
+        private bool IsInputEnded => this.flags.HasFlag(TerminalFlags.IsInputEnded);
 
         internal string ReadStringInternal(string prompt, CancellationToken cancellation)
         {
