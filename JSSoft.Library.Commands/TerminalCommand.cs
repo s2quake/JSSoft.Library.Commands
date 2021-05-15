@@ -20,6 +20,7 @@
 // Namespaces and files starting with "Ntreev" have been renamed to "JSSoft".
 
 using System;
+using System.Text;
 
 namespace JSSoft.Library.Commands
 {
@@ -40,12 +41,6 @@ namespace JSSoft.Library.Commands
         {
             return this.Text;
         }
-
-        public string Text { get; }
-
-        public string FormattedText { get; private set; }
-
-        public int Length => this.Text.Length;
 
         public TerminalCommand Slice(int start, int length)
         {
@@ -80,6 +75,12 @@ namespace JSSoft.Library.Commands
             var text = this.Text.Replace(Environment.NewLine, $"{Environment.NewLine}{multilinePrompt}");
             return Terminal.NextPosition(text, bufferWidth, pt);
         }
+
+        public string Text { get; }
+
+        public string FormattedText { get; private set; }
+
+        public int Length => this.Text.Length;
 
         public static implicit operator string(TerminalCommand s)
         {

@@ -96,6 +96,8 @@ namespace JSSoft.Library.Commands
 
         public static TerminalKeyBindingCollection Win32NT { get; } = new TerminalKeyBindingCollection(Common, new TerminalKeyBindingBase[]
         {
+            new TerminalKeyBinding(new ConsoleKeyInfo('\r', ConsoleKey.Enter, false, false, false), (t) => t.EndInput()),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\u0003', ConsoleKey.C, false, false, true), (t) => t.CancelInput()),
             new TerminalKeyBinding(new ConsoleKeyInfo('\u001b', ConsoleKey.Escape, false, false, false), (t) => t.Command = string.Empty, (t) => !t.IsPassword),
             new TerminalKeyBinding(new ConsoleKeyInfo('\b', ConsoleKey.Backspace, false, false, false), (t) => t.Backspace()),
             new TerminalKeyBinding(new ConsoleKeyInfo('\b', ConsoleKey.H, false, false, true), (t) => t.Backspace()),

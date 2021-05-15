@@ -100,6 +100,34 @@ namespace JSSoft.Library.Commands
             // this.systemActions.Add(new ConsoleKeyInfo('\r', ConsoleKey.Enter, false, false, false), this.OnEnter);
         }
 
+        // public static string EscapeString(string text)
+        // {
+        //     var isEscape = false;
+        //     var isDoubleQuotes = false;
+        //     var isSingleQuotes = false;
+        //     var sb = new StringBuilder(this.Text.Length);
+        //     foreach (var item in this.Text)
+        //     {
+        //         if (item == '\\')
+        //         {
+        //             isEscape = true;
+        //         }
+        //         else if (item == '"')
+        //         {
+        //         }
+        //         else if (item == '\'')
+        //         {
+
+        //         }
+        //         else
+        //         {
+                    
+        //         }
+        //         isEscape = false;
+        //     }
+        //     return text;
+        // }
+
         public static string NextCompletion(string[] completions, string text)
         {
             completions = completions.OrderBy(item => item).ToArray();

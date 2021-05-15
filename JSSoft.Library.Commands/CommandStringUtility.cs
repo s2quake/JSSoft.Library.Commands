@@ -22,6 +22,8 @@
 using JSSoft.Library.Commands.Properties;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace JSSoft.Library.Commands
@@ -32,44 +34,76 @@ namespace JSSoft.Library.Commands
         private const string singleQuotePattern = "(?<![\\\\])['](?:.(?!(?<![\\\\])(?:(?<![\\\\])['])))*.?(?<![\\\\])[']";
         private const string textPattern = "\\S+";
 
-        private readonly static string fullPattern;
+        private readonly static string fullPattern = "\"(?:(?<=\\\\)\"|[^\"])*\"";
         private readonly static string completionPattern;
 
         static CommandStringUtility()
         {
-            fullPattern = string.Format("({0}|{1}|{2}={0}|{2}={1}|{2}={2}|{2})", doubleQuotesPattern, singleQuotePattern, textPattern);
+            // fullPattern = string.Format("({0}|{1}|{2}={0}|{2}={1}|{2}={2}|{2})", doubleQuotesPattern, singleQuotePattern, textPattern);
             completionPattern = string.Format("({0}|{1}|{2}|\\s+$)", doubleQuotesPattern, singleQuotePattern, textPattern);
+        }
+
+        public static bool VerifyEscapeString(string text)
+        {
+            return GetEscapeString(text) != null;
+        }
+
+        public static string[] EscapeString(string text)
+        {
+            if (GetEscapeString(text) is string[] items)
+                return items;
+            throw new ArgumentException();
+        }
+
+        public static string AggregateString(string[] items)
+        {
+            return AggregateString(items);
+        }
+
+        public static string AggregateString(IEnumerable<string> items)
+        {
+            var length = items.Sum(item => item.Length + 3);
+            var itemList = new List<string>(items.Count());
+            foreach (var item in items)
+            {
+                var text = Regex.Replace(item, "([\\\\\"])", "\\$1");
+                if (text.IndexOf(' ') >= 0)
+                    text = $"\"{text}\"";
+                itemList.Add(text);
+            }
+            return string.Join(" ", itemList);
         }
 
         public static (string first, string rest) Split(string text)
         {
-            var match = Regex.Match(text, fullPattern);
-            var name = TrimQuot(match.Value);
-            var arguments = text.Substring(match.Length).Trim();
-            return (name, arguments);
+            var items = EscapeString(text);
+            var first = items.FirstOrDefault() ?? string.Empty;
+            var rest = items.Count() > 0 ? AggregateString(items.Skip(1)) : string.Empty;
+            return (first, rest);
         }
 
         public static string[] SplitAll(string text)
         {
-            return SplitAll(text, false);
-        }
+            return EscapeString(text);
+            //     return SplitAll(text, false);
+            // }
 
-        public static string[] SplitAll(string text, bool removeQuote)
-        {
-            var matches = Regex.Matches(text, fullPattern);
-            var argList = new List<string>();
-            foreach (Match item in matches)
-            {
-                if (removeQuote == true)
-                {
-                    argList.Add(TrimQuot(item.Value));
-                }
-                else
-                {
-                    argList.Add(item.Value);
-                }
-            }
-            return argList.ToArray();
+            // public static string[] SplitAll(string text, bool removeQuote)
+            // {
+            //     var matches = Regex.Matches(text, fullPattern);
+            //     var argList = new List<string>();
+            //     foreach (Match item in matches)
+            //     {
+            //         if (removeQuote == true)
+            //         {
+            //             argList.Add(TrimQuot(item.Value));
+            //         }
+            //         else
+            //         {
+            //             argList.Add(item.Value);
+            //         }
+            //     }
+            //     return argList.ToArray();
         }
 
         /// <summary>
@@ -112,6 +146,7 @@ namespace JSSoft.Library.Commands
             return argList.ToArray();
         }
 
+        [Obsolete]
         public static string WrapSingleQuot(string text)
         {
             if (Regex.IsMatch(text, "^" + singleQuotePattern) == true || Regex.IsMatch(text, "^" + doubleQuotesPattern) == true)
@@ -119,6 +154,7 @@ namespace JSSoft.Library.Commands
             return string.Format("'{0}'", text);
         }
 
+        [Obsolete]
         public static string WrapDoubleQuote(string text)
         {
             if (Regex.IsMatch(text, "^" + singleQuotePattern) == true || Regex.IsMatch(text, "^" + doubleQuotesPattern) == true)
@@ -126,21 +162,25 @@ namespace JSSoft.Library.Commands
             return string.Format("\"{0}\"", text);
         }
 
+        [Obsolete]
         public static bool IsWrappedOfSingleQuot(string text)
         {
             return Regex.IsMatch(text, "^" + singleQuotePattern);
         }
 
+        [Obsolete]
         public static bool IsWrappedOfDoubleQuote(string text)
         {
             return Regex.IsMatch(text, "^" + doubleQuotesPattern);
         }
 
+        [Obsolete]
         public static bool IsWrappedOfQuote(string text)
         {
             return IsWrappedOfSingleQuot(text) || IsWrappedOfDoubleQuote(text);
         }
 
+        [Obsolete]
         public static string TrimQuot(string text)
         {
             if (IsWrappedOfSingleQuot(text) == true)
@@ -217,6 +257,117 @@ namespace JSSoft.Library.Commands
                 }
             }
             return properties;
+        }
+
+        private static string[] GetEscapeString(string text)
+        {
+            var itemList = new List<string>();
+            var sb = new StringBuilder();
+            var isEscpae = false;
+            var isSingle = false;
+            var isDouble = false;
+
+            foreach (var item in text)
+            {
+                if (item == '\\')
+                {
+                    if (isSingle == true)
+                    {
+                        sb.Append(item);
+                    }
+                    else if (isEscpae == false)
+                    {
+                        isEscpae = true;
+                    }
+                    else
+                    {
+                        sb.Append('\\');
+                    }
+                }
+                else if (item == '\'')
+                {
+                    if (isEscpae == true)
+                    {
+                        sb.Append(item);
+                        isEscpae = false;
+                    }
+                    else if (isDouble == true)
+                    {
+                        sb.Append(item);
+                    }
+                    else if (isSingle == false)
+                    {
+                        isSingle = true;
+                    }
+                    else
+                    {
+                        isSingle = false;
+                    }
+                }
+                else if (item == '"')
+                {
+                    if (isSingle == true)
+                    {
+                        sb.Append(item);
+                    }
+                    else if (isEscpae == true)
+                    {
+                        sb.Append(item);
+                        isEscpae = false;
+                    }
+                    else if (isDouble == true)
+                    {
+                        isDouble = false;
+                    }
+                    else
+                    {
+                        isDouble = true;
+                    }
+                }
+                else if (item == ' ')
+                {
+                    if (isEscpae == true || isSingle == true || isDouble == true)
+                    {
+                        sb.Append(item);
+                    }
+                    else
+                    {
+                        InsertText(itemList, sb);
+                    }
+                }
+                else
+                {
+                    if (isEscpae == true)
+                    {
+                        sb.Append(item);
+                        isEscpae = false;
+                    }
+                    else if (isSingle == true)
+                    {
+                        sb.Append(item);
+                    }
+                    else if (isDouble == true)
+                    {
+                        sb.Append(item);
+                    }
+                    else
+                    {
+                        sb.Append(item);
+                    }
+                }
+            }
+            if (isEscpae == true || isSingle == true || isDouble == true)
+                return null;
+            InsertText(itemList, sb);
+            return itemList.ToArray();
+
+            static void InsertText(List<string> itemList, StringBuilder sb)
+            {
+                var t = sb.ToString().Trim();
+                if (t != string.Empty)
+                    itemList.Add(t);
+                sb.Clear();
+            }
         }
     }
 }

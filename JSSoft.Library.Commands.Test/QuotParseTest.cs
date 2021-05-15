@@ -40,11 +40,11 @@ namespace JSSoft.Library.Commands.Test
         }
 
         [TestMethod]
-        public void SingleQuotInSingleQuotTest()
+        public void SingleQuotInSingleQuotTest1()
         {
             var parser = new CommandLineParser(this);
             var text1 = "abc 'test' 123";
-            var text2 = "'abc \\'test\\' 123'";
+            var text2 = "\"abc 'test' 123\"";
             var args = string.Join(" ", "--value", text2);
             parser.ParseWith(args);
 
@@ -52,11 +52,10 @@ namespace JSSoft.Library.Commands.Test
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public void SingleQuotInSingleQuotTest_Fail()
+        public void SingleQuotInSingleQuotTest2()
         {
             var parser = new CommandLineParser(this);
-            var text1 = "abc 'test' 123";
+            var text1 = "abc test 123";
             var text2 = "'abc 'test' 123'";
             var args = string.Join(" ", "--value", text2);
             parser.ParseWith(args);

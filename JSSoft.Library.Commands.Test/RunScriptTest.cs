@@ -37,7 +37,7 @@ namespace JSSoft.Library.Commands.Test
         [TestMethod]
         public void TestMethod1()
         {
-            this.parser.Parse("run --filename \"C:\\script.js\"");
+            this.parser.Parse("run --filename \"C:\\\\script.js\"");
             Assert.AreEqual(this.Filename, "C:\\script.js");
             Assert.AreEqual(this.Script, string.Empty);
             Assert.IsFalse(this.List);
