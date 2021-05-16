@@ -28,7 +28,7 @@
             "type": "coreclr",
             "request": "launch",
             "program": "${workspaceFolder}/JSSoft.Library.Commands.Repl/bin/Debug/netcoreapp3.1/repl.dll",
-            "args": "",
+            "args": "'abc \"bc\" qw'",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}/JSSoft.Library.Commands.Repl/bin/Debug/netcoreapp3.1",
             "stopAtEntry": false,

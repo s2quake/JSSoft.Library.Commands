@@ -806,7 +806,7 @@ namespace JSSoft.Library.Commands
             var argList = new List<string>();
             for (var i = 0; i < matches.Count; i++)
             {
-                var matchText = CommandStringUtility.TrimQuot(matches[i].Value).Trim();
+                var matchText = matches[i].Value.Trim();
                 if (matchText != string.Empty)
                     argList.Add(matchText);
             }

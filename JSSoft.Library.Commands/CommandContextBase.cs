@@ -83,7 +83,7 @@ namespace JSSoft.Library.Commands
                 return null;
             if (arguments == null)
                 throw new ArgumentNullException(nameof(arguments));
-            var args = CommandStringUtility.SplitAll(arguments);
+            var args = CommandStringUtility.EscapeString(arguments);
             var argList = new List<string>(args);
             return GetCommand(this.commandNode, argList);
         }
@@ -417,7 +417,7 @@ namespace JSSoft.Library.Commands
             }
             else
             {
-                var arguments = CommandStringUtility.SplitAll(commandLine);
+                var arguments = CommandStringUtility.EscapeString(commandLine);
                 var argumentList = new List<string>(arguments);
                 var command = GetCommand(this.commandNode, argumentList);
                 if (command != null)
@@ -441,7 +441,7 @@ namespace JSSoft.Library.Commands
             }
             else
             {
-                var arguments = CommandStringUtility.SplitAll(commandLine);
+                var arguments = CommandStringUtility.EscapeString(commandLine);
                 var argumentList = new List<string>(arguments);
                 var command = GetCommand(this.commandNode, argumentList);
                 if (command != null)

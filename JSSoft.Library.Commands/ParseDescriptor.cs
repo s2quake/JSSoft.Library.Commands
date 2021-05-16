@@ -35,7 +35,7 @@ namespace JSSoft.Library.Commands
         /// <param name="members"></param>
         /// <param name="commandLine"></param>
         public ParseDescriptor(IEnumerable<CommandMemberDescriptor> members, string commandLine)
-            : this(members, CommandStringUtility.SplitAll(commandLine))
+            : this(members, CommandStringUtility.EscapeString(commandLine))
         {
         }
 
@@ -154,10 +154,7 @@ namespace JSSoft.Library.Commands
             var queue = new Queue<string>(arguments.Length);
             foreach (var item in arguments)
             {
-                if (CommandStringUtility.IsWrappedOfQuote(item) == true)
-                    queue.Enqueue(CommandStringUtility.TrimQuot(item));
-                else
-                    queue.Enqueue(item);
+                queue.Enqueue(item);
             }
             return queue;
         }

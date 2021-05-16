@@ -28,31 +28,39 @@ using System.Text.RegularExpressions;
 
 namespace JSSoft.Library.Commands
 {
+    /// <summary>
+    /// https://rubular.com/r/MEDnmumVL45rDS
+    /// </summary>
     public static class CommandStringUtility
     {
-        private const string doubleQuotesPattern = "(?<![\\\\])[\"](?:.(?!(?<![\\\\])(?:(?<![\\\\])[\"])))*.?(?<![\\\\])[\"]";
-        private const string singleQuotePattern = "(?<![\\\\])['](?:.(?!(?<![\\\\])(?:(?<![\\\\])['])))*.?(?<![\\\\])[']";
-        private const string textPattern = "\\S+";
-
-        private readonly static string fullPattern = "\"(?:(?<=\\\\)\"|[^\"])*\"";
-        private readonly static string completionPattern;
+        private const string doubleQuotesPattern = "(?<!\\\\)\"(?:\\\\\"|\\\\\\\\|(?!=\\\\)[^\"])*(?<!\\\\)\"";
+        private const string singleQuotePattern = "'[^']*'";
+        private const string escapedTextPattern = "(?:(?<!\\\\)[^\"'\\s]|(?<=\\\\).)+";
+        private const string stringPattern = "[^ \"']+";
+        private static readonly string fullPattern;
+        private static readonly (string name, string value, Func<string, string> escape)[] patterns =
+        {
+            ("double", doubleQuotesPattern, EscapeDoubleQuotes),
+            ("single", singleQuotePattern, EscapeSingleQuote),
+            ("escape", escapedTextPattern, EscapeEscapedText),
+            ("string", stringPattern, EscapeEscapedText),
+            ("space", "\\s+", (s) => s),
+            ("etc", ".+", (s) => s),
+        };
 
         static CommandStringUtility()
         {
-            // fullPattern = string.Format("({0}|{1}|{2}={0}|{2}={1}|{2}={2}|{2})", doubleQuotesPattern, singleQuotePattern, textPattern);
-            completionPattern = string.Format("({0}|{1}|{2}|\\s+$)", doubleQuotesPattern, singleQuotePattern, textPattern);
+            fullPattern = string.Join("|", patterns.Select(item => $"(?<{item.name}>{item.value})"));
         }
 
         public static bool VerifyEscapeString(string text)
         {
-            return GetEscapeString(text) != null;
+            return GetMatches(text, true) != null;
         }
 
         public static string[] EscapeString(string text)
         {
-            if (GetEscapeString(text) is string[] items)
-                return items;
-            throw new ArgumentException();
+            return GetMatches(text, false);
         }
 
         public static string AggregateString(string[] items)
@@ -82,36 +90,12 @@ namespace JSSoft.Library.Commands
             return (first, rest);
         }
 
-        public static string[] SplitAll(string text)
-        {
-            return EscapeString(text);
-            //     return SplitAll(text, false);
-            // }
-
-            // public static string[] SplitAll(string text, bool removeQuote)
-            // {
-            //     var matches = Regex.Matches(text, fullPattern);
-            //     var argList = new List<string>();
-            //     foreach (Match item in matches)
-            //     {
-            //         if (removeQuote == true)
-            //         {
-            //             argList.Add(TrimQuot(item.Value));
-            //         }
-            //         else
-            //         {
-            //             argList.Add(item.Value);
-            //         }
-            //     }
-            //     return argList.ToArray();
-        }
-
         /// <summary>
         /// a=1, a="123", a='123' 과 같은 문자열을 키와 값으로 분리하는 메소드
         /// </summary>
         public static bool TryGetKeyValue(string text, out string key, out string value)
         {
-            var capturePattern = string.Format("((?<key>{2})=(?<value>{0})|(?<key>{2})=(?<value>{1})|(?<key>{2})=(?<value>.+))", doubleQuotesPattern, singleQuotePattern, textPattern);
+            var capturePattern = string.Format("((?<key>{2})=(?<value>{0})|(?<key>{2})=(?<value>{1})|(?<key>{2})=(?<value>.+))", doubleQuotesPattern, singleQuotePattern, stringPattern);
             var match = Regex.Match(text, capturePattern, RegexOptions.ExplicitCapture);
             if (match.Success)
             {
@@ -124,6 +108,7 @@ namespace JSSoft.Library.Commands
             return false;
         }
 
+        [Obsolete]
         public static Match[] MatchAll(string text)
         {
             var matches = Regex.Matches(text, fullPattern);
@@ -137,65 +122,13 @@ namespace JSSoft.Library.Commands
 
         public static Match[] MatchCompletion(string text)
         {
-            var matches = Regex.Matches(text, completionPattern);
-            var argList = new List<Match>();
+            var matches = Regex.Matches(text, fullPattern);
+            var argList = new List<Match>(matches.Count);
             foreach (Match item in matches)
             {
                 argList.Add(item);
             }
             return argList.ToArray();
-        }
-
-        [Obsolete]
-        public static string WrapSingleQuot(string text)
-        {
-            if (Regex.IsMatch(text, "^" + singleQuotePattern) == true || Regex.IsMatch(text, "^" + doubleQuotesPattern) == true)
-                throw new ArgumentException(nameof(text));
-            return string.Format("'{0}'", text);
-        }
-
-        [Obsolete]
-        public static string WrapDoubleQuote(string text)
-        {
-            if (Regex.IsMatch(text, "^" + singleQuotePattern) == true || Regex.IsMatch(text, "^" + doubleQuotesPattern) == true)
-                throw new ArgumentException(nameof(text));
-            return string.Format("\"{0}\"", text);
-        }
-
-        [Obsolete]
-        public static bool IsWrappedOfSingleQuot(string text)
-        {
-            return Regex.IsMatch(text, "^" + singleQuotePattern);
-        }
-
-        [Obsolete]
-        public static bool IsWrappedOfDoubleQuote(string text)
-        {
-            return Regex.IsMatch(text, "^" + doubleQuotesPattern);
-        }
-
-        [Obsolete]
-        public static bool IsWrappedOfQuote(string text)
-        {
-            return IsWrappedOfSingleQuot(text) || IsWrappedOfDoubleQuote(text);
-        }
-
-        [Obsolete]
-        public static string TrimQuot(string text)
-        {
-            if (IsWrappedOfSingleQuot(text) == true)
-            {
-                text = text.Substring(1);
-                text = text.Remove(text.Length - 1);
-                text = text.Replace("\\'", "'");
-            }
-            else if (IsWrappedOfDoubleQuote(text) == true)
-            {
-                text = text.Substring(1);
-                text = text.Remove(text.Length - 1);
-                text = text.Replace("\\\"", "\"");
-            }
-            return text;
         }
 
         public static bool IsMultipleSwitch(string argument)
@@ -229,16 +162,11 @@ namespace JSSoft.Library.Commands
             var properties = new Dictionary<string, object>(arguments.Length);
             foreach (var item in arguments)
             {
-                var text = IsWrappedOfQuote(item) ? TrimQuot(item) : item;
-                text = Regex.Unescape(text);
+                var text = item;
 
                 if (CommandStringUtility.TryGetKeyValue(text, out var key, out var value) == true)
                 {
-                    if (CommandStringUtility.IsWrappedOfQuote(value))
-                    {
-                        properties.Add(key, CommandStringUtility.TrimQuot(value));
-                    }
-                    else if (decimal.TryParse(value, out decimal l) == true)
+                    if (decimal.TryParse(value, out decimal l) == true)
                     {
                         properties.Add(key, l);
                     }
@@ -259,115 +187,62 @@ namespace JSSoft.Library.Commands
             return properties;
         }
 
-        private static string[] GetEscapeString(string text)
+        private static string[] GetMatches(string text, bool verify)
         {
+            var matches = Regex.Matches(text, fullPattern);
             var itemList = new List<string>();
-            var sb = new StringBuilder();
-            var isEscpae = false;
-            var isSingle = false;
-            var isDouble = false;
-
-            foreach (var item in text)
+            var sb = new StringBuilder(text.Length);
+            foreach (Match item in matches)
             {
-                if (item == '\\')
+                var (name, value) = EscapeValue(item);
+                if (name == "space")
                 {
-                    if (isSingle == true)
-                    {
-                        sb.Append(item);
-                    }
-                    else if (isEscpae == false)
-                    {
-                        isEscpae = true;
-                    }
-                    else
-                    {
-                        sb.Append('\\');
-                    }
+                    itemList.Add(sb.ToString());
+                    sb.Clear();
                 }
-                else if (item == '\'')
+                else if (name == "etc" || name == "unknown")
                 {
-                    if (isEscpae == true)
-                    {
-                        sb.Append(item);
-                        isEscpae = false;
-                    }
-                    else if (isDouble == true)
-                    {
-                        sb.Append(item);
-                    }
-                    else if (isSingle == false)
-                    {
-                        isSingle = true;
-                    }
-                    else
-                    {
-                        isSingle = false;
-                    }
-                }
-                else if (item == '"')
-                {
-                    if (isSingle == true)
-                    {
-                        sb.Append(item);
-                    }
-                    else if (isEscpae == true)
-                    {
-                        sb.Append(item);
-                        isEscpae = false;
-                    }
-                    else if (isDouble == true)
-                    {
-                        isDouble = false;
-                    }
-                    else
-                    {
-                        isDouble = true;
-                    }
-                }
-                else if (item == ' ')
-                {
-                    if (isEscpae == true || isSingle == true || isDouble == true)
-                    {
-                        sb.Append(item);
-                    }
-                    else
-                    {
-                        InsertText(itemList, sb);
-                    }
+                    if (verify == true)
+                        return null;
+                    throw new ArgumentException();
                 }
                 else
                 {
-                    if (isEscpae == true)
-                    {
-                        sb.Append(item);
-                        isEscpae = false;
-                    }
-                    else if (isSingle == true)
-                    {
-                        sb.Append(item);
-                    }
-                    else if (isDouble == true)
-                    {
-                        sb.Append(item);
-                    }
-                    else
-                    {
-                        sb.Append(item);
-                    }
+                    sb.Append(value);
                 }
             }
-            if (isEscpae == true || isSingle == true || isDouble == true)
-                return null;
-            InsertText(itemList, sb);
+            if (sb.Length != 0)
+            {
+                itemList.Add(sb.ToString());
+            }
+
             return itemList.ToArray();
 
-            static void InsertText(List<string> itemList, StringBuilder sb)
+            static (string name, string value) EscapeValue(Match match)
             {
-                var t = sb.ToString().Trim();
-                if (t != string.Empty)
-                    itemList.Add(t);
-                sb.Clear();
+                for (var i = 0; i < patterns.Length; i++)
+                {
+                    if (match.Groups[i + 1].Value == match.Value)
+                        return (patterns[i].name, patterns[i].escape(match.Value));
+                }
+                return ("unknown", "value");
             }
+        }
+
+        private static string EscapeDoubleQuotes(string text)
+        {
+            var value = Regex.Replace(text, "^\"(.+)\"$", "$1");
+            return EscapeEscapedText(value);
+        }
+
+        private static string EscapeSingleQuote(string text)
+        {
+            return Regex.Replace(text, "^'(.+)'$", "$1");
+        }
+
+        private static string EscapeEscapedText(string text)
+        {
+            return Regex.Replace(text, "\\\\", string.Empty);
         }
     }
 }

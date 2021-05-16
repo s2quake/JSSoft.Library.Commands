@@ -25,7 +25,7 @@ using System;
 namespace JSSoft.Library.Commands.Test
 {
     [TestClass]
-    public class QuotParseTest
+    public class SingleQuoteParseTest
     {
         [TestMethod]
         public void SingleQuotTest()
@@ -57,30 +57,6 @@ namespace JSSoft.Library.Commands.Test
             var parser = new CommandLineParser(this);
             var text1 = "abc test 123";
             var text2 = "'abc 'test' 123'";
-            var args = string.Join(" ", "--value", text2);
-            parser.ParseWith(args);
-
-            Assert.AreEqual(text1, this.Value);
-        }
-
-        [TestMethod]
-        public void DoubleQuotTest()
-        {
-            var parser = new CommandLineParser(this);
-            var text1 = "abc test 123";
-            var text2 = "\"abc test 123\"";
-            var args = string.Join(" ", "--value", text2);
-            parser.ParseWith(args);
-
-            Assert.AreEqual(text1, this.Value);
-        }
-
-        [TestMethod]
-        public void DoubleQuotInDoubleQuotTest()
-        {
-            var parser = new CommandLineParser(this);
-            var text1 = "abc \"test\" 123";
-            var text2 = "\"abc \\\"test\\\" 123\"";
             var args = string.Join(" ", "--value", text2);
             parser.ParseWith(args);
 
