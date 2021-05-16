@@ -84,7 +84,7 @@ namespace JSSoft.Library.Commands
                 }
                 else
                 {
-                    var commandName = string.Join(" ", this.CommandNames);
+                    var commandName = CommandStringUtility.AggregateString(this.CommandNames);
                     throw new InvalidOperationException(string.Format(Resources.Exception_CommandDoesNotExists_Format, commandName));
                 }
             }

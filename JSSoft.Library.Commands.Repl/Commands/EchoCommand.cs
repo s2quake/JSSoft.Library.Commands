@@ -19,22 +19,30 @@
 // Forked from https://github.com/NtreevSoft/CommandLineParser
 // Namespaces and files starting with "Ntreev" have been renamed to "JSSoft".
 
-using System;
+using JSSoft.Library.Commands.Extensions;
 using System.Collections.Generic;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using System.ComponentModel.Composition;
+using System.IO;
 
-namespace JSSoft.Library.Commands.Repl
+namespace JSSoft.Library.Commands.Repl.Commands
 {
-    class Program
+    [Export(typeof(ICommand))]
+    [ResourceUsageDescription]
+    class EchoCommand : CommandBase
     {
-        static async Task Main(string[] _)
+        public EchoCommand()
         {
-            var shell = Container.GetService<IShell>();
-            Console.WriteLine();
-            await shell.StartAsync();
-            Console.WriteLine("\u001b0");
+        }
+
+        [CommandPropertyRequired(DefaultValue = "")]
+        public string Text
+        {
+            get; set;
+        }
+
+        protected override void OnExecute()
+        {
+            this.Out.WriteLine(this.Text);
         }
     }
 }

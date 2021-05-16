@@ -96,7 +96,7 @@ namespace JSSoft.Library.Commands
 
         public static TerminalKeyBindingCollection Win32NT { get; } = new TerminalKeyBindingCollection(Common, new TerminalKeyBindingBase[]
         {
-            new TerminalKeyBinding(new ConsoleKeyInfo('\r', ConsoleKey.Enter, false, false, false), (t) => t.EndInput()),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\r', ConsoleKey.Enter, false, false, false), (t) => InputEnter(t)),
             new TerminalKeyBinding(new ConsoleKeyInfo('\u0003', ConsoleKey.C, false, false, true), (t) => t.CancelInput()),
             new TerminalKeyBinding(new ConsoleKeyInfo('\u001b', ConsoleKey.Escape, false, false, false), (t) => t.Command = string.Empty, (t) => !t.IsPassword),
             new TerminalKeyBinding(new ConsoleKeyInfo('\b', ConsoleKey.Backspace, false, false, false), (t) => t.Backspace()),
@@ -111,7 +111,7 @@ namespace JSSoft.Library.Commands
 
         public static TerminalKeyBindingCollection Unix { get; } = new TerminalKeyBindingCollection(Common, new TerminalKeyBindingBase[]
         {
-            new TerminalKeyBinding(new ConsoleKeyInfo('\r', ConsoleKey.Enter, false, false, false), (t) => InputEnterOnUnix(t)),
+            new TerminalKeyBinding(new ConsoleKeyInfo('\r', ConsoleKey.Enter, false, false, false), (t) => InputEnter(t)),
             new TerminalKeyBinding(new ConsoleKeyInfo('\u0003', ConsoleKey.C, false, false, true), (t) => t.CancelInput()),
             new TerminalKeyBinding(new ConsoleKeyInfo('\u001b', ConsoleKey.Escape, false, false, false), (t) => {}),
             new TerminalKeyBinding(new ConsoleKeyInfo('\u007f', ConsoleKey.Backspace, false, false, false), (t) => t.Backspace()),
@@ -179,22 +179,12 @@ namespace JSSoft.Library.Commands
             terminal.Command = command.Remove(index1, length);
         }
 
-        private static void InputEnterOnUnix(Terminal terminal)
+        private static void InputEnter(Terminal terminal)
         {
-            var isMultiline = IsMultilineOnUnix(terminal);
-            if (isMultiline == true)
-                terminal.InsertNewLine();
-            else
+            if (CommandStringUtility.VerifyEscapeString(terminal.Command) == true)
                 terminal.EndInput();
-        }
-
-        private static bool IsMultilineOnUnix(Terminal terminal)
-        {
-            var command = terminal.Command;
-            var index = command.IndexOfAny(multilineChars);
-            var ch = index >= 0 ? command[index] : char.MinValue;
-            var count = command.Count(item => item == ch);
-            return count % 2 != 0 || command.LastOrDefault() == '\\';
+            else
+                terminal.InsertNewLine();
         }
 
         #region IEnumerable

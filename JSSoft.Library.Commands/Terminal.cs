@@ -121,7 +121,7 @@ namespace JSSoft.Library.Commands
         //         }
         //         else
         //         {
-                    
+
         //         }
         //         isEscape = false;
         //     }
@@ -1076,7 +1076,8 @@ namespace JSSoft.Library.Commands
                 this.RecordCommand(this.command.Text);
             if (this.IsPassword == true)
                 return this.secureString;
-            return this.command.Text;
+            var items = CommandStringUtility.EscapeString(this.command.Text);
+            return CommandStringUtility.AggregateString(items);
         }
 
         private object OnInputCancel()

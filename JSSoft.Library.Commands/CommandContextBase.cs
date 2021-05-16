@@ -423,7 +423,7 @@ namespace JSSoft.Library.Commands
                 if (command != null)
                 {
                     var parser = new CommandLineParser(command.Name, command);
-                    var arg = string.Join(" ", argumentList);
+                    var arg = CommandStringUtility.AggregateString(argumentList);
                     parser.Invoke(command.Name, arg);
                 }
                 else
@@ -447,7 +447,7 @@ namespace JSSoft.Library.Commands
                 if (command != null)
                 {
                     var parser = new CommandLineParser(command.Name, command);
-                    var arg = string.Join(" ", argumentList);
+                    var arg = CommandStringUtility.AggregateString(argumentList);
                     await parser.InvokeAsync(command.Name, arg, cancellationToken);
                 }
                 else

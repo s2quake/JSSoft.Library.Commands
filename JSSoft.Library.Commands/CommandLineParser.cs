@@ -165,9 +165,8 @@ namespace JSSoft.Library.Commands
                 if (instance is ICommandHierarchy hierarchy && hierarchy.Commands.ContainsKey(first) == true)
                 {
                     var command = hierarchy.Commands[first];
-                    var parser = new CommandLineParser(first, arguments);
-                    var args = string.Join(" ", arguments);
-                    parser.Parse(args);
+                    var parser = new CommandLineParser(first, command);
+                    parser.Parse(rest);
                     if (command is IExecutable executable1)
                         this.Invoke(executable1);
                     else if (command is IExecutableAsync executable2)
@@ -282,9 +281,8 @@ namespace JSSoft.Library.Commands
             if (instance is ICommandHierarchy hierarchy && hierarchy.Commands.ContainsKey(first) == true)
             {
                 var command = hierarchy.Commands[first];
-                var parser = new CommandLineParser(first, arguments);
-                var args = string.Join(" ", arguments);
-                parser.Parse(args);
+                var parser = new CommandLineParser(first, command);
+                parser.Parse(rest);
                 if (command is IExecutable executable1)
                     this.Invoke(executable1);
                 else if (command is IExecutableAsync executable2)

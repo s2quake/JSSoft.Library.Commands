@@ -65,7 +65,7 @@ namespace JSSoft.Library.Commands
 
         public static string AggregateString(string[] items)
         {
-            return AggregateString(items);
+            return AggregateString(items as IEnumerable<string>);
         }
 
         public static string AggregateString(IEnumerable<string> items)
@@ -231,7 +231,7 @@ namespace JSSoft.Library.Commands
 
         private static string EscapeDoubleQuotes(string text)
         {
-            var value = Regex.Replace(text, "^\"(.+)\"$", "$1");
+            var value = Regex.Replace(text, "^\"(.+)\"$", "$1", RegexOptions.Singleline);
             return EscapeEscapedText(value);
         }
 
@@ -242,7 +242,7 @@ namespace JSSoft.Library.Commands
 
         private static string EscapeEscapedText(string text)
         {
-            return Regex.Replace(text, "\\\\", string.Empty);
+            return Regex.Replace(text, "(\\\\)(.)", "$2");
         }
     }
 }
