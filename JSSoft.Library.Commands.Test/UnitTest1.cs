@@ -31,7 +31,7 @@ namespace JSSoft.Library.Commands.Test
         {
             var settings = new Settings();
             var parser = new CommandLineParser(settings);
-            parser.ParseArgumentLine("--list -c");
+            parser.Parse("--list -c");
 
             Assert.AreEqual("", settings.List);
             Assert.AreEqual(true, settings.IsCancel);
@@ -43,7 +43,7 @@ namespace JSSoft.Library.Commands.Test
         {
             var settings = new Settings();
             var parser = new CommandLineParser(settings);
-            parser.ParseArgumentLine("--list wer -c");
+            parser.Parse("--list wer -c");
 
             Assert.AreEqual("wer", settings.List);
             Assert.AreEqual(true, settings.IsCancel);
@@ -55,7 +55,7 @@ namespace JSSoft.Library.Commands.Test
         {
             var settings = new Settings();
             var parser = new CommandLineParser(settings);
-            parser.ParseArgumentLine("--list \"a \\\"b\\\" c\" -c");
+            parser.Parse("--list \"a \\\"b\\\" c\" -c");
 
             Assert.AreEqual("a \"b\" c", settings.List);
             Assert.AreEqual(true, settings.IsCancel);
@@ -67,7 +67,7 @@ namespace JSSoft.Library.Commands.Test
         {
             var commands = new Commands();
             var parser = new CommandLineParser(commands);
-            parser.InvokeArgumentLine("test a -m wow");
+            parser.Invoke("test a -m wow");
         }
 
         [TestMethod]
@@ -75,7 +75,7 @@ namespace JSSoft.Library.Commands.Test
         {
             var commands = new Commands();
             var parser = new CommandLineParser(commands);
-            parser.InvokeArgumentLine("push-many a b");
+            parser.Invoke("push-many a b");
         }
 
         [TestMethod]
@@ -83,7 +83,7 @@ namespace JSSoft.Library.Commands.Test
         {
             var commands = new Commands();
             var parser = new CommandLineParser(commands);
-            parser.InvokeArgumentLine("items");
+            parser.Invoke("items");
             Assert.AreEqual(false, commands.IsReverseResult);
         }
 
@@ -92,7 +92,7 @@ namespace JSSoft.Library.Commands.Test
         {
             var commands = new Commands();
             var parser = new CommandLineParser(commands);
-            parser.InvokeArgumentLine("items -r");
+            parser.Invoke("items -r");
             Assert.AreEqual(true, commands.IsReverseResult);
         }
 
@@ -101,7 +101,7 @@ namespace JSSoft.Library.Commands.Test
         {
             var commands = new Commands();
             var parser = new CommandLineParser(commands);
-            parser.InvokeArgumentLine("items --reverse");
+            parser.Invoke("items --reverse");
             Assert.AreEqual(true, commands.IsReverseResult);
         }
 

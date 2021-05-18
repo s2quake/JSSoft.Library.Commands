@@ -73,7 +73,7 @@ namespace JSSoft.Library.Commands
             return this.TryParse(args);
         }
 
-        public bool TryParse(params string[] args)
+        public bool TryParse(string[] args)
         {
             try
             {
@@ -94,7 +94,7 @@ namespace JSSoft.Library.Commands
             this.Parse(args);
         }
 
-        public void Parse(params string[] args)
+        public void Parse(string[] args)
         {
             var first = args.FirstOrDefault() ?? string.Empty;
             try
@@ -115,7 +115,7 @@ namespace JSSoft.Library.Commands
             }
         }
 
-        public void ParseArgumentLine(string argumentLine)
+        public void Parse(string argumentLine)
         {
             var args = CommandStringUtility.Split(argumentLine);
             this.Parse(args);
@@ -142,13 +142,13 @@ namespace JSSoft.Library.Commands
             return this.TryInvoke(args);
         }
 
-        public bool TryInvokeArgumentLine(string argumentLine)
+        public bool TryInvoke(string argumentLine)
         {
             var args = CommandStringUtility.Split(argumentLine);
             return this.TryInvoke(args);
         }
 
-        public void Invoke(params string[] args)
+        public void Invoke(string[] args)
         {
             try
             {
@@ -189,24 +189,20 @@ namespace JSSoft.Library.Commands
             }
             catch (Exception e)
             {
-                // if (this.VerifyName(name) == true)
+                var first = args.FirstOrDefault() ?? string.Empty;
+                var rest = args.Count() > 0 ? args.Skip(1).ToArray() : new string[] { };
+                if (first == this.HelpName)
                 {
-                    var first = args.FirstOrDefault() ?? string.Empty;
-                    var rest = args.Count() > 0 ? args.Skip(1).ToArray() : new string[] { };
-                    if (first == this.HelpName)
-                    {
-                        throw new CommandParseException(CommandParseError.Help, args, false, e);
-                    }
-                    else if (first == this.VersionName)
-                    {
-                        throw new CommandParseException(CommandParseError.Version, args, false, e);
-                    }
-                    else
-                    {
-                        throw new CommandParseException(CommandParseError.Empty, args, false, e);
-                    }
+                    throw new CommandParseException(CommandParseError.Help, args, false, e);
                 }
-                throw;
+                else if (first == this.VersionName)
+                {
+                    throw new CommandParseException(CommandParseError.Version, args, false, e);
+                }
+                else
+                {
+                    throw new CommandParseException(CommandParseError.Empty, args, false, e);
+                }
             }
         }
 
@@ -218,7 +214,7 @@ namespace JSSoft.Library.Commands
             this.Invoke(args);
         }
 
-        public void InvokeArgumentLine(string argumentLine)
+        public void Invoke(string argumentLine)
         {
             var args = CommandStringUtility.Split(argumentLine);
             this.Invoke(args);
@@ -255,12 +251,12 @@ namespace JSSoft.Library.Commands
             return this.TryInvokeAsync(args);
         }
 
-        public Task<bool> TryInvokeArgumentLineAsync(string argumentLine)
+        public Task<bool> TryInvokeAsync(string argumentLine)
         {
-            return this.TryInvokeArgumentLineAsync(argumentLine, new CancellationTokenSource().Token);
+            return this.TryInvokeAsync(argumentLine, new CancellationTokenSource().Token);
         }
 
-        public Task<bool> TryInvokeArgumentLineAsync(string argumentLine, CancellationToken cancellationToken)
+        public Task<bool> TryInvokeAsync(string argumentLine, CancellationToken cancellationToken)
         {
             var args = CommandStringUtility.Split(argumentLine);
             return this.TryInvokeAsync(args, cancellationToken);
@@ -321,12 +317,12 @@ namespace JSSoft.Library.Commands
             return this.InvokeAsync(args, cancellationToken);
         }
 
-        public Task InvokeArgumentLineAsync(string argumentLine)
+        public Task InvokeAsync(string argumentLine)
         {
-            return this.InvokeArgumentLineAsync(argumentLine, new CancellationTokenSource().Token);
+            return this.InvokeAsync(argumentLine, new CancellationTokenSource().Token);
         }
 
-        public Task InvokeArgumentLineAsync(string argumentLine, CancellationToken cancellationToken)
+        public Task InvokeAsync(string argumentLine, CancellationToken cancellationToken)
         {
             var args = CommandStringUtility.Split(argumentLine);
             return this.InvokeAsync(args, cancellationToken);

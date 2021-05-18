@@ -26,14 +26,14 @@ namespace JSSoft.Library.Commands.Parse
 {
     class Program
     {
-        static void Main(string[] _)
+        static void Main(string[] args)
         {
             var settings = new Settings();
             var parser = new CommandLineParser(settings);
             try
             {
-                parser.ParseCommandLine(Environment.CommandLine);
                 var sb = new StringBuilder();
+                parser.Parse(args);
                 sb.AppendLine($"{nameof(settings.Path)}: {settings.Path}");
                 sb.AppendLine($"{nameof(settings.ServiceName)}: {settings.ServiceName}");
                 sb.AppendLine($"{nameof(settings.WorkingPath)}: {settings.WorkingPath}");

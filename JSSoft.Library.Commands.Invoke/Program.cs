@@ -25,13 +25,13 @@ namespace JSSoft.Library.Commands.Invoke
 {
     class Program
     {
-        static void Main(string[] _)
+        static void Main(string[] args)
         {
             var commands = new Commands();
             var parser = new CommandLineParser(commands);
             try
             {
-                parser.InvokeCommandLine(Environment.CommandLine);
+                parser.Invoke(args);
             }
             catch (Exception e)
             {

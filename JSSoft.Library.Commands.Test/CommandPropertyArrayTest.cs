@@ -31,14 +31,14 @@ namespace JSSoft.Library.Commands.Test
         public void Test1()
         {
             var parser = new CommandLineParser(this);
-            parser.ParseArgumentLine("get database=a port=123 userid=abc password=1234 comment=\"connect database to \\\"a\\\"\"");
+            parser.Parse("get database=a port=123 userid=abc password=1234 comment=\"connect database to \\\"a\\\"\"");
         }
 
         [TestMethod]
         public void Test2()
         {
             var parser = new CommandLineParser(this);
-            parser.Parse(parser.Name, "get \"database=a b c\"");
+            parser.Parse("get \"database=a b c\"");
 
             CommandStringUtility.ArgumentsToDictionary(this.Arguments);
         }
@@ -47,7 +47,7 @@ namespace JSSoft.Library.Commands.Test
         public void Test3()
         {
             var parser = new CommandLineParser(this);
-            parser.Parse(parser.Name, "get \"database=\\\"a b c\\\"\"");
+            parser.Parse("get \"database=\\\"a b c\\\"\"");
 
             CommandStringUtility.ArgumentsToDictionary(this.Arguments);
         }
@@ -57,14 +57,16 @@ namespace JSSoft.Library.Commands.Test
         public void ValueIncludedEqualsTest()
         {
             var parser = new CommandLineParser(this);
-            parser.ParseArgumentLine("--value=0");
+            parser.Parse("--value=0");
         }
 
         [TestMethod]
         public void ValueIncludedEqualsTest2()
         {
             var parser = new CommandLineParser(this);
-            parser.Parse(parser.Name, "value=0");
+            parser.Parse("get value=0");
+            Assert.AreEqual("get", this.Command);
+            Assert.AreEqual("value=0", this.Arguments[0]);
         }
 
         [CommandPropertyRequired]

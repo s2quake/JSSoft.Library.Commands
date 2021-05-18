@@ -103,7 +103,7 @@ namespace JSSoft.Library.Commands
             this.OnExecuted(EventArgs.Empty);
         }
 
-        public void ExecuteArgumentLine(string argumentLine)
+        public void Execute(string argumentLine)
         {
             var args = CommandStringUtility.Split(argumentLine);
             this.ExecuteInternal(args);
@@ -138,13 +138,13 @@ namespace JSSoft.Library.Commands
             this.OnExecuted(EventArgs.Empty);
         }
 
-        public Task ExecuteArgumentLineAsync(string argumentLine)
+        public Task ExecuteAsync(string argumentLine)
         {
             var cancellation = new CancellationTokenSource();
-            return this.ExecuteArgumentLineAsync(argumentLine, cancellation.Token);
+            return this.ExecuteAsync(argumentLine, cancellation.Token);
         }
 
-        public async Task ExecuteArgumentLineAsync(string argumentLine, CancellationToken cancellationToken)
+        public async Task ExecuteAsync(string argumentLine, CancellationToken cancellationToken)
         {
             var args = CommandStringUtility.Split(argumentLine);
             await this.ExecuteInternalAsync(args, cancellationToken);

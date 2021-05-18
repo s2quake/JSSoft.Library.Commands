@@ -66,9 +66,9 @@ namespace JSSoft.Library.Commands
             {
                 var isEnabled = this.IsEnabled;
                 var prompt = this.Prompt;
-                if (isEnabled == true && this.ReadStringInternal(prompt, cancellation) is string command)
+                if (isEnabled == true && this.ReadStringInternal(prompt, cancellation) is string text)
                 {
-                    await this.ExecuteCommandAsync(command);
+                    await this.ExecuteAsync(text);
                 }
                 await Task.Delay(1);
             }
@@ -85,7 +85,7 @@ namespace JSSoft.Library.Commands
             return this.commandContext.GetCompletionInternal(items, find);
         }
 
-        protected virtual bool OnPreviewExecute(string command)
+        protected virtual bool OnPreviewExecute(string text)
         {
             return false;
         }
@@ -104,7 +104,7 @@ namespace JSSoft.Library.Commands
             return new TerminalTextWriter(this, encoding) { Foreground = TerminalColor.BrightRed };
         }
 
-        private async Task ExecuteCommandAsync(string line)
+        private async Task ExecuteAsync(string text)
         {
             var consoleControlC = Console.TreatControlCAsInput;
             var cancellation = new CancellationTokenSource();
@@ -112,9 +112,9 @@ namespace JSSoft.Library.Commands
             {
                 Console.TreatControlCAsInput = false;
                 Console.CancelKeyPress += ConsoleCancelEventHandler;
-                if (this.OnPreviewExecute(line) == true)
+                if (this.OnPreviewExecute(text) == true)
                     return;
-                var task = this.commandContext.ExecuteArgumentLineAsync(line, cancellation.Token);
+                var task = this.commandContext.ExecuteAsync(text, cancellation.Token);
                 while (task.IsCompleted == false)
                 {
                     this.Update();

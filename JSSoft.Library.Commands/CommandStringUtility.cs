@@ -29,11 +29,11 @@ using System.Text.RegularExpressions;
 namespace JSSoft.Library.Commands
 {
     /// <summary>
-    /// https://rubular.com/r/9EbEfYeQGozZVF
+    /// https://rubular.com/r/qcjUntzPlmb0KK
     /// </summary>
     public static class CommandStringUtility
     {
-        private const string doubleQuotesPattern = "(?<!\\\\)\"(?:\\\\.|(?!=\\\\)[^\"])*(?:\\\\.\"|\")";
+        private const string doubleQuotesPattern = "(?<!\\\\)\"(?:\\\\.|(?<!\\\\)[^\"])*(?:\\\\.\"|\")";
         private const string singleQuotePattern = "'[^']*'";
         private const string stringPattern = "(?:(?<!\\\\)[^\"'\\s]|(?<=\\\\).)+";
         private const string spacePattern = "\\s+";
@@ -53,14 +53,14 @@ namespace JSSoft.Library.Commands
             fullPattern = string.Join("|", patterns.Select(item => $"(?<{item.name}>{item.value})"));
         }
 
-        public static bool VerifyArgumentLine(string text)
+        public static bool Verify(string argumentLine)
         {
-            return GetMatches(text, true) != null;
+            return GetMatches(argumentLine, true) != null;
         }
 
-        public static string[] Split(string text)
+        public static string[] Split(string argumentLine)
         {
-            return GetMatches(text, false);
+            return GetMatches(argumentLine, false);
         }
 
         public static string Join(string[] args)
