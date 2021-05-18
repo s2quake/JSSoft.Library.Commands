@@ -37,7 +37,7 @@ namespace JSSoft.Library.Commands.Test
         [TestMethod]
         public void TestMethod1()
         {
-            this.parser.Parse("unlock");
+            this.parser.ParseCommandLine("unlock");
             Assert.AreEqual("", this.Path);
         }
 
@@ -45,13 +45,13 @@ namespace JSSoft.Library.Commands.Test
         [ExpectedException(typeof(ArgumentException))]
         public void TestMethod2()
         {
-            this.parser.Parse("unlock -m");
+            this.parser.ParseCommandLine("unlock -m");
         }
 
         [TestMethod]
         public void TestMethod3()
         {
-            this.parser.Parse("unlock current_path");
+            this.parser.ParseCommandLine("unlock current_path");
             Assert.AreEqual("current_path", this.Path);
         }
 

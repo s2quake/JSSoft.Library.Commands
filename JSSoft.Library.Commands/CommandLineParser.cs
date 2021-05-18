@@ -65,17 +65,19 @@ namespace JSSoft.Library.Commands
             this.Instance = instance ?? throw new ArgumentNullException(nameof(instance));
         }
 
-        public bool TryParse(string commandLine)
+        public bool TryParseCommandLine(string commandLine)
         {
-            var (name, arguments) = CommandStringUtility.Split(commandLine);
-            return this.TryParse(name, arguments);
+            var (name, args) = CommandStringUtility.Split(commandLine);
+            if (this.VerifyName(name) == false)
+                throw new ArgumentException(string.Format(Resources.Exception_InvalidCommandName_Format, name));
+            return this.TryParse(args);
         }
 
-        public bool TryParse(string name, string arguments)
+        public bool TryParse(params string[] args)
         {
             try
             {
-                this.Parse(name, arguments);
+                this.Parse(args);
                 return true;
             }
             catch
@@ -84,56 +86,46 @@ namespace JSSoft.Library.Commands
             }
         }
 
-        public void Parse(string commandLine)
+        public void ParseCommandLine(string commandLine)
         {
-            var (name, arguments) = CommandStringUtility.Split(commandLine);
-            this.Parse(name, arguments);
+            var (name, args) = CommandStringUtility.Split(commandLine);
+            if (this.VerifyName(name) == false)
+                throw new ArgumentException(string.Format(Resources.Exception_InvalidCommandName_Format, name));
+            this.Parse(args);
         }
 
-        public void Parse(string name, string arguments)
+        public void Parse(params string[] args)
         {
+            var first = args.FirstOrDefault() ?? string.Empty;
             try
             {
-                if (this.VerifyName(name) == false)
-                    throw new ArgumentException(string.Format(Resources.Exception_InvalidCommandName_Format, name));
-                if (this.Name != name && (arguments == this.HelpName || arguments == this.VersionName))
-                    throw new ArgumentException();
                 var descriptors = CommandDescriptor.GetMemberDescriptors(this.Instance).ToArray();
-                var parser = new ParseDescriptor(descriptors, arguments);
+                var parser = new ParseDescriptor(descriptors, args);
                 parser.SetValue(this.Instance);
             }
             catch (Exception e)
             {
-                if (this.VerifyName(name) == true)
-                {
-                    var (first, rest) = CommandStringUtility.Split(arguments);
-                    if (first == string.Empty)
-                    {
-                        throw new CommandParseException(CommandParseError.Empty, arguments, true, e);
-                    }
-                    else if (first == this.HelpName)
-                    {
-                        throw new CommandParseException(CommandParseError.Help, arguments, true, e);
-                    }
-                    else if (first == this.VersionName)
-                    {
-                        throw new CommandParseException(CommandParseError.Version, arguments, true, e);
-                    }
-                }
+                if (first == string.Empty)
+                    throw new CommandParseException(CommandParseError.Empty, args, true, e);
+                if (first == this.HelpName)
+                    throw new CommandParseException(CommandParseError.Help, args, true, e);
+                if (first == this.VersionName)
+                    throw new CommandParseException(CommandParseError.Version, args, true, e);
                 throw e;
             }
         }
 
-        public void ParseWith(string arguments)
+        public void ParseArgumentLine(string argumentLine)
         {
-            this.Parse(this.Name, arguments);
+            var args = CommandStringUtility.EscapeString(argumentLine);
+            this.Parse(args);
         }
 
-        public bool TryInvoke(string name, string arguments)
+        public bool TryInvoke(string[] args)
         {
             try
             {
-                this.Invoke(name, arguments);
+                this.Invoke(args);
                 return true;
             }
             catch
@@ -142,25 +134,26 @@ namespace JSSoft.Library.Commands
             }
         }
 
-        public bool TryInvoke(string commandLine)
+        public bool TryInvokeCommandLine(string commandLine)
         {
-            var (name, arguments) = CommandStringUtility.Split(commandLine);
-            return this.TryInvoke(name, arguments);
+            var (name, args) = CommandStringUtility.Split(commandLine);
+            if (this.VerifyName(name) == false)
+                throw new ArgumentException(string.Format(Resources.Exception_InvalidCommandName_Format, name));
+            return this.TryInvoke(args);
         }
 
-        public bool TryInvokeWith(string arguments)
+        public bool TryInvokeArgumentLine(string argumentLine)
         {
-            return this.TryInvoke(this.Name, arguments);
+            var args = CommandStringUtility.EscapeString(argumentLine);
+            return this.TryInvoke(args);
         }
 
-        public void Invoke(string name, string arguments)
+        public void Invoke(params string[] args)
         {
             try
             {
-                if (this.VerifyName(name) == false)
-                    throw new ArgumentException(string.Format(Resources.Exception_InvalidCommandName_Format, name));
-
-                var (first, rest) = CommandStringUtility.Split(arguments);
+                var first = args.FirstOrDefault() ?? string.Empty;
+                var rest = args.Count() > 0 ? args.Skip(1).ToArray() : new string[] { };
                 var instance = this.Instance;
                 if (instance is ICommandHierarchy hierarchy && hierarchy.Commands.ContainsKey(first) == true)
                 {
@@ -174,12 +167,12 @@ namespace JSSoft.Library.Commands
                 }
                 else if (instance is IExecutable executable1)
                 {
-                    this.Parse(name, arguments);
+                    this.Parse(args);
                     this.Invoke(executable1);
                 }
                 else if (instance is IExecutableAsync executable2)
                 {
-                    this.Parse(name, arguments);
+                    this.Parse(args);
                     throw new InvalidOperationException(Resources.Exception_InvokeAsyncInstead);
                 }
                 else if (CommandDescriptor.GetMethodDescriptor(instance.GetType(), first) is CommandMethodDescriptor descriptor)
@@ -196,47 +189,51 @@ namespace JSSoft.Library.Commands
             }
             catch (Exception e)
             {
-                if (this.VerifyName(name) == true)
+                // if (this.VerifyName(name) == true)
                 {
-                    var (first, rest) = CommandStringUtility.Split(arguments);
+                    var first = args.FirstOrDefault() ?? string.Empty;
+                    var rest = args.Count() > 0 ? args.Skip(1).ToArray() : new string[] { };
                     if (first == this.HelpName)
                     {
-                        throw new CommandParseException(CommandParseError.Help, arguments, false, e);
+                        throw new CommandParseException(CommandParseError.Help, args, false, e);
                     }
                     else if (first == this.VersionName)
                     {
-                        throw new CommandParseException(CommandParseError.Version, arguments, false, e);
+                        throw new CommandParseException(CommandParseError.Version, args, false, e);
                     }
                     else
                     {
-                        throw new CommandParseException(CommandParseError.Empty, arguments, false, e);
+                        throw new CommandParseException(CommandParseError.Empty, args, false, e);
                     }
                 }
                 throw;
             }
         }
 
-        public void Invoke(string commandLine)
+        public void InvokeCommandLine(string commandLine)
         {
-            var (name, arguments) = CommandStringUtility.Split(commandLine);
-            this.Invoke(name, arguments);
+            var (name, args) = CommandStringUtility.Split(commandLine);
+            if (this.VerifyName(name) == false)
+                throw new ArgumentException(string.Format(Resources.Exception_InvalidCommandName_Format, name));
+            this.Invoke(args);
         }
 
-        public void InvokeWith(string arguments)
+        public void InvokeArgumentLine(string argumentLine)
         {
-            this.Invoke(this.Name, arguments);
+            var args = CommandStringUtility.EscapeString(argumentLine);
+            this.Invoke(args);
         }
 
-        public Task<bool> TryInvokeAsync(string name, string arguments)
+        public Task<bool> TryInvokeAsync(string[] args)
         {
-            return this.TryInvokeAsync(name, arguments, new CancellationTokenSource().Token);
+            return this.TryInvokeAsync(args, new CancellationTokenSource().Token);
         }
 
-        public async Task<bool> TryInvokeAsync(string name, string arguments, CancellationToken cancellationToken)
+        public async Task<bool> TryInvokeAsync(string[] args, CancellationToken cancellationToken)
         {
             try
             {
-                await this.InvokeAsync(name, arguments, cancellationToken);
+                await this.InvokeAsync(args, cancellationToken);
                 return true;
             }
             catch
@@ -245,38 +242,42 @@ namespace JSSoft.Library.Commands
             }
         }
 
-        public Task<bool> TryInvokeAsync(string commandLine)
+        public Task<bool> TryInvokeCommandLineAsync(string commandLine)
         {
-            return this.TryInvokeAsync(commandLine, new CancellationTokenSource().Token);
+            return this.TryInvokeCommandLineAsync(commandLine, new CancellationTokenSource().Token);
         }
 
-        public Task<bool> TryInvokeAsync(string commandLine, CancellationToken cancellationToken)
+        public Task<bool> TryInvokeCommandLineAsync(string commandLine, CancellationToken cancellationToken)
         {
-            var (name, arguments) = CommandStringUtility.Split(commandLine);
-            return this.TryInvokeAsync(name, arguments);
-        }
-
-        public Task<bool> TryInvokeWithAsync(string arguments)
-        {
-            return this.TryInvokeWithAsync(arguments, new CancellationTokenSource().Token);
-        }
-
-        public Task<bool> TryInvokeWithAsync(string arguments, CancellationToken cancellationToken)
-        {
-            return this.TryInvokeAsync(this.Name, arguments, cancellationToken);
-        }
-
-        public Task InvokeAsync(string name, string arguments)
-        {
-            return this.InvokeAsync(name, arguments, new CancellationTokenSource().Token);
-        }
-
-        public async Task InvokeAsync(string name, string arguments, CancellationToken cancellationToken)
-        {
+            var (name, args) = CommandStringUtility.Split(commandLine);
             if (this.VerifyName(name) == false)
                 throw new ArgumentException(string.Format(Resources.Exception_InvalidCommandName_Format, name));
+            return this.TryInvokeAsync(args);
+        }
 
-            var (first, rest) = CommandStringUtility.Split(arguments);
+        public Task<bool> TryInvokeArgumentLineAsync(string argumentLine)
+        {
+            return this.TryInvokeArgumentLineAsync(argumentLine, new CancellationTokenSource().Token);
+        }
+
+        public Task<bool> TryInvokeArgumentLineAsync(string argumentLine, CancellationToken cancellationToken)
+        {
+            var args = CommandStringUtility.EscapeString(argumentLine);
+            return this.TryInvokeAsync(args, cancellationToken);
+        }
+
+        public Task InvokeAsync(string[] args)
+        {
+            return this.InvokeAsync(args, new CancellationTokenSource().Token);
+        }
+
+        public async Task InvokeAsync(string[] args, CancellationToken cancellationToken)
+        {
+            // if (this.VerifyName(name) == false)
+            //     throw new ArgumentException(string.Format(Resources.Exception_InvalidCommandName_Format, name));
+
+            var first = args.FirstOrDefault() ?? string.Empty;
+            var rest = args.Count() > 0 ? args.Skip(1).ToArray() : new string[] { };
             var instance = this.Instance;
             if (instance is ICommandHierarchy hierarchy && hierarchy.Commands.ContainsKey(first) == true)
             {
@@ -290,12 +291,12 @@ namespace JSSoft.Library.Commands
             }
             else if (instance is IExecutable executable1)
             {
-                this.Parse(name, arguments);
+                this.Parse(args);
                 this.Invoke(executable1);
             }
             else if (instance is IExecutableAsync executable2)
             {
-                this.Parse(name, arguments);
+                this.Parse(args);
                 await this.InvokeAsync(executable2, cancellationToken);
             }
             else if (first != string.Empty && CommandDescriptor.GetMethodDescriptor(instance.GetType(), first) is CommandMethodDescriptor descriptor)
@@ -307,25 +308,28 @@ namespace JSSoft.Library.Commands
             }
         }
 
-        public Task InvokeAsync(string commandLine)
+        public Task InvokeCommandLineAsync(string commandLine)
         {
-            return this.InvokeAsync(commandLine, new CancellationTokenSource().Token);
+            return this.InvokeCommandLineAsync(commandLine, new CancellationTokenSource().Token);
         }
 
-        public Task InvokeAsync(string commandLine, CancellationToken cancellationToken)
+        public Task InvokeCommandLineAsync(string commandLine, CancellationToken cancellationToken)
         {
-            var (name, arguments) = CommandStringUtility.Split(commandLine);
-            return this.InvokeAsync(name, arguments, cancellationToken);
+            var (name, args) = CommandStringUtility.Split(commandLine);
+            if (this.VerifyName(name) == false)
+                throw new ArgumentException(string.Format(Resources.Exception_InvalidCommandName_Format, name));
+            return this.InvokeAsync(args, cancellationToken);
         }
 
-        public Task InvokeWithAsync(string arguments)
+        public Task InvokeArgumentLineAsync(string argumentLine)
         {
-            return this.InvokeWithAsync(arguments, new CancellationTokenSource().Token);
+            return this.InvokeArgumentLineAsync(argumentLine, new CancellationTokenSource().Token);
         }
 
-        public Task InvokeWithAsync(string arguments, CancellationToken cancellationToken)
+        public Task InvokeArgumentLineAsync(string argumentLine, CancellationToken cancellationToken)
         {
-            return this.InvokeAsync(this.Name, arguments, cancellationToken);
+            var args = CommandStringUtility.EscapeString(argumentLine);
+            return this.InvokeAsync(args, cancellationToken);
         }
 
         public void PrintException(Exception e)
@@ -334,7 +338,7 @@ namespace JSSoft.Library.Commands
             {
                 if (this.Out == null)
                     throw e;
-                var commandLine = ex.CommandLine;
+                var commandLine = CommandStringUtility.AggregateString(ex.Arguments);
                 var isParse = ex.IsParse;
                 switch (ex.Error)
                 {
@@ -535,7 +539,7 @@ namespace JSSoft.Library.Commands
             {
                 Out = this.Out
             };
-            parser.Parse(commandLine);
+            parser.ParseCommandLine(commandLine);
             this.PrintVersion(instance.IsQuiet);
         }
 
@@ -546,7 +550,7 @@ namespace JSSoft.Library.Commands
             {
                 Out = this.Out
             };
-            parser.Parse(commandLine);
+            parser.ParseCommandLine(commandLine);
             this.PrintUsage(instance.OptionName, instance.Usage);
         }
 
@@ -558,7 +562,7 @@ namespace JSSoft.Library.Commands
             {
                 Out = this.Out
             };
-            parser.Parse(commandLine);
+            parser.ParseCommandLine(commandLine);
             this.PrintMethodUsage(instance.SubCommand, instance.OptionName, instance.Usage);
         }
 
@@ -583,14 +587,14 @@ namespace JSSoft.Library.Commands
             await executable.ExecuteAsync(cancellationToken);
         }
 
-        private void Invoke(CommandMethodDescriptor descriptor, object instance, string arguments)
+        private void Invoke(CommandMethodDescriptor descriptor, object instance, string[] args)
         {
-            descriptor.Invoke(instance, arguments, descriptor.Members);
+            descriptor.Invoke(instance, args, descriptor.Members);
         }
 
-        private async Task InvokeAsync(CommandMethodDescriptor descriptor, object instance, string arguments)
+        private async Task InvokeAsync(CommandMethodDescriptor descriptor, object instance, string[] args)
         {
-            if (descriptor.Invoke(instance, arguments, descriptor.Members) is Task task)
+            if (descriptor.Invoke(instance, args, descriptor.Members) is Task task)
             {
                 await task;
             }

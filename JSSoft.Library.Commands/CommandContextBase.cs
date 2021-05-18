@@ -71,82 +71,83 @@ namespace JSSoft.Library.Commands
             this.Initialize(this.commandNode, commands);
         }
 
-        public ICommand GetCommand(string commandLine)
+        public ICommand GetCommandByCommandLine(string commandLine)
         {
             var (name, arguments) = CommandStringUtility.Split(commandLine);
-            return this.GetCommand(name, arguments);
-        }
-
-        public ICommand GetCommand(string name, string arguments)
-        {
             if (this.VerifyName(name) == false)
                 return null;
+            return this.GetCommand(arguments);
+        }
+
+        public ICommand GetCommand(string[] arguments)
+        {
             if (arguments == null)
                 throw new ArgumentNullException(nameof(arguments));
-            var args = CommandStringUtility.EscapeString(arguments);
-            var argList = new List<string>(args);
+            var argList = new List<string>(arguments);
             return GetCommand(this.commandNode, argList);
         }
 
-        public void Execute(string commandLine)
+        public void ExecuteCommandLine(string commandLine)
         {
             var (name, arguments) = CommandStringUtility.Split(commandLine);
-            this.Execute(name, arguments);
-        }
-
-        public void Execute(string name, string arguments)
-        {
             if (this.VerifyName(name) == false)
                 throw new ArgumentException(string.Format(Resources.Exception_InvalidCommandName_Format, name));
+            this.Execute(arguments);
+        }
+
+        public void Execute(string[] arguments)
+        {
             if (arguments == null)
                 throw new ArgumentNullException(nameof(arguments));
             this.ExecuteInternal(arguments);
             this.OnExecuted(EventArgs.Empty);
         }
 
-        public void ExecuteWith(string arguments)
+        public void ExecuteArgumentLine(string arguments)
         {
-            this.ExecuteInternal(arguments);
+            var args = CommandStringUtility.EscapeString(arguments);
+            this.ExecuteInternal(args);
             this.OnExecuted(EventArgs.Empty);
         }
 
-        public Task ExecuteAsync(string commandLine)
+        public Task ExecuteCommandLineAsync(string commandLine)
         {
             var cancellation = new CancellationTokenSource();
-            return this.ExecuteAsync(commandLine, cancellation.Token);
+            return this.ExecuteCommandLineAsync(commandLine, cancellation.Token);
         }
 
-        public Task ExecuteAsync(string commandLine, CancellationToken cancellationToken)
+        public Task ExecuteCommandLineAsync(string commandLine, CancellationToken cancellationToken)
         {
             var (name, arguments) = CommandStringUtility.Split(commandLine);
-            return this.ExecuteAsync(name, arguments, cancellationToken);
-        }
-
-        public Task ExecuteAsync(string name, string arguments)
-        {
-            var cancellation = new CancellationTokenSource();
-            return this.ExecuteAsync(name, arguments, cancellation.Token);
-        }
-
-        public async Task ExecuteAsync(string name, string arguments, CancellationToken cancellationToken)
-        {
             if (this.VerifyName(name) == false)
                 throw new ArgumentException(string.Format(Resources.Exception_InvalidCommandName_Format, name));
+            return this.ExecuteAsync(arguments, cancellationToken);
+        }
+
+        public Task ExecuteAsync(string[] arguments)
+        {
+            var cancellation = new CancellationTokenSource();
+            return this.ExecuteAsync(arguments, cancellation.Token);
+        }
+
+        public async Task ExecuteAsync(string[] arguments, CancellationToken cancellationToken)
+        {
             if (arguments == null)
                 throw new ArgumentNullException(nameof(arguments));
             await this.ExecuteInternalAsync(arguments, cancellationToken);
             this.OnExecuted(EventArgs.Empty);
         }
 
-        public Task ExecuteWithAsync(string arguments)
+        public Task ExecuteArgumentLineAsync(string arguments)
         {
             var cancellation = new CancellationTokenSource();
-            return this.ExecuteWithAsync(arguments, cancellation.Token);
+            return this.ExecuteArgumentLineAsync(arguments, cancellation.Token);
         }
 
-        public async Task ExecuteWithAsync(string arguments, CancellationToken cancellationToken)
+        public async Task ExecuteArgumentLineAsync(string arguments, CancellationToken cancellationToken)
         {
-            await this.ExecuteInternalAsync(arguments, cancellationToken);
+            var args = CommandStringUtility.EscapeString(arguments);
+            await this.ExecuteInternalAsync(args, cancellationToken);
             this.OnExecuted(EventArgs.Empty);
         }
 
@@ -409,50 +410,46 @@ namespace JSSoft.Library.Commands
             return null;
         }
 
-        private void ExecuteInternal(string commandLine)
+        private void ExecuteInternal(string[] arguments)
         {
-            if (commandLine == string.Empty)
+            if (arguments.Any() == false)
             {
                 this.BaseUsage?.Invoke(this);
             }
             else
             {
-                var arguments = CommandStringUtility.EscapeString(commandLine);
                 var argumentList = new List<string>(arguments);
                 var command = GetCommand(this.commandNode, argumentList);
                 if (command != null)
                 {
                     var parser = new CommandLineParser(command.Name, command);
-                    var arg = CommandStringUtility.AggregateString(argumentList);
-                    parser.Invoke(command.Name, arg);
+                    parser.Invoke(argumentList.ToArray());
                 }
                 else
                 {
-                    throw new ArgumentException(string.Format(Resources.Exception_CommandDoesNotExists_Format, commandLine));
+                    throw new ArgumentException(string.Format(Resources.Exception_CommandDoesNotExists_Format, CommandStringUtility.AggregateString(arguments)));
                 }
             }
         }
 
-        private async Task ExecuteInternalAsync(string commandLine, CancellationToken cancellationToken)
+        private async Task ExecuteInternalAsync(string[] arguments, CancellationToken cancellationToken)
         {
-            if (commandLine == string.Empty)
+            if (arguments.Any() == false)
             {
                 this.BaseUsage?.Invoke(this);
             }
             else
             {
-                var arguments = CommandStringUtility.EscapeString(commandLine);
                 var argumentList = new List<string>(arguments);
                 var command = GetCommand(this.commandNode, argumentList);
                 if (command != null)
                 {
                     var parser = new CommandLineParser(command.Name, command);
-                    var arg = CommandStringUtility.AggregateString(argumentList);
-                    await parser.InvokeAsync(command.Name, arg, cancellationToken);
+                    await parser.InvokeAsync(argumentList.ToArray(), cancellationToken);
                 }
                 else
                 {
-                    throw new ArgumentException(string.Format(Resources.Exception_CommandDoesNotExists_Format, commandLine));
+                    throw new ArgumentException(string.Format(Resources.Exception_CommandDoesNotExists_Format, CommandStringUtility.AggregateString(arguments)));
                 }
             }
         }

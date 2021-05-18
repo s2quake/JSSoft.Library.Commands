@@ -114,7 +114,7 @@ namespace JSSoft.Library.Commands
                 Console.CancelKeyPress += ConsoleCancelEventHandler;
                 if (this.OnPreviewExecute(line) == true)
                     return;
-                var task = this.commandContext.ExecuteAsync(this.commandContext.Name + " " + line, cancellation.Token);
+                var task = this.commandContext.ExecuteArgumentLineAsync(line, cancellation.Token);
                 while (task.IsCompleted == false)
                 {
                     this.Update();

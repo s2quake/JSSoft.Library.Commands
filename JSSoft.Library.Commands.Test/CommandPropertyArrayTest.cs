@@ -31,7 +31,7 @@ namespace JSSoft.Library.Commands.Test
         public void Test1()
         {
             var parser = new CommandLineParser(this);
-            parser.ParseWith("get database=a port=123 userid=abc password=1234 comment=\"connect database to \\\"a\\\"\"");
+            parser.ParseArgumentLine("get database=a port=123 userid=abc password=1234 comment=\"connect database to \\\"a\\\"\"");
         }
 
         [TestMethod]
@@ -57,7 +57,7 @@ namespace JSSoft.Library.Commands.Test
         public void ValueIncludedEqualsTest()
         {
             var parser = new CommandLineParser(this);
-            parser.ParseWith("--value=0");
+            parser.ParseArgumentLine("--value=0");
         }
 
         [TestMethod]

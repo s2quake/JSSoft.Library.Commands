@@ -72,7 +72,7 @@ namespace JSSoft.Library.Commands
             return this.OnCanExecute(instance);
         }
 
-        internal object Invoke(object instance, string arguments, IEnumerable<CommandMemberDescriptor> descriptors)
+        internal object Invoke(object instance, string[] arguments, IEnumerable<CommandMemberDescriptor> descriptors)
         {
             var parser = new ParseDescriptor(descriptors, arguments);
             var values = new ArrayList();

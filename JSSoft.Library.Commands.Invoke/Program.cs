@@ -31,7 +31,7 @@ namespace JSSoft.Library.Commands.Invoke
             var parser = new CommandLineParser(commands);
             try
             {
-                parser.Invoke(Environment.CommandLine);
+                parser.InvokeCommandLine(Environment.CommandLine);
             }
             catch (Exception e)
             {

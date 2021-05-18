@@ -37,20 +37,20 @@ namespace JSSoft.Library.Commands.Test
         [TestMethod]
         public void TestMethod1()
         {
-            this.parser.Parse("lock");
+            this.parser.ParseCommandLine("lock");
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void TestMethod2()
         {
-            this.parser.Parse("lock -m");
+            this.parser.ParseCommandLine("lock -m");
         }
 
         [TestMethod]
         public void TestMethod3()
         {
-            this.parser.Parse("lock -m 123");
+            this.parser.ParseCommandLine("lock -m 123");
             Assert.AreEqual("", this.Path);
             Assert.AreEqual("123", this.Comment);
         }
@@ -58,13 +58,13 @@ namespace JSSoft.Library.Commands.Test
         [TestMethod]
         public void TestMethod4()
         {
-            this.parser.Parse("lock current_path");
+            this.parser.ParseCommandLine("lock current_path");
         }
 
         [TestMethod]
         public void TestMethod5()
         {
-            this.parser.Parse("lock current_path -m 123");
+            this.parser.ParseCommandLine("lock current_path -m 123");
             Assert.AreEqual("current_path", this.Path);
             Assert.AreEqual("123", this.Comment);
         }
@@ -73,7 +73,7 @@ namespace JSSoft.Library.Commands.Test
         [ExpectedException(typeof(InvalidOperationException))]
         public void TestMethod6()
         {
-            this.parser.Parse("lock current_path -m 123 -i");
+            this.parser.ParseCommandLine("lock current_path -m 123 -i");
         }
 
         [CommandPropertyRequired(DefaultValue = "")]

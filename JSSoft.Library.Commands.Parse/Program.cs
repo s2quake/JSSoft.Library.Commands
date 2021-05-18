@@ -32,7 +32,7 @@ namespace JSSoft.Library.Commands.Parse
             var parser = new CommandLineParser(settings);
             try
             {
-                parser.Parse(Environment.CommandLine);
+                parser.ParseCommandLine(Environment.CommandLine);
                 var sb = new StringBuilder();
                 sb.AppendLine($"{nameof(settings.Path)}: {settings.Path}");
                 sb.AppendLine($"{nameof(settings.ServiceName)}: {settings.ServiceName}");

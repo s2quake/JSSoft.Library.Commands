@@ -40,7 +40,7 @@ namespace JSSoft.Library.Commands.Test
         {
             try
             {
-                this.parser.Parse("run");
+                this.parser.ParseCommandLine("run");
             }
             catch (CommandParseException e)
             {
@@ -52,13 +52,13 @@ namespace JSSoft.Library.Commands.Test
         [ExpectedException(typeof(ArgumentException))]
         public void TestMethod2()
         {
-            this.parser.Parse("run -l");
+            this.parser.ParseCommandLine("run -l");
         }
 
         [TestMethod]
         public void TestMethod3()
         {
-            this.parser.Parse("run current_path");
+            this.parser.ParseCommandLine("run current_path");
             Assert.AreEqual("current_path", this.RepositoryPath);
             Assert.AreEqual(string.Empty, this.Authentication);
         }
@@ -66,7 +66,7 @@ namespace JSSoft.Library.Commands.Test
         [TestMethod]
         public void TestMethod4()
         {
-            this.parser.Parse("run current_path -l");
+            this.parser.ParseCommandLine("run current_path -l");
             Assert.AreEqual("current_path", this.RepositoryPath);
             Assert.AreEqual("admin", this.Authentication);
         }
@@ -74,7 +74,7 @@ namespace JSSoft.Library.Commands.Test
         [TestMethod]
         public void TestMethod5()
         {
-            this.parser.Parse("run current_path -l member");
+            this.parser.ParseCommandLine("run current_path -l member");
             Assert.AreEqual("current_path", this.RepositoryPath);
             Assert.AreEqual("member", this.Authentication);
         }

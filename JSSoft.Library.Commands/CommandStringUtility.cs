@@ -29,23 +29,23 @@ using System.Text.RegularExpressions;
 namespace JSSoft.Library.Commands
 {
     /// <summary>
-    /// https://rubular.com/r/MEDnmumVL45rDS
+    /// https://rubular.com/r/9EbEfYeQGozZVF
     /// </summary>
     public static class CommandStringUtility
     {
-        private const string doubleQuotesPattern = "(?<!\\\\)\"(?:\\\\\"|\\\\\\\\|(?!=\\\\)[^\"])*(?<!\\\\)\"";
+        private const string doubleQuotesPattern = "(?<!\\\\)\"(?:\\\\.|(?!=\\\\)[^\"])*(?:\\\\.\"|\")";
         private const string singleQuotePattern = "'[^']*'";
-        private const string escapedTextPattern = "(?:(?<!\\\\)[^\"'\\s]|(?<=\\\\).)+";
-        private const string stringPattern = "[^ \"']+";
+        private const string stringPattern = "(?:(?<!\\\\)[^\"'\\s]|(?<=\\\\).)+";
+        private const string spacePattern = "\\s+";
+        private const string etcPattern = ".+";
         private static readonly string fullPattern;
         private static readonly (string name, string value, Func<string, string> escape)[] patterns =
         {
             ("double", doubleQuotesPattern, EscapeDoubleQuotes),
             ("single", singleQuotePattern, EscapeSingleQuote),
-            ("escape", escapedTextPattern, EscapeEscapedText),
             ("string", stringPattern, EscapeEscapedText),
-            ("space", "\\s+", (s) => s),
-            ("etc", ".+", (s) => s),
+            ("space", spacePattern, (s) => s),
+            ("etc", etcPattern, (s) => s),
         };
 
         static CommandStringUtility()
@@ -82,12 +82,12 @@ namespace JSSoft.Library.Commands
             return string.Join(" ", itemList);
         }
 
-        public static (string first, string rest) Split(string text)
+        internal static (string name, string[] args) Split(string commandLine)
         {
-            var items = EscapeString(text);
-            var first = items.FirstOrDefault() ?? string.Empty;
-            var rest = items.Count() > 0 ? AggregateString(items.Skip(1)) : string.Empty;
-            return (first, rest);
+            var items = EscapeString(commandLine);
+            var name = items.FirstOrDefault() ?? string.Empty;
+            var args = items.Count() > 0 ? items.Skip(1).ToArray() : new string[] { };
+            return (name, args);
         }
 
         /// <summary>

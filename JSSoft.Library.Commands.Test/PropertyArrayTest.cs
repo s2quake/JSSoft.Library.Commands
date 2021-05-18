@@ -33,7 +33,7 @@ namespace JSSoft.Library.Commands.Test
         {
             var instance = new Instance1();
             var parser = new CommandLineParser("array", instance);
-            parser.Parse("array");
+            parser.ParseCommandLine("array");
             Assert.IsNotNull(instance.Arguments);
             Assert.AreEqual(0, instance.Arguments.Length);
         }
@@ -52,7 +52,7 @@ namespace JSSoft.Library.Commands.Test
         {
             var instance = new Instance2();
             var parser = new CommandLineParser("array", instance);
-            parser.Parse("array");
+            parser.ParseCommandLine("array");
             Assert.IsNotNull(instance.Arguments);
             Assert.AreEqual(0, instance.Arguments.Length);
             Assert.IsTrue(new string[] { }.SequenceEqual(instance.Arguments));
@@ -75,7 +75,7 @@ namespace JSSoft.Library.Commands.Test
             {
                 var instance = new Instance3();
                 var parser = new CommandLineParser("array", instance);
-                parser.Parse("array");
+                parser.ParseCommandLine("array");
             }
             catch (CommandParseException e)
             {
@@ -103,7 +103,7 @@ namespace JSSoft.Library.Commands.Test
         {
             var instance = new Instance4();
             var parser = new CommandLineParser("array", instance);
-            parser.Parse("array");
+            parser.ParseCommandLine("array");
             Assert.IsNotNull(instance.Arguments);
             Assert.AreEqual(0, instance.Arguments.Length);
             Assert.IsTrue(new string[] { }.SequenceEqual(instance.Arguments));

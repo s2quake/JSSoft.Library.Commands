@@ -37,7 +37,7 @@ namespace JSSoft.Library.Commands.Test
         [TestMethod]
         public void TestMethod1()
         {
-            this.parser.Parse("run --filename \"C:\\\\script.js\"");
+            this.parser.ParseCommandLine("run --filename \"C:\\\\script.js\"");
             Assert.AreEqual(this.Filename, "C:\\script.js");
             Assert.AreEqual(this.Script, string.Empty);
             Assert.IsFalse(this.List);
@@ -48,7 +48,7 @@ namespace JSSoft.Library.Commands.Test
         [TestMethod]
         public void TestMethod2()
         {
-            this.parser.Parse("run log(1);");
+            this.parser.ParseCommandLine("run log(1);");
             Assert.AreEqual(this.Script, "log(1);");
             Assert.AreEqual(this.Filename, string.Empty);
             Assert.IsFalse(this.List);
@@ -59,7 +59,7 @@ namespace JSSoft.Library.Commands.Test
         [TestMethod]
         public void TestMethod3()
         {
-            this.parser.Parse("run --list");
+            this.parser.ParseCommandLine("run --list");
             Assert.IsTrue(this.List);
             Assert.AreEqual(this.Script, string.Empty);
             Assert.AreEqual(this.Filename, string.Empty);
@@ -70,7 +70,7 @@ namespace JSSoft.Library.Commands.Test
         [TestMethod]
         public void TestMethod4()
         {
-            this.parser.Parse("run -l");
+            this.parser.ParseCommandLine("run -l");
             Assert.AreEqual(this.Script, string.Empty);
             Assert.AreEqual(this.Filename, string.Empty);
             Assert.IsNotNull(this.Arguments);
@@ -80,7 +80,7 @@ namespace JSSoft.Library.Commands.Test
         [TestMethod]
         public void TestMethod4_With_Args()
         {
-            this.parser.Parse("run -l -- db=string port=number async=boolean");
+            this.parser.ParseCommandLine("run -l -- db=string port=number async=boolean");
             Assert.IsTrue(this.List);
             Assert.AreEqual(this.Script, string.Empty);
             Assert.AreEqual(this.Filename, string.Empty);
@@ -94,7 +94,7 @@ namespace JSSoft.Library.Commands.Test
         [TestMethod]
         public void TestMethod5()
         {
-            this.parser.Parse("run log(1); arg1=1 arg2=text");
+            this.parser.ParseCommandLine("run log(1); arg1=1 arg2=text");
             Assert.AreEqual(this.Script, "log(1);");
             Assert.AreEqual(2, this.Arguments.Length);
             foreach (var item in this.Arguments)

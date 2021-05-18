@@ -25,17 +25,23 @@ namespace JSSoft.Library.Commands
 {
     public class CommandParseException : Exception
     {
-        public CommandParseException(CommandParseError error, string commandLine, bool isParse, Exception innerException)
+        public CommandParseException(CommandParseError error, string[] args, bool isParse)
+            : this(error, args, isParse, null)
+        {
+
+        }
+
+        public CommandParseException(CommandParseError error, string[] args, bool isParse, Exception innerException)
             : base(innerException.Message, innerException)
         {
             this.Error = error;
-            this.CommandLine = commandLine;
+            this.Arguments = args;
             this.IsParse = isParse;
         }
 
         public CommandParseError Error { get; }
 
-        public string CommandLine { get; }
+        public string[] Arguments { get; }
 
         public bool IsParse { get; }
     }

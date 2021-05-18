@@ -38,21 +38,21 @@ namespace JSSoft.Library.Commands.Test
         [TestMethod]
         public void TestMethod1()
         {
-            this.parser.Parse("parse --boolean false");
+            this.parser.ParseCommandLine("parse --boolean false");
             Assert.IsFalse(this.Boolean);
         }
 
         [TestMethod]
         public void TestMethod2()
         {
-            this.parser.Parse("parse --number 1");
+            this.parser.ParseCommandLine("parse --number 1");
             Assert.AreEqual(this.Number, 1);
         }
 
         [TestMethod]
         public void TestMethod3()
         {
-            this.parser.Parse("parse --string qwer");
+            this.parser.ParseCommandLine("parse --string qwer");
             Assert.AreEqual(this.String, "qwer");
         }
 
@@ -60,7 +60,7 @@ namespace JSSoft.Library.Commands.Test
         [ExpectedException(typeof(ArgumentException))]
         public void TestMethod4()
         {
-            this.parser.Parse("parse --boolean ewe");
+            this.parser.ParseCommandLine("parse --boolean ewe");
         }
 
 
@@ -68,7 +68,7 @@ namespace JSSoft.Library.Commands.Test
         [ExpectedException(typeof(ArgumentException))]
         public void TestMethod5()
         {
-            this.parser.Parse("parse --number ewe");
+            this.parser.ParseCommandLine("parse --number ewe");
         }
 
         [CommandProperty]
