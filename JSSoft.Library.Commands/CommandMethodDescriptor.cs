@@ -72,9 +72,9 @@ namespace JSSoft.Library.Commands
             return this.OnCanExecute(instance);
         }
 
-        internal object Invoke(object instance, string[] arguments, IEnumerable<CommandMemberDescriptor> descriptors)
+        internal object Invoke(object instance, string[] args, IEnumerable<CommandMemberDescriptor> descriptors)
         {
-            var parser = new ParseDescriptor(descriptors, arguments);
+            var parser = new ParseDescriptor(descriptors, args);
             var values = new ArrayList();
             var nameToDescriptors = descriptors.ToDictionary(item => item.DescriptorName);
             var parameters = this.MethodInfo.GetParameters();

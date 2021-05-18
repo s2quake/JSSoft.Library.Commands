@@ -181,7 +181,7 @@ namespace JSSoft.Library.Commands
 
         private static void InputEnter(Terminal terminal)
         {
-            if (CommandStringUtility.VerifyEscapeString(terminal.Command) == true)
+            if (CommandStringUtility.VerifyArgumentLine(terminal.Command) == true)
                 terminal.EndInput();
             else
                 terminal.InsertNewLine();

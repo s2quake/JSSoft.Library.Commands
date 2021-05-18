@@ -1076,8 +1076,8 @@ namespace JSSoft.Library.Commands
                 this.RecordCommand(this.command.Text);
             if (this.IsPassword == true)
                 return this.secureString;
-            var items = CommandStringUtility.EscapeString(this.command.Text);
-            return CommandStringUtility.AggregateString(items);
+            var items = CommandStringUtility.Split(this.command.Text);
+            return CommandStringUtility.Join(items);
         }
 
         private object OnInputCancel()

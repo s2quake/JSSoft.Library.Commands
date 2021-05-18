@@ -73,9 +73,9 @@ namespace JSSoft.Library.Commands
             }
             else
             {
-                var argumentList = new List<string>(this.CommandNames);
-                var command = CommandContextBase.GetCommand(this.CommandContext.Node, argumentList);
-                if (command != null && argumentList.Any() == false)
+                var argList = new List<string>(this.CommandNames);
+                var command = CommandContextBase.GetCommand(this.CommandContext.Node, argList);
+                if (command != null && argList.Any() == false)
                 {
                     if (command is ICommandUsage usage)
                         usage.Print(this.Usage);
@@ -84,7 +84,7 @@ namespace JSSoft.Library.Commands
                 }
                 else
                 {
-                    var commandName = CommandStringUtility.AggregateString(this.CommandNames);
+                    var commandName = CommandStringUtility.Join(this.CommandNames);
                     throw new InvalidOperationException(string.Format(Resources.Exception_CommandDoesNotExists_Format, commandName));
                 }
             }

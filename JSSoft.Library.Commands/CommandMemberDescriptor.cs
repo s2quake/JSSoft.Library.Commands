@@ -165,12 +165,12 @@ namespace JSSoft.Library.Commands
             }
         }
 
-        internal void Parse(object instance, List<string> arguments)
+        internal void Parse(object instance, List<string> argList)
         {
-            var arg = arguments.First();
+            var arg = argList.First();
             var value = Parser.Parse(this, arg);
             this.SetValue(instance, value);
-            arguments.RemoveAt(0);
+            argList.RemoveAt(0);
         }
 
         internal void SetValueInternal(object instance, object value)

@@ -53,26 +53,26 @@ namespace JSSoft.Library.Commands
             fullPattern = string.Join("|", patterns.Select(item => $"(?<{item.name}>{item.value})"));
         }
 
-        public static bool VerifyEscapeString(string text)
+        public static bool VerifyArgumentLine(string text)
         {
             return GetMatches(text, true) != null;
         }
 
-        public static string[] EscapeString(string text)
+        public static string[] Split(string text)
         {
             return GetMatches(text, false);
         }
 
-        public static string AggregateString(string[] items)
+        public static string Join(string[] args)
         {
-            return AggregateString(items as IEnumerable<string>);
+            return Join(args as IEnumerable<string>);
         }
 
-        public static string AggregateString(IEnumerable<string> items)
+        public static string Join(IEnumerable<string> args)
         {
-            var length = items.Sum(item => item.Length + 3);
-            var itemList = new List<string>(items.Count());
-            foreach (var item in items)
+            var length = args.Sum(item => item.Length + 3);
+            var itemList = new List<string>(args.Count());
+            foreach (var item in args)
             {
                 var text = Regex.Replace(item, "([\\\\\"])", "\\$1");
                 if (text.IndexOf(' ') >= 0)
@@ -82,9 +82,9 @@ namespace JSSoft.Library.Commands
             return string.Join(" ", itemList);
         }
 
-        internal static (string name, string[] args) Split(string commandLine)
+        public static (string name, string[] args) SplitCommandLine(string commandLine)
         {
-            var items = EscapeString(commandLine);
+            var items = Split(commandLine);
             var name = items.FirstOrDefault() ?? string.Empty;
             var args = items.Count() > 0 ? items.Skip(1).ToArray() : new string[] { };
             return (name, args);
@@ -106,18 +106,6 @@ namespace JSSoft.Library.Commands
             key = null;
             value = null;
             return false;
-        }
-
-        [Obsolete]
-        public static Match[] MatchAll(string text)
-        {
-            var matches = Regex.Matches(text, fullPattern);
-            var argList = new List<Match>();
-            foreach (Match item in matches)
-            {
-                argList.Add(item);
-            }
-            return argList.ToArray();
         }
 
         public static Match[] MatchCompletion(string text)
@@ -154,13 +142,13 @@ namespace JSSoft.Library.Commands
             return Regex.Replace(name, @"([a-z])([A-Z])", "$1-$2").ToLower();
         }
 
-        public static IDictionary<string, object> ArgumentsToDictionary(string[] arguments)
+        public static IDictionary<string, object> ArgumentsToDictionary(string[] args)
         {
-            if (arguments == null)
-                throw new ArgumentNullException(nameof(arguments));
+            if (args == null)
+                throw new ArgumentNullException(nameof(args));
 
-            var properties = new Dictionary<string, object>(arguments.Length);
-            foreach (var item in arguments)
+            var properties = new Dictionary<string, object>(args.Length);
+            foreach (var item in args)
             {
                 var text = item;
 

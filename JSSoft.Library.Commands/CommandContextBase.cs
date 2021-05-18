@@ -73,39 +73,39 @@ namespace JSSoft.Library.Commands
 
         public ICommand GetCommandByCommandLine(string commandLine)
         {
-            var (name, arguments) = CommandStringUtility.Split(commandLine);
+            var (name, args) = CommandStringUtility.SplitCommandLine(commandLine);
             if (this.VerifyName(name) == false)
                 return null;
-            return this.GetCommand(arguments);
+            return this.GetCommand(args);
         }
 
-        public ICommand GetCommand(string[] arguments)
+        public ICommand GetCommand(string[] args)
         {
-            if (arguments == null)
-                throw new ArgumentNullException(nameof(arguments));
-            var argList = new List<string>(arguments);
+            if (args == null)
+                throw new ArgumentNullException(nameof(args));
+            var argList = new List<string>(args);
             return GetCommand(this.commandNode, argList);
         }
 
         public void ExecuteCommandLine(string commandLine)
         {
-            var (name, arguments) = CommandStringUtility.Split(commandLine);
+            var (name, args) = CommandStringUtility.SplitCommandLine(commandLine);
             if (this.VerifyName(name) == false)
                 throw new ArgumentException(string.Format(Resources.Exception_InvalidCommandName_Format, name));
-            this.Execute(arguments);
+            this.Execute(args);
         }
 
-        public void Execute(string[] arguments)
+        public void Execute(string[] args)
         {
-            if (arguments == null)
-                throw new ArgumentNullException(nameof(arguments));
-            this.ExecuteInternal(arguments);
+            if (args == null)
+                throw new ArgumentNullException(nameof(args));
+            this.ExecuteInternal(args);
             this.OnExecuted(EventArgs.Empty);
         }
 
-        public void ExecuteArgumentLine(string arguments)
+        public void ExecuteArgumentLine(string argumentLine)
         {
-            var args = CommandStringUtility.EscapeString(arguments);
+            var args = CommandStringUtility.Split(argumentLine);
             this.ExecuteInternal(args);
             this.OnExecuted(EventArgs.Empty);
         }
@@ -118,35 +118,35 @@ namespace JSSoft.Library.Commands
 
         public Task ExecuteCommandLineAsync(string commandLine, CancellationToken cancellationToken)
         {
-            var (name, arguments) = CommandStringUtility.Split(commandLine);
+            var (name, args) = CommandStringUtility.SplitCommandLine(commandLine);
             if (this.VerifyName(name) == false)
                 throw new ArgumentException(string.Format(Resources.Exception_InvalidCommandName_Format, name));
-            return this.ExecuteAsync(arguments, cancellationToken);
+            return this.ExecuteAsync(args, cancellationToken);
         }
 
-        public Task ExecuteAsync(string[] arguments)
+        public Task ExecuteAsync(string[] args)
         {
             var cancellation = new CancellationTokenSource();
-            return this.ExecuteAsync(arguments, cancellation.Token);
+            return this.ExecuteAsync(args, cancellation.Token);
         }
 
-        public async Task ExecuteAsync(string[] arguments, CancellationToken cancellationToken)
+        public async Task ExecuteAsync(string[] args, CancellationToken cancellationToken)
         {
-            if (arguments == null)
-                throw new ArgumentNullException(nameof(arguments));
-            await this.ExecuteInternalAsync(arguments, cancellationToken);
+            if (args == null)
+                throw new ArgumentNullException(nameof(args));
+            await this.ExecuteInternalAsync(args, cancellationToken);
             this.OnExecuted(EventArgs.Empty);
         }
 
-        public Task ExecuteArgumentLineAsync(string arguments)
+        public Task ExecuteArgumentLineAsync(string argumentLine)
         {
             var cancellation = new CancellationTokenSource();
-            return this.ExecuteArgumentLineAsync(arguments, cancellation.Token);
+            return this.ExecuteArgumentLineAsync(argumentLine, cancellation.Token);
         }
 
-        public async Task ExecuteArgumentLineAsync(string arguments, CancellationToken cancellationToken)
+        public async Task ExecuteArgumentLineAsync(string argumentLine, CancellationToken cancellationToken)
         {
-            var args = CommandStringUtility.EscapeString(arguments);
+            var args = CommandStringUtility.Split(argumentLine);
             await this.ExecuteInternalAsync(args, cancellationToken);
             this.OnExecuted(EventArgs.Empty);
         }
@@ -258,9 +258,9 @@ namespace JSSoft.Library.Commands
             return this.GetCompletion(items, find);
         }
 
-        internal static ICommand GetCommand(ICommandNode parentNode, List<string> argumentList)
+        internal static ICommand GetCommand(ICommandNode parentNode, List<string> argList)
         {
-            var commandName = argumentList.FirstOrDefault() ?? string.Empty;
+            var commandName = argList.FirstOrDefault() ?? string.Empty;
             if (commandName != string.Empty)
             {
                 if (parentNode.Childs.ContainsKey(commandName) == true)
@@ -268,10 +268,10 @@ namespace JSSoft.Library.Commands
                     var commandNode = parentNode.Childs[commandName];
                     if (commandNode.IsEnabled == false)
                         return null;
-                    argumentList.RemoveAt(0);
-                    if (argumentList.Count > 0 && commandNode.Childs.Any())
+                    argList.RemoveAt(0);
+                    if (argList.Count > 0 && commandNode.Childs.Any())
                     {
-                        return GetCommand(commandNode, argumentList);
+                        return GetCommand(commandNode, argList);
                     }
                     return commandNode.Command;
                 }
@@ -280,10 +280,10 @@ namespace JSSoft.Library.Commands
                     var commandNode = parentNode.ChildsByAlias[commandName];
                     if (commandNode.IsEnabled == false)
                         return null;
-                    argumentList.RemoveAt(0);
-                    if (argumentList.Count > 0 && commandNode.Childs.Any())
+                    argList.RemoveAt(0);
+                    if (argList.Count > 0 && commandNode.Childs.Any())
                     {
-                        return GetCommand(commandNode, argumentList);
+                        return GetCommand(commandNode, argList);
                     }
                     return commandNode.Command;
                 }
@@ -392,12 +392,12 @@ namespace JSSoft.Library.Commands
             }
         }
 
-        private string[] GetCompletion(ICommand item, string[] arguments, string find)
+        private string[] GetCompletion(ICommand item, string[] args, string find)
         {
             if (item is ICommandCompletor completor)
             {
                 var members = CommandDescriptor.GetMemberDescriptors(item);
-                var context = CommandCompletionContext.Create(item, members, arguments, find);
+                var context = CommandCompletionContext.Create(item, members, args, find);
                 if (context is CommandCompletionContext completionContext)
                 {
                     var completion = completor.GetCompletions(completionContext);
@@ -410,46 +410,46 @@ namespace JSSoft.Library.Commands
             return null;
         }
 
-        private void ExecuteInternal(string[] arguments)
+        private void ExecuteInternal(string[] args)
         {
-            if (arguments.Any() == false)
+            if (args.Any() == false)
             {
                 this.BaseUsage?.Invoke(this);
             }
             else
             {
-                var argumentList = new List<string>(arguments);
-                var command = GetCommand(this.commandNode, argumentList);
+                var argList = new List<string>(args);
+                var command = GetCommand(this.commandNode, argList);
                 if (command != null)
                 {
                     var parser = new CommandLineParser(command.Name, command);
-                    parser.Invoke(argumentList.ToArray());
+                    parser.Invoke(argList.ToArray());
                 }
                 else
                 {
-                    throw new ArgumentException(string.Format(Resources.Exception_CommandDoesNotExists_Format, CommandStringUtility.AggregateString(arguments)));
+                    throw new ArgumentException(string.Format(Resources.Exception_CommandDoesNotExists_Format, CommandStringUtility.Join(args)));
                 }
             }
         }
 
-        private async Task ExecuteInternalAsync(string[] arguments, CancellationToken cancellationToken)
+        private async Task ExecuteInternalAsync(string[] args, CancellationToken cancellationToken)
         {
-            if (arguments.Any() == false)
+            if (args.Any() == false)
             {
                 this.BaseUsage?.Invoke(this);
             }
             else
             {
-                var argumentList = new List<string>(arguments);
-                var command = GetCommand(this.commandNode, argumentList);
+                var argList = new List<string>(args);
+                var command = GetCommand(this.commandNode, argList);
                 if (command != null)
                 {
                     var parser = new CommandLineParser(command.Name, command);
-                    await parser.InvokeAsync(argumentList.ToArray(), cancellationToken);
+                    await parser.InvokeAsync(argList.ToArray(), cancellationToken);
                 }
                 else
                 {
-                    throw new ArgumentException(string.Format(Resources.Exception_CommandDoesNotExists_Format, CommandStringUtility.AggregateString(arguments)));
+                    throw new ArgumentException(string.Format(Resources.Exception_CommandDoesNotExists_Format, CommandStringUtility.Join(args)));
                 }
             }
         }

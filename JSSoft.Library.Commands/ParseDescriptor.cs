@@ -32,13 +32,6 @@ namespace JSSoft.Library.Commands
     {
         private readonly Dictionary<string, string> unparsedArguments = new();
 
-        /// <param name="members"></param>
-        /// <param name="commandLine"></param>
-        public ParseDescriptor(IEnumerable<CommandMemberDescriptor> members, string commandLine)
-            : this(members, CommandStringUtility.EscapeString(commandLine))
-        {
-        }
-
         public ParseDescriptor(IEnumerable<CommandMemberDescriptor> members, string[] args)
         {
             var itemByDescriptor = members.ToDictionary(item => item, item => new ParseDescriptorItem(item));
@@ -46,11 +39,11 @@ namespace JSSoft.Library.Commands
             var descriptors = ToDictionary(members);
             var variableList = new List<string>();
             var variablesDescriptor = members.Where(item => item.Usage == CommandPropertyUsage.Variables).FirstOrDefault();
-            var arguments = CreateQueue(args);
+            var argQueue = CreateQueue(args);
 
-            while (arguments.Any())
+            while (argQueue.Any())
             {
-                var arg = arguments.Dequeue();
+                var arg = argQueue.Dequeue();
                 if (descriptors.ContainsKey(arg) == true)
                 {
                     var descriptor = descriptors[arg];
@@ -61,11 +54,11 @@ namespace JSSoft.Library.Commands
                     }
                     else
                     {
-                        var nextArg = arguments.FirstOrDefault() ?? string.Empty;
+                        var nextArg = argQueue.FirstOrDefault() ?? string.Empty;
                         var isValue = nextArg != string.Empty && CommandStringUtility.IsOption(nextArg) == false && nextArg != "--";
                         if (isValue == true)
                         {
-                            var textValue = arguments.Dequeue();
+                            var textValue = argQueue.Dequeue();
                             itemByDescriptor[descriptor].Value = Parser.Parse(descriptor, textValue);
                         }
                         itemByDescriptor[descriptor].HasSwtich = true;
@@ -75,19 +68,19 @@ namespace JSSoft.Library.Commands
                 {
                     if (variablesDescriptor != null)
                     {
-                        foreach (var item in arguments)
+                        foreach (var item in argQueue)
                         {
                             variableList.Add(item);
                         }
                     }
                     else
                     {
-                        foreach (var item in arguments)
+                        foreach (var item in argQueue)
                         {
                             unparsedArguments.Add(item, null);
                         }
                     }
-                    arguments.Clear();
+                    argQueue.Clear();
                 }
                 else if (CommandStringUtility.IsMultipleSwitch(arg))
                 {
@@ -127,9 +120,9 @@ namespace JSSoft.Library.Commands
                     }
                     else
                     {
-                        var nextArg = arguments.FirstOrDefault();
+                        var nextArg = argQueue.FirstOrDefault();
                         if (nextArg != null && CommandStringUtility.IsOption(nextArg) == false)
-                            unparsedArguments.Add(arg, arguments.Dequeue());
+                            unparsedArguments.Add(arg, argQueue.Dequeue());
                         else
                             unparsedArguments.Add(arg, null);
                     }
@@ -149,10 +142,10 @@ namespace JSSoft.Library.Commands
             this.unparsedArguments = unparsedArguments;
         }
 
-        private static Queue<string> CreateQueue(string[] arguments)
+        private static Queue<string> CreateQueue(string[] args)
         {
-            var queue = new Queue<string>(arguments.Length);
-            foreach (var item in arguments)
+            var queue = new Queue<string>(args.Length);
+            foreach (var item in args)
             {
                 queue.Enqueue(item);
             }

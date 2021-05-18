@@ -67,7 +67,7 @@ namespace JSSoft.Library.Commands
 
         public bool TryParseCommandLine(string commandLine)
         {
-            var (name, args) = CommandStringUtility.Split(commandLine);
+            var (name, args) = CommandStringUtility.SplitCommandLine(commandLine);
             if (this.VerifyName(name) == false)
                 throw new ArgumentException(string.Format(Resources.Exception_InvalidCommandName_Format, name));
             return this.TryParse(args);
@@ -88,7 +88,7 @@ namespace JSSoft.Library.Commands
 
         public void ParseCommandLine(string commandLine)
         {
-            var (name, args) = CommandStringUtility.Split(commandLine);
+            var (name, args) = CommandStringUtility.SplitCommandLine(commandLine);
             if (this.VerifyName(name) == false)
                 throw new ArgumentException(string.Format(Resources.Exception_InvalidCommandName_Format, name));
             this.Parse(args);
@@ -117,7 +117,7 @@ namespace JSSoft.Library.Commands
 
         public void ParseArgumentLine(string argumentLine)
         {
-            var args = CommandStringUtility.EscapeString(argumentLine);
+            var args = CommandStringUtility.Split(argumentLine);
             this.Parse(args);
         }
 
@@ -136,7 +136,7 @@ namespace JSSoft.Library.Commands
 
         public bool TryInvokeCommandLine(string commandLine)
         {
-            var (name, args) = CommandStringUtility.Split(commandLine);
+            var (name, args) = CommandStringUtility.SplitCommandLine(commandLine);
             if (this.VerifyName(name) == false)
                 throw new ArgumentException(string.Format(Resources.Exception_InvalidCommandName_Format, name));
             return this.TryInvoke(args);
@@ -144,7 +144,7 @@ namespace JSSoft.Library.Commands
 
         public bool TryInvokeArgumentLine(string argumentLine)
         {
-            var args = CommandStringUtility.EscapeString(argumentLine);
+            var args = CommandStringUtility.Split(argumentLine);
             return this.TryInvoke(args);
         }
 
@@ -212,7 +212,7 @@ namespace JSSoft.Library.Commands
 
         public void InvokeCommandLine(string commandLine)
         {
-            var (name, args) = CommandStringUtility.Split(commandLine);
+            var (name, args) = CommandStringUtility.SplitCommandLine(commandLine);
             if (this.VerifyName(name) == false)
                 throw new ArgumentException(string.Format(Resources.Exception_InvalidCommandName_Format, name));
             this.Invoke(args);
@@ -220,7 +220,7 @@ namespace JSSoft.Library.Commands
 
         public void InvokeArgumentLine(string argumentLine)
         {
-            var args = CommandStringUtility.EscapeString(argumentLine);
+            var args = CommandStringUtility.Split(argumentLine);
             this.Invoke(args);
         }
 
@@ -249,7 +249,7 @@ namespace JSSoft.Library.Commands
 
         public Task<bool> TryInvokeCommandLineAsync(string commandLine, CancellationToken cancellationToken)
         {
-            var (name, args) = CommandStringUtility.Split(commandLine);
+            var (name, args) = CommandStringUtility.SplitCommandLine(commandLine);
             if (this.VerifyName(name) == false)
                 throw new ArgumentException(string.Format(Resources.Exception_InvalidCommandName_Format, name));
             return this.TryInvokeAsync(args);
@@ -262,7 +262,7 @@ namespace JSSoft.Library.Commands
 
         public Task<bool> TryInvokeArgumentLineAsync(string argumentLine, CancellationToken cancellationToken)
         {
-            var args = CommandStringUtility.EscapeString(argumentLine);
+            var args = CommandStringUtility.Split(argumentLine);
             return this.TryInvokeAsync(args, cancellationToken);
         }
 
@@ -315,7 +315,7 @@ namespace JSSoft.Library.Commands
 
         public Task InvokeCommandLineAsync(string commandLine, CancellationToken cancellationToken)
         {
-            var (name, args) = CommandStringUtility.Split(commandLine);
+            var (name, args) = CommandStringUtility.SplitCommandLine(commandLine);
             if (this.VerifyName(name) == false)
                 throw new ArgumentException(string.Format(Resources.Exception_InvalidCommandName_Format, name));
             return this.InvokeAsync(args, cancellationToken);
@@ -328,7 +328,7 @@ namespace JSSoft.Library.Commands
 
         public Task InvokeArgumentLineAsync(string argumentLine, CancellationToken cancellationToken)
         {
-            var args = CommandStringUtility.EscapeString(argumentLine);
+            var args = CommandStringUtility.Split(argumentLine);
             return this.InvokeAsync(args, cancellationToken);
         }
 
@@ -338,7 +338,7 @@ namespace JSSoft.Library.Commands
             {
                 if (this.Out == null)
                     throw e;
-                var commandLine = CommandStringUtility.AggregateString(ex.Arguments);
+                var commandLine = CommandStringUtility.Join(ex.Arguments);
                 var isParse = ex.IsParse;
                 switch (ex.Error)
                 {
@@ -556,7 +556,7 @@ namespace JSSoft.Library.Commands
 
         private void PrintInvokeHelp(string commandLine)
         {
-            var (arg1, arg2) = CommandStringUtility.Split(commandLine);
+            var (arg1, arg2) = CommandStringUtility.SplitCommandLine(commandLine);
             var instance = new HelpInvokeInstance();
             var parser = new CommandLineParser(this.HelpName, instance)
             {
