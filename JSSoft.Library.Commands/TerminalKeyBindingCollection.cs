@@ -29,7 +29,6 @@ namespace JSSoft.Library.Commands
 {
     public class TerminalKeyBindingCollection : IEnumerable<TerminalKeyBindingBase>
     {
-        private static readonly char[] multilineChars = new[] { '\"', '\'' };
         private readonly Dictionary<ConsoleKeyInfo, TerminalKeyBindingBase> itemByKey;
 
         static TerminalKeyBindingCollection()
