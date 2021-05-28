@@ -230,7 +230,9 @@ namespace JSSoft.Library.Commands
 
         private static string EscapeEscapedText(string text)
         {
-            return Regex.Replace(text, "(\\\\)(.)", "$2");
+            if (Environment.OSVersion.Platform == PlatformID.Unix)
+                return Regex.Replace(text, "(\\\\)(.)", "$2");
+            return text;
         }
     }
 }
