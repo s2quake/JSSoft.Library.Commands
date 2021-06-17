@@ -53,8 +53,8 @@ namespace JSSoft.Library.Commands
         private TerminalPoint pt3;
         private TerminalPoint pt4;
         private TerminalPoint ot1;
-        private int width = Console.BufferWidth;
-        private int height = Console.BufferHeight;
+        private int width = Console.IsInputRedirected == true ? int.MaxValue : Console.BufferWidth;
+        private int height = Console.IsInputRedirected == true ? int.MaxValue : Console.BufferHeight;
         private int historyIndex;
         private int cursorIndex;
         private TerminalPrompt prompt = TerminalPrompt.Empty;
@@ -94,39 +94,7 @@ namespace JSSoft.Library.Commands
 
         public Terminal()
         {
-            if (Console.IsInputRedirected == true)
-                throw new Exception("Terminal cannot use. Console.IsInputRedirected must be false");
-            // this.systemActions.Add(new ConsoleKeyInfo('\u0003', ConsoleKey.C, false, false, true), this.OnCancel);
-            // this.systemActions.Add(new ConsoleKeyInfo('\r', ConsoleKey.Enter, false, false, false), this.OnEnter);
         }
-
-        // public static string EscapeString(string text)
-        // {
-        //     var isEscape = false;
-        //     var isDoubleQuotes = false;
-        //     var isSingleQuotes = false;
-        //     var sb = new StringBuilder(this.Text.Length);
-        //     foreach (var item in this.Text)
-        //     {
-        //         if (item == '\\')
-        //         {
-        //             isEscape = true;
-        //         }
-        //         else if (item == '"')
-        //         {
-        //         }
-        //         else if (item == '\'')
-        //         {
-
-        //         }
-        //         else
-        //         {
-
-        //         }
-        //         isEscape = false;
-        //     }
-        //     return text;
-        // }
 
         public static string NextCompletion(string[] completions, string text)
         {
@@ -920,29 +888,35 @@ namespace JSSoft.Library.Commands
             {
                 var text = string.Empty;
                 this.Update();
-                while (Console.KeyAvailable == true)
+                if (Console.IsInputRedirected == false)
                 {
-                    var key = Console.ReadKey(true);
-                    var ch = key.KeyChar;
+                    while (Console.KeyAvailable == true)
+                    {
+                        var key = Console.ReadKey(true);
+                        var ch = key.KeyChar;
+                        if (text != string.Empty)
+                            this.FlushKeyChars(ref text);
+                        if (this.KeyBindings.CanProcess(key) == true)
+                        {
+                            this.KeyBindings.Process(key, this);
+                        }
+                        else if (this.PreviewKeyChar(key.KeyChar) == true && this.PreviewCommand(text + key.KeyChar) == true)
+                        {
+                            text += key.KeyChar;
+                        }
+                        if (this.IsInputEnded == true)
+                            return this.OnInputEnd();
+                        else if (this.IsInputCancelled == true)
+                            return this.OnInputCancel();
+                    }
                     if (text != string.Empty)
                         this.FlushKeyChars(ref text);
-                    if (this.KeyBindings.CanProcess(key) == true)
-                    {
-                        this.KeyBindings.Process(key, this);
-                    }
-                    else if (this.PreviewKeyChar(key.KeyChar) == true && this.PreviewCommand(text + key.KeyChar) == true)
-                    {
-                        text += key.KeyChar;
-                    }
-                    if (this.IsInputEnded == true)
-                        return this.OnInputEnd();
-                    else if (this.IsInputCancelled == true)
-                        return this.OnInputCancel();
+                    Thread.Sleep(1);
                 }
-
-                if (text != string.Empty)
-                    this.FlushKeyChars(ref text);
-                Thread.Sleep(1);
+                else
+                {
+                    return Console.ReadLine();
+                }
             }
             return null;
         }
@@ -1011,8 +985,8 @@ namespace JSSoft.Library.Commands
 
         private void Initialize(string prompt, TerminalFlags flags, Func<string, bool> validator)
         {
-            var bufferWidth = Console.BufferWidth;
-            var bufferHeight = Console.BufferHeight;
+            var bufferWidth = Console.IsInputRedirected == true ? int.MaxValue : Console.BufferWidth;
+            var bufferHeight = Console.IsInputRedirected == true ? int.MaxValue : Console.BufferHeight;
             var pt1 = new TerminalPoint(0, Console.CursorTop);
             lock (LockedObject)
             {
@@ -1158,7 +1132,7 @@ namespace JSSoft.Library.Commands
 
         internal void Update()
         {
-            if (this.width != Console.BufferWidth)
+            if (Console.IsInputRedirected == false && this.width != Console.BufferWidth)
                 this.UpdateLayout(Console.BufferWidth, Console.BufferHeight);
             this.RenderStringQueue();
         }

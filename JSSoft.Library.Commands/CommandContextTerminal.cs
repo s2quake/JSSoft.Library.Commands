@@ -146,21 +146,21 @@ namespace JSSoft.Library.Commands
         {
             if (e is TargetInvocationException e1)
             {
-                this.OnExecuted(e1);
                 this.WriteException(e1.InnerException ?? e1);
+                this.OnExecuted(e1);
             }
             else if (e is AggregateException e2)
             {
-                this.OnExecuted(e2);
                 foreach (var item in e2.InnerExceptions)
                 {
                     this.WriteException(item);
                 }
+                this.OnExecuted(e2);
             }
             else
             {
-                this.OnExecuted(e);
                 this.WriteException(e);
+                this.OnExecuted(e);
             }
         }
 
