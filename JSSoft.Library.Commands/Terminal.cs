@@ -48,13 +48,13 @@ namespace JSSoft.Library.Commands
         private readonly ManualResetEvent eventSet = new(false);
         private readonly StringBuilder outputText = new();
 
-        private TerminalPoint pt1 = new(0, Console.CursorTop);
+        private TerminalPoint pt1 = new(0, Console.IsOutputRedirected == true ? 0 : Console.CursorTop);
         private TerminalPoint pt2;
         private TerminalPoint pt3;
         private TerminalPoint pt4;
         private TerminalPoint ot1;
-        private int width = Console.IsInputRedirected == true ? int.MaxValue : Console.BufferWidth;
-        private int height = Console.IsInputRedirected == true ? int.MaxValue : Console.BufferHeight;
+        private int width = Console.IsOutputRedirected == true ? int.MaxValue : Console.BufferWidth;
+        private int height = Console.IsOutputRedirected == true ? int.MaxValue : Console.BufferHeight;
         private int historyIndex;
         private int cursorIndex;
         private TerminalPrompt prompt = TerminalPrompt.Empty;
@@ -69,6 +69,7 @@ namespace JSSoft.Library.Commands
 
         static Terminal()
         {
+            //System.Diagnostics.Debugger.Launch();
             var platformName = GetPlatformName(Environment.OSVersion.Platform);
             var name = $"{typeof(Terminal).Namespace}.{platformName}.dat";
             using var stream = typeof(Terminal).Assembly.GetManifestResourceStream(name);
@@ -86,7 +87,7 @@ namespace JSSoft.Library.Commands
                 };
             }
 
-            if (IsWin32NT == true)
+            if (IsWin32NT == true && Console.IsOutputRedirected == false)
             {
                 TerminalWin32NT.Initialize();
             }
@@ -514,7 +515,7 @@ namespace JSSoft.Library.Commands
             var offsetY = this.pt4.Y - this.pt1.Y;
             var lt3 = this.pt3;
             var pre = command.Slice(0, cursorIndex);
-            var cursor = new TerminalPoint(Console.CursorLeft, Console.CursorTop);
+            var cursor = new TerminalPoint(Console.IsOutputRedirected == true ? 0 : Console.CursorLeft, Console.IsOutputRedirected == true ? 0 : Console.CursorTop);
             var pt1 = new TerminalPoint(0, cursor.Y - offsetY);
             var nt1 = PrevPosition(prompt + pre, bufferWidth, cursor);
             if (nt1.X == 0)
@@ -915,7 +916,8 @@ namespace JSSoft.Library.Commands
                 }
                 else
                 {
-                    return Console.ReadLine();
+                    if (Console.In.Peek() != -1)
+                        return Console.ReadLine();
                 }
             }
             return null;
@@ -985,9 +987,9 @@ namespace JSSoft.Library.Commands
 
         private void Initialize(string prompt, TerminalFlags flags, Func<string, bool> validator)
         {
-            var bufferWidth = Console.IsInputRedirected == true ? int.MaxValue : Console.BufferWidth;
-            var bufferHeight = Console.IsInputRedirected == true ? int.MaxValue : Console.BufferHeight;
-            var pt1 = new TerminalPoint(0, Console.CursorTop);
+            var bufferWidth = Console.IsOutputRedirected == true ? int.MaxValue : Console.BufferWidth;
+            var bufferHeight = Console.IsOutputRedirected == true ? int.MaxValue : Console.BufferHeight;
+            var pt1 = new TerminalPoint(0, Console.IsOutputRedirected == true ? this.pt1.Y : Console.CursorTop);
             lock (LockedObject)
             {
                 var isPassword = flags.HasFlag(TerminalFlags.IsPassword);
@@ -1029,7 +1031,7 @@ namespace JSSoft.Library.Commands
                     writer.WriteLine(escCursorInvisible);
                 }
                 this.outputText.AppendLine(this.promptText);
-                this.pt1 = new TerminalPoint(0, Console.CursorTop);
+                this.pt1 = new TerminalPoint(0, Console.IsOutputRedirected == true ? 0 : Console.CursorTop);
                 this.pt2 = this.pt1;
                 this.pt3 = this.pt1;
                 this.pt4 = this.pt1;
@@ -1132,7 +1134,7 @@ namespace JSSoft.Library.Commands
 
         internal void Update()
         {
-            if (Console.IsInputRedirected == false && this.width != Console.BufferWidth)
+            if (Console.IsOutputRedirected == false && this.width != Console.BufferWidth)
                 this.UpdateLayout(Console.BufferWidth, Console.BufferHeight);
             this.RenderStringQueue();
         }
@@ -1146,13 +1148,16 @@ namespace JSSoft.Library.Commands
         class Initializer : IDisposable
         {
             private readonly Terminal terminal;
-            private readonly bool isControlC = Console.TreatControlCAsInput;
+            private readonly bool isControlC = Console.IsInputRedirected != true && Console.TreatControlCAsInput;
 
             public Initializer(Terminal terminal)
             {
                 this.terminal = terminal;
-                this.isControlC = Console.TreatControlCAsInput;
-                Console.TreatControlCAsInput = true;
+                if (Console.IsInputRedirected == false)
+                {
+                    this.isControlC = Console.TreatControlCAsInput;
+                    Console.TreatControlCAsInput = true;
+                }
             }
 
             public string Prompt { get; set; } = string.Empty;
@@ -1185,7 +1190,10 @@ namespace JSSoft.Library.Commands
             public void Dispose()
             {
                 this.terminal.Release();
-                Console.TreatControlCAsInput = this.isControlC;
+                if (Console.IsInputRedirected == false)
+                {
+                    Console.TreatControlCAsInput = this.isControlC;
+                }
             }
         }
 

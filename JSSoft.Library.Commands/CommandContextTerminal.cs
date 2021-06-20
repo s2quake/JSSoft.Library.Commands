@@ -52,7 +52,6 @@ namespace JSSoft.Library.Commands
         {
             var consoleOut = Console.Out;
             var consoleError = Console.Error;
-            var consoleControlC = Console.TreatControlCAsInput;
 
             var commnadOut = this.CreateOut(Console.OutputEncoding);
             var commnadError = this.CreateError(Console.OutputEncoding);
@@ -106,11 +105,12 @@ namespace JSSoft.Library.Commands
 
         private async Task ExecuteAsync(string text)
         {
-            var consoleControlC = Console.TreatControlCAsInput;
+            var consoleControlC = Console.IsInputRedirected != true && Console.TreatControlCAsInput;
             var cancellation = new CancellationTokenSource();
             try
             {
-                Console.TreatControlCAsInput = false;
+                if (Console.IsInputRedirected == false)
+                    Console.TreatControlCAsInput = false;
                 Console.CancelKeyPress += ConsoleCancelEventHandler;
                 if (this.OnPreviewExecute(text) == true)
                     return;
@@ -130,7 +130,8 @@ namespace JSSoft.Library.Commands
             }
             finally
             {
-                Console.TreatControlCAsInput = consoleControlC;
+                if (Console.IsInputRedirected == false)
+                    Console.TreatControlCAsInput = consoleControlC;
                 Console.CancelKeyPress -= ConsoleCancelEventHandler;
                 cancellation = null;
             }
